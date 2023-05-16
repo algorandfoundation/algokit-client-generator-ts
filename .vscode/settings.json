@@ -3,7 +3,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
-    "source.organizeImports": true
+    "source.organizeImports": false
   },
   "jest.jestCommandLine": "npm run test --",
   "jest.rootPath": "src/algokit-client-generator-ts",
