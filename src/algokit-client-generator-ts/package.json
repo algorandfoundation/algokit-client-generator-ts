@@ -6,7 +6,7 @@
   "scripts": {
     "build": "run-s build:*",
     "build:0-clean": "rimraf dist coverage",
-    "build:1-schema-to-types": "cd src/schema && npx --yes json-schema-to-typescript application.schema.json > application.d.ts",
+    "TODO__________build:1-schema-to-types": "cd src/schema && npx --yes json-schema-to-typescript application.schema.json > application.d.ts",
     "build:2-lint": "eslint \"src/**/*.ts\" --max-warnings 0",
     "build:3-build": "tsc -p tsconfig.json",
     "build:4-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts",
@@ -45,6 +45,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "2.8.8",
     "rimraf": "^5.0.0",
+    "semantic-release": "^21.0.2",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
