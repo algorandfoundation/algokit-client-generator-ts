@@ -12,8 +12,6 @@
     "build:4-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts",
     "build:5-copy-bin": "copyfiles bin/* dist/bin -f",
     "build:6-copy-readme": "copyfiles ./README.md ./dist",
-    "dev": "run-s dev:*",
-    "dev:helloworld": "ts-node --transpile-only src/index.ts generate -a ../../examples/HelloWorldApp/application.json -o ../examples/HelloWorldApp/client.generated.ts",
     "format": "prettier --write .",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
