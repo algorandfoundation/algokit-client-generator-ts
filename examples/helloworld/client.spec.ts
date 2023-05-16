@@ -1,6 +1,6 @@
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { beforeEach, describe, expect, test } from '@jest/globals'
-import { HelloWorldAppClient } from './client-ts.generated'
+import { HelloWorldAppClient } from './client'
 
 describe('hello world typed client', () => {
   const localnet = algorandFixture()

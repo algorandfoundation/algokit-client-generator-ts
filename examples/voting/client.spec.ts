@@ -4,13 +4,12 @@ import * as ed from '@noble/ed25519'
 import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { VotingRoundAppClient } from './client-ts.generated'
-import {microAlgos} from "@algorandfoundation/algokit-utils";
-import * as algokit from '@algorandfoundation/algokit-utils'
+import { VotingRoundAppClient } from './client'
+import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 describe('voting typed client', () => {
   const localnet = algorandFixture({
-    testAccountFunding: microAlgos(100_000_000_000)
+    testAccountFunding: microAlgos(100_000_000_000),
   })
   beforeEach(localnet.beforeEach, 10_000)
 
@@ -29,8 +28,8 @@ describe('voting typed client', () => {
     )
   })
 
-  test('struct_mapping', async() => {
-    const { algod, testAccount,  } = localnet.context
+  test('struct_mapping', async () => {
+    const { algod, testAccount } = localnet.context
     const status = await algod.status().do()
     const lastRound = Number(status['last-round'])
     const round = await algod.block(lastRound).do()
@@ -47,7 +46,8 @@ describe('voting typed client', () => {
 
     console.log((await algod.accountInformation(testAccount.addr).do()).amount)
 
-    const createResult = await client.create( 'create',
+    const createResult = await client.create(
+      'create',
       {
         vote_id: `V${new Date().getTime().toString(32).toUpperCase()}`,
         metadata_ipfs_cid: 'cid',
@@ -61,29 +61,32 @@ describe('voting typed client', () => {
       { deletable: true, sendParams: { fee: (1_000 + 1_000 * 4).microAlgos() } },
     )
 
-
     expectType<void>(createResult.return)
-    const bootstrap = await client.bootstrap({
-      fund_min_bal_req: client.appClient.fundAppAccount({
-        amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8  * totalQuestionOptions)),
-        sendParams: {skipSending: true}
-      }),
-
-    }, {
-      boxes: ['V'],
-      sendParams: {fee: microAlgos(1_000 + 1_000 * 4)}
-    })
+    const bootstrap = await client.bootstrap(
+      {
+        fund_min_bal_req: client.appClient.fundAppAccount({
+          amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
+          sendParams: { skipSending: true },
+        }),
+      },
+      {
+        boxes: ['V'],
+        sendParams: { fee: microAlgos(1_000 + 1_000 * 4) },
+      },
+    )
 
     const decoded = algosdk.decodeAddress(testAccount.addr)
     const signature = await ed.sign(decoded.publicKey, privateKey)
-    const preconditionsResult = await client.getPreconditions({
-      signature,
-    }, {
-      sendParams: {fee: microAlgos(1_000 + 3 * 1_000)},
-      boxes: [testAccount]
-    })
+    const preconditionsResult = await client.getPreconditions(
+      {
+        signature,
+      },
+      {
+        sendParams: { fee: microAlgos(1_000 + 3 * 1_000) },
+        boxes: [testAccount],
+      },
+    )
     expect(preconditionsResult.return).toBeDefined()
-
   })
 
   test('global_state', async () => {
@@ -102,7 +105,8 @@ describe('voting typed client', () => {
     const privateKey = Buffer.from(ed.utils.randomPrivateKey())
     const publicKey = await ed.getPublicKey(privateKey)
 
-    const createResult = await client.create('create',
+    const createResult = await client.create(
+      'create',
       {
         vote_id: `V${new Date().getTime().toString(32).toUpperCase()}`,
         metadata_ipfs_cid: 'cid',

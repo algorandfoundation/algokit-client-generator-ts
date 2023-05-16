@@ -13,7 +13,6 @@ jobs:
   pull_request:
     uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
     with:
-      working-directory: ./src/algokit-client-generator-ts
       run-commit-lint: true
       run-build: true
       pre-test-script: |

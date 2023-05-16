@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, test } from '@jest/globals'
 import { OnApplicationComplete } from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { LifeCycleAppClient } from './client-ts.generated'
+import { LifeCycleAppClient } from './client'
 
-describe('hello world typed client', () => {
+describe('lifecycle typed client', () => {
   const localnet = algorandFixture()
   beforeEach(localnet.beforeEach, 10_000)
 
@@ -35,7 +35,7 @@ describe('hello world typed client', () => {
   })
 
   test('create_bare_optin', async () => {
-    const createResult = await client.create({ updatable: true , onCompleteAction: 'opt_in'})
+    const createResult = await client.create({ updatable: true, onCompleteAction: 'opt_in' })
     expectType<undefined>(createResult.return)
     expect(createResult.transaction.appOnComplete).toBe(OnApplicationComplete.OptInOC)
 
@@ -69,8 +69,7 @@ describe('hello world typed client', () => {
   })
 
   test('create_1arg', async () => {
-
-    const createResult = await client.create('create(string)string', {greeting: ''}, {updatable: true})
+    const createResult = await client.create('create(string)string', { greeting: '' }, { updatable: true })
     expectType<string | undefined>(createResult.return)
     expect(createResult.return).toBe('greeting_1')
 
@@ -80,7 +79,7 @@ describe('hello world typed client', () => {
   })
 
   test('deploy_create_1arg', async () => {
-    const createResult = await client.deploy({ createArgs:[ 'create(string)string', { greeting: 'greeting' } ]})
+    const createResult = await client.deploy({ createArgs: ['create(string)string', { greeting: 'greeting' }] })
     invariant(createResult.operationPerformed === 'create')
     // The return in deploy isn't strongly typed since it's too complex to do
     expect(createResult.return?.returnValue).toBe('greeting_1')
@@ -91,10 +90,7 @@ describe('hello world typed client', () => {
   })
 
   test('create_2arg', async () => {
-    const createResult = await client.create('create(string,uint32)void',
-      { greeting: 'Greetings', times: 2 },
-      { updatable: true },
-    )
+    const createResult = await client.create('create(string,uint32)void', { greeting: 'Greetings', times: 2 }, { updatable: true })
     expectType<void | undefined>(createResult.return)
 
     const response = await client.helloStringString(['2 Arg'])

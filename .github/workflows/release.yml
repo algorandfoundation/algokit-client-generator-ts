@@ -17,7 +17,6 @@ jobs:
     name: Continuous Integration
     uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
     with:
-      working-directory: ./src/algokit-client-generator-ts
       run-commit-lint: true
       pre-test-script: |
         pipx install algokit
@@ -29,7 +28,6 @@ jobs:
     needs:
       - ci
     with:
-      working-directory: ./src/algokit-client-generator-ts
       build-path: dist
       artifact-name: package
 
@@ -58,16 +56,14 @@ jobs:
       - name: Unzip package
         shell: bash
         run: |
-          mkdir -p src/algokit-client-generator-ts/dist
-          unzip -q "artifacts/package.zip" -d src/algokit-client-generator-ts/dist
+          mkdir -p dist
+          unzip -q "artifacts/package.zip" -d dist
 
       - name: Install dependencies to get semantic release components and plugins
         run: npm ci --ignore-scripts
-        working-directory: src/algokit-client-generator-ts
 
-      - name: "Semantic release"
+      - name: 'Semantic release'
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        working-directory: src/algokit-client-generator-ts

@@ -155,7 +155,7 @@ export type OnCompleteDelApp =  { onCompleteAction: 'delete_application' | OnApp
 export type OnCompleteUpdApp =  { onCompleteAction: 'update_application' | OnApplicationComplete.UpdateApplicationOC }
 
 export type LifeCycleApp = {
-  methods: 
+  methods:
     & Record<'hello(string)string', {
       argsObj: {
         name: string
@@ -295,7 +295,7 @@ export class LifeCycleAppClient {
    * @returns The deployment result
    */
   public deploy(params: LifeCycleAppDeployArgs & AppClientDeployCoreParams = {}) {
-    return this.appClient.deploy({ 
+    return this.appClient.deploy({
       ...params,
       createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,
       updateArgs: Array.isArray(params.updateArgs) ? mapBySignature(...params.updateArgs as [any, any, any]): params.updateArgs,

@@ -6,7 +6,6 @@
     "source.organizeImports": false
   },
   "jest.jestCommandLine": "npm run test --",
-  "jest.rootPath": "src/algokit-client-generator-ts",
   "jest.autoRun": {
     "watch": false,
     "onSave": "test-file",
