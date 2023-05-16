@@ -75,11 +75,15 @@ function* deployMethods(ctx: GeneratorContext): DocumentParts {
   yield ` */`
   yield `public deploy(params: ${name}DeployArgs & AppClientDeployCoreParams = {}) {`
   yield IncIndent
-  yield `return this.appClient.deploy({ `
+  yield `return this.appClient.deploy({`
   yield IncIndent
   yield `...params,`
-  if (callConfig.createMethods.length)
+  if (callConfig.createMethods.length) {
     yield `createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,`
+    yield `createOnCompleteAction: Array.isArray(params.createArgs) ? params.createArgs[2]?.onCompleteAction : ${
+      callConfig.createMethods.find((m) => m === BARE_CALL) ? `params.createArgs?.onCompleteAction` : `undefined`
+    },`
+  }
   if (callConfig.deleteMethods.length)
     yield `deleteArgs: Array.isArray(params.deleteArgs) ? mapBySignature(...params.deleteArgs as [any, any, any]): params.deleteArgs,`
   if (callConfig.updateMethods.length)
@@ -162,7 +166,7 @@ function* overloadedMethod(
     yield `if(typeof args[0] !== 'string') {`
     yield* indent(`return this.appClient.${verb}({...args[0], })`)
     yield '} else {'
-    yield* indent(`return this.appClient.${verb}({ ...mapBySignature(args[0] as any, args[1], args[2]), })`)
+    yield* indent(`return this.mapReturnValue(this.appClient.${verb}({ ...mapBySignature(args[0] as any, args[1], args[2]), }))`)
     yield '}'
     yield DecIndentAndCloseBlock
     yield NewLine

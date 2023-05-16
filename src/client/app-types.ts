@@ -8,7 +8,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   const { app, methodSignatureToUniqueName, name } = ctx
   yield `export type ${name} = {`
   yield IncIndent
-  yield 'methods: '
+  yield 'methods:'
   yield IncIndent
   for (const method of app.contract.methods) {
     const methodSig = algokit.getABIMethodSignature(method)

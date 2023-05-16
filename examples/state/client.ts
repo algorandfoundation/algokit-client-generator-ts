@@ -318,7 +318,7 @@ export type OnCompleteDelApp =  { onCompleteAction: 'delete_application' | OnApp
 export type OnCompleteUpdApp =  { onCompleteAction: 'update_application' | OnApplicationComplete.UpdateApplicationOC }
 
 export type TestingApp = {
-  methods: 
+  methods:
     & Record<'call_abi(string)string' | 'call_abi', {
       argsObj: {
         value: string
@@ -583,9 +583,10 @@ export class TestingAppClient {
    * @returns The deployment result
    */
   public deploy(params: TestingAppDeployArgs & AppClientDeployCoreParams = {}) {
-    return this.appClient.deploy({ 
+    return this.appClient.deploy({
       ...params,
       createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,
+      createOnCompleteAction: Array.isArray(params.createArgs) ? params.createArgs[2]?.onCompleteAction : params.createArgs?.onCompleteAction,
       deleteArgs: Array.isArray(params.deleteArgs) ? mapBySignature(...params.deleteArgs as [any, any, any]): params.deleteArgs,
       updateArgs: Array.isArray(params.updateArgs) ? mapBySignature(...params.updateArgs as [any, any, any]): params.updateArgs,
     })
@@ -609,7 +610,7 @@ export class TestingAppClient {
     if(typeof args[0] !== 'string') {
       return this.appClient.create({...args[0], })
     } else {
-      return this.appClient.create({ ...mapBySignature(args[0] as any, args[1], args[2]), })
+      return this.mapReturnValue(this.appClient.create({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
     }
   }
 
@@ -631,7 +632,7 @@ export class TestingAppClient {
     if(typeof args[0] !== 'string') {
       return this.appClient.update({...args[0], })
     } else {
-      return this.appClient.update({ ...mapBySignature(args[0] as any, args[1], args[2]), })
+      return this.mapReturnValue(this.appClient.update({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
     }
   }
 
@@ -653,7 +654,7 @@ export class TestingAppClient {
     if(typeof args[0] !== 'string') {
       return this.appClient.delete({...args[0], })
     } else {
-      return this.appClient.delete({ ...mapBySignature(args[0] as any, args[1], args[2]), })
+      return this.mapReturnValue(this.appClient.delete({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
     }
   }
 
@@ -669,7 +670,7 @@ export class TestingAppClient {
     if(typeof args[0] !== 'string') {
       return this.appClient.optIn({...args[0], })
     } else {
-      return this.appClient.optIn({ ...mapBySignature(args[0] as any, args[1], args[2]), })
+      return this.mapReturnValue(this.appClient.optIn({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
     }
   }
 

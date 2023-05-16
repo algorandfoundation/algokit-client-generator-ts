@@ -279,7 +279,7 @@ export type OnCompleteDelApp =  { onCompleteAction: 'delete_application' | OnApp
 export type OnCompleteUpdApp =  { onCompleteAction: 'update_application' | OnApplicationComplete.UpdateApplicationOC }
 
 export type VotingRoundApp = {
-  methods: 
+  methods:
     & Record<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void' | 'create', {
       argsObj: {
         vote_id: string
@@ -510,9 +510,10 @@ export class VotingRoundAppClient {
    * @returns The deployment result
    */
   public deploy(params: VotingRoundAppDeployArgs & AppClientDeployCoreParams = {}) {
-    return this.appClient.deploy({ 
+    return this.appClient.deploy({
       ...params,
       createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,
+      createOnCompleteAction: Array.isArray(params.createArgs) ? params.createArgs[2]?.onCompleteAction : undefined,
       deleteArgs: Array.isArray(params.deleteArgs) ? mapBySignature(...params.deleteArgs as [any, any, any]): params.deleteArgs,
     })
   }
@@ -529,7 +530,7 @@ export class VotingRoundAppClient {
     if(typeof args[0] !== 'string') {
       return this.appClient.create({...args[0], })
     } else {
-      return this.appClient.create({ ...mapBySignature(args[0] as any, args[1], args[2]), })
+      return this.mapReturnValue(this.appClient.create({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
     }
   }
 
@@ -543,7 +544,7 @@ export class VotingRoundAppClient {
     if(typeof args[0] !== 'string') {
       return this.appClient.delete({...args[0], })
     } else {
-      return this.appClient.delete({ ...mapBySignature(args[0] as any, args[1], args[2]), })
+      return this.mapReturnValue(this.appClient.delete({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
     }
   }
 

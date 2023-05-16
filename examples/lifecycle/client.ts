@@ -298,6 +298,7 @@ export class LifeCycleAppClient {
     return this.appClient.deploy({
       ...params,
       createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,
+      createOnCompleteAction: Array.isArray(params.createArgs) ? params.createArgs[2]?.onCompleteAction : params.createArgs?.onCompleteAction,
       updateArgs: Array.isArray(params.updateArgs) ? mapBySignature(...params.updateArgs as [any, any, any]): params.updateArgs,
     })
   }
@@ -328,7 +329,7 @@ export class LifeCycleAppClient {
     if(typeof args[0] !== 'string') {
       return this.appClient.create({...args[0], })
     } else {
-      return this.appClient.create({ ...mapBySignature(args[0] as any, args[1], args[2]), })
+      return this.mapReturnValue(this.appClient.create({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
     }
   }
 
@@ -342,7 +343,7 @@ export class LifeCycleAppClient {
     if(typeof args[0] !== 'string') {
       return this.appClient.update({...args[0], })
     } else {
-      return this.appClient.update({ ...mapBySignature(args[0] as any, args[1], args[2]), })
+      return this.mapReturnValue(this.appClient.update({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
     }
   }
 
