@@ -4,8 +4,10 @@ import * as ed from '@noble/ed25519'
 import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { VotingRoundAppClient } from './client'
+import { MethodArgs, VotingRoundAppClient } from './client'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
+import { CoreAppCallArgs, AppCallTransactionResultOfType } from '@algorandfoundation/algokit-utils/types/app'
+import { AppClientCallCoreParams } from '@algorandfoundation/algokit-utils/types/app-client'
 
 describe('voting typed client', () => {
   const localnet = algorandFixture({

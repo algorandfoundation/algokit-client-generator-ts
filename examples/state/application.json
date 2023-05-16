@@ -126,7 +126,7 @@
         }
     },
     "contract": {
-        "name": "TestingApp",
+        "name": "StateApp",
         "methods": [
             {
                 "name": "call_abi",

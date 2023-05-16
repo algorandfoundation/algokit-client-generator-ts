@@ -151,7 +151,7 @@ export const APP_SPEC: AppSpec = {
     }
   },
   "contract": {
-    "name": "TestingApp",
+    "name": "StateApp",
     "methods": [
       {
         "name": "call_abi",
@@ -317,7 +317,7 @@ export type OnCompleteCloseOut =  { onCompleteAction: 'close_out' | OnApplicatio
 export type OnCompleteDelApp =  { onCompleteAction: 'delete_application' | OnApplicationComplete.DeleteApplicationOC }
 export type OnCompleteUpdApp =  { onCompleteAction: 'update_application' | OnApplicationComplete.UpdateApplicationOC }
 
-export type TestingApp = {
+export type StateApp = {
   methods:
     & Record<'call_abi(string)string' | 'call_abi', {
       argsObj: {
@@ -413,27 +413,27 @@ export type TestingApp = {
 }
 export type IntegerState = { asBigInt(): bigint, asNumber(): number }
 export type BinaryState = { asByteArray(): Uint8Array, asString(): string }
-export type MethodArgs<TSignature extends keyof TestingApp['methods']> = TestingApp['methods'][TSignature]['argsObj' | 'argsTuple']
-export type MethodReturn<TSignature extends keyof TestingApp['methods']> = TestingApp['methods'][TSignature]['returns']
-type MapperArgs<TSignature extends keyof TestingApp['methods']> = TSignature extends any ? [signature: TSignature, args: MethodArgs<TSignature>, params: AppClientCallCoreParams & CoreAppCallArgs ] : never
+export type MethodArgs<TSignature extends keyof StateApp['methods']> = StateApp['methods'][TSignature]['argsObj' | 'argsTuple']
+export type MethodReturn<TSignature extends keyof StateApp['methods']> = StateApp['methods'][TSignature]['returns']
+type MapperArgs<TSignature extends keyof StateApp['methods']> = TSignature extends any ? [signature: TSignature, args: MethodArgs<TSignature>, params: AppClientCallCoreParams & CoreAppCallArgs ] : never
 
-export type TestingAppCreateArgs =
+export type StateAppCreateArgs =
   | (BareCallArgs & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn))
   | ['create_abi(string)string', MethodArgs<'create_abi(string)string'>, (CoreAppCallArgs & (OnCompleteNoOp))?]
-export type TestingAppUpdateArgs =
+export type StateAppUpdateArgs =
   | BareCallArgs & CoreAppCallArgs
   | ['update_abi(string)string', MethodArgs<'update_abi(string)string'>, CoreAppCallArgs]
-export type TestingAppDeleteArgs =
+export type StateAppDeleteArgs =
   | BareCallArgs & CoreAppCallArgs
   | ['delete_abi(string)string', MethodArgs<'delete_abi(string)string'>, CoreAppCallArgs]
-export type TestingAppDeployArgs = {
+export type StateAppDeployArgs = {
   deployTimeParams?: TealTemplateParams
-  createArgs?: TestingAppCreateArgs
-  updateArgs?: TestingAppUpdateArgs
-  deleteArgs?: TestingAppDeleteArgs
+  createArgs?: StateAppCreateArgs
+  updateArgs?: StateAppUpdateArgs
+  deleteArgs?: StateAppDeleteArgs
 }
 
-export abstract class TestingAppCallFactory {
+export abstract class StateAppCallFactory {
   static callAbi(args: MethodArgs<'call_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return {
       method: 'call_abi(string)string' as const,
@@ -505,48 +505,48 @@ export abstract class TestingAppCallFactory {
     }
   }
 }
-function mapBySignature(...[signature, args, params]: MapperArgs<keyof TestingApp['methods']>) {
+function mapBySignature(...[signature, args, params]: MapperArgs<keyof StateApp['methods']>) {
   switch(signature) {
     case 'call_abi(string)string':
     case 'call_abi':
-      return TestingAppCallFactory.callAbi(args, params)
+      return StateAppCallFactory.callAbi(args, params)
     case 'call_abi_txn(pay,string)string':
     case 'call_abi_txn':
-      return TestingAppCallFactory.callAbiTxn(args, params)
+      return StateAppCallFactory.callAbiTxn(args, params)
     case 'set_global(uint64,uint64,string,byte[4])void':
     case 'set_global':
-      return TestingAppCallFactory.setGlobal(args, params)
+      return StateAppCallFactory.setGlobal(args, params)
     case 'set_local(uint64,uint64,string,byte[4])void':
     case 'set_local':
-      return TestingAppCallFactory.setLocal(args, params)
+      return StateAppCallFactory.setLocal(args, params)
     case 'set_box(byte[4],string)void':
     case 'set_box':
-      return TestingAppCallFactory.setBox(args, params)
+      return StateAppCallFactory.setBox(args, params)
     case 'error()void':
     case 'error':
-      return TestingAppCallFactory.error(args, params)
+      return StateAppCallFactory.error(args, params)
     case 'create_abi(string)string':
     case 'create_abi':
-      return TestingAppCallFactory.createAbi(args, params)
+      return StateAppCallFactory.createAbi(args, params)
     case 'update_abi(string)string':
     case 'update_abi':
-      return TestingAppCallFactory.updateAbi(args, params)
+      return StateAppCallFactory.updateAbi(args, params)
     case 'delete_abi(string)string':
     case 'delete_abi':
-      return TestingAppCallFactory.deleteAbi(args, params)
+      return StateAppCallFactory.deleteAbi(args, params)
     case 'opt_in()void':
     case 'opt_in':
-      return TestingAppCallFactory.optIn(args, params)
+      return StateAppCallFactory.optIn(args, params)
   }
 }
 
-/** A client to make calls to the TestingApp smart contract */
-export class TestingAppClient {
+/** A client to make calls to the StateApp smart contract */
+export class StateAppClient {
   /** The underlying `ApplicationClient` for when you want to have more flexibility */
   public readonly appClient: ApplicationClient
 
   /**
-   * Creates a new instance of `TestingAppClient`
+   * Creates a new instance of `StateAppClient`
    * @param appDetails The details to identify the app to deploy
    * @param algod An algod client instance
    */
@@ -573,16 +573,16 @@ export class TestingAppClient {
    * @param request A request object containing the method signature, args, and any other relevant properties
    * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type
    */
-  public call<TSignature extends keyof TestingApp['methods']>(request: CallRequest<TSignature, any>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
+  public call<TSignature extends keyof StateApp['methods']>(request: CallRequest<TSignature, any>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
     return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(request), returnValueFormatter)
   }
 
   /**
-   * Idempotently deploys the TestingApp smart contract.
+   * Idempotently deploys the StateApp smart contract.
    * @param params The arguments for the contract calls and any additional parameters for the call
    * @returns The deployment result
    */
-  public deploy(params: TestingAppDeployArgs & AppClientDeployCoreParams = {}) {
+  public deploy(params: StateAppDeployArgs & AppClientDeployCoreParams = {}) {
     return this.appClient.deploy({
       ...params,
       createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,
@@ -593,13 +593,13 @@ export class TestingAppClient {
   }
 
   /**
-   * Creates a new instance of the TestingApp smart contract using a bare call.
+   * Creates a new instance of the StateApp smart contract using a bare call.
    * @param args The arguments for the bare call
    * @returns The create result
    */
   public create(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn)): Promise<AppCallTransactionResultOfType<undefined>>;
   /**
-   * Creates a new instance of the TestingApp smart contract using the create_abi(string)string ABI method.
+   * Creates a new instance of the StateApp smart contract using the create_abi(string)string ABI method.
    * @param method The ABI method to use
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
@@ -615,13 +615,13 @@ export class TestingAppClient {
   }
 
   /**
-   * Updates an existing instance of the TestingApp smart contract using a bare call.
+   * Updates an existing instance of the StateApp smart contract using a bare call.
    * @param args The arguments for the bare call
    * @returns The update result
    */
   public update(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs): Promise<AppCallTransactionResultOfType<undefined>>;
   /**
-   * Updates an existing instance of the TestingApp smart contract using the update_abi(string)string ABI method.
+   * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
    * @param method The ABI method to use
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
@@ -637,13 +637,13 @@ export class TestingAppClient {
   }
 
   /**
-   * Deletes an existing instance of the TestingApp smart contract using a bare call.
+   * Deletes an existing instance of the StateApp smart contract using a bare call.
    * @param args The arguments for the bare call
    * @returns The delete result
    */
   public delete(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): Promise<AppCallTransactionResultOfType<undefined>>;
   /**
-   * Deletes an existing instance of the TestingApp smart contract using the delete_abi(string)string ABI method.
+   * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
    * @param method The ABI method to use
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
@@ -659,7 +659,7 @@ export class TestingAppClient {
   }
 
   /**
-   * Opts the user into an existing instance of the TestingApp smart contract using the opt_in()void ABI method.
+   * Opts the user into an existing instance of the StateApp smart contract using the opt_in()void ABI method.
    * @param method The ABI method to use
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
@@ -675,7 +675,7 @@ export class TestingAppClient {
   }
 
   /**
-   * Makes a clear_state call to an existing instance of the TestingApp smart contract.
+   * Makes a clear_state call to an existing instance of the StateApp smart contract.
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The clear_state result
@@ -692,7 +692,7 @@ export class TestingAppClient {
    * @returns The result of the call
    */
   public callAbi(args: MethodArgs<'call_abi(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-    return this.call(TestingAppCallFactory.callAbi(args, params))
+    return this.call(StateAppCallFactory.callAbi(args, params))
   }
 
   /**
@@ -703,7 +703,7 @@ export class TestingAppClient {
    * @returns The result of the call
    */
   public callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-    return this.call(TestingAppCallFactory.callAbiTxn(args, params))
+    return this.call(StateAppCallFactory.callAbiTxn(args, params))
   }
 
   /**
@@ -714,7 +714,7 @@ export class TestingAppClient {
    * @returns The result of the call
    */
   public setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-    return this.call(TestingAppCallFactory.setGlobal(args, params))
+    return this.call(StateAppCallFactory.setGlobal(args, params))
   }
 
   /**
@@ -725,7 +725,7 @@ export class TestingAppClient {
    * @returns The result of the call
    */
   public setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-    return this.call(TestingAppCallFactory.setLocal(args, params))
+    return this.call(StateAppCallFactory.setLocal(args, params))
   }
 
   /**
@@ -736,7 +736,7 @@ export class TestingAppClient {
    * @returns The result of the call
    */
   public setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-    return this.call(TestingAppCallFactory.setBox(args, params))
+    return this.call(StateAppCallFactory.setBox(args, params))
   }
 
   /**
@@ -747,7 +747,7 @@ export class TestingAppClient {
    * @returns The result of the call
    */
   public error(args: MethodArgs<'error()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-    return this.call(TestingAppCallFactory.error(args, params))
+    return this.call(StateAppCallFactory.error(args, params))
   }
 
   private static getBinaryState(state: AppState, key: string): BinaryState | undefined {
@@ -783,23 +783,23 @@ export class TestingAppClient {
   /**
    * Returns the application's global state wrapped in a strongly typed accessor with options to format the stored value
    */
-  public async getGlobalState(): Promise<TestingApp['state']['global']> {
+  public async getGlobalState(): Promise<StateApp['state']['global']> {
     const state = await this.appClient.getGlobalState()
     return {
       get bytes1() {
-        return TestingAppClient.getBinaryState(state, 'bytes1')
+        return StateAppClient.getBinaryState(state, 'bytes1')
       },
       get bytes2() {
-        return TestingAppClient.getBinaryState(state, 'bytes2')
+        return StateAppClient.getBinaryState(state, 'bytes2')
       },
       get int1() {
-        return TestingAppClient.getIntegerState(state, 'int1')
+        return StateAppClient.getIntegerState(state, 'int1')
       },
       get int2() {
-        return TestingAppClient.getIntegerState(state, 'int2')
+        return StateAppClient.getIntegerState(state, 'int2')
       },
       get value() {
-        return TestingAppClient.getIntegerState(state, 'value')
+        return StateAppClient.getIntegerState(state, 'value')
       },
     }
   }
@@ -808,20 +808,20 @@ export class TestingAppClient {
    * Returns the application's local state for a given account wrapped in a strongly typed accessor with options to format the stored value
    * @param account The address of the account for which to read local state from.
    */
-  public async getLocalState(account: string | SendTransactionFrom): Promise<TestingApp['state']['local']> {
+  public async getLocalState(account: string | SendTransactionFrom): Promise<StateApp['state']['local']> {
     const state = await this.appClient.getLocalState(account)
     return {
       get local_bytes1() {
-        return TestingAppClient.getBinaryState(state, 'local_bytes1')
+        return StateAppClient.getBinaryState(state, 'local_bytes1')
       },
       get local_bytes2() {
-        return TestingAppClient.getBinaryState(state, 'local_bytes2')
+        return StateAppClient.getBinaryState(state, 'local_bytes2')
       },
       get local_int1() {
-        return TestingAppClient.getIntegerState(state, 'local_int1')
+        return StateAppClient.getIntegerState(state, 'local_int1')
       },
       get local_int2() {
-        return TestingAppClient.getIntegerState(state, 'local_int2')
+        return StateAppClient.getIntegerState(state, 'local_int2')
       },
     }
   }
