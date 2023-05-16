@@ -1,0 +1,1 @@
+# algokit-client-generator
