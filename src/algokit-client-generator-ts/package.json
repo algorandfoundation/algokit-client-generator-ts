@@ -1,0 +1,113 @@
+{
+  "name": "@algorandfoundation/algokit-client-generator",
+  "version": "1.0.0",
+  "description": "Generates a TypeScript client for interacting with, and deploying ARC-0032 smart contracts on the Algorand Blockchain.",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "run-s build:*",
+    "build:0-clean": "rimraf dist coverage",
+    "build:1-schema-to-types": "cd src/schema && npx --yes json-schema-to-typescript application.schema.json > application.d.ts",
+    "build:2-lint": "eslint \"src/**/*.ts\" --max-warnings 0",
+    "build:3-build": "tsc -p tsconfig.json",
+    "build:4-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts",
+    "build:5-copy-bin": "copyfiles bin/* dist/bin -f",
+    "build:6-copy-readme": "copyfiles ./README.md ./dist",
+    "dev": "run-s dev:*",
+    "dev:helloworld": "ts-node --transpile-only src/index.ts generate -a ../../examples/HelloWorldApp/application.json -o ../examples/HelloWorldApp/client.generated.ts",
+    "format": "prettier --write .",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "test": "jest --coverage",
+    "test:ci": "TEST_ENV=ci jest --coverage"
+  },
+  "bin": {
+    "@algorandfoundation/algokit-client-generator": "bin/cli.js",
+    "algokitgen": "bin/cli.js"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@algorandfoundation/algokit-utils": "^1.1.1",
+    "chalk": "^4.1.2",
+    "change-case": "^4.1.2",
+    "commander": "^10.0.1",
+    "jsonschema": "^1.4.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
+    "@makerx/eslint-config": "3.0.0",
+    "@makerx/prettier-config": "2.0.0",
+    "@makerx/ts-config": "1.0.1",
+    "@types/jest": "^29.5.1",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "8.22.0",
+    "jest": "^29.5.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "2.8.8",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "release": {
+    "branches": [
+      {
+        "name": "main",
+        "prerelease": "beta"
+      },
+      {
+        "name": "release"
+      }
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "conventionalcommits",
+          "releaseRules": [
+            {
+              "type": "build",
+              "release": "patch"
+            },
+            {
+              "type": "chore",
+              "release": "patch"
+            }
+          ]
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "conventionalcommits",
+          "presetConfig": {
+            "types": [
+              {
+                "type": "feat",
+                "section": "Features"
+              },
+              {
+                "type": "fix",
+                "section": "Bug Fixes"
+              },
+              {
+                "type": "build",
+                "section": "Dependencies and Other Build Updates",
+                "hidden": false
+              }
+            ]
+          }
+        }
+      ],
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "dist"
+        }
+      ],
+      "@semantic-release/github"
+    ]
+  }
+}
