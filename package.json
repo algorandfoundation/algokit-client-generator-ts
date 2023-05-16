@@ -1,8 +1,9 @@
 {
   "name": "@algorandfoundation/algokit-client-generator",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Generates a TypeScript client for interacting with, and deploying ARC-0032 smart contracts on the Algorand Blockchain.",
   "main": "src/index.js",
+  "private": false,
   "scripts": {
     "build": "run-s build:*",
     "build:0-clean": "rimraf dist coverage",
