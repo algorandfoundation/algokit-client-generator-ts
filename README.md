@@ -64,9 +64,7 @@ In the `examples` folder there is a series of example contracts along with their
 If you want to make changes to any of the smart contract examples and re-generate the ARC-0032 application.json files then change the corresponding `examples/{contract}/{contract}.py` file and then run:
 
 ```
-poetry shell
-cd examples
-python -m build
+poetry run python -m examples
 ```
 
 Or in Visual Studio Code you can use the default build task (Ctrl+Shift+B).
