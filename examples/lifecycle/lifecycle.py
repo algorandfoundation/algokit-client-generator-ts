@@ -7,7 +7,7 @@ from beaker.lib.iter import Iterate
 from beaker.lib.strings import Itoa
 from pyteal.ast import CallConfig, MethodConfig
 
-from smart_contracts.helpers.deployment_standard import (
+from examples.deployment_standard import (
     deploy_time_immutability_control,
 )
 

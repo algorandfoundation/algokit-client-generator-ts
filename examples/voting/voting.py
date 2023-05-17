@@ -7,7 +7,7 @@ import beaker.lib.storage as storage
 import pyteal as pt
 from pyteal.types import require_type
 
-from smart_contracts.helpers.deployment_standard import deploy_time_permanence_control
+from examples.deployment_standard import deploy_time_permanence_control
 
 VoteIndexBytes: TypeAlias = Literal[8]
 VoteIndex: TypeAlias = pt.abi.Uint8
