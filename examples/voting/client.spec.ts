@@ -4,10 +4,8 @@ import * as ed from '@noble/ed25519'
 import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { MethodArgs, VotingRoundAppClient } from './client'
+import { VotingRoundAppClient } from './client'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
-import { CoreAppCallArgs, AppCallTransactionResultOfType } from '@algorandfoundation/algokit-utils/types/app'
-import { AppClientCallCoreParams } from '@algorandfoundation/algokit-utils/types/app-client'
 
 describe('voting typed client', () => {
   const localnet = algorandFixture({
@@ -46,10 +44,7 @@ describe('voting typed client', () => {
     const privateKey = Buffer.from(ed.utils.randomPrivateKey())
     const publicKey = await ed.getPublicKey(privateKey)
 
-    console.log((await algod.accountInformation(testAccount.addr).do()).amount)
-
-    const createResult = await client.create(
-      'create',
+    const createResult = await client.create.create(
       {
         vote_id: `V${new Date().getTime().toString(32).toUpperCase()}`,
         metadata_ipfs_cid: 'cid',
@@ -64,7 +59,7 @@ describe('voting typed client', () => {
     )
 
     expectType<void>(createResult.return)
-    const bootstrap = await client.bootstrap(
+    await client.bootstrap(
       {
         fund_min_bal_req: client.appClient.fundAppAccount({
           amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
@@ -107,8 +102,7 @@ describe('voting typed client', () => {
     const privateKey = Buffer.from(ed.utils.randomPrivateKey())
     const publicKey = await ed.getPublicKey(privateKey)
 
-    const createResult = await client.create(
-      'create',
+    const createResult = await client.create.create(
       {
         vote_id: `V${new Date().getTime().toString(32).toUpperCase()}`,
         metadata_ipfs_cid: 'cid',

@@ -46,7 +46,6 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield `export type BinaryState = { asByteArray(): Uint8Array, asString(): string }`
   yield `export type MethodArgs<TSignature extends keyof ${name}['methods']> = ${name}['methods'][TSignature]['argsObj' | 'argsTuple']`
   yield `export type MethodReturn<TSignature extends keyof ${name}['methods']> = ${name}['methods'][TSignature]['returns']`
-  yield `type MapperArgs<TSignature extends keyof ${name}['methods']> = TSignature extends any ? [signature: TSignature, args: MethodArgs<TSignature>, params: AppClientCallCoreParams & CoreAppCallArgs ] : never`
   yield NewLine
 }
 

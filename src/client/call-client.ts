@@ -52,21 +52,21 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield ` * @param request A request object containing the method signature, args, and any other relevant properties`
   yield ` * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type`
   yield ` */`
-  yield `public call<TSignature extends keyof ${name}['methods']>(request: CallRequest<TSignature, any>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {`
+  yield `public call<TSignature extends keyof ${name}['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {`
   yield IncIndent
-  yield `return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(request), returnValueFormatter)`
+  yield `return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(typedCallParams), returnValueFormatter)`
   yield DecIndentAndCloseBlock
   yield NewLine
 
-  yield* deployMethods(ctx)
+  yield* opMethods(ctx)
   yield* clearState(ctx)
-  yield* clientCallMethods(ctx)
+  yield* noopMethods(ctx)
   yield* getStateMethods(ctx)
 
   yield DecIndentAndCloseBlock
 }
 
-function* deployMethods(ctx: GeneratorContext): DocumentParts {
+function* opMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig, name } = ctx
   yield `/**`
   yield ` * Idempotently deploys the ${app.contract.name} smart contract.`
@@ -75,50 +75,40 @@ function* deployMethods(ctx: GeneratorContext): DocumentParts {
   yield ` */`
   yield `public deploy(params: ${name}DeployArgs & AppClientDeployCoreParams = {}) {`
   yield IncIndent
+
+  if (callConfig.createMethods.length) yield `const createArgs = params.createCall?.(${name}CallFactory.create)`
+  if (callConfig.updateMethods.length) yield `const updateArgs = params.updateCall?.(${name}CallFactory.update)`
+  if (callConfig.deleteMethods.length) yield `const deleteArgs = params.deleteCall?.(${name}CallFactory.delete)`
+
   yield `return this.appClient.deploy({`
   yield IncIndent
   yield `...params,`
+  if (callConfig.updateMethods.length) yield 'updateArgs,'
+  if (callConfig.deleteMethods.length) yield 'deleteArgs,'
   if (callConfig.createMethods.length) {
-    yield `createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,`
-    yield `createOnCompleteAction: Array.isArray(params.createArgs) ? params.createArgs[2]?.onCompleteAction : ${
-      callConfig.createMethods.find((m) => m === BARE_CALL) ? `params.createArgs?.onCompleteAction` : `undefined`
-    },`
+    yield 'createArgs,'
+    yield `createOnCompleteAction: createArgs?.onCompleteAction,`
   }
-  if (callConfig.deleteMethods.length)
-    yield `deleteArgs: Array.isArray(params.deleteArgs) ? mapBySignature(...params.deleteArgs as [any, any, any]): params.deleteArgs,`
-  if (callConfig.updateMethods.length)
-    yield `updateArgs: Array.isArray(params.updateArgs) ? mapBySignature(...params.updateArgs as [any, any, any]): params.updateArgs,`
   yield DecIndent
   yield `})`
   yield DecIndentAndCloseBlock
   yield NewLine
-  yield* overloadedMethod(
-    ctx,
-    `Creates a new instance of the ${app.contract.name} smart contract`,
-    callConfig.createMethods,
-    'create',
-    true,
-  )
-  yield* overloadedMethod(
+  yield* operationMethod(ctx, `Creates a new instance of the ${app.contract.name} smart contract`, callConfig.createMethods, 'create', true)
+  yield* operationMethod(
     ctx,
     `Updates an existing instance of the ${app.contract.name} smart contract`,
     callConfig.updateMethods,
     'update',
     true,
   )
-  yield* overloadedMethod(
-    ctx,
-    `Deletes an existing instance of the ${app.contract.name} smart contract`,
-    callConfig.deleteMethods,
-    'delete',
-  )
-  yield* overloadedMethod(
+  yield* operationMethod(ctx, `Deletes an existing instance of the ${app.contract.name} smart contract`, callConfig.deleteMethods, 'delete')
+  yield* operationMethod(
     ctx,
     `Opts the user into an existing instance of the ${app.contract.name} smart contract`,
     callConfig.optInMethods,
     'optIn',
   )
-  yield* overloadedMethod(
+  yield* operationMethod(
     ctx,
     `Makes a close out call to an existing instance of the ${app.contract.name} smart contract`,
     callConfig.closeOutMethods,
@@ -126,14 +116,22 @@ function* deployMethods(ctx: GeneratorContext): DocumentParts {
   )
 }
 
-function* overloadedMethod(
-  { app, methodSignatureToUniqueName }: GeneratorContext,
+function* operationMethod(
+  { app, methodSignatureToUniqueName, name }: GeneratorContext,
   description: string,
   methods: MethodList,
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
   includeCompilation?: boolean,
 ): DocumentParts {
   if (methods.length) {
+    yield `/**`
+    yield ` * Gets available ${verb} methods`
+    yield ` */`
+    yield `public get ${verb}() {`
+    yield IncIndent
+    yield `const $this = this`
+    yield `return {`
+    yield IncIndent
     for (const methodSig of methods) {
       const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
       if (methodSig === BARE_CALL) {
@@ -142,32 +140,36 @@ function* overloadedMethod(
         yield ` * @param args The arguments for the bare call`
         yield ` * @returns The ${verb} result`
         yield ` */`
-        yield `public ${verb}(args: BareCallArgs & AppClientCallCoreParams ${
+        yield `bare(args: BareCallArgs & AppClientCallCoreParams ${
           includeCompilation ? '& AppClientCompilationParams ' : ''
-        }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}): Promise<AppCallTransactionResultOfType<undefined>>;`
+        }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}${
+          onComplete?.isOptional !== false ? ' = {}' : ''
+        }): Promise<AppCallTransactionResultOfType<undefined>> {`
+        yield* indent(`return $this.appClient.${verb}(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>`)
+        yield '},'
       } else {
         const uniqueName = methodSignatureToUniqueName[methodSig]
         yield `/**`
         yield ` * ${description} using the ${methodSig} ABI method.`
-        yield ` * @param method The ABI method to use`
         yield ` * @param args The arguments for the contract call`
         yield ` * @param params Any additional parameters for the call`
         yield ` * @returns The ${verb} result`
         yield ` */`
-        yield `public ${verb}(method: '${methodSig}'${
-          methodSig === uniqueName ? '' : ` | '${uniqueName}'`
-        }, args: MethodArgs<'${methodSig}'>, params?: AppClientCallCoreParams ${includeCompilation ? '& AppClientCompilationParams ' : ''}${
-          onComplete?.type ? ` & ${onComplete.type}` : ''
-        }): Promise<AppCallTransactionResultOfType<MethodReturn<'${methodSig}'>>>;`
+
+        yield `${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params: AppClientCallCoreParams${
+          includeCompilation ? ' & AppClientCompilationParams' : ''
+        }${onComplete?.type ? ` & ${onComplete.type}` : ''}${
+          onComplete?.isOptional !== false ? ' = {}' : ''
+        }): Promise<AppCallTransactionResultOfType<MethodReturn<'${methodSig}'>>> {`
+        yield* indent(
+          `return $this.mapReturnValue($this.appClient.${verb}(${name}CallFactory.${verb}.${makeSafeMethodIdentifier(
+            uniqueName,
+          )}(args, params)))`,
+        )
+        yield '},'
       }
     }
-    yield `public ${verb}(...args: any[]): Promise<AppCallTransactionResultOfType<unknown>> {`
-    yield IncIndent
-    yield `if(typeof args[0] !== 'string') {`
-    yield* indent(`return this.appClient.${verb}({...args[0], })`)
-    yield '} else {'
-    yield* indent(`return this.mapReturnValue(this.appClient.${verb}({ ...mapBySignature(args[0] as any, args[1], args[2]), }))`)
-    yield '}'
+    yield DecIndentAndCloseBlock
     yield DecIndentAndCloseBlock
     yield NewLine
   }
@@ -187,7 +189,7 @@ function* clearState({ app }: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-function* clientCallMethods({ app, name, callConfig, methodSignatureToUniqueName }: GeneratorContext): DocumentParts {
+function* noopMethods({ app, name, callConfig, methodSignatureToUniqueName }: GeneratorContext): DocumentParts {
   for (const method of app.contract.methods) {
     const methodSignature = algokit.getABIMethodSignature(method)
     const methodName = makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
@@ -204,7 +206,7 @@ function* clientCallMethods({ app, name, callConfig, methodSignatureToUniqueName
     yield ` * @param params Any additional parameters for the call`
     yield ` * @returns The result of the call`
     yield ` */`
-    yield `public ${methodName}(args: MethodArgs<'${methodSignature}'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {`
+    yield `public ${methodName}(args: MethodArgs<'${methodSignature}'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {`
     yield IncIndent
     const outputTypeName = app.hints?.[methodSignature]?.structs?.output?.name
     yield `return this.call(${name}CallFactory.${methodName}(args, params)${
