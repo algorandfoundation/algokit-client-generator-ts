@@ -1,5 +1,5 @@
 import { ContractMethod } from '../schema/application'
-import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, NewLine } from '../output/writer'
+import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
 import { isSafeVariableIdentifier, makeSafeMethodIdentifier, makeSafePropertyIdentifier } from '../util/sanitization'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { GeneratorContext } from './generator-context'
@@ -7,6 +7,7 @@ import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
 
 export function* callFactory(ctx: GeneratorContext): DocumentParts {
+  yield* jsDoc('Exposes methods for constructing all available smart contract calls')
   yield `export abstract class ${ctx.name}CallFactory {`
   yield IncIndent
 
@@ -24,24 +25,25 @@ export function* callFactory(ctx: GeneratorContext): DocumentParts {
 function* opMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig } = ctx
 
-  yield* operationMethod(ctx, `Creates a new instance of the ${app.contract.name} smart contract`, callConfig.createMethods, 'create', true)
   yield* operationMethod(
     ctx,
-    `Updates an existing instance of the ${app.contract.name} smart contract`,
+    `Constructs a create call for the ${app.contract.name} smart contract`,
+    callConfig.createMethods,
+    'create',
+    true,
+  )
+  yield* operationMethod(
+    ctx,
+    `Constructs an update call for the ${app.contract.name} smart contract`,
     callConfig.updateMethods,
     'update',
     true,
   )
-  yield* operationMethod(ctx, `Deletes an existing instance of the ${app.contract.name} smart contract`, callConfig.deleteMethods, 'delete')
+  yield* operationMethod(ctx, `Constructs a delete call for the ${app.contract.name} smart contract`, callConfig.deleteMethods, 'delete')
+  yield* operationMethod(ctx, `Constructs an opt in call for the ${app.contract.name} smart contract`, callConfig.optInMethods, 'optIn')
   yield* operationMethod(
     ctx,
-    `Opts the user into an existing instance of the ${app.contract.name} smart contract`,
-    callConfig.optInMethods,
-    'optIn',
-  )
-  yield* operationMethod(
-    ctx,
-    `Makes a close out call to an existing instance of the ${app.contract.name} smart contract`,
+    `Constructs a close out call for the ${app.contract.name} smart contract`,
     callConfig.closeOutMethods,
     'closeOut',
   )
@@ -55,9 +57,7 @@ function* operationMethod(
   includeCompilation?: boolean,
 ): DocumentParts {
   if (methods.length) {
-    yield `/**`
-    yield ` * Gets available ${verb} call factories`
-    yield ` */`
+    yield* jsDoc(`Gets available ${verb} call factories`)
     yield `static get ${verb}() {`
     yield IncIndent
     yield `return {`
@@ -65,6 +65,13 @@ function* operationMethod(
     for (const methodSig of methods) {
       const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
       if (methodSig === BARE_CALL) {
+        yield* jsDoc({
+          description: `${description} using a bare call`,
+          params: {
+            params: `Any parameters for the call`,
+          },
+          returns: `A TypedCallParams object for the call`,
+        })
         yield* factoryMethod({
           isNested: true,
           name: 'bare',
@@ -75,6 +82,14 @@ function* operationMethod(
       } else {
         const method = app.contract.methods.find((m) => algokit.getABIMethodSignature(m) === methodSig)!
         const uniqueName = methodSignatureToUniqueName[methodSig]
+        yield* jsDoc({
+          description: `${description} using the ${methodSig} ABI method`,
+          params: {
+            args: `Any args for the contract call`,
+            params: `Any additional parameters for the call`,
+          },
+          returns: `A TypedCallParams object for the call`,
+        })
         yield* factoryMethod({
           isNested: true,
           name: makeSafeMethodIdentifier(uniqueName),
@@ -96,6 +111,15 @@ function* callFactoryMethod({ methodSignatureToUniqueName, callConfig }: Generat
   const methodSignature = algokit.getABIMethodSignature(method)
   if (!callConfig.callMethods.includes(methodSignature)) return
 
+  yield* jsDoc({
+    description: `Constructs a no op call for the ${methodSignature} ABI method`,
+    abiDescription: method.desc,
+    params: {
+      args: `Any args for the contract call`,
+      params: `Any additional parameters for the call`,
+    },
+    returns: `A TypedCallParams object for the call`,
+  })
   yield* factoryMethod({
     isNested: false,
     name: makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature]),

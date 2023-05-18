@@ -1,13 +1,15 @@
 import { GeneratorContext } from './generator-context'
-import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, inline, NewLine } from '../output/writer'
+import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, inline, jsDoc, NewLine } from '../output/writer'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { getEquivalentType } from './helpers/get-equivalent-type'
 import { makeSafePropertyIdentifier, makeSafeTypeIdentifier, makeSafeVariableIdentifier } from '../util/sanitization'
 
 export function* appTypes(ctx: GeneratorContext): DocumentParts {
   const { app, methodSignatureToUniqueName, name } = ctx
+  yield* jsDoc(`Defines the types of available calls and state of the ${name} smart contract.`)
   yield `export type ${name} = {`
   yield IncIndent
+  yield* jsDoc('Maps method signatures / names to their argument and return types.')
   yield 'methods:'
   yield IncIndent
   for (const method of app.contract.methods) {
@@ -37,14 +39,26 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     yield '}>'
   }
   yield DecIndent
-
   yield* appState(ctx)
-
   yield DecIndentAndCloseBlock
+
+  yield* jsDoc(
+    'Defines an object containing all relevant parameters for a single call to the contract. Where TSignature is undefined, a' +
+      ' bare call is made',
+  )
+  yield `export type TypedCallParams<TSignature extends keyof ${name}['methods'] | undefined> = {`
+  yield IncIndent
+  yield 'method: TSignature'
+  yield 'methodArgs: TSignature extends undefined ? undefined : ABIAppCallArg[]'
+  yield DecIndent
+  yield '} & AppClientCallCoreParams & CoreAppCallArgs'
+  yield* jsDoc('Defines the arguments required for a bare call')
+  yield `export type BareCallArgs = Omit<RawAppCallArgs, keyof CoreAppCallArgs>`
+
   yield* structs(ctx)
-  yield `export type IntegerState = { asBigInt(): bigint, asNumber(): number }`
-  yield `export type BinaryState = { asByteArray(): Uint8Array, asString(): string }`
+  yield* jsDoc(`Maps a method signature from the ${name} smart contract to the method's arguments in either tuple of struct form`)
   yield `export type MethodArgs<TSignature extends keyof ${name}['methods']> = ${name}['methods'][TSignature]['argsObj' | 'argsTuple']`
+  yield* jsDoc(`Maps a method signature from the ${name} smart contract to the method's return type`)
   yield `export type MethodReturn<TSignature extends keyof ${name}['methods']> = ${name}['methods'][TSignature]['returns']`
   yield NewLine
 }
@@ -54,12 +68,14 @@ function* structs({ app }: GeneratorContext): DocumentParts {
   for (const methodHint of Object.values(app.hints)) {
     if (methodHint.structs === undefined) continue
     for (const struct of Object.values(methodHint.structs)) {
+      yield* jsDoc(`Represents a ${struct.name} result as a struct`)
       yield `export type ${makeSafeTypeIdentifier(struct.name)} = {`
       yield IncIndent
       for (const [key, type] of struct.elements) {
         yield `${makeSafePropertyIdentifier(key)}: ${getEquivalentType(type, 'output')}`
       }
       yield DecIndentAndCloseBlock
+      yield* jsDoc(`Converts the tuple representation of a ${struct.name} to the struct representation`)
       yield* inline(
         `export function ${makeSafeTypeIdentifier(struct.name)}(`,
         `[${struct.elements.map(([key]) => makeSafeVariableIdentifier(key)).join(', ')}]: `,
@@ -83,6 +99,7 @@ function* appState({ app }: GeneratorContext): DocumentParts {
   const hasLocal = app.schema.local?.declared && Object.keys(app.schema.local.declared).length
   const hasGlobal = app.schema.global?.declared && Object.keys(app.schema.global.declared).length
   if (hasLocal || hasGlobal) {
+    yield* jsDoc('Defines the shape of the global and local state of the application.')
     yield 'state: {'
     yield IncIndent
     if (hasGlobal) {
@@ -90,9 +107,7 @@ function* appState({ app }: GeneratorContext): DocumentParts {
       yield IncIndent
       for (const prop of Object.values(app.schema.global!.declared!)) {
         if (prop.descr) {
-          yield '/**'
-          yield ` * ${prop.descr}`
-          yield ' */'
+          yield* jsDoc(prop.descr)
         }
 
         yield `'${prop.key}'?: ${prop.type === 'uint64' ? 'IntegerState' : 'BinaryState'}`
@@ -104,9 +119,7 @@ function* appState({ app }: GeneratorContext): DocumentParts {
       yield IncIndent
       for (const prop of Object.values(app.schema.local!.declared!)) {
         if (prop.descr) {
-          yield '/**'
-          yield ` * ${prop.descr}`
-          yield ' */'
+          yield* jsDoc(prop.descr)
         }
 
         yield `'${prop.key}'?: ${prop.type === 'uint64' ? 'IntegerState' : 'BinaryState'}`
