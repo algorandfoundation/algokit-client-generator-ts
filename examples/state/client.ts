@@ -11,6 +11,7 @@ import {
   RawAppCallArgs,
   AppState,
   TealTemplateParams,
+  ABIAppCallArg,
 } from '@algorandfoundation/algokit-utils/types/app'
 import {
   AppClientCallArgs,
@@ -306,9 +307,9 @@ export const APP_SPEC: AppSpec = {
   }
 }
 
-export type CallRequest<TSignature extends string, TArgs = undefined> = {
+export type TypedCallParams<TSignature extends string | undefined> = {
   method: TSignature
-  methodArgs: TArgs
+  methodArgs: TSignature extends undefined ? undefined : ABIAppCallArg[]
 } & AppClientCallCoreParams & CoreAppCallArgs
 export type BareCallArgs = Omit<RawAppCallArgs, keyof CoreAppCallArgs>
 export type OnCompleteNoOp =  { onCompleteAction?: 'no_op' | OnApplicationComplete.NoOpOC }
@@ -415,128 +416,149 @@ export type IntegerState = { asBigInt(): bigint, asNumber(): number }
 export type BinaryState = { asByteArray(): Uint8Array, asString(): string }
 export type MethodArgs<TSignature extends keyof StateApp['methods']> = StateApp['methods'][TSignature]['argsObj' | 'argsTuple']
 export type MethodReturn<TSignature extends keyof StateApp['methods']> = StateApp['methods'][TSignature]['returns']
-type MapperArgs<TSignature extends keyof StateApp['methods']> = TSignature extends any ? [signature: TSignature, args: MethodArgs<TSignature>, params: AppClientCallCoreParams & CoreAppCallArgs ] : never
 
-export type StateAppCreateArgs =
-  | (BareCallArgs & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn))
-  | ['create_abi(string)string', MethodArgs<'create_abi(string)string'>, (CoreAppCallArgs & (OnCompleteNoOp))?]
-export type StateAppUpdateArgs =
-  | BareCallArgs & CoreAppCallArgs
-  | ['update_abi(string)string', MethodArgs<'update_abi(string)string'>, CoreAppCallArgs]
-export type StateAppDeleteArgs =
-  | BareCallArgs & CoreAppCallArgs
-  | ['delete_abi(string)string', MethodArgs<'delete_abi(string)string'>, CoreAppCallArgs]
+export type StateAppCreateCalls = (typeof StateAppCallFactory)['create']
+export type StateAppCreateCallArgs =
+  | (TypedCallParams<undefined> & (OnCompleteNoOp | OnCompleteOptIn))
+  | (TypedCallParams<'create_abi(string)string'> & (OnCompleteNoOp))
+export type StateAppUpdateCalls = (typeof StateAppCallFactory)['update']
+export type StateAppUpdateCallArgs =
+  | TypedCallParams<undefined>
+  | (TypedCallParams<'update_abi(string)string'> & CoreAppCallArgs)
+export type StateAppDeleteCalls = (typeof StateAppCallFactory)['delete']
+export type StateAppDeleteCallArgs =
+  | TypedCallParams<undefined>
+  | (TypedCallParams<'delete_abi(string)string'> & CoreAppCallArgs)
 export type StateAppDeployArgs = {
   deployTimeParams?: TealTemplateParams
-  createArgs?: StateAppCreateArgs
-  updateArgs?: StateAppUpdateArgs
-  deleteArgs?: StateAppDeleteArgs
+  createCall?: (callFactory: StateAppCreateCalls) => StateAppCreateCallArgs
+  updateCall?: (callFactory: StateAppUpdateCalls) => StateAppUpdateCallArgs
+  deleteCall?: (callFactory: StateAppDeleteCalls) => StateAppDeleteCallArgs
 }
 
 export abstract class StateAppCallFactory {
-  static callAbi(args: MethodArgs<'call_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  /**
+   * Gets available create call factories
+   */
+  static get create() {
+    return {
+      bare(params: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs & AppClientCompilationParams & (OnCompleteNoOp | OnCompleteOptIn) = {}) {
+        return {
+          method: undefined,
+          methodArgs: undefined,
+          ...params,
+        }
+      },
+      createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs & AppClientCompilationParams & (OnCompleteNoOp) = {}) {
+        return {
+          method: 'create_abi(string)string' as const,
+          methodArgs: Array.isArray(args) ? args : [args.input],
+          ...params,
+        }
+      },
+    }
+  }
+
+  /**
+   * Gets available update call factories
+   */
+  static get update() {
+    return {
+      bare(params: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs & AppClientCompilationParams = {}) {
+        return {
+          method: undefined,
+          methodArgs: undefined,
+          ...params,
+        }
+      },
+      updateAbi(args: MethodArgs<'update_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs & AppClientCompilationParams = {}) {
+        return {
+          method: 'update_abi(string)string' as const,
+          methodArgs: Array.isArray(args) ? args : [args.input],
+          ...params,
+        }
+      },
+    }
+  }
+
+  /**
+   * Gets available delete call factories
+   */
+  static get delete() {
+    return {
+      bare(params: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}) {
+        return {
+          method: undefined,
+          methodArgs: undefined,
+          ...params,
+        }
+      },
+      deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+        return {
+          method: 'delete_abi(string)string' as const,
+          methodArgs: Array.isArray(args) ? args : [args.input],
+          ...params,
+        }
+      },
+    }
+  }
+
+  /**
+   * Gets available optIn call factories
+   */
+  static get optIn() {
+    return {
+      optIn(args: MethodArgs<'opt_in()void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+        return {
+          method: 'opt_in()void' as const,
+          methodArgs: Array.isArray(args) ? args : [],
+          ...params,
+        }
+      },
+    }
+  }
+
+  static callAbi(args: MethodArgs<'call_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'call_abi(string)string' as const,
       methodArgs: Array.isArray(args) ? args : [args.value],
       ...params,
     }
   }
-  static callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  static callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'call_abi_txn(pay,string)string' as const,
       methodArgs: Array.isArray(args) ? args : [args.txn, args.value],
       ...params,
     }
   }
-  static setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  static setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'set_global(uint64,uint64,string,byte[4])void' as const,
       methodArgs: Array.isArray(args) ? args : [args.int1, args.int2, args.bytes1, args.bytes2],
       ...params,
     }
   }
-  static setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  static setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'set_local(uint64,uint64,string,byte[4])void' as const,
       methodArgs: Array.isArray(args) ? args : [args.int1, args.int2, args.bytes1, args.bytes2],
       ...params,
     }
   }
-  static setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  static setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'set_box(byte[4],string)void' as const,
       methodArgs: Array.isArray(args) ? args : [args.name, args.value],
       ...params,
     }
   }
-  static error(args: MethodArgs<'error()void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  static error(args: MethodArgs<'error()void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'error()void' as const,
       methodArgs: Array.isArray(args) ? args : [],
       ...params,
     }
-  }
-  static createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return {
-      method: 'create_abi(string)string' as const,
-      methodArgs: Array.isArray(args) ? args : [args.input],
-      ...params,
-    }
-  }
-  static updateAbi(args: MethodArgs<'update_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return {
-      method: 'update_abi(string)string' as const,
-      methodArgs: Array.isArray(args) ? args : [args.input],
-      ...params,
-    }
-  }
-  static deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return {
-      method: 'delete_abi(string)string' as const,
-      methodArgs: Array.isArray(args) ? args : [args.input],
-      ...params,
-    }
-  }
-  static optIn(args: MethodArgs<'opt_in()void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return {
-      method: 'opt_in()void' as const,
-      methodArgs: Array.isArray(args) ? args : [],
-      ...params,
-    }
-  }
-}
-function mapBySignature(...[signature, args, params]: MapperArgs<keyof StateApp['methods']>) {
-  switch(signature) {
-    case 'call_abi(string)string':
-    case 'call_abi':
-      return StateAppCallFactory.callAbi(args, params)
-    case 'call_abi_txn(pay,string)string':
-    case 'call_abi_txn':
-      return StateAppCallFactory.callAbiTxn(args, params)
-    case 'set_global(uint64,uint64,string,byte[4])void':
-    case 'set_global':
-      return StateAppCallFactory.setGlobal(args, params)
-    case 'set_local(uint64,uint64,string,byte[4])void':
-    case 'set_local':
-      return StateAppCallFactory.setLocal(args, params)
-    case 'set_box(byte[4],string)void':
-    case 'set_box':
-      return StateAppCallFactory.setBox(args, params)
-    case 'error()void':
-    case 'error':
-      return StateAppCallFactory.error(args, params)
-    case 'create_abi(string)string':
-    case 'create_abi':
-      return StateAppCallFactory.createAbi(args, params)
-    case 'update_abi(string)string':
-    case 'update_abi':
-      return StateAppCallFactory.updateAbi(args, params)
-    case 'delete_abi(string)string':
-    case 'delete_abi':
-      return StateAppCallFactory.deleteAbi(args, params)
-    case 'opt_in()void':
-    case 'opt_in':
-      return StateAppCallFactory.optIn(args, params)
   }
 }
 
@@ -573,8 +595,8 @@ export class StateAppClient {
    * @param request A request object containing the method signature, args, and any other relevant properties
    * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type
    */
-  public call<TSignature extends keyof StateApp['methods']>(request: CallRequest<TSignature, any>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
-    return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(request), returnValueFormatter)
+  public call<TSignature extends keyof StateApp['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
+    return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(typedCallParams), returnValueFormatter)
   }
 
   /**
@@ -583,94 +605,111 @@ export class StateAppClient {
    * @returns The deployment result
    */
   public deploy(params: StateAppDeployArgs & AppClientDeployCoreParams = {}) {
+    const createArgs = params.createCall?.(StateAppCallFactory.create)
+    const updateArgs = params.updateCall?.(StateAppCallFactory.update)
+    const deleteArgs = params.deleteCall?.(StateAppCallFactory.delete)
     return this.appClient.deploy({
       ...params,
-      createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,
-      createOnCompleteAction: Array.isArray(params.createArgs) ? params.createArgs[2]?.onCompleteAction : params.createArgs?.onCompleteAction,
-      deleteArgs: Array.isArray(params.deleteArgs) ? mapBySignature(...params.deleteArgs as [any, any, any]): params.deleteArgs,
-      updateArgs: Array.isArray(params.updateArgs) ? mapBySignature(...params.updateArgs as [any, any, any]): params.updateArgs,
+      updateArgs,
+      deleteArgs,
+      createArgs,
+      createOnCompleteAction: createArgs?.onCompleteAction,
     })
   }
 
   /**
-   * Creates a new instance of the StateApp smart contract using a bare call.
-   * @param args The arguments for the bare call
-   * @returns The create result
+   * Gets available create methods
    */
-  public create(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn)): Promise<AppCallTransactionResultOfType<undefined>>;
-  /**
-   * Creates a new instance of the StateApp smart contract using the create_abi(string)string ABI method.
-   * @param method The ABI method to use
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The create result
-   */
-  public create(method: 'create_abi(string)string' | 'create_abi', args: MethodArgs<'create_abi(string)string'>, params?: AppClientCallCoreParams & AppClientCompilationParams  & (OnCompleteNoOp)): Promise<AppCallTransactionResultOfType<MethodReturn<'create_abi(string)string'>>>;
-  public create(...args: any[]): Promise<AppCallTransactionResultOfType<unknown>> {
-    if(typeof args[0] !== 'string') {
-      return this.appClient.create({...args[0], })
-    } else {
-      return this.mapReturnValue(this.appClient.create({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
+  public get create() {
+    const $this = this
+    return {
+      /**
+       * Creates a new instance of the StateApp smart contract using a bare call.
+       * @param args The arguments for the bare call
+       * @returns The create result
+       */
+      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn) = {}): Promise<AppCallTransactionResultOfType<undefined>> {
+        return $this.appClient.create(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      },
+      /**
+       * Creates a new instance of the StateApp smart contract using the create_abi(string)string ABI method.
+       * @param args The arguments for the contract call
+       * @param params Any additional parameters for the call
+       * @returns The create result
+       */
+      createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create_abi(string)string'>>> {
+        return $this.mapReturnValue($this.appClient.create(StateAppCallFactory.create.createAbi(args, params)))
+      },
     }
   }
 
   /**
-   * Updates an existing instance of the StateApp smart contract using a bare call.
-   * @param args The arguments for the bare call
-   * @returns The update result
+   * Gets available update methods
    */
-  public update(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs): Promise<AppCallTransactionResultOfType<undefined>>;
-  /**
-   * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
-   * @param method The ABI method to use
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The update result
-   */
-  public update(method: 'update_abi(string)string' | 'update_abi', args: MethodArgs<'update_abi(string)string'>, params?: AppClientCallCoreParams & AppClientCompilationParams ): Promise<AppCallTransactionResultOfType<MethodReturn<'update_abi(string)string'>>>;
-  public update(...args: any[]): Promise<AppCallTransactionResultOfType<unknown>> {
-    if(typeof args[0] !== 'string') {
-      return this.appClient.update({...args[0], })
-    } else {
-      return this.mapReturnValue(this.appClient.update({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
+  public get update() {
+    const $this = this
+    return {
+      /**
+       * Updates an existing instance of the StateApp smart contract using a bare call.
+       * @param args The arguments for the bare call
+       * @returns The update result
+       */
+      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs = {}): Promise<AppCallTransactionResultOfType<undefined>> {
+        return $this.appClient.update(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      },
+      /**
+       * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
+       * @param args The arguments for the contract call
+       * @param params Any additional parameters for the call
+       * @returns The update result
+       */
+      updateAbi(args: MethodArgs<'update_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'update_abi(string)string'>>> {
+        return $this.mapReturnValue($this.appClient.update(StateAppCallFactory.update.updateAbi(args, params)))
+      },
     }
   }
 
   /**
-   * Deletes an existing instance of the StateApp smart contract using a bare call.
-   * @param args The arguments for the bare call
-   * @returns The delete result
+   * Gets available delete methods
    */
-  public delete(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): Promise<AppCallTransactionResultOfType<undefined>>;
-  /**
-   * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
-   * @param method The ABI method to use
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The delete result
-   */
-  public delete(method: 'delete_abi(string)string' | 'delete_abi', args: MethodArgs<'delete_abi(string)string'>, params?: AppClientCallCoreParams ): Promise<AppCallTransactionResultOfType<MethodReturn<'delete_abi(string)string'>>>;
-  public delete(...args: any[]): Promise<AppCallTransactionResultOfType<unknown>> {
-    if(typeof args[0] !== 'string') {
-      return this.appClient.delete({...args[0], })
-    } else {
-      return this.mapReturnValue(this.appClient.delete({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
+  public get delete() {
+    const $this = this
+    return {
+      /**
+       * Deletes an existing instance of the StateApp smart contract using a bare call.
+       * @param args The arguments for the bare call
+       * @returns The delete result
+       */
+      bare(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}): Promise<AppCallTransactionResultOfType<undefined>> {
+        return $this.appClient.delete(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      },
+      /**
+       * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
+       * @param args The arguments for the contract call
+       * @param params Any additional parameters for the call
+       * @returns The delete result
+       */
+      deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params: AppClientCallCoreParams = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'delete_abi(string)string'>>> {
+        return $this.mapReturnValue($this.appClient.delete(StateAppCallFactory.delete.deleteAbi(args, params)))
+      },
     }
   }
 
   /**
-   * Opts the user into an existing instance of the StateApp smart contract using the opt_in()void ABI method.
-   * @param method The ABI method to use
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The optIn result
+   * Gets available optIn methods
    */
-  public optIn(method: 'opt_in()void' | 'opt_in', args: MethodArgs<'opt_in()void'>, params?: AppClientCallCoreParams ): Promise<AppCallTransactionResultOfType<MethodReturn<'opt_in()void'>>>;
-  public optIn(...args: any[]): Promise<AppCallTransactionResultOfType<unknown>> {
-    if(typeof args[0] !== 'string') {
-      return this.appClient.optIn({...args[0], })
-    } else {
-      return this.mapReturnValue(this.appClient.optIn({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
+  public get optIn() {
+    const $this = this
+    return {
+      /**
+       * Opts the user into an existing instance of the StateApp smart contract using the opt_in()void ABI method.
+       * @param args The arguments for the contract call
+       * @param params Any additional parameters for the call
+       * @returns The optIn result
+       */
+      optIn(args: MethodArgs<'opt_in()void'>, params: AppClientCallCoreParams = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'opt_in()void'>>> {
+        return $this.mapReturnValue($this.appClient.optIn(StateAppCallFactory.optIn.optIn(args, params)))
+      },
     }
   }
 
@@ -691,7 +730,7 @@ export class StateAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public callAbi(args: MethodArgs<'call_abi(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public callAbi(args: MethodArgs<'call_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(StateAppCallFactory.callAbi(args, params))
   }
 
@@ -702,7 +741,7 @@ export class StateAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(StateAppCallFactory.callAbiTxn(args, params))
   }
 
@@ -713,7 +752,7 @@ export class StateAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(StateAppCallFactory.setGlobal(args, params))
   }
 
@@ -724,7 +763,7 @@ export class StateAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(StateAppCallFactory.setLocal(args, params))
   }
 
@@ -735,7 +774,7 @@ export class StateAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(StateAppCallFactory.setBox(args, params))
   }
 
@@ -746,7 +785,7 @@ export class StateAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public error(args: MethodArgs<'error()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public error(args: MethodArgs<'error()void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(StateAppCallFactory.error(args, params))
   }
 

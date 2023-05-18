@@ -9,6 +9,7 @@ import {
   RawAppCallArgs,
   AppState,
   TealTemplateParams,
+  ABIAppCallArg,
 } from '@algorandfoundation/algokit-utils/types/app'
 import {
   AppClientCallArgs,

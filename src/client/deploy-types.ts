@@ -24,39 +24,44 @@ export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentPar
   const name = makeSafeTypeIdentifier(app.contract.name)
 
   if (callConfig.createMethods.length > 0) {
-    yield `export type ${name}CreateArgs =`
+    yield `export type ${name}CreateCalls = (typeof ${name}CallFactory)['create']`
+    yield `export type ${name}CreateCallArgs =`
     yield IncIndent
     for (const method of callConfig.createMethods) {
       const onComplete = getCreateOnCompleteOptions(method, app)
       if (method === BARE_CALL) {
-        yield `| (BareCallArgs & CoreAppCallArgs & ${onComplete.type})`
+        yield `| (TypedCallParams<undefined> & ${onComplete.type})`
       } else {
-        yield `| ['${method}', MethodArgs<'${method}'>, (CoreAppCallArgs & ${onComplete.type})${onComplete.isOptional ? '?' : ''}]`
+        yield `| (TypedCallParams<'${method}'> & ${onComplete.type})`
       }
     }
     yield DecIndent
   }
   if (callConfig.updateMethods.length > 0) {
-    yield `export type ${name}UpdateArgs =`
+    yield `export type ${name}UpdateCalls = (typeof ${name}CallFactory)['update']`
+
+    yield `export type ${name}UpdateCallArgs =`
     yield IncIndent
     for (const method of callConfig.updateMethods) {
       if (method === BARE_CALL) {
-        yield `| BareCallArgs & CoreAppCallArgs`
+        yield `| TypedCallParams<undefined>`
       } else {
-        yield `| ['${method}', MethodArgs<'${method}'>, CoreAppCallArgs]`
+        yield `| (TypedCallParams<'${method}'> & CoreAppCallArgs)`
       }
     }
     yield DecIndent
   }
 
   if (callConfig.deleteMethods.length > 0) {
-    yield `export type ${name}DeleteArgs =`
+    yield `export type ${name}DeleteCalls = (typeof ${name}CallFactory)['delete']`
+
+    yield `export type ${name}DeleteCallArgs =`
     yield IncIndent
     for (const method of callConfig.deleteMethods) {
       if (method === BARE_CALL) {
-        yield `| BareCallArgs & CoreAppCallArgs`
+        yield `| TypedCallParams<undefined>`
       } else {
-        yield `| ['${method}', MethodArgs<'${method}'>, CoreAppCallArgs]`
+        yield `| (TypedCallParams<'${method}'> & CoreAppCallArgs)`
       }
     }
     yield DecIndent
@@ -65,9 +70,9 @@ export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentPar
   yield `export type ${name}DeployArgs = {`
   yield IncIndent
   yield `deployTimeParams?: TealTemplateParams`
-  if (callConfig.createMethods.length) yield `createArgs?: ${name}CreateArgs`
-  if (callConfig.updateMethods.length) yield `updateArgs?: ${name}UpdateArgs`
-  if (callConfig.deleteMethods.length) yield `deleteArgs?: ${name}DeleteArgs`
+  if (callConfig.createMethods.length) yield `createCall?: (callFactory: ${name}CreateCalls) => ${name}CreateCallArgs`
+  if (callConfig.updateMethods.length) yield `updateCall?: (callFactory: ${name}UpdateCalls) => ${name}UpdateCallArgs`
+  if (callConfig.deleteMethods.length) yield `deleteCall?: (callFactory: ${name}DeleteCalls) => ${name}DeleteCallArgs`
   yield DecIndentAndCloseBlock
   yield NewLine
 }

@@ -1,12 +1,12 @@
 {
   "extends": "@makerx/ts-config",
   "compilerOptions": {
-    "noEmit": true,
     "target": "ES2019",
+    "outDir": "./dist/",
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["src/**/*.ts", "examples/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

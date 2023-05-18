@@ -11,6 +11,7 @@ import {
   RawAppCallArgs,
   AppState,
   TealTemplateParams,
+  ABIAppCallArg,
 } from '@algorandfoundation/algokit-utils/types/app'
 import {
   AppClientCallArgs,
@@ -267,9 +268,9 @@ export const APP_SPEC: AppSpec = {
   }
 }
 
-export type CallRequest<TSignature extends string, TArgs = undefined> = {
+export type TypedCallParams<TSignature extends string | undefined> = {
   method: TSignature
-  methodArgs: TArgs
+  methodArgs: TSignature extends undefined ? undefined : ABIAppCallArg[]
 } & AppClientCallCoreParams & CoreAppCallArgs
 export type BareCallArgs = Omit<RawAppCallArgs, keyof CoreAppCallArgs>
 export type OnCompleteNoOp =  { onCompleteAction?: 'no_op' | OnApplicationComplete.NoOpOC }
@@ -398,72 +399,77 @@ export type IntegerState = { asBigInt(): bigint, asNumber(): number }
 export type BinaryState = { asByteArray(): Uint8Array, asString(): string }
 export type MethodArgs<TSignature extends keyof VotingRoundApp['methods']> = VotingRoundApp['methods'][TSignature]['argsObj' | 'argsTuple']
 export type MethodReturn<TSignature extends keyof VotingRoundApp['methods']> = VotingRoundApp['methods'][TSignature]['returns']
-type MapperArgs<TSignature extends keyof VotingRoundApp['methods']> = TSignature extends any ? [signature: TSignature, args: MethodArgs<TSignature>, params: AppClientCallCoreParams & CoreAppCallArgs ] : never
 
-export type VotingRoundAppCreateArgs =
-  | ['create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void', MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, (CoreAppCallArgs & (OnCompleteNoOp))?]
-export type VotingRoundAppDeleteArgs =
-  | BareCallArgs & CoreAppCallArgs
+export type VotingRoundAppCreateCalls = (typeof VotingRoundAppCallFactory)['create']
+export type VotingRoundAppCreateCallArgs =
+  | (TypedCallParams<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'> & (OnCompleteNoOp))
+export type VotingRoundAppDeleteCalls = (typeof VotingRoundAppCallFactory)['delete']
+export type VotingRoundAppDeleteCallArgs =
+  | TypedCallParams<undefined>
 export type VotingRoundAppDeployArgs = {
   deployTimeParams?: TealTemplateParams
-  createArgs?: VotingRoundAppCreateArgs
-  deleteArgs?: VotingRoundAppDeleteArgs
+  createCall?: (callFactory: VotingRoundAppCreateCalls) => VotingRoundAppCreateCallArgs
+  deleteCall?: (callFactory: VotingRoundAppDeleteCalls) => VotingRoundAppDeleteCallArgs
 }
 
 export abstract class VotingRoundAppCallFactory {
-  static create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  /**
+   * Gets available create call factories
+   */
+  static get create() {
     return {
-      method: 'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void' as const,
-      methodArgs: Array.isArray(args) ? args : [args.vote_id, args.snapshot_public_key, args.metadata_ipfs_cid, args.start_time, args.end_time, args.option_counts, args.quorum, args.nft_image_url],
-      ...params,
+      create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & CoreAppCallArgs & AppClientCompilationParams & (OnCompleteNoOp) = {}) {
+        return {
+          method: 'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void' as const,
+          methodArgs: Array.isArray(args) ? args : [args.vote_id, args.snapshot_public_key, args.metadata_ipfs_cid, args.start_time, args.end_time, args.option_counts, args.quorum, args.nft_image_url],
+          ...params,
+        }
+      },
     }
   }
-  static bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+
+  /**
+   * Gets available delete call factories
+   */
+  static get delete() {
+    return {
+      bare(params: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}) {
+        return {
+          method: undefined,
+          methodArgs: undefined,
+          ...params,
+        }
+      },
+    }
+  }
+
+  static bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'bootstrap(pay)void' as const,
       methodArgs: Array.isArray(args) ? args : [args.fund_min_bal_req],
       ...params,
     }
   }
-  static close(args: MethodArgs<'close()void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  static close(args: MethodArgs<'close()void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'close()void' as const,
       methodArgs: Array.isArray(args) ? args : [],
       ...params,
     }
   }
-  static getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  static getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'get_preconditions(byte[])(uint64,uint64,uint64,uint64)' as const,
       methodArgs: Array.isArray(args) ? args : [args.signature],
       ...params,
     }
   }
-  static vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
+  static vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'vote(pay,byte[],uint8[])void' as const,
       methodArgs: Array.isArray(args) ? args : [args.fund_min_bal_req, args.signature, args.answer_ids],
       ...params,
     }
-  }
-}
-function mapBySignature(...[signature, args, params]: MapperArgs<keyof VotingRoundApp['methods']>) {
-  switch(signature) {
-    case 'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void':
-    case 'create':
-      return VotingRoundAppCallFactory.create(args, params)
-    case 'bootstrap(pay)void':
-    case 'bootstrap':
-      return VotingRoundAppCallFactory.bootstrap(args, params)
-    case 'close()void':
-    case 'close':
-      return VotingRoundAppCallFactory.close(args, params)
-    case 'get_preconditions(byte[])(uint64,uint64,uint64,uint64)':
-    case 'get_preconditions':
-      return VotingRoundAppCallFactory.getPreconditions(args, params)
-    case 'vote(pay,byte[],uint8[])void':
-    case 'vote':
-      return VotingRoundAppCallFactory.vote(args, params)
   }
 }
 
@@ -500,8 +506,8 @@ export class VotingRoundAppClient {
    * @param request A request object containing the method signature, args, and any other relevant properties
    * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type
    */
-  public call<TSignature extends keyof VotingRoundApp['methods']>(request: CallRequest<TSignature, any>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
-    return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(request), returnValueFormatter)
+  public call<TSignature extends keyof VotingRoundApp['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
+    return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(typedCallParams), returnValueFormatter)
   }
 
   /**
@@ -510,41 +516,48 @@ export class VotingRoundAppClient {
    * @returns The deployment result
    */
   public deploy(params: VotingRoundAppDeployArgs & AppClientDeployCoreParams = {}) {
+    const createArgs = params.createCall?.(VotingRoundAppCallFactory.create)
+    const deleteArgs = params.deleteCall?.(VotingRoundAppCallFactory.delete)
     return this.appClient.deploy({
       ...params,
-      createArgs: Array.isArray(params.createArgs) ? mapBySignature(...params.createArgs as [any, any, any]): params.createArgs,
-      createOnCompleteAction: Array.isArray(params.createArgs) ? params.createArgs[2]?.onCompleteAction : undefined,
-      deleteArgs: Array.isArray(params.deleteArgs) ? mapBySignature(...params.deleteArgs as [any, any, any]): params.deleteArgs,
+      deleteArgs,
+      createArgs,
+      createOnCompleteAction: createArgs?.onCompleteAction,
     })
   }
 
   /**
-   * Creates a new instance of the VotingRoundApp smart contract using the create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void ABI method.
-   * @param method The ABI method to use
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The create result
+   * Gets available create methods
    */
-  public create(method: 'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void' | 'create', args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params?: AppClientCallCoreParams & AppClientCompilationParams  & (OnCompleteNoOp)): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>>>;
-  public create(...args: any[]): Promise<AppCallTransactionResultOfType<unknown>> {
-    if(typeof args[0] !== 'string') {
-      return this.appClient.create({...args[0], })
-    } else {
-      return this.mapReturnValue(this.appClient.create({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
+  public get create() {
+    const $this = this
+    return {
+      /**
+       * Creates a new instance of the VotingRoundApp smart contract using the create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void ABI method.
+       * @param args The arguments for the contract call
+       * @param params Any additional parameters for the call
+       * @returns The create result
+       */
+      create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>>> {
+        return $this.mapReturnValue($this.appClient.create(VotingRoundAppCallFactory.create.create(args, params)))
+      },
     }
   }
 
   /**
-   * Deletes an existing instance of the VotingRoundApp smart contract using a bare call.
-   * @param args The arguments for the bare call
-   * @returns The delete result
+   * Gets available delete methods
    */
-  public delete(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): Promise<AppCallTransactionResultOfType<undefined>>;
-  public delete(...args: any[]): Promise<AppCallTransactionResultOfType<unknown>> {
-    if(typeof args[0] !== 'string') {
-      return this.appClient.delete({...args[0], })
-    } else {
-      return this.mapReturnValue(this.appClient.delete({ ...mapBySignature(args[0] as any, args[1], args[2]), }))
+  public get delete() {
+    const $this = this
+    return {
+      /**
+       * Deletes an existing instance of the VotingRoundApp smart contract using a bare call.
+       * @param args The arguments for the bare call
+       * @returns The delete result
+       */
+      bare(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}): Promise<AppCallTransactionResultOfType<undefined>> {
+        return $this.appClient.delete(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      },
     }
   }
 
@@ -565,7 +578,7 @@ export class VotingRoundAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(VotingRoundAppCallFactory.bootstrap(args, params))
   }
 
@@ -576,7 +589,7 @@ export class VotingRoundAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public close(args: MethodArgs<'close()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public close(args: MethodArgs<'close()void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(VotingRoundAppCallFactory.close(args, params))
   }
 
@@ -587,7 +600,7 @@ export class VotingRoundAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(VotingRoundAppCallFactory.getPreconditions(args, params), VotingPreconditions)
   }
 
@@ -598,7 +611,7 @@ export class VotingRoundAppClient {
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+  public vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(VotingRoundAppCallFactory.vote(args, params))
   }
 

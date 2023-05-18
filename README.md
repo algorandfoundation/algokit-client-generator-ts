@@ -72,3 +72,10 @@ Or in Visual Studio Code you can use the default build task (Ctrl+Shift+B).
 ### Continuous Integration / Continuous Deployment (CI/CD)
 
 This project uses [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions) to define CI/CD workflows, which are located in the [`.github/workflows`](./.github/workflows) folder.
+
+### Approval tests
+
+Making any changes to the generated code will result in the approval tests failing. The approval tests work by generating a version of client
+and outputting it to `./examples/APP_NAME/client.generated.ts` then comparing to the approved version `./examples/APP_NAME/client.ts`. If you
+make a change and break the approval tests, you will need to update the approved version by overwriting it with the generated version.
+You can run `npm run update-approvals` to update all approved clients in one go.

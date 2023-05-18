@@ -1,10 +1,10 @@
 import { DecIndent, DocumentParts, IncIndent } from '../output/writer'
 
 export function* utilityTypes(): DocumentParts {
-  yield 'export type CallRequest<TSignature extends string, TArgs = undefined> = {'
+  yield 'export type TypedCallParams<TSignature extends string | undefined> = {'
   yield IncIndent
   yield 'method: TSignature'
-  yield 'methodArgs: TArgs'
+  yield 'methodArgs: TSignature extends undefined ? undefined : ABIAppCallArg[]'
   yield DecIndent
   yield '} & AppClientCallCoreParams & CoreAppCallArgs'
 
