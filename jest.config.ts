@@ -9,5 +9,6 @@ const config: Config = {
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
+  testPathIgnorePatterns: ['node_modules', 'dist', '.venv'],
 }
 export default config

@@ -190,7 +190,7 @@ export type MethodArgs<TSignature extends keyof HelloWorldApp['methods']> = Hell
 export type MethodReturn<TSignature extends keyof HelloWorldApp['methods']> = HelloWorldApp['methods'][TSignature]['returns']
 
 /**
- * A factory for available 'create' calls}
+ * A factory for available 'create' calls
  */
 export type HelloWorldAppCreateCalls = (typeof HelloWorldAppCallFactory)['create']
 /**
@@ -199,7 +199,7 @@ export type HelloWorldAppCreateCalls = (typeof HelloWorldAppCallFactory)['create
 export type HelloWorldAppCreateCallParams =
   | (TypedCallParams<undefined> & (OnCompleteNoOp))
 /**
- * A factory for available 'update' calls}
+ * A factory for available 'update' calls
  */
 export type HelloWorldAppUpdateCalls = (typeof HelloWorldAppCallFactory)['update']
 /**
@@ -208,7 +208,7 @@ export type HelloWorldAppUpdateCalls = (typeof HelloWorldAppCallFactory)['update
 export type HelloWorldAppUpdateCallParams =
   | TypedCallParams<undefined>
 /**
- * A factory for available 'delete' calls}
+ * A factory for available 'delete' calls
  */
 export type HelloWorldAppDeleteCalls = (typeof HelloWorldAppCallFactory)['delete']
 /**

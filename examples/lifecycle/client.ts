@@ -108,11 +108,13 @@ export const APP_SPEC: AppSpec = {
         "args": [
           {
             "type": "string",
-            "name": "greeting"
+            "name": "greeting",
+            "desc": "The greeting"
           }
         ],
         "returns": {
-          "type": "string"
+          "type": "string",
+          "desc": "The formatted greeting"
         },
         "desc": "ABI create method with 1 argument"
       },
@@ -213,9 +215,15 @@ export type LifeCycleApp = {
     }>
     & Record<'create(string)string', {
       argsObj: {
+        /**
+         * The greeting
+         */
         greeting: string
       }
       argsTuple: [greeting: string]
+      /**
+       * The formatted greeting
+       */
       returns: string
     }>
     & Record<'create(string,uint32)void', {
@@ -257,7 +265,7 @@ export type MethodArgs<TSignature extends keyof LifeCycleApp['methods']> = LifeC
 export type MethodReturn<TSignature extends keyof LifeCycleApp['methods']> = LifeCycleApp['methods'][TSignature]['returns']
 
 /**
- * A factory for available 'create' calls}
+ * A factory for available 'create' calls
  */
 export type LifeCycleAppCreateCalls = (typeof LifeCycleAppCallFactory)['create']
 /**
@@ -268,7 +276,7 @@ export type LifeCycleAppCreateCallParams =
   | (TypedCallParams<'create(string)string'> & (OnCompleteNoOp))
   | (TypedCallParams<'create(string,uint32)void'> & (OnCompleteNoOp))
 /**
- * A factory for available 'update' calls}
+ * A factory for available 'update' calls
  */
 export type LifeCycleAppUpdateCalls = (typeof LifeCycleAppCallFactory)['update']
 /**
@@ -483,7 +491,7 @@ export class LifeCycleAppClient {
        *
        * @param args The arguments for the smart contract call
        * @param params Any additional parameters for the call
-       * @returns The create result
+       * @returns The create result: The formatted greeting
        */
       createStringString(args: MethodArgs<'create(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string)string'>>> {
         return $this.mapReturnValue($this.appClient.create(LifeCycleAppCallFactory.create.createStringString(args, params)))

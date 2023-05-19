@@ -83,11 +83,13 @@
                 "args": [
                     {
                         "type": "string",
-                        "name": "greeting"
+                        "name": "greeting",
+                        "desc": "The greeting"
                     }
                 ],
                 "returns": {
-                    "type": "string"
+                    "type": "string",
+                    "desc": "The formatted greeting"
                 },
                 "desc": "ABI create method with 1 argument"
             },

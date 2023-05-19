@@ -418,6 +418,12 @@ class VotingPreconditions(pt.abi.NamedTuple):
 
 @app.external(read_only=True)
 def get_preconditions(signature: pt.abi.DynamicBytes, *, output: VotingPreconditions) -> pt.Expr:
+    """
+    Returns the calculated pre-conditions for the voting round.
+
+    :param signature: The signature for the given voter account
+    :return: The precondition values
+    """
     return pt.Seq(
         (is_voting_open := pt.abi.Uint64()).set(voting_open()),
         (is_allowed_to_vote := pt.abi.Uint64()).set(allowed_to_vote(signature.get())),

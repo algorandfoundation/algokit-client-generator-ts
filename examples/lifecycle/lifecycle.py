@@ -57,7 +57,12 @@ def bare_create() -> pt.Expr:
 
 @app.create(name="create")
 def create_1arg(greeting: pt.abi.String, *, output: pt.abi.String) -> pt.Expr:
-    """ABI create method with 1 argument"""
+    """
+    ABI create method with 1 argument
+
+    :param greeting: The greeting
+    :return: The formatted greeting
+    """
     return pt.Seq(
         app.state.greeting.set(greeting.get()),
         app.state.times.set(pt.Int(1)),
