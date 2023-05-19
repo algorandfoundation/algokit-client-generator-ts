@@ -12,7 +12,6 @@ import {
   ABIAppCallArg,
 } from '@algorandfoundation/algokit-utils/types/app'
 import {
-  AppClientCallArgs,
   AppClientCallCoreParams,
   AppClientCompilationParams,
   AppClientDeployCoreParams,

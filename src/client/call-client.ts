@@ -1,5 +1,5 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
-import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, NewLine } from '../output/writer'
+import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
 import { makeSafeMethodIdentifier, makeSafeTypeIdentifier } from '../util/sanitization'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { GeneratorContext } from './generator-context'
@@ -8,17 +8,20 @@ import { getCreateOnCompleteOptions } from './deploy-types'
 export function* callClient(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
 
-  yield `/** A client to make calls to the ${app.contract.name} smart contract */`
+  yield* jsDoc(`A client to make calls to the ${app.contract.name} smart contract`)
   yield `export class ${makeSafeTypeIdentifier(app.contract.name)}Client {`
   yield IncIndent
-  yield '/** The underlying `ApplicationClient` for when you want to have more flexibility */'
+  yield* jsDoc(`The underlying \`ApplicationClient\` for when you want to have more flexibility`)
   yield 'public readonly appClient: ApplicationClient'
   yield NewLine
-  yield '/**'
-  yield ` * Creates a new instance of \`${makeSafeTypeIdentifier(app.contract.name)}Client\``
-  yield ' * @param appDetails The details to identify the app to deploy'
-  yield ' * @param algod An algod client instance'
-  yield ' */'
+  yield* jsDoc({
+    description: `Creates a new instance of \`${makeSafeTypeIdentifier(app.contract.name)}Client\``,
+    params: {
+      appDetails: 'appDetails The details to identify the app to deploy',
+      algod: 'An algod client instance',
+    },
+  })
+
   yield `constructor(appDetails: AppDetails, algod: Algodv2) {`
   yield IncIndent
   yield 'this.appClient = algokit.getAppClient({'
@@ -28,6 +31,14 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield '}'
   yield NewLine
 
+  yield* jsDoc({
+    description: 'Checks for decode errors on the AppCallTransactionResult and maps the return value to the specified generic type',
+    params: {
+      resultPromise: 'The AppCallTransactionResult to be mapped',
+      returnValueFormatter: 'An optional delegate to format the return value if required',
+    },
+    returns: 'The smart contract response with an updated return value',
+  })
   yield* inline(
     `protected async mapReturnValue<TReturn>`,
     `(resultPromise: Promise<AppCallTransactionResult> | AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): `,
@@ -47,11 +58,14 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield DecIndentAndCloseBlock
   yield NewLine
 
-  yield `/**`
-  yield ` * Calls the ABI method with the matching signature using an onCompletion code of NO_OP`
-  yield ` * @param request A request object containing the method signature, args, and any other relevant properties`
-  yield ` * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type`
-  yield ` */`
+  yield* jsDoc({
+    description: 'Calls the ABI method with the matching signature using an onCompletion code of NO_OP',
+    params: {
+      typedCallParams: 'An object containing the method signature, args, and any other relevant parameters',
+      returnValueFormatter: 'An optional delegate which when provided will be used to map non-undefined return values to the target type',
+    },
+    returns: 'The result of the smart contract call',
+  })
   yield `public call<TSignature extends keyof ${name}['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {`
   yield IncIndent
   yield `return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(typedCallParams), returnValueFormatter)`
@@ -68,11 +82,14 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
 
 function* opMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig, name } = ctx
-  yield `/**`
-  yield ` * Idempotently deploys the ${app.contract.name} smart contract.`
-  yield ` * @param params The arguments for the contract calls and any additional parameters for the call`
-  yield ` * @returns The deployment result`
-  yield ` */`
+
+  yield* jsDoc({
+    description: `Idempotently deploys the ${app.contract.name} smart contract.`,
+    params: {
+      params: 'The arguments for the contract calls and any additional parameters for the call',
+    },
+    returns: 'The deployment result',
+  })
   yield `public deploy(params: ${name}DeployArgs & AppClientDeployCoreParams = {}) {`
   yield IncIndent
 
@@ -124,9 +141,7 @@ function* operationMethod(
   includeCompilation?: boolean,
 ): DocumentParts {
   if (methods.length) {
-    yield `/**`
-    yield ` * Gets available ${verb} methods`
-    yield ` */`
+    yield* jsDoc(`Gets available ${verb} methods`)
     yield `public get ${verb}() {`
     yield IncIndent
     yield `const $this = this`
@@ -135,11 +150,13 @@ function* operationMethod(
     for (const methodSig of methods) {
       const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
       if (methodSig === BARE_CALL) {
-        yield `/**`
-        yield ` * ${description} using a bare call.`
-        yield ` * @param args The arguments for the bare call`
-        yield ` * @returns The ${verb} result`
-        yield ` */`
+        yield* jsDoc({
+          description: `${description} using a bare call.`,
+          params: {
+            args: `The arguments for the bare call`,
+          },
+          returns: `The ${verb} result`,
+        })
         yield `bare(args: BareCallArgs & AppClientCallCoreParams ${
           includeCompilation ? '& AppClientCompilationParams ' : ''
         }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}${
@@ -149,13 +166,14 @@ function* operationMethod(
         yield '},'
       } else {
         const uniqueName = methodSignatureToUniqueName[methodSig]
-        yield `/**`
-        yield ` * ${description} using the ${methodSig} ABI method.`
-        yield ` * @param args The arguments for the contract call`
-        yield ` * @param params Any additional parameters for the call`
-        yield ` * @returns The ${verb} result`
-        yield ` */`
-
+        yield* jsDoc({
+          description: `${description} using the ${methodSig} ABI method.`,
+          params: {
+            args: `The arguments for the smart contract call`,
+            params: `Any additional parameters for the call`,
+          },
+          returns: `The ${verb} result`,
+        })
         yield `${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params: AppClientCallCoreParams${
           includeCompilation ? ' & AppClientCompilationParams' : ''
         }${onComplete?.type ? ` & ${onComplete.type}` : ''}${
@@ -176,15 +194,16 @@ function* operationMethod(
 }
 
 function* clearState({ app }: GeneratorContext): DocumentParts {
-  yield `/**`
-  yield ` * Makes a clear_state call to an existing instance of the ${app.contract.name} smart contract.`
-  yield ` * @param args The arguments for the contract call`
-  yield ` * @param params Any additional parameters for the call`
-  yield ` * @returns The clear_state result`
-  yield ` */`
-  yield `public clearState(args: BareCallArgs, params?: AppClientCallCoreParams & CoreAppCallArgs) {`
+  yield* jsDoc({
+    description: `Makes a clear_state call to an existing instance of the ${app.contract.name} smart contract.`,
+    params: {
+      args: `The arguments for the bare call`,
+    },
+    returns: `The clear_state result`,
+  })
+  yield `public clearState(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}) {`
   yield IncIndent
-  yield `return this.appClient.clearState({ ...args, ...params, })`
+  yield `return this.appClient.clearState(args)`
   yield DecIndentAndCloseBlock
   yield NewLine
 }
@@ -195,17 +214,15 @@ function* noopMethods({ app, name, callConfig, methodSignatureToUniqueName }: Ge
     const methodName = makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
     // Skip methods which don't support a no_op call config
     if (!callConfig.callMethods.includes(methodSignature)) continue
-    yield `/**`
-    if (method.desc) {
-      yield ` * ${method.desc}`
-      yield ` *`
-    }
-    yield ` * Calls the ${algokit.getABIMethodSignature(method)} ABI method.`
-    yield ` *`
-    yield ` * @param args The arguments for the ABI method`
-    yield ` * @param params Any additional parameters for the call`
-    yield ` * @returns The result of the call`
-    yield ` */`
+    yield* jsDoc({
+      description: `Calls the ${algokit.getABIMethodSignature(method)} ABI method.`,
+      abiDescription: method.desc,
+      params: {
+        args: `The arguments for the contract call`,
+        params: `Any additional parameters for the call`,
+      },
+      returns: 'The result of the call',
+    })
     yield `public ${methodName}(args: MethodArgs<'${methodSignature}'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {`
     yield IncIndent
     const outputTypeName = app.hints?.[methodSignature]?.structs?.output?.name
@@ -222,6 +239,14 @@ function* getStateMethods({ app, name }: GeneratorContext): DocumentParts {
   const globalStateValues = app.schema.global?.declared && Object.values(app.schema.global?.declared)
   const localStateValues = app.schema.local?.declared && Object.values(app.schema.local?.declared)
   if (globalStateValues?.length || localStateValues?.length) {
+    yield* jsDoc({
+      description: 'Extracts a binary state value out of an AppState dictionary',
+      params: {
+        state: 'The state dictionary containing the state value',
+        key: 'The key of the state value',
+      },
+      returns: 'A BinaryState instance containing the state value, or undefined if the key was not found',
+    })
     yield `private static getBinaryState(state: AppState, key: string): BinaryState | undefined {`
     yield IncIndent
     yield `const value = state[key]`
@@ -240,6 +265,14 @@ function* getStateMethods({ app, name }: GeneratorContext): DocumentParts {
     yield DecIndentAndCloseBlock
     yield NewLine
 
+    yield* jsDoc({
+      description: 'Extracts a integer state value out of an AppState dictionary',
+      params: {
+        state: 'The state dictionary containing the state value',
+        key: 'The key of the state value',
+      },
+      returns: 'An IntegerState instance containing the state value, or undefined if the key was not found',
+    })
     yield `private static getIntegerState(state: AppState, key: string): IntegerState | undefined {`
     yield IncIndent
     yield `const value = state[key]`
@@ -260,9 +293,7 @@ function* getStateMethods({ app, name }: GeneratorContext): DocumentParts {
   }
 
   if (globalStateValues?.length) {
-    yield `/**`
-    yield ` * Returns the application's global state wrapped in a strongly typed accessor with options to format the stored value`
-    yield ` */`
+    yield* jsDoc(`Returns the smart contract's global state wrapped in a strongly typed accessor with options to format the stored value`)
     yield `public async getGlobalState(): Promise<${name}['state']['global']> {`
     yield IncIndent
     yield `const state = await this.appClient.getGlobalState()`
@@ -283,10 +314,12 @@ function* getStateMethods({ app, name }: GeneratorContext): DocumentParts {
   }
 
   if (localStateValues?.length) {
-    yield `/**`
-    yield ` * Returns the application's local state for a given account wrapped in a strongly typed accessor with options to format the stored value`
-    yield ` * @param account The address of the account for which to read local state from.`
-    yield ` */`
+    yield* jsDoc({
+      description: `Returns the smart contract's local state wrapped in a strongly typed accessor with options to format the stored value`,
+      params: {
+        account: `The address of the account for which to read local state from`,
+      },
+    })
     yield `public async getLocalState(account: string | SendTransactionFrom): Promise<${name}['state']['local']> {`
     yield IncIndent
     yield `const state = await this.appClient.getLocalState(account)`
