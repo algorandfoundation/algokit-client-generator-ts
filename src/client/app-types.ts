@@ -20,6 +20,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     yield `argsObj: {`
     yield IncIndent
     for (const arg of method.args) {
+      if (arg.desc) yield* jsDoc(arg.desc)
       yield `${makeSafePropertyIdentifier(arg.name)}: ${getEquivalentType(arg.type, 'input')}`
     }
     yield DecIndentAndCloseBlock
@@ -29,6 +30,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
       ']',
     )
     const outputStruct = ctx.app.hints?.[methodSig]?.structs?.output
+    if (method.returns.desc) yield* jsDoc(method.returns.desc)
     if (outputStruct) {
       yield `returns: ${makeSafeTypeIdentifier(outputStruct.name)}`
     } else {

@@ -24,7 +24,7 @@ export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentPar
   const name = makeSafeTypeIdentifier(app.contract.name)
 
   if (callConfig.createMethods.length > 0) {
-    yield* jsDoc(`A factory for available 'create' calls}`)
+    yield* jsDoc(`A factory for available 'create' calls`)
     yield `export type ${name}CreateCalls = (typeof ${name}CallFactory)['create']`
     yield* jsDoc('Defines supported create methods for this smart contract')
     yield `export type ${name}CreateCallParams =`
@@ -40,7 +40,7 @@ export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentPar
     yield DecIndent
   }
   if (callConfig.updateMethods.length > 0) {
-    yield* jsDoc(`A factory for available 'update' calls}`)
+    yield* jsDoc(`A factory for available 'update' calls`)
 
     yield `export type ${name}UpdateCalls = (typeof ${name}CallFactory)['update']`
     yield* jsDoc('Defines supported update methods for this smart contract')
@@ -57,7 +57,7 @@ export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentPar
   }
 
   if (callConfig.deleteMethods.length > 0) {
-    yield* jsDoc(`A factory for available 'delete' calls}`)
+    yield* jsDoc(`A factory for available 'delete' calls`)
 
     yield `export type ${name}DeleteCalls = (typeof ${name}CallFactory)['delete']`
 

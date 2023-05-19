@@ -477,7 +477,7 @@ export type MethodArgs<TSignature extends keyof StateApp['methods']> = StateApp[
 export type MethodReturn<TSignature extends keyof StateApp['methods']> = StateApp['methods'][TSignature]['returns']
 
 /**
- * A factory for available 'create' calls}
+ * A factory for available 'create' calls
  */
 export type StateAppCreateCalls = (typeof StateAppCallFactory)['create']
 /**
@@ -487,7 +487,7 @@ export type StateAppCreateCallParams =
   | (TypedCallParams<undefined> & (OnCompleteNoOp | OnCompleteOptIn))
   | (TypedCallParams<'create_abi(string)string'> & (OnCompleteNoOp))
 /**
- * A factory for available 'update' calls}
+ * A factory for available 'update' calls
  */
 export type StateAppUpdateCalls = (typeof StateAppCallFactory)['update']
 /**
@@ -497,7 +497,7 @@ export type StateAppUpdateCallParams =
   | TypedCallParams<undefined>
   | TypedCallParams<'update_abi(string)string'>
 /**
- * A factory for available 'delete' calls}
+ * A factory for available 'delete' calls
  */
 export type StateAppDeleteCalls = (typeof StateAppCallFactory)['delete']
 /**

@@ -166,13 +166,14 @@ function* operationMethod(
         yield '},'
       } else {
         const uniqueName = methodSignatureToUniqueName[methodSig]
+        const method = app.contract.methods.find((m) => algokit.getABIMethodSignature(m) === methodSig)
         yield* jsDoc({
           description: `${description} using the ${methodSig} ABI method.`,
           params: {
             args: `The arguments for the smart contract call`,
             params: `Any additional parameters for the call`,
           },
-          returns: `The ${verb} result`,
+          returns: `The ${verb} result${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
         })
         yield `${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params: AppClientCallCoreParams${
           includeCompilation ? ' & AppClientCompilationParams' : ''
@@ -221,7 +222,7 @@ function* noopMethods({ app, name, callConfig, methodSignatureToUniqueName }: Ge
         args: `The arguments for the contract call`,
         params: `Any additional parameters for the call`,
       },
-      returns: 'The result of the call',
+      returns: `The result of the call${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
     })
     yield `public ${methodName}(args: MethodArgs<'${methodSignature}'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {`
     yield IncIndent

@@ -232,12 +232,15 @@ export const APP_SPEC: AppSpec = {
         "args": [
           {
             "type": "byte[]",
-            "name": "signature"
+            "name": "signature",
+            "desc": "The signature for the given voter account"
           }
         ],
         "returns": {
-          "type": "(uint64,uint64,uint64,uint64)"
-        }
+          "type": "(uint64,uint64,uint64,uint64)",
+          "desc": "The precondition values"
+        },
+        "desc": "Returns the calculated pre-conditions for the voting round."
       },
       {
         "name": "vote",
@@ -351,9 +354,15 @@ export type VotingRoundApp = {
     }>
     & Record<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)' | 'get_preconditions', {
       argsObj: {
+        /**
+         * The signature for the given voter account
+         */
         signature: Uint8Array
       }
       argsTuple: [signature: Uint8Array]
+      /**
+       * The precondition values
+       */
       returns: VotingPreconditions
     }>
     & Record<'vote(pay,byte[],uint8[])void' | 'vote', {
@@ -466,7 +475,7 @@ export type MethodArgs<TSignature extends keyof VotingRoundApp['methods']> = Vot
 export type MethodReturn<TSignature extends keyof VotingRoundApp['methods']> = VotingRoundApp['methods'][TSignature]['returns']
 
 /**
- * A factory for available 'create' calls}
+ * A factory for available 'create' calls
  */
 export type VotingRoundAppCreateCalls = (typeof VotingRoundAppCallFactory)['create']
 /**
@@ -475,7 +484,7 @@ export type VotingRoundAppCreateCalls = (typeof VotingRoundAppCallFactory)['crea
 export type VotingRoundAppCreateCallParams =
   | (TypedCallParams<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'> & (OnCompleteNoOp))
 /**
- * A factory for available 'delete' calls}
+ * A factory for available 'delete' calls
  */
 export type VotingRoundAppDeleteCalls = (typeof VotingRoundAppCallFactory)['delete']
 /**
@@ -575,6 +584,8 @@ export abstract class VotingRoundAppCallFactory {
   }
   /**
    * Constructs a no op call for the get_preconditions(byte[])(uint64,uint64,uint64,uint64) ABI method
+   *
+   * Returns the calculated pre-conditions for the voting round.
    *
    * @param args Any args for the contract call
    * @param params Any additional parameters for the call
@@ -743,9 +754,11 @@ export class VotingRoundAppClient {
   /**
    * Calls the get_preconditions(byte[])(uint64,uint64,uint64,uint64) ABI method.
    *
+   * Returns the calculated pre-conditions for the voting round.
+   *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
-   * @returns The result of the call
+   * @returns The result of the call: The precondition values
    */
   public getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
     return this.call(VotingRoundAppCallFactory.getPreconditions(args, params), VotingPreconditions)

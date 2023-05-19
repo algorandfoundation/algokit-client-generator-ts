@@ -207,12 +207,15 @@
                 "args": [
                     {
                         "type": "byte[]",
-                        "name": "signature"
+                        "name": "signature",
+                        "desc": "The signature for the given voter account"
                     }
                 ],
                 "returns": {
-                    "type": "(uint64,uint64,uint64,uint64)"
-                }
+                    "type": "(uint64,uint64,uint64,uint64)",
+                    "desc": "The precondition values"
+                },
+                "desc": "Returns the calculated pre-conditions for the voting round."
             },
             {
                 "name": "vote",
