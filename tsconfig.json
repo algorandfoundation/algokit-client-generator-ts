@@ -2,7 +2,7 @@
   "extends": "@makerx/ts-config",
   "compilerOptions": {
     "noEmit": true,
-    "target": "ES2019",
+    "target": "ES2020",
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,

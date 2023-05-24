@@ -24,7 +24,7 @@
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "test": "jest --coverage",
     "test:ci": "TEST_ENV=ci jest --coverage",
-    "update-approvals": "ts-node scripts/update-approvals.ts",
+    "update-approvals": "npm run dev && ts-node scripts/update-approvals.ts",
     "postinstall": "npx --yes patch-package"
   },
   "bin": {
@@ -48,6 +48,7 @@
     "@makerx/ts-config": "1.0.1",
     "@noble/ed25519": "^1.7.3",
     "@types/jest": "^29.5.1",
+    "algosdk": "^2.3.0",
     "conventional-changelog-conventionalcommits": "^5.0.0",
     "copyfiles": "^2.4.1",
     "eslint": "8.22.0",

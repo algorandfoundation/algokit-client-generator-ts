@@ -29,6 +29,7 @@
   },
   "definitions": {
     "AVMType": {
+      "description": "AVM data type",
       "enum": ["uint64", "bytes"]
     },
     "DeclaredSchemaValueSpec": {
@@ -229,28 +230,84 @@
       ]
     },
     "DefaultArgument": {
-      "properties": {
-        "source": {
-          "$ref": "#/definitions/ArgumentSource"
-        },
-        "data": {
-          "oneOf": [
-            {
-              "type": "string"
+      "description": "Defines a strategy for obtaining a default value for a given ABI arg.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["source", "data"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "description": "The default value should be fetched by invoking an ABI method",
+              "enum": ["abi-method"]
             },
-            {
-              "type": "number"
-            },
-            {
-              "type": "integer"
+            "data": {
+              "description": "The contract of the ABI method to invoke.",
+              "$ref": "contract.schema.json#/definitions/ContractMethod"
             }
-          ]
+          }
+        },
+        {
+          "type": "object",
+          "required": ["source", "data"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "description": "The default value should be fetched from global state",
+              "enum": ["global-state"]
+            },
+            "data": {
+              "description": "The key of the state variable",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["source", "data"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "description": "The default value should be fetched from the local state of the sender user",
+              "enum": ["local-state"]
+            },
+            "data": {
+              "description": "The key of the state variable",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "source",
+            "data"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "description": "The default value is a constant.",
+              "enum": [
+                "constant"
+              ]
+            },
+            "data": {
+              "description": "The static default value to use.",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          }
         }
-      }
-    },
-
-    "ArgumentSource": {
-      "enum": ["global-state", "local-state", "abi-method", "constant"]
+      ]
     }
   }
 }

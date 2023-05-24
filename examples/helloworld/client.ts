@@ -174,7 +174,7 @@ export type HelloWorldApp = {
  */
 export type TypedCallParams<TSignature extends keyof HelloWorldApp['methods'] | undefined> = {
   method: TSignature
-  methodArgs: TSignature extends undefined ? undefined : ABIAppCallArg[]
+  methodArgs: TSignature extends undefined ? undefined : Array<ABIAppCallArg | undefined>
 } & AppClientCallCoreParams & CoreAppCallArgs
 /**
  * Defines the arguments required for a bare call
