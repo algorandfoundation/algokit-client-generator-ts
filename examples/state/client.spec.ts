@@ -1,7 +1,7 @@
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { beforeEach, describe, expect, test } from '@jest/globals'
 import { StateAppClient } from './client'
-import { microAlgos } from '../../../algokit-utils-ts/dist'
+import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 describe('state typed client', () => {
   const localnet = algorandFixture()
@@ -53,7 +53,7 @@ describe('state typed client', () => {
     )
     await client.deploy({ deployTimeParams: { VALUE: 1 } })
 
-    const minBalance = 10_000
+    const minBalance = 100_000
     const txCost = 1_000
 
     const lowFundsAccount = await localnet.context.generateAccount({ initialFunds: microAlgos(minBalance + txCost) })
