@@ -19,14 +19,26 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     yield IncIndent
     yield `argsObj: {`
     yield IncIndent
-    for (const arg of method.args) {
+
+    const argsMeta = method.args.map((arg) => ({
+      ...arg,
+      hasDefault: app.hints?.[methodSig]?.default_arguments?.[arg.name],
+      tsType: getEquivalentType(arg.type, 'input'),
+    }))
+
+    for (const arg of argsMeta) {
       if (arg.desc) yield* jsDoc(arg.desc)
-      yield `${makeSafePropertyIdentifier(arg.name)}: ${getEquivalentType(arg.type, 'input')}`
+      yield `${makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
     }
     yield DecIndentAndCloseBlock
     yield* inline(
       `argsTuple: [`,
-      method.args.map((t) => `${makeSafeVariableIdentifier(t.name)}: ${getEquivalentType(t.type, 'input')}`).join(', '),
+      argsMeta
+        .map(
+          (arg) =>
+            `${makeSafeVariableIdentifier(arg.name)}: ${getEquivalentType(arg.type, 'input')}${arg.hasDefault ? ' | undefined' : ''}`,
+        )
+        .join(', '),
       ']',
     )
     const outputStruct = ctx.app.hints?.[methodSig]?.structs?.output
@@ -51,7 +63,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield `export type TypedCallParams<TSignature extends keyof ${name}['methods'] | undefined> = {`
   yield IncIndent
   yield 'method: TSignature'
-  yield 'methodArgs: TSignature extends undefined ? undefined : ABIAppCallArg[]'
+  yield 'methodArgs: TSignature extends undefined ? undefined : Array<ABIAppCallArg | undefined>'
   yield DecIndent
   yield '} & AppClientCallCoreParams & CoreAppCallArgs'
   yield* jsDoc('Defines the arguments required for a bare call')
