@@ -22,7 +22,7 @@ import {
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
-import { Algodv2, OnApplicationComplete, Transaction } from 'algosdk'
+import { Algodv2, OnApplicationComplete, Transaction, TransactionWithSigner, AtomicTransactionComposer } from 'algosdk'
 export const APP_SPEC: AppSpec = {
   "hints": {
     "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void": {
@@ -435,9 +435,13 @@ export type VotingRoundApp = {
   }
 }
 /**
+ * Defines the possible abi call signatures
+ */
+export type VotingRoundAppSig = keyof VotingRoundApp['methods']
+/**
  * Defines an object containing all relevant parameters for a single call to the contract. Where TSignature is undefined, a bare call is made
  */
-export type TypedCallParams<TSignature extends keyof VotingRoundApp['methods'] | undefined> = {
+export type TypedCallParams<TSignature extends VotingRoundAppSig | undefined> = {
   method: TSignature
   methodArgs: TSignature extends undefined ? undefined : Array<ABIAppCallArg | undefined>
 } & AppClientCallCoreParams & CoreAppCallArgs
@@ -468,11 +472,11 @@ export function VotingPreconditions([is_voting_open, is_allowed_to_vote, has_alr
 /**
  * Maps a method signature from the VotingRoundApp smart contract to the method's arguments in either tuple of struct form
  */
-export type MethodArgs<TSignature extends keyof VotingRoundApp['methods']> = VotingRoundApp['methods'][TSignature]['argsObj' | 'argsTuple']
+export type MethodArgs<TSignature extends VotingRoundAppSig> = VotingRoundApp['methods'][TSignature]['argsObj' | 'argsTuple']
 /**
  * Maps a method signature from the VotingRoundApp smart contract to the method's return type
  */
-export type MethodReturn<TSignature extends keyof VotingRoundApp['methods']> = VotingRoundApp['methods'][TSignature]['returns']
+export type MethodReturn<TSignature extends VotingRoundAppSig> = VotingRoundApp['methods'][TSignature]['returns']
 
 /**
  * A factory for available 'create' calls
@@ -506,6 +510,7 @@ export type VotingRoundAppDeployArgs = {
    */
   deleteCall?: (callFactory: VotingRoundAppDeleteCalls) => VotingRoundAppDeleteCallParams
 }
+
 
 /**
  * Exposes methods for constructing all available smart contract calls
@@ -629,7 +634,7 @@ export class VotingRoundAppClient {
    * @param appDetails appDetails The details to identify the app to deploy
    * @param algod An algod client instance
    */
-  constructor(appDetails: AppDetails, algod: Algodv2) {
+  constructor(appDetails: AppDetails, private algod: Algodv2) {
     this.appClient = algokit.getAppClient({
       ...appDetails,
       app: APP_SPEC
@@ -639,12 +644,11 @@ export class VotingRoundAppClient {
   /**
    * Checks for decode errors on the AppCallTransactionResult and maps the return value to the specified generic type
    *
-   * @param resultPromise The AppCallTransactionResult to be mapped
+   * @param result The AppCallTransactionResult to be mapped
    * @param returnValueFormatter An optional delegate to format the return value if required
    * @returns The smart contract response with an updated return value
    */
-  protected async mapReturnValue<TReturn>(resultPromise: Promise<AppCallTransactionResult> | AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): Promise<AppCallTransactionResultOfType<TReturn>> {
-    const result = await resultPromise
+  protected mapReturnValue<TReturn>(result: AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): AppCallTransactionResultOfType<TReturn> {
     if(result.return?.decodeError) {
       throw result.return.decodeError
     }
@@ -661,8 +665,8 @@ export class VotingRoundAppClient {
    * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type
    * @returns The result of the smart contract call
    */
-  public call<TSignature extends keyof VotingRoundApp['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
-    return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(typedCallParams), returnValueFormatter)
+  public async call<TSignature extends keyof VotingRoundApp['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
+    return this.mapReturnValue<MethodReturn<TSignature>>(await this.appClient.call(typedCallParams), returnValueFormatter)
   }
 
   /**
@@ -695,8 +699,8 @@ export class VotingRoundAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>>> {
-        return $this.mapReturnValue($this.appClient.create(VotingRoundAppCallFactory.create.create(args, params)))
+      async create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>>> {
+        return $this.mapReturnValue(await $this.appClient.create(VotingRoundAppCallFactory.create.create(args, params)))
       },
     }
   }
@@ -867,4 +871,144 @@ export class VotingRoundAppClient {
     }
   }
 
+  public compose(): VotingRoundAppComposer {
+    const client = this
+    const atc = new AtomicTransactionComposer()
+    let promiseChain:Promise<unknown> = Promise.resolve()
+    const resultMappers: Array<undefined | ((x: any) => any)> = []
+    return {
+      bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+        promiseChain = promiseChain.then(() => client.bootstrap(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
+        resultMappers.push(undefined)
+        return this
+      },
+      close(args: MethodArgs<'close()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+        promiseChain = promiseChain.then(() => client.close(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
+        resultMappers.push(undefined)
+        return this
+      },
+      getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+        promiseChain = promiseChain.then(() => client.getPreconditions(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
+        resultMappers.push(VotingPreconditions)
+        return this
+      },
+      vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+        promiseChain = promiseChain.then(() => client.vote(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
+        resultMappers.push(undefined)
+        return this
+      },
+      get delete() {
+        const $this = this
+        return {
+          bare(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
+            promiseChain = promiseChain.then(() => client.delete.bare({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
+            resultMappers.push(undefined)
+            return $this
+          },
+        }
+      },
+      clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
+        promiseChain = promiseChain.then(() => client.clearState({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
+        resultMappers.push(undefined)
+        return this
+      },
+      addTransaction(txn: TransactionWithSigner) {
+        promiseChain = promiseChain.then(() => atc.addTransaction(txn))
+        return this
+      },
+      async atc() {
+        await promiseChain
+        return atc
+      },
+      async execute() {
+        await promiseChain
+        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams: {} }, client.algod)
+        return {
+          ...result,
+          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
+        }
+      }
+    } as unknown as VotingRoundAppComposer
+  }
+}
+export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
+  /**
+   * Calls the bootstrap(pay)void ABI method.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'bootstrap(pay)void'>]>
+
+  /**
+   * Calls the close()void ABI method.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  close(args: MethodArgs<'close()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'close()void'>]>
+
+  /**
+   * Calls the get_preconditions(byte[])(uint64,uint64,uint64,uint64) ABI method.
+   *
+   * Returns the calculated pre-conditions for the voting round.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params?: AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>]>
+
+  /**
+   * Calls the vote(pay,byte[],uint8[])void ABI method.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'vote(pay,byte[],uint8[])void'>]>
+
+  /**
+   * Gets available delete methods
+   */
+  readonly delete: {
+    /**
+     * Deletes an existing instance of the VotingRoundApp smart contract using a bare call.
+     *
+     * @param args The arguments for the bare call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, undefined]>
+  }
+
+  /**
+   * Makes a clear_state call to an existing instance of the VotingRoundApp smart contract.
+   *
+   * @param args The arguments for the bare call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, undefined]>
+
+  /**
+   * Adds a transaction to the composer
+   *
+   * @param txn A transaction with signer object
+   */
+  addTransaction(txn: TransactionWithSigner): VotingRoundAppComposer<TReturns>
+  /**
+   * Returns the underlying AtomicTransactionComposer instance
+   */
+  atc(): Promise<AtomicTransactionComposer>
+  /**
+   * Executes the transaction group and returns an array of results
+   */
+  execute(): Promise<VotingRoundAppComposerResults<TReturns>>
+}
+export type VotingRoundAppComposerResults<TReturns extends [...any[]]> = {
+  returns: TReturns
+  groupId: string
+  txIds: string[]
+  transactions: Transaction[]
 }

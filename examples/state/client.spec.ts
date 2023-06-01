@@ -109,4 +109,28 @@ describe('state typed client', () => {
     const localDefault = await client.defaultValueFromLocalState({})
     expect(localDefault.return).toBe(`Local state, ${localState.local_bytes1?.asString()}`)
   })
+
+  test('Methods can be composed', async () => {
+    const { algod, indexer, testAccount } = localnet.context
+    const client = new StateAppClient(
+      {
+        resolveBy: 'creatorAndName',
+        sender: testAccount,
+        creatorAddress: testAccount.addr,
+        findExistingUsing: indexer,
+      },
+      algod,
+    )
+    await client.deploy({ deployTimeParams: { VALUE: 1 } })
+
+    await client
+      .compose()
+      .optIn.optIn({})
+      .setLocal({ bytes1: 'default value', int2: 0, int1: 0, bytes2: new Uint8Array([1, 2, 3, 4]) })
+      .execute()
+
+    const localState = await client.getLocalState(testAccount)
+
+    expect(localState.local_bytes1?.asString()).toBe('default value')
+  })
 })

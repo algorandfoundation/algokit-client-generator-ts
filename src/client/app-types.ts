@@ -56,11 +56,13 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield* appState(ctx)
   yield DecIndentAndCloseBlock
 
+  yield* jsDoc('Defines the possible abi call signatures')
+  yield `export type ${name}Sig = keyof ${name}['methods']`
   yield* jsDoc(
     'Defines an object containing all relevant parameters for a single call to the contract. Where TSignature is undefined, a' +
       ' bare call is made',
   )
-  yield `export type TypedCallParams<TSignature extends keyof ${name}['methods'] | undefined> = {`
+  yield `export type TypedCallParams<TSignature extends ${name}Sig | undefined> = {`
   yield IncIndent
   yield 'method: TSignature'
   yield 'methodArgs: TSignature extends undefined ? undefined : Array<ABIAppCallArg | undefined>'
@@ -71,9 +73,9 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
 
   yield* structs(ctx)
   yield* jsDoc(`Maps a method signature from the ${name} smart contract to the method's arguments in either tuple of struct form`)
-  yield `export type MethodArgs<TSignature extends keyof ${name}['methods']> = ${name}['methods'][TSignature]['argsObj' | 'argsTuple']`
+  yield `export type MethodArgs<TSignature extends ${name}Sig> = ${name}['methods'][TSignature]['argsObj' | 'argsTuple']`
   yield* jsDoc(`Maps a method signature from the ${name} smart contract to the method's return type`)
-  yield `export type MethodReturn<TSignature extends keyof ${name}['methods']> = ${name}['methods'][TSignature]['returns']`
+  yield `export type MethodReturn<TSignature extends ${name}Sig> = ${name}['methods'][TSignature]['returns']`
   yield NewLine
 }
 

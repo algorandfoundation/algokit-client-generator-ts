@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, test } from '@jest/globals'
 import { OnApplicationComplete } from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { LifeCycleAppCallFactory, LifeCycleAppClient } from './client'
-import { ABIReturn } from '@algorandfoundation/algokit-utils/types/app'
+import { LifeCycleAppClient } from './client'
 
 describe('lifecycle typed client', () => {
   const localnet = algorandFixture()
