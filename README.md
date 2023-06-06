@@ -9,7 +9,7 @@ This project generates a type-safe smart contract client in TypeScript for the A
 To be able to consume the generated file you need to include it in a TypeScript project that has (at least) the following package installed:
 
 ```
-npm install @algorandfoundation/algokit-utils@2.0.0-beta.9
+npm install @algorandfoundation/algokit-utils@2.0.0
 ```
 
 ### Use
