@@ -1,7 +1,7 @@
 import beaker
 import pyteal as pt
 
-from smart_contracts.helpers.deployment_standard import (
+from examples.deployment_standard import (
     deploy_time_immutability_control,
     deploy_time_permanence_control,
 )

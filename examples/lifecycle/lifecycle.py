@@ -7,7 +7,7 @@ from beaker.lib.iter import Iterate
 from beaker.lib.strings import Itoa
 from pyteal.ast import CallConfig, MethodConfig
 
-from smart_contracts.helpers.deployment_standard import (
+from examples.deployment_standard import (
     deploy_time_immutability_control,
 )
 
@@ -57,7 +57,12 @@ def bare_create() -> pt.Expr:
 
 @app.create(name="create")
 def create_1arg(greeting: pt.abi.String, *, output: pt.abi.String) -> pt.Expr:
-    """ABI create method with 1 argument"""
+    """
+    ABI create method with 1 argument
+
+    :param greeting: The greeting
+    :return: The formatted greeting
+    """
     return pt.Seq(
         app.state.greeting.set(greeting.get()),
         app.state.times.set(pt.Int(1)),

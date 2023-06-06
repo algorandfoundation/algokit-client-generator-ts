@@ -1,5 +1,16 @@
 {
   "editor.formatOnSave": true,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    ".mypy_cache": true,
+    ".pytest_cache": true,
+    ".ruff_cache": true,
+    "**/__pycache__": true,
+    ".idea": true
+  },
+  // TypeScript
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
@@ -11,5 +22,28 @@
     "onSave": "test-file",
     "onStartup": ["all-tests"]
   },
-  "dotenv.enableAutocloaking": false
+  "dotenv.enableAutocloaking": false,
+  // Python
+  "python.analysis.extraPaths": ["${workspaceFolder}/examples"],
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true,
+      // Prevent default import sorting from running; Ruff will sort imports for us anyway
+      "source.organizeImports": false
+    },
+    "editor.defaultFormatter": null
+  },
+  "python.testing.pytestEnabled": true,
+  "python.formatting.provider": "black",
+  "python.linting.pylintEnabled": false,
+  "python.analysis.typeCheckingMode": "off",
+  "mypy.configFile": "pyproject.toml",
+  // set to empty array to use config from project
+  "mypy.targets": [],
+  "mypy.runUsingActiveInterpreter": true,
+
+  // On Windows, if execution policy is set to Signed (default) then it won't be able to activate the venv
+  //  so instead let's set it to RemoteSigned for VS Code terminal
+  "terminal.integrated.shellArgs.windows": ["-ExecutionPolicy", "RemoteSigned"]
 }

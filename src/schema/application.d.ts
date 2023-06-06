@@ -11,7 +11,47 @@
 export type StructElement = [FieldName, ABIType];
 export type FieldName = string;
 export type ABIType = string;
-export type ArgumentSource = "global-state" | "local-state" | "abi-method" | "constant";
+/**
+ * Defines a strategy for obtaining a default value for a given ABI arg.
+ */
+export type DefaultArgument =
+  | {
+      /**
+       * The default value should be fetched by invoking an ABI method
+       */
+      source: "abi-method";
+      data: ContractMethod;
+    }
+  | {
+      /**
+       * The default value should be fetched from global state
+       */
+      source: "global-state";
+      /**
+       * The key of the state variable
+       */
+      data: string;
+    }
+  | {
+      /**
+       * The default value should be fetched from the local state of the sender user
+       */
+      source: "local-state";
+      /**
+       * The key of the state variable
+       */
+      data: string;
+    }
+  | {
+      /**
+       * The default value is a constant.
+       */
+      source: "constant";
+      /**
+       * The static default value to use.
+       */
+      data: string | number;
+    };
 export type CallConfigValue = "NEVER" | "CALL" | "CREATE" | "ALL";
 
 export interface AlgoAppSpec {
@@ -39,31 +79,9 @@ export interface Struct {
   name: string;
   elements: StructElement[];
 }
-export interface DefaultArgument {
-  source?: ArgumentSource;
-  data?: string | number;
-  [k: string]: unknown;
-}
-export interface CallConfig {
-  no_op?: CallConfigValue;
-  opt_in?: CallConfigValue;
-  close_out?: CallConfigValue;
-  update_application?: CallConfigValue;
-  delete_application?: CallConfigValue;
-}
-export interface AppSources {
-  approval?: string;
-  clear?: string;
-}
-export interface AbiContract {
-  name: string;
-  methods: ContractMethod[];
-  networks?: {
-    [k: string]: {
-      appID: number;
-    };
-  };
-}
+/**
+ * The contract of the ABI method to invoke.
+ */
 export interface ContractMethod {
   name: string;
   args: ContractMethodArg[];
@@ -83,6 +101,38 @@ export interface ContractMethodArg {
    */
   type: string;
   name: string;
+}
+export interface CallConfig {
+  no_op?: CallConfigValue;
+  opt_in?: CallConfigValue;
+  close_out?: CallConfigValue;
+  update_application?: CallConfigValue;
+  delete_application?: CallConfigValue;
+}
+export interface AppSources {
+  approval?: string;
+  clear?: string;
+}
+export interface AbiContract {
+  name: string;
+  methods: ContractMethod1[];
+  networks?: {
+    [k: string]: {
+      appID: number;
+    };
+  };
+}
+export interface ContractMethod1 {
+  name: string;
+  args: ContractMethodArg[];
+  desc?: string;
+  returns: {
+    desc?: string;
+    /**
+     * Catch all for fixed length arrays and tuples
+     */
+    type: string;
+  };
 }
 /**
  * The schema for global and local storage

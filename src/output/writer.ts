@@ -83,6 +83,27 @@ export function* indent(...parts: Array<Part | DocumentParts>) {
   yield DecIndent
 }
 
+export function* jsDoc(docs: string | { description: string; abiDescription?: string; params?: Record<string, string>; returns?: string }) {
+  yield `/**`
+  if (typeof docs === 'string') {
+    yield ` * ${docs}`
+  } else {
+    yield ` * ${docs.description}`
+    if (docs.abiDescription) {
+      yield ' *'
+      yield ` * ${docs.abiDescription}`
+    }
+    if (docs.params || docs.returns) {
+      yield ' *'
+    }
+    for (const [paramName, paramDesc] of Object.entries(docs.params ?? {})) {
+      yield ` * @param ${paramName} ${paramDesc}`
+    }
+    if (docs.returns) yield ` * @returns ${docs.returns}`
+  }
+  yield ' */'
+}
+
 function writeDocumentPartsTo(document: DocumentParts, { indent = '  ', ...options }: WriteOptions, writer: StringWriter): void {
   if (options.header) writer.write(`${options.header}\n`)
   if (options.disableEslint) writer.write('/* eslint-disable */\n')
