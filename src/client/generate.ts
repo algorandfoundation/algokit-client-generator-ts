@@ -7,6 +7,7 @@ import { utilityTypes } from './utility-types'
 import { imports } from './imports'
 import { createGeneratorContext } from './generator-context'
 import { appTypes } from './app-types'
+import { callComposerType } from './call-composer-types'
 
 export function* generate(app: AlgoAppSpec): DocumentParts {
   const ctx = createGeneratorContext(app)
@@ -24,13 +25,14 @@ export function* generate(app: AlgoAppSpec): DocumentParts {
   yield* utilityTypes()
   yield NewLine
   yield* appTypes(ctx)
-  //
-  // yield NewLine
   yield* deployTypes(ctx)
+  yield NewLine
 
   // Write a call factory
   yield* callFactory(ctx)
   yield NewLine
   // Write a client
   yield* callClient(ctx)
+
+  yield* callComposerType(ctx)
 }
