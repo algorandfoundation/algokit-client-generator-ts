@@ -13,7 +13,7 @@
     "build": "run-s build:*",
     "build:0-clean": "rimraf dist coverage",
     "build:1-schema-to-types": "cd src/schema && json2ts application.schema.json > application.d.ts",
-    "build:2-lint": "eslint \"src/**/*.ts\" --max-warnings 0",
+    "build:2-lint": "eslint \"src/**/*.ts\" \"examples/**/*.spec.ts\" --max-warnings 0",
     "build:3-check-types": "tsc -p tsconfig.json",
     "build:4-build": "tsc -p tsconfig.build.json",
     "build:5-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts",
@@ -25,6 +25,7 @@
     "test": "jest --coverage",
     "test:ci": "TEST_ENV=ci jest --coverage",
     "update-approvals": "npm run dev && ts-node scripts/update-approvals.ts",
+    "pyteal-build": "poetry run python -m examples",
     "postinstall": "npx --yes patch-package"
   },
   "bin": {

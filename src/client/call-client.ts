@@ -4,6 +4,7 @@ import { makeSafeMethodIdentifier, makeSafeTypeIdentifier } from '../util/saniti
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { GeneratorContext } from './generator-context'
 import { getCreateOnCompleteOptions } from './deploy-types'
+import { composeMethod } from './call-composer'
 
 export function* callClient(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
@@ -22,7 +23,7 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
     },
   })
 
-  yield `constructor(appDetails: AppDetails, algod: Algodv2) {`
+  yield `constructor(appDetails: AppDetails, private algod: Algodv2) {`
   yield IncIndent
   yield 'this.appClient = algokit.getAppClient({'
   yield* indent('...appDetails,', 'app: APP_SPEC')
@@ -34,18 +35,17 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Checks for decode errors on the AppCallTransactionResult and maps the return value to the specified generic type',
     params: {
-      resultPromise: 'The AppCallTransactionResult to be mapped',
+      result: 'The AppCallTransactionResult to be mapped',
       returnValueFormatter: 'An optional delegate to format the return value if required',
     },
     returns: 'The smart contract response with an updated return value',
   })
   yield* inline(
-    `protected async mapReturnValue<TReturn>`,
-    `(resultPromise: Promise<AppCallTransactionResult> | AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): `,
-    `Promise<AppCallTransactionResultOfType<TReturn>> {`,
+    `protected mapReturnValue<TReturn>`,
+    `(result: AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): `,
+    `AppCallTransactionResultOfType<TReturn> {`,
   )
   yield IncIndent
-  yield `const result = await resultPromise`
   yield `if(result.return?.decodeError) {`
   yield* indent(`throw result.return.decodeError`)
   yield `}`
@@ -66,9 +66,9 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
     },
     returns: 'The result of the smart contract call',
   })
-  yield `public call<TSignature extends keyof ${name}['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {`
+  yield `public async call<TSignature extends keyof ${name}['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {`
   yield IncIndent
-  yield `return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(typedCallParams), returnValueFormatter)`
+  yield `return this.mapReturnValue<MethodReturn<TSignature>>(await this.appClient.call(typedCallParams), returnValueFormatter)`
   yield DecIndentAndCloseBlock
   yield NewLine
 
@@ -76,7 +76,7 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield* clearState(ctx)
   yield* noopMethods(ctx)
   yield* getStateMethods(ctx)
-
+  yield* composeMethod(ctx)
   yield DecIndentAndCloseBlock
 }
 
@@ -175,13 +175,13 @@ function* operationMethod(
           },
           returns: `The ${verb} result${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
         })
-        yield `${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params: AppClientCallCoreParams${
+        yield `async ${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params: AppClientCallCoreParams${
           includeCompilation ? ' & AppClientCompilationParams' : ''
         }${onComplete?.type ? ` & ${onComplete.type}` : ''}${
           onComplete?.isOptional !== false ? ' = {}' : ''
         }): Promise<AppCallTransactionResultOfType<MethodReturn<'${methodSig}'>>> {`
         yield* indent(
-          `return $this.mapReturnValue($this.appClient.${verb}(${name}CallFactory.${verb}.${makeSafeMethodIdentifier(
+          `return $this.mapReturnValue(await $this.appClient.${verb}(${name}CallFactory.${verb}.${makeSafeMethodIdentifier(
             uniqueName,
           )}(args, params)))`,
         )

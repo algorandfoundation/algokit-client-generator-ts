@@ -23,7 +23,7 @@ import {
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
-import { Algodv2, OnApplicationComplete, Transaction } from 'algosdk'
+import { Algodv2, OnApplicationComplete, Transaction, TransactionWithSigner, AtomicTransactionComposer } from 'algosdk'
 export const APP_SPEC: AppSpec = {
   "hints": {
     "hello(string)string": {
@@ -246,9 +246,13 @@ export type LifeCycleApp = {
   }
 }
 /**
+ * Defines the possible abi call signatures
+ */
+export type LifeCycleAppSig = keyof LifeCycleApp['methods']
+/**
  * Defines an object containing all relevant parameters for a single call to the contract. Where TSignature is undefined, a bare call is made
  */
-export type TypedCallParams<TSignature extends keyof LifeCycleApp['methods'] | undefined> = {
+export type TypedCallParams<TSignature extends LifeCycleAppSig | undefined> = {
   method: TSignature
   methodArgs: TSignature extends undefined ? undefined : Array<ABIAppCallArg | undefined>
 } & AppClientCallCoreParams & CoreAppCallArgs
@@ -259,11 +263,11 @@ export type BareCallArgs = Omit<RawAppCallArgs, keyof CoreAppCallArgs>
 /**
  * Maps a method signature from the LifeCycleApp smart contract to the method's arguments in either tuple of struct form
  */
-export type MethodArgs<TSignature extends keyof LifeCycleApp['methods']> = LifeCycleApp['methods'][TSignature]['argsObj' | 'argsTuple']
+export type MethodArgs<TSignature extends LifeCycleAppSig> = LifeCycleApp['methods'][TSignature]['argsObj' | 'argsTuple']
 /**
  * Maps a method signature from the LifeCycleApp smart contract to the method's return type
  */
-export type MethodReturn<TSignature extends keyof LifeCycleApp['methods']> = LifeCycleApp['methods'][TSignature]['returns']
+export type MethodReturn<TSignature extends LifeCycleAppSig> = LifeCycleApp['methods'][TSignature]['returns']
 
 /**
  * A factory for available 'create' calls
@@ -299,6 +303,7 @@ export type LifeCycleAppDeployArgs = {
    */
   updateCall?: (callFactory: LifeCycleAppUpdateCalls) => LifeCycleAppUpdateCallParams
 }
+
 
 /**
  * Exposes methods for constructing all available smart contract calls
@@ -419,7 +424,7 @@ export class LifeCycleAppClient {
    * @param appDetails appDetails The details to identify the app to deploy
    * @param algod An algod client instance
    */
-  constructor(appDetails: AppDetails, algod: Algodv2) {
+  constructor(appDetails: AppDetails, private algod: Algodv2) {
     this.appClient = algokit.getAppClient({
       ...appDetails,
       app: APP_SPEC
@@ -429,12 +434,11 @@ export class LifeCycleAppClient {
   /**
    * Checks for decode errors on the AppCallTransactionResult and maps the return value to the specified generic type
    *
-   * @param resultPromise The AppCallTransactionResult to be mapped
+   * @param result The AppCallTransactionResult to be mapped
    * @param returnValueFormatter An optional delegate to format the return value if required
    * @returns The smart contract response with an updated return value
    */
-  protected async mapReturnValue<TReturn>(resultPromise: Promise<AppCallTransactionResult> | AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): Promise<AppCallTransactionResultOfType<TReturn>> {
-    const result = await resultPromise
+  protected mapReturnValue<TReturn>(result: AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): AppCallTransactionResultOfType<TReturn> {
     if(result.return?.decodeError) {
       throw result.return.decodeError
     }
@@ -451,8 +455,8 @@ export class LifeCycleAppClient {
    * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type
    * @returns The result of the smart contract call
    */
-  public call<TSignature extends keyof LifeCycleApp['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
-    return this.mapReturnValue<MethodReturn<TSignature>>(this.appClient.call(typedCallParams), returnValueFormatter)
+  public async call<TSignature extends keyof LifeCycleApp['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
+    return this.mapReturnValue<MethodReturn<TSignature>>(await this.appClient.call(typedCallParams), returnValueFormatter)
   }
 
   /**
@@ -494,8 +498,8 @@ export class LifeCycleAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result: The formatted greeting
        */
-      createStringString(args: MethodArgs<'create(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string)string'>>> {
-        return $this.mapReturnValue($this.appClient.create(LifeCycleAppCallFactory.create.createStringString(args, params)))
+      async createStringString(args: MethodArgs<'create(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string)string'>>> {
+        return $this.mapReturnValue(await $this.appClient.create(LifeCycleAppCallFactory.create.createStringString(args, params)))
       },
       /**
        * Creates a new instance of the LifeCycleApp smart contract using the create(string,uint32)void ABI method.
@@ -504,8 +508,8 @@ export class LifeCycleAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      createStringUint32Void(args: MethodArgs<'create(string,uint32)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string,uint32)void'>>> {
-        return $this.mapReturnValue($this.appClient.create(LifeCycleAppCallFactory.create.createStringUint32Void(args, params)))
+      async createStringUint32Void(args: MethodArgs<'create(string,uint32)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create(string,uint32)void'>>> {
+        return $this.mapReturnValue(await $this.appClient.create(LifeCycleAppCallFactory.create.createStringUint32Void(args, params)))
       },
     }
   }
@@ -619,4 +623,114 @@ export class LifeCycleAppClient {
     }
   }
 
+  public compose(): LifeCycleAppComposer {
+    const client = this
+    const atc = new AtomicTransactionComposer()
+    let promiseChain:Promise<unknown> = Promise.resolve()
+    const resultMappers: Array<undefined | ((x: any) => any)> = []
+    return {
+      helloStringString(args: MethodArgs<'hello(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+        promiseChain = promiseChain.then(() => client.helloStringString(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
+        resultMappers.push(undefined)
+        return this
+      },
+      helloString(args: MethodArgs<'hello()string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+        promiseChain = promiseChain.then(() => client.helloString(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
+        resultMappers.push(undefined)
+        return this
+      },
+      get update() {
+        const $this = this
+        return {
+          bare(args?: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs) {
+            promiseChain = promiseChain.then(() => client.update.bare({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
+            resultMappers.push(undefined)
+            return $this
+          },
+        }
+      },
+      clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
+        promiseChain = promiseChain.then(() => client.clearState({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
+        resultMappers.push(undefined)
+        return this
+      },
+      addTransaction(txn: TransactionWithSigner) {
+        promiseChain = promiseChain.then(() => atc.addTransaction(txn))
+        return this
+      },
+      async atc() {
+        await promiseChain
+        return atc
+      },
+      async execute() {
+        await promiseChain
+        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams: {} }, client.algod)
+        return {
+          ...result,
+          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
+        }
+      }
+    } as unknown as LifeCycleAppComposer
+  }
+}
+export type LifeCycleAppComposer<TReturns extends [...any[]] = []> = {
+  /**
+   * Calls the hello(string)string ABI method.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  helloStringString(args: MethodArgs<'hello(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, MethodReturn<'hello(string)string'>]>
+
+  /**
+   * Calls the hello()string ABI method.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  helloString(args: MethodArgs<'hello()string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, MethodReturn<'hello()string'>]>
+
+  /**
+   * Gets available update methods
+   */
+  readonly update: {
+    /**
+     * Updates an existing instance of the LifeCycleApp smart contract using a bare call.
+     *
+     * @param args The arguments for the bare call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(args?: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, undefined]>
+  }
+
+  /**
+   * Makes a clear_state call to an existing instance of the LifeCycleApp smart contract.
+   *
+   * @param args The arguments for the bare call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, undefined]>
+
+  /**
+   * Adds a transaction to the composer
+   *
+   * @param txn A transaction with signer object
+   */
+  addTransaction(txn: TransactionWithSigner): LifeCycleAppComposer<TReturns>
+  /**
+   * Returns the underlying AtomicTransactionComposer instance
+   */
+  atc(): Promise<AtomicTransactionComposer>
+  /**
+   * Executes the transaction group and returns an array of results
+   */
+  execute(): Promise<LifeCycleAppComposerResults<TReturns>>
+}
+export type LifeCycleAppComposerResults<TReturns extends [...any[]]> = {
+  returns: TReturns
+  groupId: string
+  txIds: string[]
+  transactions: Transaction[]
 }
