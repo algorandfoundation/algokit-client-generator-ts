@@ -15,6 +15,9 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc(`The underlying \`ApplicationClient\` for when you want to have more flexibility`)
   yield 'public readonly appClient: ApplicationClient'
   yield NewLine
+  yield `private readonly sender: SendTransactionFrom | undefined`
+  yield NewLine
+
   yield* jsDoc({
     description: `Creates a new instance of \`${makeSafeTypeIdentifier(app.contract.name)}Client\``,
     params: {
@@ -25,6 +28,7 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
 
   yield `constructor(appDetails: AppDetails, private algod: Algodv2) {`
   yield IncIndent
+  yield `this.sender = appDetails.sender`
   yield 'this.appClient = algokit.getAppClient({'
   yield* indent('...appDetails,', 'app: APP_SPEC')
   yield '}, algod)'
@@ -90,7 +94,7 @@ function* opMethods(ctx: GeneratorContext): DocumentParts {
     },
     returns: 'The deployment result',
   })
-  yield `public deploy(params: ${name}DeployArgs & AppClientDeployCoreParams = {}) {`
+  yield `public deploy(params: ${name}DeployArgs & AppClientDeployCoreParams = {}): ReturnType<ApplicationClient['deploy']> {`
   yield IncIndent
 
   if (callConfig.createMethods.length) yield `const createArgs = params.createCall?.(${name}CallFactory.create)`

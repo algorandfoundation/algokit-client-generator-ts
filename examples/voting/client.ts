@@ -629,6 +629,8 @@ export class VotingRoundAppClient {
    */
   public readonly appClient: ApplicationClient
 
+  private readonly sender: SendTransactionFrom | undefined
+
   /**
    * Creates a new instance of `VotingRoundAppClient`
    *
@@ -636,6 +638,7 @@ export class VotingRoundAppClient {
    * @param algod An algod client instance
    */
   constructor(appDetails: AppDetails, private algod: Algodv2) {
+    this.sender = appDetails.sender
     this.appClient = algokit.getAppClient({
       ...appDetails,
       app: APP_SPEC
@@ -676,7 +679,7 @@ export class VotingRoundAppClient {
    * @param params The arguments for the contract calls and any additional parameters for the call
    * @returns The deployment result
    */
-  public deploy(params: VotingRoundAppDeployArgs & AppClientDeployCoreParams = {}) {
+  public deploy(params: VotingRoundAppDeployArgs & AppClientDeployCoreParams = {}): ReturnType<ApplicationClient['deploy']> {
     const createArgs = params.createCall?.(VotingRoundAppCallFactory.create)
     const deleteArgs = params.deleteCall?.(VotingRoundAppCallFactory.delete)
     return this.appClient.deploy({
@@ -913,8 +916,8 @@ export class VotingRoundAppClient {
         resultMappers.push(undefined)
         return this
       },
-      addTransaction(txn: TransactionWithSigner) {
-        promiseChain = promiseChain.then(() => atc.addTransaction(txn))
+      addTransaction(txn: TransactionWithSigner | TransactionToSign | Transaction | Promise<SendTransactionResult>, defaultSender?: SendTransactionFrom) {
+        promiseChain = promiseChain.then(async () => atc.addTransaction(await algokit.getTransactionWithSigner(txn, defaultSender ?? client.sender)))
         return this
       },
       async atc() {
@@ -995,9 +998,10 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
   /**
    * Adds a transaction to the composer
    *
-   * @param txn A transaction with signer object
+   * @param txn One of: A TransactionWithSigner object (returned as is), a TransactionToSign object (signer is obtained from the signer property), a Transaction object (signer is extracted from the defaultSender parameter), an async SendTransactionResult returned by one of algokit utils helpers (signer is obtained from the defaultSender parameter)
+   * @param defaultSender The default sender to be used to obtain a signer where the object provided to the transaction parameter does not include a signer.
    */
-  addTransaction(txn: TransactionWithSigner): VotingRoundAppComposer<TReturns>
+  addTransaction(txn: TransactionWithSigner | TransactionToSign | Transaction | Promise<SendTransactionResult>, defaultSender?: SendTransactionFrom): VotingRoundAppComposer<TReturns>
   /**
    * Returns the underlying AtomicTransactionComposer instance
    */
