@@ -15,6 +15,8 @@ export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'
   switch (abiTypeStr) {
     case 'void':
       return 'void'
+    case 'asset':
+      return 'number | bigint'
     case 'txn':
     case 'pay':
     case 'keyreg':
