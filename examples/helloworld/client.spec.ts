@@ -2,9 +2,12 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { beforeEach, describe, expect, test } from '@jest/globals'
 import { HelloWorldAppClient } from './client'
 import { AtomicTransactionComposer } from 'algosdk'
+import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 describe('hello world typed client', () => {
-  const localnet = algorandFixture()
+  const localnet = algorandFixture({
+    testAccountFunding: microAlgos(1_000_000),
+  })
   beforeEach(localnet.beforeEach, 10_000)
 
   test('Calls hello', async () => {
@@ -45,13 +48,27 @@ describe('hello world typed client', () => {
 
     const atc = new AtomicTransactionComposer()
     await client.helloWorldCheck({ name: 'World' }, { sendParams: { atc, skipSending: true } })
-    const [trans] = atc.buildGroup()
+    const [transactionWithSigner] = atc.buildGroup()
 
-    // Add a transaction in the middle of the method calls and check that it doesn't mess up the return values
-    const result = await client.compose().hello(['World']).addTransaction(trans).hello({ name: 'World!' }).execute()
+    const { transaction: rawTransaction } = await client.hello({ name: 'Bananas' }, { sendParams: { skipSending: true } })
+
+    // Add a transactions in the middle of the method calls and check that it doesn't mess up the return values
+    const result = await client
+      .compose()
+      .hello(['World'])
+      .addTransaction(transactionWithSigner)
+      .addTransaction(rawTransaction)
+      .addTransaction(
+        client.appClient.fundAppAccount({
+          amount: microAlgos(100_000),
+          sendParams: { skipSending: true },
+        }),
+      )
+      .hello({ name: 'World!' })
+      .execute()
 
     expect(result.returns[0]).toBe('Hello, World')
     expect(result.returns[1]).toBe('Hello, World!')
-    expect(result.txIds.length).toBe(3)
+    expect(result.txIds.length).toBe(5)
   })
 })
