@@ -42,10 +42,13 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Adds a transaction to the composer',
     params: {
-      txn: 'A transaction with signer object',
+      txn: 'One of: A TransactionWithSigner object (returned as is), a TransactionToSign object (signer is obtained from the signer property), a Transaction object (signer is extracted from the defaultSender parameter), an async SendTransactionResult returned by one of algokit utils helpers (signer is obtained from the defaultSender parameter)',
+      defaultSender:
+        'The default sender to be used to obtain a signer where the object provided to the transaction parameter does not' +
+        ' include a signer.',
     },
   })
-  yield `addTransaction(txn: TransactionWithSigner): ${name}Composer<TReturns>`
+  yield `addTransaction(txn: TransactionWithSigner | TransactionToSign | Transaction | Promise<SendTransactionResult>, defaultSender?: SendTransactionFrom): ${name}Composer<TReturns>`
 
   yield* jsDoc({
     description: 'Returns the underlying AtomicTransactionComposer instance',

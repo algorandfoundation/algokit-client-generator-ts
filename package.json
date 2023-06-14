@@ -35,7 +35,7 @@
   "author": "Algorand Foundation",
   "license": "MIT",
   "dependencies": {
-    "@algorandfoundation/algokit-utils": "^2",
+    "@algorandfoundation/algokit-utils": "^2.1.0",
     "chalk": "^4.1.2",
     "change-case": "^4.1.2",
     "commander": "^10.0.1",

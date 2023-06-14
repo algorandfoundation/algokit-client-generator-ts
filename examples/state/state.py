@@ -55,6 +55,12 @@ def call_abi_txn(txn: pt.abi.PaymentTransaction, value: pt.abi.String, *, output
         )
     )
 
+@app.external()
+def call_with_asset(asset: pt.abi.Asset, *, output: pt.abi.Uint64) -> pt.Expr:
+    return pt.Seq(
+        pt.Assert(asset.asset_id(), comment="asset not provided"),
+        output.set(asset.asset_id()),
+    )
 
 @app.external()
 def set_global(

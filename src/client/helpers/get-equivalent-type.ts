@@ -9,21 +9,19 @@ import {
   ABIType,
   ABIUfixedType,
   ABIUintType,
+  abiTypeIsReference,
+  abiTypeIsTransaction,
 } from 'algosdk'
 
 export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'): string {
-  switch (abiTypeStr) {
-    case 'void':
-      return 'void'
-    case 'txn':
-    case 'pay':
-    case 'keyreg':
-    case 'acfg':
-    case 'axfer':
-    case 'afrz':
-    case 'appl':
-    case 'application':
-      return 'TransactionToSign | Transaction | Promise<SendTransactionResult>'
+  if (abiTypeStr == 'void') {
+    return 'void'
+  }
+  if (abiTypeIsTransaction(abiTypeStr)) {
+    return 'TransactionToSign | Transaction | Promise<SendTransactionResult>'
+  }
+  if (abiTypeIsReference(abiTypeStr)) {
+    return 'number | bigint'
   }
 
   const abiType = ABIType.from(abiTypeStr)
