@@ -29,3 +29,6 @@ jobs:
           target_branch: main
           message: Merge release back to main to get version increment [no ci]
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Trigger Publish
+        run: gh workflow run 'Publish' --ref release
+
