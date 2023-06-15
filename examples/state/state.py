@@ -103,6 +103,11 @@ def default_value(
 ) -> pt.Expr:
     return output.set(arg_with_default.get())
 
+@app.external(read_only=True)
+def default_value_int(
+    arg_with_default: pt.abi.Uint64 = 123, *, output: pt.abi.Uint64  # type: ignore[assignment]
+) -> pt.Expr:
+    return output.set(arg_with_default.get())
 
 @app.external(read_only=True)
 def default_value_from_abi(

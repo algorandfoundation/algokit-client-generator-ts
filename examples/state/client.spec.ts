@@ -95,6 +95,12 @@ describe('state typed client', () => {
     const abiDefault = await client.defaultValueFromAbi({})
     expect(abiDefault.return).toBe('ABI, default value')
 
+    const intDefined = await client.defaultValueInt({ arg_with_default: 42 })
+    expect(intDefined.return).toBe(42n)
+
+    const intDefault = await client.defaultValueInt({})
+    expect(intDefault.return).toBe(123n)
+
     const globalDefined = await client.defaultValueFromGlobalState({ arg_with_default: 123 })
     expect(globalDefined.return).toBe(123n)
 
