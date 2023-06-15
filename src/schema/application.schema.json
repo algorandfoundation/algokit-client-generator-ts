@@ -279,21 +279,16 @@
         },
         {
           "type": "object",
-          "required": [
-            "source",
-            "data"
-          ],
+          "required": ["source", "data"],
           "additionalProperties": false,
           "properties": {
             "source": {
               "description": "The default value is a constant.",
-              "enum": [
-                "constant"
-              ]
+              "enum": ["constant"]
             },
             "data": {
               "description": "The static default value to use.",
-              "oneOf": [
+              "anyOf": [
                 {
                   "type": "string"
                 },
