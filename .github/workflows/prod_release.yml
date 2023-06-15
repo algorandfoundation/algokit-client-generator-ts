@@ -31,4 +31,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Trigger Publish
         run: gh workflow run 'Publish' --ref release
-
+        env:
+          GH_TOKEN: ${{ github.token }}
