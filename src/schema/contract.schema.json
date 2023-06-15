@@ -8,6 +8,9 @@
     "name": {
       "type": "string"
     },
+    "desc": {
+      "type": "string"
+    },
     "methods": {
       "type": "array",
       "items": {
