@@ -15,6 +15,7 @@ jobs:
     with:
       run-commit-lint: true
       run-build: true
+      audit-script: npm run audit
       pre-test-script: |
         pipx install algokit
         algokit localnet start
