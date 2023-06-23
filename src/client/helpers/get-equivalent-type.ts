@@ -10,7 +10,6 @@ import {
   ABIType,
   ABIUfixedType,
   ABIUintType,
-  abiTypeIsReference,
   abiTypeIsTransaction,
 } from 'algosdk'
 
