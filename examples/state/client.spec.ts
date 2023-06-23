@@ -140,7 +140,7 @@ describe('state typed client', () => {
     expect(localState.local_bytes1?.asString()).toBe('default value')
   })
 
-  test('ABI methods which take assets can be called', async () => {
+  test('ABI methods which take references can be called', async () => {
     const { algod, indexer, testAccount } = localnet.context
     const client = new StateAppClient(
       {
@@ -154,8 +154,10 @@ describe('state typed client', () => {
     await client.deploy({ deployTimeParams: { VALUE: 1 } })
 
     // Call with number
-    await client.callWithAsset({ asset: 1234 })
-    // Call with bigint
-    await client.callWithAsset({ asset: 1234n })
+    await client.callWithReferences({
+      asset: 1234,
+      account: testAccount.addr,
+      application: (await client.appClient.getAppReference()).appId,
+    })
   })
 })

@@ -4,6 +4,7 @@ import {
   ABIArrayStaticType,
   ABIBoolType,
   ABIByteType,
+  ABIReferenceType,
   ABIStringType,
   ABITupleType,
   ABIType,
@@ -20,7 +21,10 @@ export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'
   if (abiTypeIsTransaction(abiTypeStr)) {
     return 'TransactionToSign | Transaction | Promise<SendTransactionResult>'
   }
-  if (abiTypeIsReference(abiTypeStr)) {
+  if (abiTypeStr == ABIReferenceType.account) {
+    return 'string | Uint8Array'
+  }
+  if (abiTypeStr == ABIReferenceType.application || abiTypeStr == ABIReferenceType.asset) {
     return 'number | bigint'
   }
 
