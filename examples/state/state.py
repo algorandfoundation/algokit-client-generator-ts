@@ -56,10 +56,18 @@ def call_abi_txn(txn: pt.abi.PaymentTransaction, value: pt.abi.String, *, output
     )
 
 @app.external()
-def call_with_asset(asset: pt.abi.Asset, *, output: pt.abi.Uint64) -> pt.Expr:
+def call_with_references(
+    asset: pt.abi.Asset,
+    account: pt.abi.Account,
+    application: pt.abi.Application,
+    *,
+    output: pt.abi.Uint64
+) -> pt.Expr:
     return pt.Seq(
         pt.Assert(asset.asset_id(), comment="asset not provided"),
-        output.set(asset.asset_id()),
+        pt.Assert(pt.Len(account.address()), comment="account not provided"),
+        pt.Assert(application.application_id(), comment="application not provided"),
+        output.set(pt.Int(1)),
     )
 
 @app.external()
