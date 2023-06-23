@@ -172,7 +172,6 @@
     },
     "CallConfig": {
       "type": "object",
-      "minProperties": 1,
       "additionalProperties": false,
       "properties": {
         "no_op": {
