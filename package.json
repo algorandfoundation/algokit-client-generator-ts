@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "private": false,
   "scripts": {
+    "audit": "better-npm-audit audit",
     "dev": "run-s dev:*",
     "dev:helloworld": "ts-node --transpile-only src/index.ts generate -a ./examples/helloworld/application.json -o ./examples/helloworld/client.generated.ts",
     "dev:lifecycle": "ts-node --transpile-only src/index.ts generate -a ./examples/lifecycle/application.json -o ./examples/lifecycle/client.generated.ts",
@@ -50,6 +51,7 @@
     "@noble/ed25519": "1.7.3",
     "@types/jest": "^29.5.2",
     "algosdk": "^2.3.0",
+    "better-npm-audit": "^3.7.3",
     "conventional-changelog-conventionalcommits": "^5.0.0",
     "copyfiles": "^2.4.1",
     "eslint": "8.42.0",
