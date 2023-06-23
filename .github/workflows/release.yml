@@ -18,6 +18,7 @@ jobs:
     uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
     with:
       run-commit-lint: true
+      audit-script: npm run audit
       pre-test-script: |
         pipx install algokit
         algokit localnet start
