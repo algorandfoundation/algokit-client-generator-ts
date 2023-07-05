@@ -162,11 +162,11 @@ export const APP_SPEC: AppSpec = {
   },
   "state": {
     "global": {
-      "num_byte_slices": 2,
+      "num_byte_slices": 3,
       "num_uints": 3
     },
     "local": {
-      "num_byte_slices": 2,
+      "num_byte_slices": 3,
       "num_uints": 2
     }
   },
@@ -199,7 +199,13 @@ export const APP_SPEC: AppSpec = {
           "descr": ""
         }
       },
-      "reserved": {}
+      "reserved": {
+        "reserved_global_bytes": {
+          "type": "bytes",
+          "max_keys": 1,
+          "descr": "Reserved global state description"
+        }
+      }
     },
     "local": {
       "declared": {
@@ -224,7 +230,13 @@ export const APP_SPEC: AppSpec = {
           "descr": ""
         }
       },
-      "reserved": {}
+      "reserved": {
+        "reserved_local_bytes": {
+          "type": "bytes",
+          "max_keys": 1,
+          "descr": "Reserved local state description"
+        }
+      }
     }
   },
   "contract": {
