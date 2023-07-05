@@ -115,6 +115,7 @@ export interface AppSources {
 }
 export interface AbiContract {
   name: string;
+  desc?: string;
   methods: ContractMethod1[];
   networks?: {
     [k: string]: {

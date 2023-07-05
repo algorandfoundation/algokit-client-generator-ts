@@ -20,6 +20,8 @@ class BareCallAppState:
     local_int1 = beaker.LocalStateValue(stack_type=pt.TealType.uint64)
     local_int2 = beaker.LocalStateValue(stack_type=pt.TealType.uint64)
     box = BoxMapping(pt.abi.StaticBytes[Literal[4]], pt.abi.String)
+    reserved_global_bytes = beaker.ReservedGlobalStateValue(stack_type=pt.TealType.bytes, max_keys=1, descr="Reserved global state description")
+    reserved_local_bytes = beaker.ReservedLocalStateValue(stack_type=pt.TealType.bytes, max_keys=1, descr="Reserved local state description")
 
 
 app = beaker.Application("StateApp", state=BareCallAppState)
