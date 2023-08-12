@@ -2,7 +2,7 @@ import { DocumentParts } from '../output/writer'
 
 export function* imports(): DocumentParts {
   yield `import * as algokit from '@algorandfoundation/algokit-utils'
-import {
+import type {
   AppCallTransactionResult,
   AppCallTransactionResultOfType,
   CoreAppCallArgs,
@@ -11,14 +11,15 @@ import {
   TealTemplateParams,
   ABIAppCallArg,
 } from '@algorandfoundation/algokit-utils/types/app'
-import {
+import type {
   AppClientCallCoreParams,
   AppClientCompilationParams,
   AppClientDeployCoreParams,
   AppDetails,
   ApplicationClient,
 } from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
-import { Algodv2, OnApplicationComplete, Transaction, TransactionWithSigner, AtomicTransactionComposer } from 'algosdk'`
+import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+import type { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
+import type { TransactionWithSigner } from 'algosdk'
+import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer } from 'algosdk'`
 }
