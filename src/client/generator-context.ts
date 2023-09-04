@@ -14,9 +14,12 @@ export const createGeneratorContext = (app: AlgoAppSpec) => ({
   app,
   name: makeSafeTypeIdentifier(app.contract.name),
   callConfig: getCallConfigSummary(app),
-  methodSignatureToUniqueName: app.contract.methods.reduce((acc, cur) => {
-    const signature = algokit.getABIMethodSignature(cur)
-    acc[signature] = app.contract.methods.some((m) => m.name === cur.name && m !== cur) ? signature : cur.name
-    return acc
-  }, {} as Record<string, string>),
+  methodSignatureToUniqueName: app.contract.methods.reduce(
+    (acc, cur) => {
+      const signature = algokit.getABIMethodSignature(cur)
+      acc[signature] = app.contract.methods.some((m) => m.name === cur.name && m !== cur) ? signature : cur.name
+      return acc
+    },
+    {} as Record<string, string>,
+  ),
 })
