@@ -4,7 +4,7 @@
     "target": "ES2019",
     "outDir": "./dist/",
     "module": "commonjs",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
