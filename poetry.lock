@@ -124,12 +124,12 @@ frozenlist = ">=1.1.0"
 
 [[package]]
 name = "algokit-utils"
-version = "2.0.0"
+version = "2.0.1"
 description = "Utilities for Algorand development for use by AlgoKit"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "algokit_utils-2.0.0-py3-none-any.whl", hash = "sha256:f06ac0341e547c8bb2ba540f9b71dfc113ee59e5e94dcc70b62e5908b8714adb"},
+    {file = "algokit_utils-2.0.1-py3-none-any.whl", hash = "sha256:89852c6255a68db507c08596e40cc579d3d6e5df51834010b71a5da0a4a32375"},
 ]
 
 [package.dependencies]
@@ -189,12 +189,12 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "beaker-pyteal"
-version = "1.1.0b1"
+version = "1.1.1"
 description = "A Framework for building PyTeal Applications"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "beaker_pyteal-1.1.0b1-py3-none-any.whl", hash = "sha256:a6295ca134063c745a6258d382c0c67bb3b9a83954dc5447ba4f1162f8210ea4"},
+    {file = "beaker_pyteal-1.1.1-py3-none-any.whl", hash = "sha256:a85a4568213acbd097cd70d8acd71d0e7187b71a4dc5c1fd9760ae8c1433571e"},
 ]
 
 [package.dependencies]
@@ -1406,4 +1406,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "4fb721b84d14c59e30a1b6139642a52578a4c44ae7f2f7ebcb83d15ea00f0abe"
+content-hash = "3082fb59a3a422a1efccbbc1b1d9d7c194ef92e1af5238a4117f0ee8977d6a28"
