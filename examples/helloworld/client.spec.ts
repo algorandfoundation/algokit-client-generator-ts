@@ -85,9 +85,9 @@ describe('hello world typed client', () => {
     )
     await client.deploy()
 
-    const response = await client.compose().hello({ name: 'World' }).simulate()
+    const response = await client.compose().hello({ name: 'mate' }).simulate()
 
-    expect(response.methodResults[0].returnValue).toBe('Hello, World')
+    expect(response.methodResults[0].returnValue).toBe('Hello, mate')
     expect(response.simulateResponse.txnGroups[0].appBudgetConsumed).toBeLessThan(50)
   })
 })
