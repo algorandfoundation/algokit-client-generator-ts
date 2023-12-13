@@ -71,4 +71,23 @@ describe('hello world typed client', () => {
     expect(result.returns[1]).toBe('Hello, World!')
     expect(result.txIds.length).toBe(5)
   })
+
+  test('Simulates hello', async () => {
+    const { algod, indexer, testAccount } = localnet.context
+    const client = new HelloWorldAppClient(
+      {
+        resolveBy: 'creatorAndName',
+        sender: testAccount,
+        creatorAddress: testAccount.addr,
+        findExistingUsing: indexer,
+      },
+      algod,
+    )
+    await client.deploy()
+
+    const response = await client.compose().hello({ name: 'World' }).simulate()
+
+    expect(response.methodResults[0].returnValue).toBe('Hello, World')
+    expect(response.simulateResponse.txnGroups[0].appBudgetConsumed).toBeLessThan(50)
+  })
 })

@@ -56,10 +56,21 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield `atc(): Promise<AtomicTransactionComposer>`
 
   yield* jsDoc({
-    description: 'Executes the transaction group and returns an array of results',
+    description: 'Simulates the transaction group and returns the result',
+  })
+  yield `simulate(): Promise<${name}ComposerSimulateResult>`
+
+  yield* jsDoc({
+    description: 'Executes the transaction group and returns the results',
   })
   yield `execute(): Promise<${name}ComposerResults<TReturns>>`
 
+  yield DecIndentAndCloseBlock
+
+  yield `export type ${name}ComposerSimulateResult = {`
+  yield IncIndent
+  yield `methodResults: ABIResult[]`
+  yield `simulateResponse: modelsv2.SimulateResponse`
   yield DecIndentAndCloseBlock
 
   yield `export type ${name}ComposerResults<TReturns extends [...any[]]> = {`
