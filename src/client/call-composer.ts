@@ -39,6 +39,14 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield DecIndent
   yield '},'
 
+  yield `async simulate() {`
+  yield IncIndent
+  yield `await promiseChain`
+  yield `const result = await atc.simulate(client.algod)`
+  yield `return result`
+  yield DecIndent
+  yield '},'
+
   yield `async execute() {`
   yield IncIndent
   yield `await promiseChain`
