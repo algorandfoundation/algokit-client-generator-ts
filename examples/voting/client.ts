@@ -23,7 +23,7 @@ import type {
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import type { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
-import type { TransactionWithSigner } from 'algosdk'
+import type { ABIResult, TransactionWithSigner, modelsv2 } from 'algosdk'
 import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer } from 'algosdk'
 export const APP_SPEC: AppSpec = {
   "hints": {
@@ -925,6 +925,11 @@ export class VotingRoundAppClient {
         await promiseChain
         return atc
       },
+      async simulate() {
+        await promiseChain
+        const result = await atc.simulate(client.algod)
+        return result
+      },
       async execute() {
         await promiseChain
         const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams: {} }, client.algod)
@@ -1008,9 +1013,17 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
    */
   atc(): Promise<AtomicTransactionComposer>
   /**
-   * Executes the transaction group and returns an array of results
+   * Simulates the transaction group and returns the result
+   */
+  simulate(): Promise<VotingRoundAppComposerSimulateResult>
+  /**
+   * Executes the transaction group and returns the results
    */
   execute(): Promise<VotingRoundAppComposerResults<TReturns>>
+}
+export type VotingRoundAppComposerSimulateResult = {
+  methodResults: ABIResult[]
+  simulateResponse: modelsv2.SimulateResponse
 }
 export type VotingRoundAppComposerResults<TReturns extends [...any[]]> = {
   returns: TReturns
