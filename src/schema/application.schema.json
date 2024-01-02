@@ -2,8 +2,13 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "title": "AlgoAppSpec",
   "type": "object",
-  "required": ["contract", "schema", "source", "state"],
-  "additionalProperties": false,
+  "required": [
+    "contract",
+    "schema",
+    "source",
+    "state"
+  ],
+  "additionalProperties": true,
   "properties": {
     "hints": {
       "type": "object",
@@ -30,12 +35,18 @@
   "definitions": {
     "AVMType": {
       "description": "AVM data type",
-      "enum": ["uint64", "bytes"]
+      "enum": [
+        "uint64",
+        "bytes"
+      ]
     },
     "DeclaredSchemaValueSpec": {
       "type": "object",
-      "required": ["type", "key"],
-      "additionalProperties": false,
+      "required": [
+        "type",
+        "key"
+      ],
+      "additionalProperties": true,
       "properties": {
         "type": {
           "description": "The type of the value",
@@ -57,7 +68,9 @@
     },
     "ReservedSchemaValueSpec": {
       "type": "object",
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "properties": {
         "type": {
           "description": "The type of the value",
@@ -75,8 +88,11 @@
     },
     "StateSchemaSpec": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["global", "local"],
+      "additionalProperties": true,
+      "required": [
+        "global",
+        "local"
+      ],
       "properties": {
         "global": {
           "$ref": "#/definitions/StateSchema"
@@ -88,8 +104,11 @@
     },
     "StateSchema": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["num_byte_slices", "num_uints"],
+      "additionalProperties": true,
+      "required": [
+        "num_byte_slices",
+        "num_uints"
+      ],
       "properties": {
         "num_uints": {
           "type": "integer"
@@ -102,7 +121,7 @@
     "SchemaSpec": {
       "description": "The schema for global and local storage",
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "global": {
           "$ref": "#/definitions/Schema"
@@ -114,7 +133,7 @@
     },
     "Schema": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "declared": {
           "type": "object",
@@ -132,7 +151,7 @@
     },
     "AppSources": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "approval": {
           "type": "string"
@@ -144,7 +163,7 @@
     },
     "Hint": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "read_only": {
           "type": "boolean"
@@ -192,12 +211,20 @@
       }
     },
     "CallConfigValue": {
-      "enum": ["NEVER", "CALL", "CREATE", "ALL"]
+      "enum": [
+        "NEVER",
+        "CALL",
+        "CREATE",
+        "ALL"
+      ]
     },
     "Struct": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["name", "elements"],
+      "additionalProperties": true,
+      "required": [
+        "name",
+        "elements"
+      ],
       "properties": {
         "name": {
           "type": "string"
@@ -233,12 +260,17 @@
       "oneOf": [
         {
           "type": "object",
-          "required": ["source", "data"],
-          "additionalProperties": false,
+          "required": [
+            "source",
+            "data"
+          ],
+          "additionalProperties": true,
           "properties": {
             "source": {
               "description": "The default value should be fetched by invoking an ABI method",
-              "enum": ["abi-method"]
+              "enum": [
+                "abi-method"
+              ]
             },
             "data": {
               "description": "The contract of the ABI method to invoke.",
@@ -248,12 +280,17 @@
         },
         {
           "type": "object",
-          "required": ["source", "data"],
-          "additionalProperties": false,
+          "required": [
+            "source",
+            "data"
+          ],
+          "additionalProperties": true,
           "properties": {
             "source": {
               "description": "The default value should be fetched from global state",
-              "enum": ["global-state"]
+              "enum": [
+                "global-state"
+              ]
             },
             "data": {
               "description": "The key of the state variable",
@@ -263,12 +300,17 @@
         },
         {
           "type": "object",
-          "required": ["source", "data"],
-          "additionalProperties": false,
+          "required": [
+            "source",
+            "data"
+          ],
+          "additionalProperties": true,
           "properties": {
             "source": {
               "description": "The default value should be fetched from the local state of the sender user",
-              "enum": ["local-state"]
+              "enum": [
+                "local-state"
+              ]
             },
             "data": {
               "description": "The key of the state variable",
@@ -278,12 +320,17 @@
         },
         {
           "type": "object",
-          "required": ["source", "data"],
-          "additionalProperties": false,
+          "required": [
+            "source",
+            "data"
+          ],
+          "additionalProperties": true,
           "properties": {
             "source": {
               "description": "The default value is a constant.",
-              "enum": ["constant"]
+              "enum": [
+                "constant"
+              ]
             },
             "data": {
               "description": "The static default value to use.",
