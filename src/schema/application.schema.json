@@ -191,7 +191,7 @@
     },
     "CallConfig": {
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
         "no_op": {
           "$ref": "#/definitions/CallConfigValue"

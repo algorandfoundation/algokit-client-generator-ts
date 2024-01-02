@@ -126,7 +126,6 @@ export interface CallConfig {
   close_out?: CallConfigValue;
   update_application?: CallConfigValue;
   delete_application?: CallConfigValue;
-  [k: string]: unknown;
 }
 export interface AppSources {
   approval?: string;
