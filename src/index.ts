@@ -1,2 +1,3 @@
-import { cli } from './cli'
-cli(process.cwd(), process.argv)
+export { loadApplicationJson, validateApplicationJson } from './schema/load'
+export { generate } from './client/generate'
+export { writeDocumentPartsToStream, writeDocumentPartsToString } from './output/writer'
