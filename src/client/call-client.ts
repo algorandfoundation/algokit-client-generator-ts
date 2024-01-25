@@ -45,9 +45,9 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
     returns: 'The smart contract response with an updated return value',
   })
   yield* inline(
-    `protected mapReturnValue<TReturn>`,
+    `protected mapReturnValue<TReturn, TResult extends AppCallTransactionResult = AppCallTransactionResult>`,
     `(result: AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): `,
-    `AppCallTransactionResultOfType<TReturn> {`,
+    `AppCallTransactionResultOfType<TReturn> & TResult {`,
   )
   yield IncIndent
   yield `if(result.return?.decodeError) {`
@@ -57,7 +57,7 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield IncIndent
   yield `? returnValueFormatter(result.return.returnValue)`
   yield `: result.return?.returnValue as TReturn | undefined`
-  yield `return { ...result, return: returnValue }`
+  yield `return { ...result, return: returnValue } as AppCallTransactionResultOfType<TReturn> & TResult`
   yield DecIndent
   yield DecIndentAndCloseBlock
   yield NewLine
@@ -144,6 +144,18 @@ function* operationMethod(
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
   includeCompilation?: boolean,
 ): DocumentParts {
+  let responseTypeGenericParam
+  switch (verb) {
+    case 'create':
+      responseTypeGenericParam = ', AppCreateCallTransactionResult'
+      break
+    case 'update':
+      responseTypeGenericParam = ', AppUpdateCallTransactionResult'
+      break
+    default:
+      responseTypeGenericParam = ''
+      break
+  }
   if (methods.length) {
     yield* jsDoc(`Gets available ${verb} methods`)
     yield `public get ${verb}() {`
@@ -161,12 +173,10 @@ function* operationMethod(
           },
           returns: `The ${verb} result`,
         })
-        yield `bare(args: BareCallArgs & AppClientCallCoreParams ${
+        yield `async bare(args: BareCallArgs & AppClientCallCoreParams ${
           includeCompilation ? '& AppClientCompilationParams ' : ''
-        }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}${
-          onComplete?.isOptional !== false ? ' = {}' : ''
-        }): Promise<AppCallTransactionResultOfType<undefined>> {`
-        yield* indent(`return $this.appClient.${verb}(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>`)
+        }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}) {`
+        yield* indent(`return $this.mapReturnValue<undefined${responseTypeGenericParam}>(await $this.appClient.${verb}(args))`)
         yield '},'
       } else {
         const uniqueName = methodSignatureToUniqueName[methodSig]
@@ -181,11 +191,9 @@ function* operationMethod(
         })
         yield `async ${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params: AppClientCallCoreParams${
           includeCompilation ? ' & AppClientCompilationParams' : ''
-        }${onComplete?.type ? ` & ${onComplete.type}` : ''}${
-          onComplete?.isOptional !== false ? ' = {}' : ''
-        }): Promise<AppCallTransactionResultOfType<MethodReturn<'${methodSig}'>>> {`
+        }${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}) {`
         yield* indent(
-          `return $this.mapReturnValue(await $this.appClient.${verb}(${name}CallFactory.${verb}.${makeSafeMethodIdentifier(
+          `return $this.mapReturnValue<MethodReturn<'${methodSig}'>${responseTypeGenericParam}>(await $this.appClient.${verb}(${name}CallFactory.${verb}.${makeSafeMethodIdentifier(
             uniqueName,
           )}(args, params)))`,
         )

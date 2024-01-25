@@ -1,4 +1,4 @@
-import { DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc } from '../output/writer'
+import { DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
 
 export function* utilityTypes(): DocumentParts {
   yield* jsDoc(`Defines an onCompletionAction of 'no_op'`)
@@ -28,6 +28,10 @@ export function* utilityTypes(): DocumentParts {
   yield* jsDoc('Gets the state value as a string')
   yield `asString(): string`
   yield DecIndentAndCloseBlock
+
+  yield NewLine
+  yield `export type AppCreateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult> & AppReference`
+  yield `export type AppUpdateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult>`
 }
 
 export const OnCompleteCodeMap = {
