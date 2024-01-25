@@ -59,6 +59,7 @@ describe('voting typed client', () => {
       { deletable: true, sendParams: { fee: (1_000 + 1_000 * 4).microAlgos() } },
     )
     expectType<void>(createResult.return)
+    expectType<string>(createResult.appAddress)
 
     const randomAnswerIds = questionCounts.map((c) => rndInt(0, c - 1))
 

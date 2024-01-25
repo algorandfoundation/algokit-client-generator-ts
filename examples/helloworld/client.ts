@@ -6,13 +6,15 @@
  */
 import * as algokit from '@algorandfoundation/algokit-utils'
 import type {
+  ABIAppCallArg,
   AppCallTransactionResult,
   AppCallTransactionResultOfType,
+  AppCompilationResult,
+  AppReference,
+  AppState,
   CoreAppCallArgs,
   RawAppCallArgs,
-  AppState,
   TealTemplateParams,
-  ABIAppCallArg,
 } from '@algorandfoundation/algokit-utils/types/app'
 import type {
   AppClientCallCoreParams,
@@ -386,6 +388,40 @@ export class HelloWorldAppClient {
   }
 
   /**
+   * Checks for decode errors on the AppCallTransactionResult for a create call and maps the return value to the specified generic type
+   *
+   * @param result The AppCallTransactionResult to be mapped
+   * @param returnValueFormatter An optional delegate to format the return value if required
+   * @returns The smart contract response with an updated return value
+   */
+  protected mapCreateReturnValue<TReturn>(result: Partial<AppCompilationResult> & AppReference & AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): Partial<AppCompilationResult> & AppReference & AppCallTransactionResultOfType<TReturn> {
+    if(result.return?.decodeError) {
+      throw result.return.decodeError
+    }
+    const returnValue = result.return?.returnValue !== undefined && returnValueFormatter !== undefined
+      ? returnValueFormatter(result.return.returnValue)
+      : result.return?.returnValue as TReturn | undefined
+      return { ...result, return: returnValue }
+  }
+
+  /**
+   * Checks for decode errors on the AppCallTransactionResult for an update call and maps the return value to the specified generic type
+   *
+   * @param result The AppCallTransactionResult to be mapped
+   * @param returnValueFormatter An optional delegate to format the return value if required
+   * @returns The smart contract response with an updated return value
+   */
+  protected mapUpdateReturnValue<TReturn>(result: Partial<AppCompilationResult> & AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): Partial<AppCompilationResult> & AppCallTransactionResultOfType<TReturn> {
+    if(result.return?.decodeError) {
+      throw result.return.decodeError
+    }
+    const returnValue = result.return?.returnValue !== undefined && returnValueFormatter !== undefined
+      ? returnValueFormatter(result.return.returnValue)
+      : result.return?.returnValue as TReturn | undefined
+      return { ...result, return: returnValue }
+  }
+
+  /**
    * Calls the ABI method with the matching signature using an onCompletion code of NO_OP
    *
    * @param typedCallParams An object containing the method signature, args, and any other relevant parameters
@@ -427,8 +463,8 @@ export class HelloWorldAppClient {
        * @param args The arguments for the bare call
        * @returns The create result
        */
-      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<undefined>> {
-        return $this.appClient.create(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp) = {}): Promise<Partial<AppCompilationResult> & AppReference & AppCallTransactionResultOfType<undefined>> {
+        return $this.appClient.create(args) as unknown as Promise<Partial<AppCompilationResult> & AppReference & AppCallTransactionResultOfType<undefined>>
       },
     }
   }
@@ -445,8 +481,8 @@ export class HelloWorldAppClient {
        * @param args The arguments for the bare call
        * @returns The update result
        */
-      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs = {}): Promise<AppCallTransactionResultOfType<undefined>> {
-        return $this.appClient.update(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs = {}): Promise<Partial<AppCompilationResult> & AppCallTransactionResultOfType<undefined>> {
+        return $this.appClient.update(args) as unknown as Promise<Partial<AppCompilationResult> & AppCallTransactionResultOfType<undefined>>
       },
     }
   }

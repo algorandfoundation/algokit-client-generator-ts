@@ -36,31 +36,9 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield '}'
   yield NewLine
 
-  yield* jsDoc({
-    description: 'Checks for decode errors on the AppCallTransactionResult and maps the return value to the specified generic type',
-    params: {
-      result: 'The AppCallTransactionResult to be mapped',
-      returnValueFormatter: 'An optional delegate to format the return value if required',
-    },
-    returns: 'The smart contract response with an updated return value',
-  })
-  yield* inline(
-    `protected mapReturnValue<TReturn>`,
-    `(result: AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): `,
-    `AppCallTransactionResultOfType<TReturn> {`,
-  )
-  yield IncIndent
-  yield `if(result.return?.decodeError) {`
-  yield* indent(`throw result.return.decodeError`)
-  yield `}`
-  yield `const returnValue = result.return?.returnValue !== undefined && returnValueFormatter !== undefined`
-  yield IncIndent
-  yield `? returnValueFormatter(result.return.returnValue)`
-  yield `: result.return?.returnValue as TReturn | undefined`
-  yield `return { ...result, return: returnValue }`
-  yield DecIndent
-  yield DecIndentAndCloseBlock
-  yield NewLine
+  yield* mapReturnValueMethod('call')
+  yield* mapReturnValueMethod('create')
+  yield* mapReturnValueMethod('update')
 
   yield* jsDoc({
     description: 'Calls the ABI method with the matching signature using an onCompletion code of NO_OP',
@@ -153,6 +131,8 @@ function* operationMethod(
     yield IncIndent
     for (const methodSig of methods) {
       const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
+      const extraTypes =
+        verb === 'create' ? 'Partial<AppCompilationResult> & AppReference & ' : verb === 'update' ? 'Partial<AppCompilationResult> & ' : ''
       if (methodSig === BARE_CALL) {
         yield* jsDoc({
           description: `${description} using a bare call.`,
@@ -165,8 +145,8 @@ function* operationMethod(
           includeCompilation ? '& AppClientCompilationParams ' : ''
         }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}${
           onComplete?.isOptional !== false ? ' = {}' : ''
-        }): Promise<AppCallTransactionResultOfType<undefined>> {`
-        yield* indent(`return $this.appClient.${verb}(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>`)
+        }): Promise<${extraTypes}AppCallTransactionResultOfType<undefined>> {`
+        yield* indent(`return $this.appClient.${verb}(args) as unknown as Promise<${extraTypes}AppCallTransactionResultOfType<undefined>>`)
         yield '},'
       } else {
         const uniqueName = methodSignatureToUniqueName[methodSig]
@@ -183,11 +163,11 @@ function* operationMethod(
           includeCompilation ? ' & AppClientCompilationParams' : ''
         }${onComplete?.type ? ` & ${onComplete.type}` : ''}${
           onComplete?.isOptional !== false ? ' = {}' : ''
-        }): Promise<AppCallTransactionResultOfType<MethodReturn<'${methodSig}'>>> {`
+        }): Promise<${extraTypes}AppCallTransactionResultOfType<MethodReturn<'${methodSig}'>>> {`
         yield* indent(
-          `return $this.mapReturnValue(await $this.appClient.${verb}(${name}CallFactory.${verb}.${makeSafeMethodIdentifier(
-            uniqueName,
-          )}(args, params)))`,
+          `return $this.map${
+            verb === 'create' ? 'Create' : verb === 'update' ? 'Update' : ''
+          }ReturnValue(await $this.appClient.${verb}(${name}CallFactory.${verb}.${makeSafeMethodIdentifier(uniqueName)}(args, params)))`,
         )
         yield '},'
       }
@@ -343,4 +323,35 @@ function* getStateMethods({ app, name }: GeneratorContext): DocumentParts {
     yield DecIndentAndCloseBlock
     yield NewLine
   }
+}
+function* mapReturnValueMethod(type: 'call' | 'create' | 'update'): DocumentParts {
+  yield* jsDoc({
+    description: `Checks for decode errors on the AppCallTransactionResult${
+      type === 'create' ? ' for a create call' : type === 'update' ? ' for an update call' : ''
+    } and maps the return value to the specified generic type`,
+    params: {
+      result: 'The AppCallTransactionResult to be mapped',
+      returnValueFormatter: 'An optional delegate to format the return value if required',
+    },
+    returns: 'The smart contract response with an updated return value',
+  })
+  const extraReturnTypes =
+    type === 'create' ? 'Partial<AppCompilationResult> & AppReference & ' : type === 'update' ? 'Partial<AppCompilationResult> & ' : ''
+  yield* inline(
+    `protected map${type === 'create' ? 'Create' : type === 'update' ? 'Update' : ''}ReturnValue<TReturn>`,
+    `(result: ${extraReturnTypes}AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): `,
+    `${extraReturnTypes}AppCallTransactionResultOfType<TReturn> {`,
+  )
+  yield IncIndent
+  yield `if(result.return?.decodeError) {`
+  yield* indent(`throw result.return.decodeError`)
+  yield `}`
+  yield `const returnValue = result.return?.returnValue !== undefined && returnValueFormatter !== undefined`
+  yield IncIndent
+  yield `? returnValueFormatter(result.return.returnValue)`
+  yield `: result.return?.returnValue as TReturn | undefined`
+  yield `return { ...result, return: returnValue }`
+  yield DecIndent
+  yield DecIndentAndCloseBlock
+  yield NewLine
 }
