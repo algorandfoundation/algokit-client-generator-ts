@@ -6,13 +6,15 @@
  */
 import * as algokit from '@algorandfoundation/algokit-utils'
 import type {
+  ABIAppCallArg,
   AppCallTransactionResult,
   AppCallTransactionResultOfType,
+  AppCompilationResult,
+  AppReference,
+  AppState,
   CoreAppCallArgs,
   RawAppCallArgs,
-  AppState,
   TealTemplateParams,
-  ABIAppCallArg,
 } from '@algorandfoundation/algokit-utils/types/app'
 import type {
   AppClientCallCoreParams,
@@ -522,6 +524,9 @@ export type BinaryState = {
    */
   asString(): string
 }
+
+export type AppCreateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult> & AppReference
+export type AppUpdateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult>
 
 /**
  * Defines the types of available calls and state of the StateApp smart contract.
@@ -1077,14 +1082,14 @@ export class StateAppClient {
    * @param returnValueFormatter An optional delegate to format the return value if required
    * @returns The smart contract response with an updated return value
    */
-  protected mapReturnValue<TReturn>(result: AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): AppCallTransactionResultOfType<TReturn> {
+  protected mapReturnValue<TReturn, TResult extends AppCallTransactionResult = AppCallTransactionResult>(result: AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): AppCallTransactionResultOfType<TReturn> & TResult {
     if(result.return?.decodeError) {
       throw result.return.decodeError
     }
     const returnValue = result.return?.returnValue !== undefined && returnValueFormatter !== undefined
       ? returnValueFormatter(result.return.returnValue)
       : result.return?.returnValue as TReturn | undefined
-      return { ...result, return: returnValue }
+      return { ...result, return: returnValue } as AppCallTransactionResultOfType<TReturn> & TResult
   }
 
   /**
@@ -1129,8 +1134,8 @@ export class StateAppClient {
        * @param args The arguments for the bare call
        * @returns The create result
        */
-      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn) = {}): Promise<AppCallTransactionResultOfType<undefined>> {
-        return $this.appClient.create(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      async bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn) = {}) {
+        return $this.mapReturnValue<undefined, AppCreateCallTransactionResult>(await $this.appClient.create(args))
       },
       /**
        * Creates a new instance of the StateApp smart contract using the create_abi(string)string ABI method.
@@ -1139,8 +1144,8 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      async createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'create_abi(string)string'>>> {
-        return $this.mapReturnValue(await $this.appClient.create(StateAppCallFactory.create.createAbi(args, params)))
+      async createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}) {
+        return $this.mapReturnValue<MethodReturn<'create_abi(string)string'>, AppCreateCallTransactionResult>(await $this.appClient.create(StateAppCallFactory.create.createAbi(args, params)))
       },
     }
   }
@@ -1157,8 +1162,8 @@ export class StateAppClient {
        * @param args The arguments for the bare call
        * @returns The update result
        */
-      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs = {}): Promise<AppCallTransactionResultOfType<undefined>> {
-        return $this.appClient.update(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      async bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs = {}) {
+        return $this.mapReturnValue<undefined, AppUpdateCallTransactionResult>(await $this.appClient.update(args))
       },
       /**
        * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
@@ -1167,8 +1172,8 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The update result
        */
-      async updateAbi(args: MethodArgs<'update_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'update_abi(string)string'>>> {
-        return $this.mapReturnValue(await $this.appClient.update(StateAppCallFactory.update.updateAbi(args, params)))
+      async updateAbi(args: MethodArgs<'update_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams = {}) {
+        return $this.mapReturnValue<MethodReturn<'update_abi(string)string'>, AppUpdateCallTransactionResult>(await $this.appClient.update(StateAppCallFactory.update.updateAbi(args, params)))
       },
     }
   }
@@ -1185,8 +1190,8 @@ export class StateAppClient {
        * @param args The arguments for the bare call
        * @returns The delete result
        */
-      bare(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}): Promise<AppCallTransactionResultOfType<undefined>> {
-        return $this.appClient.delete(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
+      async bare(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}) {
+        return $this.mapReturnValue<undefined>(await $this.appClient.delete(args))
       },
       /**
        * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
@@ -1195,8 +1200,8 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The delete result
        */
-      async deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params: AppClientCallCoreParams = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'delete_abi(string)string'>>> {
-        return $this.mapReturnValue(await $this.appClient.delete(StateAppCallFactory.delete.deleteAbi(args, params)))
+      async deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params: AppClientCallCoreParams = {}) {
+        return $this.mapReturnValue<MethodReturn<'delete_abi(string)string'>>(await $this.appClient.delete(StateAppCallFactory.delete.deleteAbi(args, params)))
       },
     }
   }
@@ -1214,8 +1219,8 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The optIn result
        */
-      async optIn(args: MethodArgs<'opt_in()void'>, params: AppClientCallCoreParams = {}): Promise<AppCallTransactionResultOfType<MethodReturn<'opt_in()void'>>> {
-        return $this.mapReturnValue(await $this.appClient.optIn(StateAppCallFactory.optIn.optIn(args, params)))
+      async optIn(args: MethodArgs<'opt_in()void'>, params: AppClientCallCoreParams = {}) {
+        return $this.mapReturnValue<MethodReturn<'opt_in()void'>>(await $this.appClient.optIn(StateAppCallFactory.optIn.optIn(args, params)))
       },
     }
   }
