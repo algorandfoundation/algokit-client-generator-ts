@@ -39,11 +39,15 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield DecIndent
   yield '},'
 
-  yield `async simulate() {`
+  yield `async simulate(options?: SimulateOptions) {`
   yield IncIndent
   yield `await promiseChain`
-  yield `const result = await atc.simulate(client.algod)`
-  yield `return result`
+  yield `const result = await atc.simulate(client.algod, new modelsv2.SimulateRequest({ txnGroups: [], ...options }))`
+  yield `return {`
+  yield IncIndent
+  yield `...result,`
+  yield `returns: result.methodResults?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)`
+  yield DecIndentAndCloseBlock
   yield DecIndent
   yield '},'
 

@@ -25,8 +25,8 @@ import type {
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import type { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
-import type { ABIResult, TransactionWithSigner, modelsv2 } from 'algosdk'
-import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer } from 'algosdk'
+import type { ABIResult, TransactionWithSigner } from 'algosdk'
+import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer, modelsv2 } from 'algosdk'
 export const APP_SPEC: AppSpec = {
   "hints": {
     "hello(string)string": {
@@ -559,10 +559,13 @@ export class HelloWorldAppClient {
         await promiseChain
         return atc
       },
-      async simulate() {
+      async simulate(options?: SimulateOptions) {
         await promiseChain
-        const result = await atc.simulate(client.algod)
-        return result
+        const result = await atc.simulate(client.algod, new modelsv2.SimulateRequest({ txnGroups: [], ...options }))
+        return {
+          ...result,
+          returns: result.methodResults?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
+        }
       },
       async execute() {
         await promiseChain
@@ -646,13 +649,15 @@ export type HelloWorldAppComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<HelloWorldAppComposerSimulateResult>
+  simulate(options?: SimulateOptions): Promise<HelloWorldAppComposerSimulateResult<TReturns>>
   /**
    * Executes the transaction group and returns the results
    */
   execute(): Promise<HelloWorldAppComposerResults<TReturns>>
 }
-export type HelloWorldAppComposerSimulateResult = {
+export type SimulateOptions = Omit<ConstructorParameters<typeof modelsv2.SimulateRequest>[0], 'txnGroups'>
+export type HelloWorldAppComposerSimulateResult<TReturns extends [...any[]]> = {
+  returns: TReturns
   methodResults: ABIResult[]
   simulateResponse: modelsv2.SimulateResponse
 }
