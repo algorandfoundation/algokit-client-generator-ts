@@ -58,7 +58,7 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Simulates the transaction group and returns the result',
   })
-  yield `simulate(): Promise<${name}ComposerSimulateResult>`
+  yield `simulate(options?: SimulateOptions): Promise<${name}ComposerSimulateResult<TReturns>>`
 
   yield* jsDoc({
     description: 'Executes the transaction group and returns the results',
@@ -66,9 +66,11 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield `execute(): Promise<${name}ComposerResults<TReturns>>`
 
   yield DecIndentAndCloseBlock
+  yield `export type SimulateOptions = Omit<ConstructorParameters<typeof modelsv2.SimulateRequest>[0], 'txnGroups'>`
 
-  yield `export type ${name}ComposerSimulateResult = {`
+  yield `export type ${name}ComposerSimulateResult<TReturns extends [...any[]]> = {`
   yield IncIndent
+  yield `returns: TReturns`
   yield `methodResults: ABIResult[]`
   yield `simulateResponse: modelsv2.SimulateResponse`
   yield DecIndentAndCloseBlock
