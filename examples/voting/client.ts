@@ -24,7 +24,7 @@ import type {
   ApplicationClient,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import type { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
+import type { SendTransactionResult, TransactionToSign, SendTransactionFrom, SendTransactionParams } from '@algorandfoundation/algokit-utils/types/transaction'
 import type { ABIResult, TransactionWithSigner } from 'algosdk'
 import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer, modelsv2 } from 'algosdk'
 export const APP_SPEC: AppSpec = {
@@ -299,7 +299,7 @@ export type OnCompleteUpdApp =  { onCompleteAction: 'update_application' | OnApp
  */
 export type IntegerState = {
   /**
-   * Gets the state value as a BigInt 
+   * Gets the state value as a BigInt.
    */
   asBigInt(): bigint
   /**
@@ -323,6 +323,11 @@ export type BinaryState = {
 
 export type AppCreateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult> & AppReference
 export type AppUpdateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult>
+
+export type AppClientComposeCallCoreParams = Omit<AppClientCallCoreParams, 'sendParams'> & {
+  sendParams?: Omit<SendTransactionParams, 'skipSending' | 'atc' | 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources'>
+}
+export type AppClientComposeExecuteParams = Pick<SendTransactionParams, 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources' | 'suppressLog'>
 
 /**
  * Defines the types of available calls and state of the VotingRoundApp smart contract.
@@ -887,22 +892,22 @@ export class VotingRoundAppClient {
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: any) => any)> = []
     return {
-      bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.bootstrap(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      close(args: MethodArgs<'close()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      close(args: MethodArgs<'close()void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.close(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.getPreconditions(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(VotingPreconditions)
         return this
       },
-      vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.vote(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
@@ -910,14 +915,14 @@ export class VotingRoundAppClient {
       get delete() {
         const $this = this
         return {
-          bare(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
+          bare(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs) {
             promiseChain = promiseChain.then(() => client.delete.bare({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
             resultMappers.push(undefined)
             return $this
           },
         }
       },
-      clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
+      clearState(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.clearState({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
@@ -938,9 +943,9 @@ export class VotingRoundAppClient {
           returns: result.methodResults?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
         }
       },
-      async execute() {
+      async execute(sendParams?: AppClientComposeExecuteParams) {
         await promiseChain
-        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams: {} }, client.algod)
+        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams }, client.algod)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
@@ -957,7 +962,7 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'bootstrap(pay)void'>]>
+  bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'bootstrap(pay)void'>]>
 
   /**
    * Calls the close()void ABI method.
@@ -966,7 +971,7 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  close(args: MethodArgs<'close()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'close()void'>]>
+  close(args: MethodArgs<'close()void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'close()void'>]>
 
   /**
    * Calls the get_preconditions(byte[])(uint64,uint64,uint64,uint64) ABI method.
@@ -977,7 +982,7 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params?: AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>]>
+  getPreconditions(args: MethodArgs<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'get_preconditions(byte[])(uint64,uint64,uint64,uint64)'>]>
 
   /**
    * Calls the vote(pay,byte[],uint8[])void ABI method.
@@ -986,7 +991,7 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'vote(pay,byte[],uint8[])void'>]>
+  vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, MethodReturn<'vote(pay,byte[],uint8[])void'>]>
 
   /**
    * Gets available delete methods
@@ -998,7 +1003,7 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, undefined]>
+    bare(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, undefined]>
   }
 
   /**
@@ -1007,7 +1012,7 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
    * @param args The arguments for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, undefined]>
+  clearState(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs): VotingRoundAppComposer<[...TReturns, undefined]>
 
   /**
    * Adds a transaction to the composer
@@ -1027,7 +1032,7 @@ export type VotingRoundAppComposer<TReturns extends [...any[]] = []> = {
   /**
    * Executes the transaction group and returns the results
    */
-  execute(): Promise<VotingRoundAppComposerResults<TReturns>>
+  execute(sendParams?: AppClientComposeExecuteParams): Promise<VotingRoundAppComposerResults<TReturns>>
 }
 export type SimulateOptions = Omit<ConstructorParameters<typeof modelsv2.SimulateRequest>[0], 'txnGroups'>
 export type VotingRoundAppComposerSimulateResult<TReturns extends [...any[]]> = {
