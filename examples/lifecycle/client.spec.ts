@@ -1,17 +1,24 @@
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { beforeEach, describe, expect, test } from '@jest/globals'
+import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
 import { OnApplicationComplete } from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
 import { LifeCycleAppClient } from './client'
+import { microAlgos } from '@algorandfoundation/algokit-utils'
+import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 
 describe('lifecycle typed client', () => {
-  const localnet = algorandFixture()
-  beforeEach(localnet.beforeEach, 10_000)
-
+  let localnet: AlgorandFixture
+  beforeAll(() => {
+    localnet = algorandFixture({
+      testAccountFunding: microAlgos(100_000_000_000),
+    })
+  })
   let client: LifeCycleAppClient
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await localnet.beforeEach()
+
     const { algod, indexer, testAccount } = localnet.context
     client = new LifeCycleAppClient(
       {
@@ -22,7 +29,7 @@ describe('lifecycle typed client', () => {
       },
       algod,
     )
-  })
+  }, 10_000)
 
   test('create_bare', async () => {
     const createResult = await client.create.bare({ updatable: true })

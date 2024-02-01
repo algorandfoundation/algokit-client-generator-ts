@@ -17,7 +17,7 @@ jobs:
     name: Continuous Integration
     uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
     with:
-      node-version: 18.x
+      node-version: 19.x
       run-commit-lint: true
       audit-script: npm run audit
       pre-test-script: |
@@ -30,7 +30,7 @@ jobs:
     needs:
       - ci
     with:
-      node-version: 18.x
+      node-version: 19.x
       build-path: dist
       artifact-name: package
 
@@ -44,11 +44,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      # semantic-release needs node 18
-      - name: Use Node.js 18.x
+      - name: Use Node.js 19.x
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+         node-version: 19.x
 
       - name: Download built package
         uses: actions/download-artifact@v4

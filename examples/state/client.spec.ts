@@ -1,11 +1,19 @@
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { beforeEach, describe, expect, test } from '@jest/globals'
 import { StateAppClient } from './client'
+import { expect, test, describe, beforeAll, beforeEach } from 'vitest'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
+import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 
 describe('state typed client', () => {
-  const localnet = algorandFixture()
-  beforeEach(localnet.beforeEach, 10_000)
+  let localnet: AlgorandFixture
+  beforeAll(() => {
+    localnet = algorandFixture({
+      testAccountFunding: microAlgos(100_000_000_000),
+    })
+  })
+  beforeEach(async () => {
+    await localnet.beforeEach()
+  }, 10_000)
 
   test('Exposes state correctly', async () => {
     const { algod, indexer, testAccount } = localnet.context

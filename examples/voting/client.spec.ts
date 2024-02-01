@@ -1,5 +1,5 @@
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { beforeEach, describe, expect, test } from '@jest/globals'
+
 import * as ed from '@noble/ed25519'
 import algosdk, { AtomicTransactionComposer } from 'algosdk'
 import invariant from 'tiny-invariant'
@@ -7,17 +7,21 @@ import { expectType } from 'tsd'
 import { VotingPreconditions, VotingRoundAppClient } from './client'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 
+import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
+import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 const rndInt = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min
 
 describe('voting typed client', () => {
-  const localnet = algorandFixture({
-    testAccountFunding: microAlgos(100_000_000_000),
-  })
-  beforeEach(localnet.beforeEach, 10_000)
-
   let client: VotingRoundAppClient
+  let localnet: AlgorandFixture
+  beforeAll(() => {
+    localnet = algorandFixture({
+      testAccountFunding: microAlgos(100_000_000_000),
+    })
+  })
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await localnet.beforeEach()
     const { algod, indexer, testAccount } = localnet.context
     client = new VotingRoundAppClient(
       {
@@ -28,7 +32,7 @@ describe('voting typed client', () => {
       },
       algod,
     )
-  })
+  }, 10_000)
 
   async function createRandomVotingRoundApp() {
     const { algod, testAccount } = localnet.context
@@ -43,7 +47,7 @@ describe('voting typed client', () => {
     const totalQuestionOptions = questionCounts.reduce((a, b) => a + b, 0)
 
     const privateKey = Buffer.from(ed.utils.randomPrivateKey())
-    const publicKey = await ed.getPublicKey(privateKey)
+    const publicKey = await ed.getPublicKeyAsync(privateKey)
 
     const createResult = await client.create.create(
       {
@@ -63,7 +67,7 @@ describe('voting typed client', () => {
     const randomAnswerIds = questionCounts.map((c) => rndInt(0, c - 1))
 
     const decoded = algosdk.decodeAddress(testAccount.addr)
-    const signature = await ed.sign(decoded.publicKey, privateKey)
+    const signature = await ed.signAsync(decoded.publicKey, privateKey)
     return {
       algod,
       totalQuestionOptions,
@@ -96,7 +100,7 @@ describe('voting typed client', () => {
     )
 
     const decoded = algosdk.decodeAddress(testAccount.addr)
-    const signature = await ed.sign(decoded.publicKey, privateKey)
+    const signature = await ed.signAsync(decoded.publicKey, privateKey)
     const preconditionsResult = await client.getPreconditions(
       {
         signature,
