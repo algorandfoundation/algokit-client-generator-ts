@@ -63,7 +63,7 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Executes the transaction group and returns the results',
   })
-  yield `execute(): Promise<${name}ComposerResults<TReturns>>`
+  yield `execute(sendParams?: AppClientComposeExecuteParams): Promise<${name}ComposerResults<TReturns>>`
 
   yield DecIndentAndCloseBlock
   yield `export type SimulateOptions = Omit<ConstructorParameters<typeof modelsv2.SimulateRequest>[0], 'txnGroups'>`
@@ -92,7 +92,7 @@ function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentP
     },
     returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
   })
-  yield `clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): ${name}Composer<[...TReturns, undefined]>`
+  yield `clearState(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs): ${name}Composer<[...TReturns, undefined]>`
   yield NewLine
 }
 
@@ -111,7 +111,7 @@ function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUnique
       },
       returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
     })
-    yield `${methodName}(args: MethodArgs<'${methodSignature}'>, params?: AppClientCallCoreParams & CoreAppCallArgs): ${name}Composer<[...TReturns, MethodReturn<'${methodSignature}'>]>`
+    yield `${methodName}(args: MethodArgs<'${methodSignature}'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): ${name}Composer<[...TReturns, MethodReturn<'${methodSignature}'>]>`
     yield NewLine
   }
 }
@@ -137,7 +137,7 @@ function* callComposerOperationMethodType(
           },
           returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
         })
-        yield `bare(args${onComplete?.isOptional !== false ? '?' : ''}: BareCallArgs & AppClientCallCoreParams ${
+        yield `bare(args${onComplete?.isOptional !== false ? '?' : ''}: BareCallArgs & AppClientComposeCallCoreParams ${
           includeCompilation ? '& AppClientCompilationParams ' : ''
         }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}): ${name}Composer<[...TReturns, undefined]>`
       } else {
@@ -152,7 +152,7 @@ function* callComposerOperationMethodType(
         })
         yield `${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params${
           onComplete?.isOptional !== false ? '?' : ''
-        }: AppClientCallCoreParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+        }: AppClientComposeCallCoreParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
           onComplete?.type ? ` & ${onComplete.type}` : ''
         }): ${name}Composer<[...TReturns, MethodReturn<'${methodSig}'>]>`
       }

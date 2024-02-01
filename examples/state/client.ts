@@ -24,7 +24,7 @@ import type {
   ApplicationClient,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import type { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
+import type { SendTransactionResult, TransactionToSign, SendTransactionFrom, SendTransactionParams } from '@algorandfoundation/algokit-utils/types/transaction'
 import type { ABIResult, TransactionWithSigner } from 'algosdk'
 import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer, modelsv2 } from 'algosdk'
 export const APP_SPEC: AppSpec = {
@@ -503,7 +503,7 @@ export type OnCompleteUpdApp =  { onCompleteAction: 'update_application' | OnApp
  */
 export type IntegerState = {
   /**
-   * Gets the state value as a BigInt 
+   * Gets the state value as a BigInt.
    */
   asBigInt(): bigint
   /**
@@ -527,6 +527,11 @@ export type BinaryState = {
 
 export type AppCreateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult> & AppReference
 export type AppUpdateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult>
+
+export type AppClientComposeCallCoreParams = Omit<AppClientCallCoreParams, 'sendParams'> & {
+  sendParams?: Omit<SendTransactionParams, 'skipSending' | 'atc' | 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources'>
+}
+export type AppClientComposeExecuteParams = Pick<SendTransactionParams, 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources' | 'suppressLog'>
 
 /**
  * Defines the types of available calls and state of the StateApp smart contract.
@@ -1464,62 +1469,62 @@ export class StateAppClient {
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: any) => any)> = []
     return {
-      callAbi(args: MethodArgs<'call_abi(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      callAbi(args: MethodArgs<'call_abi(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.callAbi(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.callAbiTxn(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      callWithReferences(args: MethodArgs<'call_with_references(asset,account,application)uint64'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      callWithReferences(args: MethodArgs<'call_with_references(asset,account,application)uint64'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.callWithReferences(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.setGlobal(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.setLocal(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.setBox(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      error(args: MethodArgs<'error()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      error(args: MethodArgs<'error()void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.error(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      defaultValue(args: MethodArgs<'default_value(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      defaultValue(args: MethodArgs<'default_value(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.defaultValue(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      defaultValueInt(args: MethodArgs<'default_value_int(uint64)uint64'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      defaultValueInt(args: MethodArgs<'default_value_int(uint64)uint64'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.defaultValueInt(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      defaultValueFromAbi(args: MethodArgs<'default_value_from_abi(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      defaultValueFromAbi(args: MethodArgs<'default_value_from_abi(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.defaultValueFromAbi(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      defaultValueFromGlobalState(args: MethodArgs<'default_value_from_global_state(uint64)uint64'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      defaultValueFromGlobalState(args: MethodArgs<'default_value_from_global_state(uint64)uint64'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.defaultValueFromGlobalState(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      defaultValueFromLocalState(args: MethodArgs<'default_value_from_local_state(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      defaultValueFromLocalState(args: MethodArgs<'default_value_from_local_state(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.defaultValueFromLocalState(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
@@ -1527,12 +1532,12 @@ export class StateAppClient {
       get update() {
         const $this = this
         return {
-          bare(args?: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs) {
+          bare(args?: BareCallArgs & AppClientComposeCallCoreParams & AppClientCompilationParams & CoreAppCallArgs) {
             promiseChain = promiseChain.then(() => client.update.bare({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
             resultMappers.push(undefined)
             return $this
           },
-          updateAbi(args: MethodArgs<'update_abi(string)string'>, params?: AppClientCallCoreParams & AppClientCompilationParams) {
+          updateAbi(args: MethodArgs<'update_abi(string)string'>, params?: AppClientComposeCallCoreParams & AppClientCompilationParams) {
             promiseChain = promiseChain.then(() => client.update.updateAbi(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
             resultMappers.push(undefined)
             return $this
@@ -1542,12 +1547,12 @@ export class StateAppClient {
       get delete() {
         const $this = this
         return {
-          bare(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
+          bare(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs) {
             promiseChain = promiseChain.then(() => client.delete.bare({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
             resultMappers.push(undefined)
             return $this
           },
-          deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params?: AppClientCallCoreParams) {
+          deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params?: AppClientComposeCallCoreParams) {
             promiseChain = promiseChain.then(() => client.delete.deleteAbi(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
             resultMappers.push(undefined)
             return $this
@@ -1557,14 +1562,14 @@ export class StateAppClient {
       get optIn() {
         const $this = this
         return {
-          optIn(args: MethodArgs<'opt_in()void'>, params?: AppClientCallCoreParams) {
+          optIn(args: MethodArgs<'opt_in()void'>, params?: AppClientComposeCallCoreParams) {
             promiseChain = promiseChain.then(() => client.optIn.optIn(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
             resultMappers.push(undefined)
             return $this
           },
         }
       },
-      clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
+      clearState(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.clearState({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
@@ -1585,9 +1590,9 @@ export class StateAppClient {
           returns: result.methodResults?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
         }
       },
-      async execute() {
+      async execute(sendParams?: AppClientComposeExecuteParams) {
         await promiseChain
-        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams: {} }, client.algod)
+        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams }, client.algod)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
@@ -1604,7 +1609,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbi(args: MethodArgs<'call_abi(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'call_abi(string)string'>]>
+  callAbi(args: MethodArgs<'call_abi(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'call_abi(string)string'>]>
 
   /**
    * Calls the call_abi_txn(pay,string)string ABI method.
@@ -1613,7 +1618,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'call_abi_txn(pay,string)string'>]>
+  callAbiTxn(args: MethodArgs<'call_abi_txn(pay,string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'call_abi_txn(pay,string)string'>]>
 
   /**
    * Calls the call_with_references(asset,account,application)uint64 ABI method.
@@ -1622,7 +1627,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callWithReferences(args: MethodArgs<'call_with_references(asset,account,application)uint64'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'call_with_references(asset,account,application)uint64'>]>
+  callWithReferences(args: MethodArgs<'call_with_references(asset,account,application)uint64'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'call_with_references(asset,account,application)uint64'>]>
 
   /**
    * Calls the set_global(uint64,uint64,string,byte[4])void ABI method.
@@ -1631,7 +1636,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'set_global(uint64,uint64,string,byte[4])void'>]>
+  setGlobal(args: MethodArgs<'set_global(uint64,uint64,string,byte[4])void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'set_global(uint64,uint64,string,byte[4])void'>]>
 
   /**
    * Calls the set_local(uint64,uint64,string,byte[4])void ABI method.
@@ -1640,7 +1645,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'set_local(uint64,uint64,string,byte[4])void'>]>
+  setLocal(args: MethodArgs<'set_local(uint64,uint64,string,byte[4])void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'set_local(uint64,uint64,string,byte[4])void'>]>
 
   /**
    * Calls the set_box(byte[4],string)void ABI method.
@@ -1649,7 +1654,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'set_box(byte[4],string)void'>]>
+  setBox(args: MethodArgs<'set_box(byte[4],string)void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'set_box(byte[4],string)void'>]>
 
   /**
    * Calls the error()void ABI method.
@@ -1658,7 +1663,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  error(args: MethodArgs<'error()void'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'error()void'>]>
+  error(args: MethodArgs<'error()void'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'error()void'>]>
 
   /**
    * Calls the default_value(string)string ABI method.
@@ -1667,7 +1672,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValue(args: MethodArgs<'default_value(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value(string)string'>]>
+  defaultValue(args: MethodArgs<'default_value(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value(string)string'>]>
 
   /**
    * Calls the default_value_int(uint64)uint64 ABI method.
@@ -1676,7 +1681,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueInt(args: MethodArgs<'default_value_int(uint64)uint64'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value_int(uint64)uint64'>]>
+  defaultValueInt(args: MethodArgs<'default_value_int(uint64)uint64'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value_int(uint64)uint64'>]>
 
   /**
    * Calls the default_value_from_abi(string)string ABI method.
@@ -1685,7 +1690,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromAbi(args: MethodArgs<'default_value_from_abi(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_abi(string)string'>]>
+  defaultValueFromAbi(args: MethodArgs<'default_value_from_abi(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_abi(string)string'>]>
 
   /**
    * Calls the default_value_from_global_state(uint64)uint64 ABI method.
@@ -1694,7 +1699,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromGlobalState(args: MethodArgs<'default_value_from_global_state(uint64)uint64'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_global_state(uint64)uint64'>]>
+  defaultValueFromGlobalState(args: MethodArgs<'default_value_from_global_state(uint64)uint64'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_global_state(uint64)uint64'>]>
 
   /**
    * Calls the default_value_from_local_state(string)string ABI method.
@@ -1703,7 +1708,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromLocalState(args: MethodArgs<'default_value_from_local_state(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_local_state(string)string'>]>
+  defaultValueFromLocalState(args: MethodArgs<'default_value_from_local_state(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_local_state(string)string'>]>
 
   /**
    * Gets available update methods
@@ -1715,7 +1720,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(args?: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs): StateAppComposer<[...TReturns, undefined]>
+    bare(args?: BareCallArgs & AppClientComposeCallCoreParams & AppClientCompilationParams & CoreAppCallArgs): StateAppComposer<[...TReturns, undefined]>
     /**
      * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
      *
@@ -1723,7 +1728,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    updateAbi(args: MethodArgs<'update_abi(string)string'>, params?: AppClientCallCoreParams & AppClientCompilationParams): StateAppComposer<[...TReturns, MethodReturn<'update_abi(string)string'>]>
+    updateAbi(args: MethodArgs<'update_abi(string)string'>, params?: AppClientComposeCallCoreParams & AppClientCompilationParams): StateAppComposer<[...TReturns, MethodReturn<'update_abi(string)string'>]>
   }
 
   /**
@@ -1736,7 +1741,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, undefined]>
+    bare(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, undefined]>
     /**
      * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
      *
@@ -1744,7 +1749,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params?: AppClientCallCoreParams): StateAppComposer<[...TReturns, MethodReturn<'delete_abi(string)string'>]>
+    deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params?: AppClientComposeCallCoreParams): StateAppComposer<[...TReturns, MethodReturn<'delete_abi(string)string'>]>
   }
 
   /**
@@ -1758,7 +1763,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    optIn(args: MethodArgs<'opt_in()void'>, params?: AppClientCallCoreParams): StateAppComposer<[...TReturns, MethodReturn<'opt_in()void'>]>
+    optIn(args: MethodArgs<'opt_in()void'>, params?: AppClientComposeCallCoreParams): StateAppComposer<[...TReturns, MethodReturn<'opt_in()void'>]>
   }
 
   /**
@@ -1767,7 +1772,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param args The arguments for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, undefined]>
+  clearState(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs): StateAppComposer<[...TReturns, undefined]>
 
   /**
    * Adds a transaction to the composer
@@ -1787,7 +1792,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
   /**
    * Executes the transaction group and returns the results
    */
-  execute(): Promise<StateAppComposerResults<TReturns>>
+  execute(sendParams?: AppClientComposeExecuteParams): Promise<StateAppComposerResults<TReturns>>
 }
 export type SimulateOptions = Omit<ConstructorParameters<typeof modelsv2.SimulateRequest>[0], 'txnGroups'>
 export type StateAppComposerSimulateResult<TReturns extends [...any[]]> = {

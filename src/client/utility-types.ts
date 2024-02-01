@@ -1,4 +1,4 @@
-import { DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
+import { DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, jsDoc, NewLine } from '../output/writer'
 
 export function* utilityTypes(): DocumentParts {
   yield* jsDoc(`Defines an onCompletionAction of 'no_op'`)
@@ -15,7 +15,7 @@ export function* utilityTypes(): DocumentParts {
   yield* jsDoc('A state record containing a single unsigned integer')
   yield `export type IntegerState = {`
   yield IncIndent
-  yield* jsDoc('Gets the state value as a BigInt ')
+  yield* jsDoc('Gets the state value as a BigInt.')
   yield `asBigInt(): bigint`
   yield* jsDoc('Gets the state value as a number.')
   yield `asNumber(): number`
@@ -32,6 +32,14 @@ export function* utilityTypes(): DocumentParts {
   yield NewLine
   yield `export type AppCreateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult> & AppReference`
   yield `export type AppUpdateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult>`
+
+  yield NewLine
+  yield `export type AppClientComposeCallCoreParams = Omit<AppClientCallCoreParams, 'sendParams'> & {`
+  yield* indent(
+    `sendParams?: Omit<SendTransactionParams, 'skipSending' | 'atc' | 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources'>`,
+  )
+  yield `}`
+  yield `export type AppClientComposeExecuteParams = Pick<SendTransactionParams, 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources' | 'suppressLog'>`
 }
 
 export const OnCompleteCodeMap = {
