@@ -51,10 +51,10 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield DecIndent
   yield '},'
 
-  yield `async execute() {`
+  yield `async execute(sendParams?: AppClientComposeExecuteParams) {`
   yield IncIndent
   yield `await promiseChain`
-  yield `const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams: {} }, client.algod)`
+  yield `const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams }, client.algod)`
   yield `return {`
   yield IncIndent
   yield `...result,`
@@ -74,7 +74,7 @@ function* callComposerNoops({ app, callConfig, methodSignatureToUniqueName }: Ge
     // Skip methods which don't support a no_op call config
     if (!callConfig.callMethods.includes(methodSignature)) continue
 
-    yield `${methodName}(args: MethodArgs<'${methodSignature}'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {`
+    yield `${methodName}(args: MethodArgs<'${methodSignature}'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {`
     yield IncIndent
     yield `promiseChain = promiseChain.then(() => client.${methodName}(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))`
     const outputTypeName = app.hints?.[methodSignature]?.structs?.output?.name
@@ -86,7 +86,7 @@ function* callComposerNoops({ app, callConfig, methodSignatureToUniqueName }: Ge
 }
 
 function* callComposerClearState(): DocumentParts {
-  yield `clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {`
+  yield `clearState(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs) {`
   yield IncIndent
   yield `promiseChain = promiseChain.then(() => client.clearState({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))`
   yield `resultMappers.push(undefined)`
@@ -110,7 +110,7 @@ function* callComposerOperationMethods(
     for (const methodSig of methods) {
       const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
       if (methodSig === BARE_CALL) {
-        yield `bare(args${onComplete?.isOptional !== false ? '?' : ''}: BareCallArgs & AppClientCallCoreParams ${
+        yield `bare(args${onComplete?.isOptional !== false ? '?' : ''}: BareCallArgs & AppClientComposeCallCoreParams ${
           includeCompilation ? '& AppClientCompilationParams ' : ''
         }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}) {`
         yield IncIndent
@@ -124,7 +124,7 @@ function* callComposerOperationMethods(
         const methodName = makeSafeMethodIdentifier(uniqueName)
         yield `${methodName}(args: MethodArgs<'${methodSig}'>, params${
           onComplete?.isOptional !== false ? '?' : ''
-        }: AppClientCallCoreParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+        }: AppClientComposeCallCoreParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
           onComplete?.type ? ` & ${onComplete.type}` : ''
         }) {`
         yield IncIndent

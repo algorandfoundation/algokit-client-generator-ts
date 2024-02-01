@@ -24,7 +24,7 @@ import type {
   ApplicationClient,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import type { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
+import type { SendTransactionResult, TransactionToSign, SendTransactionFrom, SendTransactionParams } from '@algorandfoundation/algokit-utils/types/transaction'
 import type { ABIResult, TransactionWithSigner } from 'algosdk'
 import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer, modelsv2 } from 'algosdk'
 export const APP_SPEC: AppSpec = {
@@ -174,7 +174,7 @@ export type OnCompleteUpdApp =  { onCompleteAction: 'update_application' | OnApp
  */
 export type IntegerState = {
   /**
-   * Gets the state value as a BigInt 
+   * Gets the state value as a BigInt.
    */
   asBigInt(): bigint
   /**
@@ -198,6 +198,11 @@ export type BinaryState = {
 
 export type AppCreateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult> & AppReference
 export type AppUpdateCallTransactionResult = AppCallTransactionResult & Partial<AppCompilationResult>
+
+export type AppClientComposeCallCoreParams = Omit<AppClientCallCoreParams, 'sendParams'> & {
+  sendParams?: Omit<SendTransactionParams, 'skipSending' | 'atc' | 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources'>
+}
+export type AppClientComposeExecuteParams = Pick<SendTransactionParams, 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources' | 'suppressLog'>
 
 /**
  * Defines the types of available calls and state of the LifeCycleApp smart contract.
@@ -638,12 +643,12 @@ export class LifeCycleAppClient {
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: any) => any)> = []
     return {
-      helloStringString(args: MethodArgs<'hello(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      helloStringString(args: MethodArgs<'hello(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.helloStringString(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
       },
-      helloString(args: MethodArgs<'hello()string'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
+      helloString(args: MethodArgs<'hello()string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.helloString(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
@@ -651,14 +656,14 @@ export class LifeCycleAppClient {
       get update() {
         const $this = this
         return {
-          bare(args?: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs) {
+          bare(args?: BareCallArgs & AppClientComposeCallCoreParams & AppClientCompilationParams & CoreAppCallArgs) {
             promiseChain = promiseChain.then(() => client.update.bare({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
             resultMappers.push(undefined)
             return $this
           },
         }
       },
-      clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
+      clearState(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs) {
         promiseChain = promiseChain.then(() => client.clearState({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
         resultMappers.push(undefined)
         return this
@@ -679,9 +684,9 @@ export class LifeCycleAppClient {
           returns: result.methodResults?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
         }
       },
-      async execute() {
+      async execute(sendParams?: AppClientComposeExecuteParams) {
         await promiseChain
-        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams: {} }, client.algod)
+        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams }, client.algod)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
@@ -698,7 +703,7 @@ export type LifeCycleAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloStringString(args: MethodArgs<'hello(string)string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, MethodReturn<'hello(string)string'>]>
+  helloStringString(args: MethodArgs<'hello(string)string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, MethodReturn<'hello(string)string'>]>
 
   /**
    * Calls the hello()string ABI method.
@@ -707,7 +712,7 @@ export type LifeCycleAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloString(args: MethodArgs<'hello()string'>, params?: AppClientCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, MethodReturn<'hello()string'>]>
+  helloString(args: MethodArgs<'hello()string'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, MethodReturn<'hello()string'>]>
 
   /**
    * Gets available update methods
@@ -719,7 +724,7 @@ export type LifeCycleAppComposer<TReturns extends [...any[]] = []> = {
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(args?: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, undefined]>
+    bare(args?: BareCallArgs & AppClientComposeCallCoreParams & AppClientCompilationParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, undefined]>
   }
 
   /**
@@ -728,7 +733,7 @@ export type LifeCycleAppComposer<TReturns extends [...any[]] = []> = {
    * @param args The arguments for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, undefined]>
+  clearState(args?: BareCallArgs & AppClientComposeCallCoreParams & CoreAppCallArgs): LifeCycleAppComposer<[...TReturns, undefined]>
 
   /**
    * Adds a transaction to the composer
@@ -748,7 +753,7 @@ export type LifeCycleAppComposer<TReturns extends [...any[]] = []> = {
   /**
    * Executes the transaction group and returns the results
    */
-  execute(): Promise<LifeCycleAppComposerResults<TReturns>>
+  execute(sendParams?: AppClientComposeExecuteParams): Promise<LifeCycleAppComposerResults<TReturns>>
 }
 export type SimulateOptions = Omit<ConstructorParameters<typeof modelsv2.SimulateRequest>[0], 'txnGroups'>
 export type LifeCycleAppComposerSimulateResult<TReturns extends [...any[]]> = {
