@@ -29,7 +29,7 @@
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "test:watch": "vitest watch",
     "test": "vitest run",
-    "test:ci": "TEST_ENV=ci vitest run --coverage --no-file-parallelism",
+    "test:ci": "TEST_ENV=ci vitest run --coverage",
     "update-approvals": "npm run dev && tsx scripts/update-approvals.ts",
     "pyteal-build": "poetry run python -m examples",
     "postinstall": "npx --yes patch-package",
@@ -63,6 +63,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "@tsconfig/node18": "^18.2.2",
+    "@types/wait-on": "^5.3.4",
     "better-npm-audit": "^3.7.3",
     "conventional-changelog-conventionalcommits": "7.0.2",
     "copyfiles": "^2.4.1",
@@ -78,7 +79,8 @@
     "tsd": "^0.30.4",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.2"
+    "vitest": "^1.2.2",
+    "wait-on": "^7.2.0"
   },
   "publishConfig": {
     "access": "public"

@@ -1,5 +1,3 @@
-import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-
 import * as ed from '@noble/ed25519'
 import algosdk, { AtomicTransactionComposer } from 'algosdk'
 import invariant from 'tiny-invariant'
@@ -9,15 +7,15 @@ import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
+import { setUpLocalnet } from '../../src/tests/util'
 const rndInt = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min
 
 describe('voting typed client', () => {
   let client: VotingRoundAppClient
   let localnet: AlgorandFixture
-  beforeAll(() => {
-    localnet = algorandFixture({
-      testAccountFunding: microAlgos(100_000_000_000),
-    })
+
+  beforeAll(async () => {
+    localnet = await setUpLocalnet()
   })
 
   beforeEach(async () => {

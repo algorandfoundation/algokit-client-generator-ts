@@ -1,18 +1,15 @@
-import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
 import { OnApplicationComplete } from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
 import { LifeCycleAppClient } from './client'
-import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
+import { setUpLocalnet } from '../../src/tests/util'
 
 describe('lifecycle typed client', () => {
   let localnet: AlgorandFixture
-  beforeAll(() => {
-    localnet = algorandFixture({
-      testAccountFunding: microAlgos(100_000_000_000),
-    })
+  beforeAll(async () => {
+    localnet = await setUpLocalnet()
   })
   let client: LifeCycleAppClient
 
