@@ -1,5 +1,5 @@
 import { pascalCase } from 'change-case'
-import { AlgoAppSpec, CallConfig, CallConfigValue } from '../../schema/application'
+import { AlgoAppSpec, CallConfig, CallConfigValue } from '../../schema/application.js'
 
 export const BARE_CALL = Symbol('bare')
 

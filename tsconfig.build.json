@@ -1,12 +1,9 @@
 {
-  "extends": "@makerx/ts-config",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "ES2019",
     "outDir": "./dist/",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "esModuleInterop": true
+    "noEmit": false,
+    "declaration": true
   },
   "include": ["src/**/*.ts"]
 }

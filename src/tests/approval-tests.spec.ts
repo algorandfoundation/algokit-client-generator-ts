@@ -1,8 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { generate } from '../client/generate'
-import { writeDocumentPartsToString } from '../output/writer'
-import { loadApplicationJson } from '../schema/load'
+import { generate } from '../client/generate.js'
+import { writeDocumentPartsToString } from '../output/writer.js'
+import { loadApplicationJson } from '../schema/load.js'
+import { expect, test, describe } from 'vitest'
 
 const writeActual = process.env.TEST_ENV !== 'ci'
 
