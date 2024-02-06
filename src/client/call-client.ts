@@ -1,6 +1,6 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
-import { makeSafeMethodIdentifier, makeSafeTypeIdentifier } from '../util/sanitization'
+
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { GeneratorContext } from './generator-context'
 import { getCreateOnCompleteOptions } from './deploy-types'
@@ -10,7 +10,7 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
 
   yield* jsDoc(`A client to make calls to the ${app.contract.name} smart contract`)
-  yield `export class ${makeSafeTypeIdentifier(app.contract.name)}Client {`
+  yield `export class ${ctx.sanitizer.makeSafeTypeIdentifier(app.contract.name)}Client {`
   yield IncIndent
   yield* jsDoc(`The underlying \`ApplicationClient\` for when you want to have more flexibility`)
   yield 'public readonly appClient: ApplicationClient'
@@ -19,7 +19,7 @@ export function* callClient(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 
   yield* jsDoc({
-    description: `Creates a new instance of \`${makeSafeTypeIdentifier(app.contract.name)}Client\``,
+    description: `Creates a new instance of \`${ctx.sanitizer.makeSafeTypeIdentifier(app.contract.name)}Client\``,
     params: {
       appDetails: 'appDetails The details to identify the app to deploy',
       algod: 'An algod client instance',
@@ -138,7 +138,7 @@ function* opMethods(ctx: GeneratorContext): DocumentParts {
 }
 
 function* operationMethod(
-  { app, methodSignatureToUniqueName, name }: GeneratorContext,
+  { app, methodSignatureToUniqueName, name, sanitizer }: GeneratorContext,
   description: string,
   methods: MethodList,
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
@@ -189,13 +189,14 @@ function* operationMethod(
           },
           returns: `The ${verb} result${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
         })
-        yield `async ${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params: AppClientCallCoreParams${
+        const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
+        const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
+        yield `async ${methodName}(args: MethodArgs<'${methodSigSafe}'>, params: AppClientCallCoreParams${
           includeCompilation ? ' & AppClientCompilationParams' : ''
         }${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}) {`
         yield* indent(
-          `return $this.mapReturnValue<MethodReturn<'${methodSig}'>${responseTypeGenericParam}>(await $this.appClient.${verb}(${name}CallFactory.${verb}.${makeSafeMethodIdentifier(
-            uniqueName,
-          )}(args, params)))`,
+          `return $this.mapReturnValue<MethodReturn<'${methodSigSafe}'>${responseTypeGenericParam}>(await $this.appClient.${verb}(${name}CallFactory.${verb}${methodNameAccessor}(args, params)))`,
         )
         yield '},'
       }
@@ -221,10 +222,11 @@ function* clearState({ app }: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-function* noopMethods({ app, name, callConfig, methodSignatureToUniqueName }: GeneratorContext): DocumentParts {
+function* noopMethods({ app, name, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
   for (const method of app.contract.methods) {
     const methodSignature = algokit.getABIMethodSignature(method)
-    const methodName = makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
+    const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
+    const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
     // Skip methods which don't support a no_op call config
     if (!callConfig.callMethods.includes(methodSignature)) continue
     yield* jsDoc({
@@ -236,11 +238,12 @@ function* noopMethods({ app, name, callConfig, methodSignatureToUniqueName }: Ge
       },
       returns: `The result of the call${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
     })
-    yield `public ${methodName}(args: MethodArgs<'${methodSignature}'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {`
+    const methodSignatureSafe = sanitizer.makeSafeStringTypeLiteral(methodSignature)
+    yield `public ${methodName}(args: MethodArgs<'${methodSignatureSafe}'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {`
     yield IncIndent
     const outputTypeName = app.hints?.[methodSignature]?.structs?.output?.name
-    yield `return this.call(${name}CallFactory.${methodName}(args, params)${
-      outputTypeName === undefined ? '' : `, ${makeSafeTypeIdentifier(outputTypeName)}`
+    yield `return this.call(${name}CallFactory${methodNameAccessor}(args, params)${
+      outputTypeName === undefined ? '' : `, ${sanitizer.makeSafeTypeIdentifier(outputTypeName)}`
     })`
     yield DecIndent
     yield '}'
@@ -248,7 +251,7 @@ function* noopMethods({ app, name, callConfig, methodSignatureToUniqueName }: Ge
   }
 }
 
-function* getStateMethods({ app, name }: GeneratorContext): DocumentParts {
+function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentParts {
   const globalStateValues = app.schema.global?.declared && Object.values(app.schema.global?.declared)
   const localStateValues = app.schema.local?.declared && Object.values(app.schema.local?.declared)
   if (globalStateValues?.length || localStateValues?.length) {
@@ -313,11 +316,13 @@ function* getStateMethods({ app, name }: GeneratorContext): DocumentParts {
     yield `return {`
     yield IncIndent
     for (const stateValue of globalStateValues) {
-      yield `get ${stateValue.key}() {`
+      const stateKey = sanitizer.makeSafePropertyIdentifier(stateValue.key)
+      const stateKeyLiteral = sanitizer.makeSafeStringTypeLiteral(stateValue.key)
+      yield `get ${stateKey}() {`
       if (stateValue.type === 'uint64') {
-        yield* indent(`return ${name}Client.getIntegerState(state, '${stateValue.key}')`)
+        yield* indent(`return ${name}Client.getIntegerState(state, '${stateKeyLiteral}')`)
       } else {
-        yield* indent(`return ${name}Client.getBinaryState(state, '${stateValue.key}')`)
+        yield* indent(`return ${name}Client.getBinaryState(state, '${stateKeyLiteral}')`)
       }
       yield '},'
     }

@@ -394,55 +394,55 @@ export type VotingRoundApp = {
       /**
        * The unix timestamp of the time the vote was closed
        */
-      'close_time'?: IntegerState
+      close_time?: IntegerState
       /**
        * The unix timestamp of the ending time of voting
        */
-      'end_time'?: IntegerState
+      end_time?: IntegerState
       /**
        * Whether or not the contract has been bootstrapped with answers
        */
-      'is_bootstrapped'?: IntegerState
+      is_bootstrapped?: IntegerState
       /**
        * The IPFS content ID of the voting metadata file
        */
-      'metadata_ipfs_cid'?: BinaryState
+      metadata_ipfs_cid?: BinaryState
       /**
        * The asset ID of a result NFT if one has been created
        */
-      'nft_asset_id'?: IntegerState
+      nft_asset_id?: IntegerState
       /**
        * The IPFS URL of the default image to use as the media of the result NFT
        */
-      'nft_image_url'?: BinaryState
+      nft_image_url?: BinaryState
       /**
        * The number of options for each question
        */
-      'option_counts'?: BinaryState
+      option_counts?: BinaryState
       /**
        * The minimum number of voters to reach quorum
        */
-      'quorum'?: IntegerState
+      quorum?: IntegerState
       /**
        * The public key of the Ed25519 compatible private key that was used to encrypt entries in the vote gating snapshot
        */
-      'snapshot_public_key'?: BinaryState
+      snapshot_public_key?: BinaryState
       /**
        * The unix timestamp of the starting time of voting
        */
-      'start_time'?: IntegerState
+      start_time?: IntegerState
       /**
        * The total number of options
        */
-      'total_options'?: IntegerState
+      total_options?: IntegerState
       /**
        * The identifier of this voting round
        */
-      'vote_id'?: BinaryState
+      vote_id?: BinaryState
       /**
        * The minimum number of voters who have voted
        */
-      'voter_count'?: IntegerState
+      voter_count?: IntegerState
     }
   }
 }

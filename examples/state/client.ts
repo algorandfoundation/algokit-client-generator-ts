@@ -666,17 +666,17 @@ export type StateApp = {
    */
   state: {
     global: {
-      'bytes1'?: BinaryState
-      'bytes2'?: BinaryState
-      'int1'?: IntegerState
-      'int2'?: IntegerState
-      'value'?: IntegerState
+      bytes1?: BinaryState
+      bytes2?: BinaryState
+      int1?: IntegerState
+      int2?: IntegerState
+      value?: IntegerState
     }
     local: {
-      'local_bytes1'?: BinaryState
-      'local_bytes2'?: BinaryState
-      'local_int1'?: IntegerState
-      'local_int2'?: IntegerState
+      local_bytes1?: BinaryState
+      local_bytes2?: BinaryState
+      local_int1?: IntegerState
+      local_int2?: IntegerState
     }
   }
 }
