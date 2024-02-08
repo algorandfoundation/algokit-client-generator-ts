@@ -41,10 +41,10 @@ describe('state typed client', () => {
 
     const localState = await client.getLocalState(testAccount)
 
-    expect(localState.local_int1?.asNumber()).toBe(1)
-    expect(localState.local_int2?.asNumber()).toBe(2)
-    expect(localState.local_bytes1?.asString()).toBe('asdf')
-    expect(localState.local_bytes2?.asByteArray()).toEqual(new Uint8Array([1, 2, 3, 4]))
+    expect(localState.localInt1?.asNumber()).toBe(1)
+    expect(localState.localInt2?.asNumber()).toBe(2)
+    expect(localState.localBytes1?.asString()).toBe('asdf')
+    expect(localState.localBytes2?.asByteArray()).toEqual(new Uint8Array([1, 2, 3, 4]))
   })
 
   test('Readonly methods do not consume algos', async () => {
@@ -90,37 +90,37 @@ describe('state typed client', () => {
     await client.optIn.optIn({})
     await client.setLocal({ bytes1: 'default value', int2: 0, int1: 0, bytes2: new Uint8Array([1, 2, 3, 4]) })
 
-    const constantDefined = await client.defaultValue({ arg_with_default: 'defined value' })
+    const constantDefined = await client.defaultValue({ argWithDefault: 'defined value' })
     expect(constantDefined.return).toBe('defined value')
 
     const constantDefault = await client.defaultValue({})
     expect(constantDefault.return).toBe('default value')
 
-    const abiDefined = await client.defaultValueFromAbi({ arg_with_default: 'defined value' })
+    const abiDefined = await client.defaultValueFromAbi({ argWithDefault: 'defined value' })
     expect(abiDefined.return).toBe('ABI, defined value')
 
     const abiDefault = await client.defaultValueFromAbi({})
     expect(abiDefault.return).toBe('ABI, default value')
 
-    const intDefined = await client.defaultValueInt({ arg_with_default: 42 })
+    const intDefined = await client.defaultValueInt({ argWithDefault: 42 })
     expect(intDefined.return).toBe(42n)
 
     const intDefault = await client.defaultValueInt({})
     expect(intDefault.return).toBe(123n)
 
-    const globalDefined = await client.defaultValueFromGlobalState({ arg_with_default: 123 })
+    const globalDefined = await client.defaultValueFromGlobalState({ argWithDefault: 123 })
     expect(globalDefined.return).toBe(123n)
 
     const globalState = await client.getGlobalState()
     const globalDefault = await client.defaultValueFromGlobalState({})
     expect(globalDefault.return).toBe(globalState.int1?.asBigInt())
 
-    const localDefined = await client.defaultValueFromLocalState({ arg_with_default: 'defined value' })
+    const localDefined = await client.defaultValueFromLocalState({ argWithDefault: 'defined value' })
     expect(localDefined.return).toBe('Local state, defined value')
 
     const localState = await client.getLocalState(testAccount)
     const localDefault = await client.defaultValueFromLocalState({})
-    expect(localDefault.return).toBe(`Local state, ${localState.local_bytes1?.asString()}`)
+    expect(localDefault.return).toBe(`Local state, ${localState.localBytes1?.asString()}`)
   })
 
   test('Methods can be composed', async () => {
@@ -144,7 +144,7 @@ describe('state typed client', () => {
 
     const localState = await client.getLocalState(testAccount)
 
-    expect(localState.local_bytes1?.asString()).toBe('default value')
+    expect(localState.localBytes1?.asString()).toBe('default value')
   })
 
   test('ABI methods which take references can be called', async () => {

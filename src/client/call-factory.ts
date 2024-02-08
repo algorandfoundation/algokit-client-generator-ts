@@ -164,9 +164,7 @@ function* factoryMethod({
   if (signature) {
     yield `method: '${signatureSafe}' as const,`
     yield `methodArgs: Array.isArray(args) ? args : [${args
-      .map((a) =>
-        sanitizer.isSafeVariableIdentifier(a.name) ? `args.${a.name}` : `args['${sanitizer.makeSafePropertyIdentifier(a.name)}']`,
-      )
+      .map((a) => `args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name))}`)
       .join(', ')}],`
   } else {
     yield `method: undefined,`

@@ -601,37 +601,37 @@ export type StateApp = {
     }>
     & Record<'default_value(string)string' | 'default_value', {
       argsObj: {
-        arg_with_default?: string
+        argWithDefault?: string
       }
-      argsTuple: [arg_with_default: string | undefined]
+      argsTuple: [argWithDefault: string | undefined]
       returns: string
     }>
     & Record<'default_value_int(uint64)uint64' | 'default_value_int', {
       argsObj: {
-        arg_with_default?: bigint | number
+        argWithDefault?: bigint | number
       }
-      argsTuple: [arg_with_default: bigint | number | undefined]
+      argsTuple: [argWithDefault: bigint | number | undefined]
       returns: bigint
     }>
     & Record<'default_value_from_abi(string)string' | 'default_value_from_abi', {
       argsObj: {
-        arg_with_default?: string
+        argWithDefault?: string
       }
-      argsTuple: [arg_with_default: string | undefined]
+      argsTuple: [argWithDefault: string | undefined]
       returns: string
     }>
     & Record<'default_value_from_global_state(uint64)uint64' | 'default_value_from_global_state', {
       argsObj: {
-        arg_with_default?: bigint | number
+        argWithDefault?: bigint | number
       }
-      argsTuple: [arg_with_default: bigint | number | undefined]
+      argsTuple: [argWithDefault: bigint | number | undefined]
       returns: bigint
     }>
     & Record<'default_value_from_local_state(string)string' | 'default_value_from_local_state', {
       argsObj: {
-        arg_with_default?: string
+        argWithDefault?: string
       }
-      argsTuple: [arg_with_default: string | undefined]
+      argsTuple: [argWithDefault: string | undefined]
       returns: string
     }>
     & Record<'create_abi(string)string' | 'create_abi', {
@@ -673,10 +673,10 @@ export type StateApp = {
       value?: IntegerState
     }
     local: {
-      local_bytes1?: BinaryState
-      local_bytes2?: BinaryState
-      local_int1?: IntegerState
-      local_int2?: IntegerState
+      localBytes1?: BinaryState
+      localBytes2?: BinaryState
+      localInt1?: IntegerState
+      localInt2?: IntegerState
     }
   }
 }
@@ -993,7 +993,7 @@ export abstract class StateAppCallFactory {
   static defaultValue(args: MethodArgs<'default_value(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'default_value(string)string' as const,
-      methodArgs: Array.isArray(args) ? args : [args.arg_with_default],
+      methodArgs: Array.isArray(args) ? args : [args.argWithDefault],
       ...params,
     }
   }
@@ -1007,7 +1007,7 @@ export abstract class StateAppCallFactory {
   static defaultValueInt(args: MethodArgs<'default_value_int(uint64)uint64'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'default_value_int(uint64)uint64' as const,
-      methodArgs: Array.isArray(args) ? args : [args.arg_with_default],
+      methodArgs: Array.isArray(args) ? args : [args.argWithDefault],
       ...params,
     }
   }
@@ -1021,7 +1021,7 @@ export abstract class StateAppCallFactory {
   static defaultValueFromAbi(args: MethodArgs<'default_value_from_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'default_value_from_abi(string)string' as const,
-      methodArgs: Array.isArray(args) ? args : [args.arg_with_default],
+      methodArgs: Array.isArray(args) ? args : [args.argWithDefault],
       ...params,
     }
   }
@@ -1035,7 +1035,7 @@ export abstract class StateAppCallFactory {
   static defaultValueFromGlobalState(args: MethodArgs<'default_value_from_global_state(uint64)uint64'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'default_value_from_global_state(uint64)uint64' as const,
-      methodArgs: Array.isArray(args) ? args : [args.arg_with_default],
+      methodArgs: Array.isArray(args) ? args : [args.argWithDefault],
       ...params,
     }
   }
@@ -1049,7 +1049,7 @@ export abstract class StateAppCallFactory {
   static defaultValueFromLocalState(args: MethodArgs<'default_value_from_local_state(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'default_value_from_local_state(string)string' as const,
-      methodArgs: Array.isArray(args) ? args : [args.arg_with_default],
+      methodArgs: Array.isArray(args) ? args : [args.argWithDefault],
       ...params,
     }
   }
@@ -1448,16 +1448,16 @@ export class StateAppClient {
   public async getLocalState(account: string | SendTransactionFrom): Promise<StateApp['state']['local']> {
     const state = await this.appClient.getLocalState(account)
     return {
-      get local_bytes1() {
+      get localBytes1() {
         return StateAppClient.getBinaryState(state, 'local_bytes1')
       },
-      get local_bytes2() {
+      get localBytes2() {
         return StateAppClient.getBinaryState(state, 'local_bytes2')
       },
-      get local_int1() {
+      get localInt1() {
         return StateAppClient.getIntegerState(state, 'local_int1')
       },
-      get local_int2() {
+      get localInt2() {
         return StateAppClient.getIntegerState(state, 'local_int2')
       },
     }

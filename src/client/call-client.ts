@@ -344,11 +344,13 @@ function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentP
     yield `return {`
     yield IncIndent
     for (const stateValue of localStateValues) {
-      yield `get ${stateValue.key}() {`
+      const stateKey = sanitizer.makeSafePropertyIdentifier(stateValue.key)
+      const stateKeyLiteral = sanitizer.makeSafeStringTypeLiteral(stateValue.key)
+      yield `get ${stateKey}() {`
       if (stateValue.type === 'uint64') {
-        yield* indent(`return ${name}Client.getIntegerState(state, '${stateValue.key}')`)
+        yield* indent(`return ${name}Client.getIntegerState(state, '${stateKeyLiteral}')`)
       } else {
-        yield* indent(`return ${name}Client.getBinaryState(state, '${stateValue.key}')`)
+        yield* indent(`return ${name}Client.getBinaryState(state, '${stateKeyLiteral}')`)
       }
       yield '},'
     }

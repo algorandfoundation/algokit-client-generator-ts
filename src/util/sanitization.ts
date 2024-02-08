@@ -16,7 +16,7 @@ export interface Sanitizer {
 
 const defaultSanitiser: Sanitizer = {
   makeSafePropertyIdentifier(value: string) {
-    return this.isSafeVariableIdentifier(value) ? value : `'${escapeQuotes(value)}'`
+    return camelCase(replaceInvalidWithUnderscore(value))
   },
   makeSafeTypeIdentifier(value: string) {
     return pascalCase(replaceInvalidWithUnderscore(value))
@@ -28,7 +28,7 @@ const defaultSanitiser: Sanitizer = {
     return /^[a-z$_][a-z0-9_$]*$/i.test(value)
   },
   makeSafeVariableIdentifier(value: string) {
-    return this.isSafeVariableIdentifier(value) ? value : camelCase(replaceInvalidWithUnderscore(value)) || 'arg'
+    return camelCase(replaceInvalidWithUnderscore(value))
   },
   makeSafeStringTypeLiteral(value: string): string {
     return escapeQuotes(value)
