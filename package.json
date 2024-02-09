@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Generates a TypeScript client for interacting with, and deploying ARC-0032 smart contracts on the Algorand Blockchain.",
   "main": "src/index.js",
+  "module": "index.mjs",
   "private": false,
   "engines": {
     "node": ">=19.0"
@@ -25,7 +26,7 @@
     "build:2-lint": "eslint \"src/**/*.ts\" \"examples/**/*.spec.ts\" --max-warnings 0",
     "build:3-check-types": "tsc -p tsconfig.json",
     "build:4-build": "rollup -c --configPlugin typescript",
-    "build:5-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts",
+    "build:5-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.cjs --types index.d.ts --custom-sections module type ",
     "build:6-copy-bin": "copyfiles bin/* dist/bin -f",
     "build:7-copy-readme": "copyfiles ./README.md ./dist",
     "format": "prettier --write .",
@@ -66,7 +67,7 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
-    "@tsconfig/node18": "^18.2.2",
+    "@tsconfig/node20": "^20.1.2",
     "@types/wait-on": "^5.3.4",
     "better-npm-audit": "^3.7.3",
     "conventional-changelog-conventionalcommits": "7.0.2",
