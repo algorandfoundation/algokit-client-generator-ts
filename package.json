@@ -8,7 +8,7 @@
   "engines": {
     "node": ">=19.0"
   },
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "audit": "better-npm-audit audit",
     "dev": "run-s dev:*",
@@ -26,7 +26,7 @@
     "build:2-lint": "eslint \"src/**/*.ts\" \"examples/**/*.spec.ts\" --max-warnings 0",
     "build:3-check-types": "tsc -p tsconfig.json",
     "build:4-build": "rollup -c --configPlugin typescript",
-    "build:5-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.cjs --types index.d.ts --custom-sections module type ",
+    "build:5-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts --custom-sections module type ",
     "build:6-copy-bin": "copyfiles bin/* dist/bin -f",
     "build:7-copy-readme": "copyfiles ./README.md ./dist",
     "format": "prettier --write .",

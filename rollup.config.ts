@@ -9,9 +9,10 @@ const config: RollupOptions = {
     {
       dir: 'dist',
       format: 'cjs',
-      entryFileNames: '[name].cjs',
+      entryFileNames: '[name].js',
       exports: 'named',
       preserveModules: true,
+      sourcemap: true,
     },
     {
       dir: 'dist',
@@ -19,6 +20,7 @@ const config: RollupOptions = {
       exports: 'named',
       entryFileNames: '[name].mjs',
       preserveModules: true,
+      sourcemap: true,
     },
   ],
   treeshake: {
