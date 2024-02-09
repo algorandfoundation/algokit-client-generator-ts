@@ -339,23 +339,23 @@ export type VotingRoundApp = {
   methods:
     & Record<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void' | 'create', {
       argsObj: {
-        vote_id: string
-        snapshot_public_key: Uint8Array
-        metadata_ipfs_cid: string
-        start_time: bigint | number
-        end_time: bigint | number
-        option_counts: number[]
+        voteId: string
+        snapshotPublicKey: Uint8Array
+        metadataIpfsCid: string
+        startTime: bigint | number
+        endTime: bigint | number
+        optionCounts: number[]
         quorum: bigint | number
-        nft_image_url: string
+        nftImageUrl: string
       }
-      argsTuple: [vote_id: string, snapshot_public_key: Uint8Array, metadata_ipfs_cid: string, start_time: bigint | number, end_time: bigint | number, option_counts: number[], quorum: bigint | number, nft_image_url: string]
+      argsTuple: [voteId: string, snapshotPublicKey: Uint8Array, metadataIpfsCid: string, startTime: bigint | number, endTime: bigint | number, optionCounts: number[], quorum: bigint | number, nftImageUrl: string]
       returns: void
     }>
     & Record<'bootstrap(pay)void' | 'bootstrap', {
       argsObj: {
-        fund_min_bal_req: TransactionToSign | Transaction | Promise<SendTransactionResult>
+        fundMinBalReq: TransactionToSign | Transaction | Promise<SendTransactionResult>
       }
-      argsTuple: [fund_min_bal_req: TransactionToSign | Transaction | Promise<SendTransactionResult>]
+      argsTuple: [fundMinBalReq: TransactionToSign | Transaction | Promise<SendTransactionResult>]
       returns: void
     }>
     & Record<'close()void' | 'close', {
@@ -379,11 +379,11 @@ export type VotingRoundApp = {
     }>
     & Record<'vote(pay,byte[],uint8[])void' | 'vote', {
       argsObj: {
-        fund_min_bal_req: TransactionToSign | Transaction | Promise<SendTransactionResult>
+        fundMinBalReq: TransactionToSign | Transaction | Promise<SendTransactionResult>
         signature: Uint8Array
-        answer_ids: number[]
+        answerIds: number[]
       }
-      argsTuple: [fund_min_bal_req: TransactionToSign | Transaction | Promise<SendTransactionResult>, signature: Uint8Array, answer_ids: number[]]
+      argsTuple: [fundMinBalReq: TransactionToSign | Transaction | Promise<SendTransactionResult>, signature: Uint8Array, answerIds: number[]]
       returns: void
     }>
   /**
@@ -394,55 +394,55 @@ export type VotingRoundApp = {
       /**
        * The unix timestamp of the time the vote was closed
        */
-      'close_time'?: IntegerState
+      closeTime?: IntegerState
       /**
        * The unix timestamp of the ending time of voting
        */
-      'end_time'?: IntegerState
+      endTime?: IntegerState
       /**
        * Whether or not the contract has been bootstrapped with answers
        */
-      'is_bootstrapped'?: IntegerState
+      isBootstrapped?: IntegerState
       /**
        * The IPFS content ID of the voting metadata file
        */
-      'metadata_ipfs_cid'?: BinaryState
+      metadataIpfsCid?: BinaryState
       /**
        * The asset ID of a result NFT if one has been created
        */
-      'nft_asset_id'?: IntegerState
+      nftAssetId?: IntegerState
       /**
        * The IPFS URL of the default image to use as the media of the result NFT
        */
-      'nft_image_url'?: BinaryState
+      nftImageUrl?: BinaryState
       /**
        * The number of options for each question
        */
-      'option_counts'?: BinaryState
+      optionCounts?: BinaryState
       /**
        * The minimum number of voters to reach quorum
        */
-      'quorum'?: IntegerState
+      quorum?: IntegerState
       /**
        * The public key of the Ed25519 compatible private key that was used to encrypt entries in the vote gating snapshot
        */
-      'snapshot_public_key'?: BinaryState
+      snapshotPublicKey?: BinaryState
       /**
        * The unix timestamp of the starting time of voting
        */
-      'start_time'?: IntegerState
+      startTime?: IntegerState
       /**
        * The total number of options
        */
-      'total_options'?: IntegerState
+      totalOptions?: IntegerState
       /**
        * The identifier of this voting round
        */
-      'vote_id'?: BinaryState
+      voteId?: BinaryState
       /**
        * The minimum number of voters who have voted
        */
-      'voter_count'?: IntegerState
+      voterCount?: IntegerState
     }
   }
 }
@@ -465,20 +465,20 @@ export type BareCallArgs = Omit<RawAppCallArgs, keyof CoreAppCallArgs>
  * Represents a VotingPreconditions result as a struct
  */
 export type VotingPreconditions = {
-  is_voting_open: bigint
-  is_allowed_to_vote: bigint
-  has_already_voted: bigint
-  current_time: bigint
+  isVotingOpen: bigint
+  isAllowedToVote: bigint
+  hasAlreadyVoted: bigint
+  currentTime: bigint
 }
 /**
  * Converts the tuple representation of a VotingPreconditions to the struct representation
  */
-export function VotingPreconditions([is_voting_open, is_allowed_to_vote, has_already_voted, current_time]: [bigint, bigint, bigint, bigint] ) {
+export function VotingPreconditions([isVotingOpen, isAllowedToVote, hasAlreadyVoted, currentTime]: [bigint, bigint, bigint, bigint] ) {
   return {
-    is_voting_open,
-    is_allowed_to_vote,
-    has_already_voted,
-    current_time,
+    isVotingOpen,
+    isAllowedToVote,
+    hasAlreadyVoted,
+    currentTime,
   }
 }
 /**
@@ -543,7 +543,7 @@ export abstract class VotingRoundAppCallFactory {
       create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & CoreAppCallArgs & AppClientCompilationParams & (OnCompleteNoOp) = {}) {
         return {
           method: 'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void' as const,
-          methodArgs: Array.isArray(args) ? args : [args.vote_id, args.snapshot_public_key, args.metadata_ipfs_cid, args.start_time, args.end_time, args.option_counts, args.quorum, args.nft_image_url],
+          methodArgs: Array.isArray(args) ? args : [args.voteId, args.snapshotPublicKey, args.metadataIpfsCid, args.startTime, args.endTime, args.optionCounts, args.quorum, args.nftImageUrl],
           ...params,
         }
       },
@@ -581,7 +581,7 @@ export abstract class VotingRoundAppCallFactory {
   static bootstrap(args: MethodArgs<'bootstrap(pay)void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'bootstrap(pay)void' as const,
-      methodArgs: Array.isArray(args) ? args : [args.fund_min_bal_req],
+      methodArgs: Array.isArray(args) ? args : [args.fundMinBalReq],
       ...params,
     }
   }
@@ -625,7 +625,7 @@ export abstract class VotingRoundAppCallFactory {
   static vote(args: MethodArgs<'vote(pay,byte[],uint8[])void'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
     return {
       method: 'vote(pay,byte[],uint8[])void' as const,
-      methodArgs: Array.isArray(args) ? args : [args.fund_min_bal_req, args.signature, args.answer_ids],
+      methodArgs: Array.isArray(args) ? args : [args.fundMinBalReq, args.signature, args.answerIds],
       ...params,
     }
   }
@@ -844,43 +844,43 @@ export class VotingRoundAppClient {
   public async getGlobalState(): Promise<VotingRoundApp['state']['global']> {
     const state = await this.appClient.getGlobalState()
     return {
-      get close_time() {
+      get closeTime() {
         return VotingRoundAppClient.getIntegerState(state, 'close_time')
       },
-      get end_time() {
+      get endTime() {
         return VotingRoundAppClient.getIntegerState(state, 'end_time')
       },
-      get is_bootstrapped() {
+      get isBootstrapped() {
         return VotingRoundAppClient.getIntegerState(state, 'is_bootstrapped')
       },
-      get metadata_ipfs_cid() {
+      get metadataIpfsCid() {
         return VotingRoundAppClient.getBinaryState(state, 'metadata_ipfs_cid')
       },
-      get nft_asset_id() {
+      get nftAssetId() {
         return VotingRoundAppClient.getIntegerState(state, 'nft_asset_id')
       },
-      get nft_image_url() {
+      get nftImageUrl() {
         return VotingRoundAppClient.getBinaryState(state, 'nft_image_url')
       },
-      get option_counts() {
+      get optionCounts() {
         return VotingRoundAppClient.getBinaryState(state, 'option_counts')
       },
       get quorum() {
         return VotingRoundAppClient.getIntegerState(state, 'quorum')
       },
-      get snapshot_public_key() {
+      get snapshotPublicKey() {
         return VotingRoundAppClient.getBinaryState(state, 'snapshot_public_key')
       },
-      get start_time() {
+      get startTime() {
         return VotingRoundAppClient.getIntegerState(state, 'start_time')
       },
-      get total_options() {
+      get totalOptions() {
         return VotingRoundAppClient.getIntegerState(state, 'total_options')
       },
-      get vote_id() {
+      get voteId() {
         return VotingRoundAppClient.getBinaryState(state, 'vote_id')
       },
-      get voter_count() {
+      get voterCount() {
         return VotingRoundAppClient.getIntegerState(state, 'voter_count')
       },
     }

@@ -251,8 +251,8 @@ export type LifeCycleApp = {
    */
   state: {
     global: {
-      'greeting'?: BinaryState
-      'times'?: IntegerState
+      greeting?: BinaryState
+      times?: IntegerState
     }
   }
 }

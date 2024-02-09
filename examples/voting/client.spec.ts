@@ -49,14 +49,14 @@ describe('voting typed client', () => {
 
     const createResult = await client.create.create(
       {
-        vote_id: `V${new Date().getTime().toString(32).toUpperCase()}`,
-        metadata_ipfs_cid: 'cid',
-        start_time: BigInt(currentTime), // todo: allow number and convert
-        end_time: BigInt(currentTime + 1000),
+        voteId: `V${new Date().getTime().toString(32).toUpperCase()}`,
+        metadataIpfsCid: 'cid',
+        startTime: BigInt(currentTime), // todo: allow number and convert
+        endTime: BigInt(currentTime + 1000),
         quorum: BigInt(quorum),
-        snapshot_public_key: publicKey,
-        nft_image_url: 'ipfs://cid',
-        option_counts: questionCounts,
+        snapshotPublicKey: publicKey,
+        nftImageUrl: 'ipfs://cid',
+        optionCounts: questionCounts,
       },
       { deletable: true, sendParams: { fee: (1_000 + 1_000 * 4).microAlgos() } },
     )
@@ -86,7 +86,7 @@ describe('voting typed client', () => {
 
     await client.bootstrap(
       {
-        fund_min_bal_req: client.appClient.fundAppAccount({
+        fundMinBalReq: client.appClient.fundAppAccount({
           amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
           sendParams: { skipSending: true },
         }),
@@ -117,21 +117,21 @@ describe('voting typed client', () => {
 
     const state = await client.getGlobalState()
 
-    invariant(state.snapshot_public_key !== undefined)
-    expect(state.snapshot_public_key.asByteArray()).toEqual(publicKey)
+    invariant(state.snapshotPublicKey !== undefined)
+    expect(state.snapshotPublicKey.asByteArray()).toEqual(publicKey)
 
-    expect(state.metadata_ipfs_cid!.asString()).toBe('cid')
-    expect(state.start_time!.asNumber()).toBe(currentTime)
-    expect(state.end_time!.asNumber()).toBe(currentTime + 1000)
-    expect(state.close_time!.asNumber()).toBe(0)
+    expect(state.metadataIpfsCid!.asString()).toBe('cid')
+    expect(state.startTime!.asNumber()).toBe(currentTime)
+    expect(state.endTime!.asNumber()).toBe(currentTime + 1000)
+    expect(state.closeTime!.asNumber()).toBe(0)
     expect(state.quorum!.asNumber()).toBe(quorum)
-    expect(state.is_bootstrapped!.asNumber()).toBe(0)
-    expect(state.voter_count!.asNumber()).toBe(0)
-    expect(state.nft_image_url!.asString()).toBe('ipfs://cid')
-    expect(state.nft_asset_id!.asNumber()).toBe(0)
-    expect(state.total_options!.asNumber()).toBe(totalQuestionOptions)
+    expect(state.isBootstrapped!.asNumber()).toBe(0)
+    expect(state.voterCount!.asNumber()).toBe(0)
+    expect(state.nftImageUrl!.asString()).toBe('ipfs://cid')
+    expect(state.nftAssetId!.asNumber()).toBe(0)
+    expect(state.totalOptions!.asNumber()).toBe(totalQuestionOptions)
     const optionCountsType = new algosdk.ABIArrayDynamicType(new algosdk.ABIUintType(8))
-    expect(optionCountsType.decode(state.option_counts!.asByteArray()).map(Number)).toEqual(questionCounts)
+    expect(optionCountsType.decode(state.optionCounts!.asByteArray()).map(Number)).toEqual(questionCounts)
   })
 
   describe('given a usage scenario', () => {
@@ -148,12 +148,12 @@ describe('voting typed client', () => {
         },
       )
 
-      expect(preconditionsResultBefore.return?.is_allowed_to_vote).toBe(1n)
-      expect(preconditionsResultBefore.return?.has_already_voted).toBe(0n)
+      expect(preconditionsResultBefore.return?.isAllowedToVote).toBe(1n)
+      expect(preconditionsResultBefore.return?.hasAlreadyVoted).toBe(0n)
 
       await client.bootstrap(
         {
-          fund_min_bal_req: client.appClient.fundAppAccount({
+          fundMinBalReq: client.appClient.fundAppAccount({
             amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
             sendParams: { skipSending: true },
           }),
@@ -166,8 +166,8 @@ describe('voting typed client', () => {
 
       await client.vote(
         {
-          answer_ids: randomAnswerIds,
-          fund_min_bal_req: client.appClient.fundAppAccount({
+          answerIds: randomAnswerIds,
+          fundMinBalReq: client.appClient.fundAppAccount({
             amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
             sendParams: { skipSending: true },
           }),
@@ -188,7 +188,7 @@ describe('voting typed client', () => {
         },
       )
 
-      expect(preconditionsResultAfter.return?.has_already_voted).toBe(1n)
+      expect(preconditionsResultAfter.return?.hasAlreadyVoted).toBe(1n)
     })
 
     test('it works with manual use of the AtomicTransactionComposer', async () => {
@@ -206,7 +206,7 @@ describe('voting typed client', () => {
       )
       await client.bootstrap(
         {
-          fund_min_bal_req: client.appClient.fundAppAccount({
+          fundMinBalReq: client.appClient.fundAppAccount({
             amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
             sendParams: { skipSending: true },
           }),
@@ -218,8 +218,8 @@ describe('voting typed client', () => {
       )
       await client.vote(
         {
-          answer_ids: randomAnswerIds,
-          fund_min_bal_req: client.appClient.fundAppAccount({
+          answerIds: randomAnswerIds,
+          fundMinBalReq: client.appClient.fundAppAccount({
             amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
             sendParams: { skipSending: true },
           }),
@@ -263,7 +263,7 @@ describe('voting typed client', () => {
         )
         .bootstrap(
           {
-            fund_min_bal_req: client.appClient.fundAppAccount({
+            fundMinBalReq: client.appClient.fundAppAccount({
               amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
               sendParams: { skipSending: true },
             }),
@@ -275,8 +275,8 @@ describe('voting typed client', () => {
         )
         .vote(
           {
-            answer_ids: randomAnswerIds,
-            fund_min_bal_req: client.appClient.fundAppAccount({
+            answerIds: randomAnswerIds,
+            fundMinBalReq: client.appClient.fundAppAccount({
               amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
               sendParams: { skipSending: true },
             }),
@@ -299,8 +299,8 @@ describe('voting typed client', () => {
         )
         .execute()
 
-      expect(result.returns[0].has_already_voted).toBe(0n)
-      expect(result.returns[3].has_already_voted).toBe(1n)
+      expect(result.returns[0].hasAlreadyVoted).toBe(0n)
+      expect(result.returns[3].hasAlreadyVoted).toBe(1n)
     })
   })
 })

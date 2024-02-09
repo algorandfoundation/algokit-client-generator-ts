@@ -1,5 +1,5 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
-import { makeSafeTypeIdentifier } from '../util/sanitization'
+
 import { BARE_CALL, MethodIdentifier } from './helpers/get-call-config-summary'
 import { GeneratorContext } from './generator-context'
 import { AlgoAppSpec, CallConfig } from '../schema/application'
@@ -20,8 +20,8 @@ export function getCreateOnCompleteOptions(method: MethodIdentifier, app: AlgoAp
   }
 }
 
-export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentParts {
-  const name = makeSafeTypeIdentifier(app.contract.name)
+export function* deployTypes({ app, callConfig, sanitizer }: GeneratorContext): DocumentParts {
+  const name = sanitizer.makeSafeTypeIdentifier(app.contract.name)
 
   if (callConfig.createMethods.length > 0) {
     yield* jsDoc(`A factory for available 'create' calls`)
@@ -34,7 +34,8 @@ export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentPar
       if (method === BARE_CALL) {
         yield `| (TypedCallParams<undefined> & ${onComplete.type})`
       } else {
-        yield `| (TypedCallParams<'${method}'> & ${onComplete.type})`
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
+        yield `| (TypedCallParams<'${methodSigSafe}'> & ${onComplete.type})`
       }
     }
     yield DecIndent
@@ -50,7 +51,9 @@ export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentPar
       if (method === BARE_CALL) {
         yield `| TypedCallParams<undefined>`
       } else {
-        yield `| TypedCallParams<'${method}'>`
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
+
+        yield `| TypedCallParams<'${methodSigSafe}'>`
       }
     }
     yield DecIndent
@@ -68,7 +71,9 @@ export function* deployTypes({ app, callConfig }: GeneratorContext): DocumentPar
       if (method === BARE_CALL) {
         yield `| TypedCallParams<undefined>`
       } else {
-        yield `| TypedCallParams<'${method}'>`
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
+
+        yield `| TypedCallParams<'${methodSigSafe}'>`
       }
     }
     yield DecIndent
