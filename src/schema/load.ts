@@ -1,8 +1,8 @@
 import { Schema, Validator } from 'jsonschema'
 import { boom } from '../util/boom'
 import { AlgoAppSpec } from './application'
-import appJsonSchema from './application.schema.json'
-import contractSchema from './contract.schema.json'
+import appJsonSchema from './application.schema.json' with { type: 'json' }
+import contractSchema from './contract.schema.json' with { type: 'json' }
 
 export async function loadApplicationJson(appJsonPath: string): Promise<AlgoAppSpec> {
   const fs = await import('fs')

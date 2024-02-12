@@ -1,10 +1,10 @@
 import { ContractMethod } from '../schema/application'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
-import { isSafeVariableIdentifier, makeSafeMethodIdentifier, makeSafePropertyIdentifier } from '../util/sanitization'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { GeneratorContext } from './generator-context'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
+import { Sanitizer } from '../util/sanitization'
 
 export function* callFactory(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc('Exposes methods for constructing all available smart contract calls')
@@ -50,7 +50,7 @@ function* opMethods(ctx: GeneratorContext): DocumentParts {
 }
 
 function* operationMethod(
-  { app, methodSignatureToUniqueName }: GeneratorContext,
+  { app, methodSignatureToUniqueName, sanitizer }: GeneratorContext,
   description: string,
   methods: MethodList,
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
@@ -75,6 +75,7 @@ function* operationMethod(
         yield* factoryMethod({
           isNested: true,
           name: 'bare',
+          sanitizer,
           paramTypes: `BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs${
             includeCompilation ? ' & AppClientCompilationParams' : ''
           }${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}`,
@@ -92,7 +93,8 @@ function* operationMethod(
         })
         yield* factoryMethod({
           isNested: true,
-          name: makeSafeMethodIdentifier(uniqueName),
+          sanitizer,
+          name: sanitizer.makeSafeMethodIdentifier(uniqueName),
           signature: methodSig,
           args: method.args,
           paramTypes: `AppClientCallCoreParams & CoreAppCallArgs${includeCompilation ? ' & AppClientCompilationParams' : ''}${
@@ -107,7 +109,7 @@ function* operationMethod(
   }
 }
 
-function* callFactoryMethod({ methodSignatureToUniqueName, callConfig }: GeneratorContext, method: ContractMethod) {
+function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer }: GeneratorContext, method: ContractMethod) {
   const methodSignature = algokit.getABIMethodSignature(method)
   if (!callConfig.callMethods.includes(methodSignature)) return
 
@@ -122,7 +124,8 @@ function* callFactoryMethod({ methodSignatureToUniqueName, callConfig }: Generat
   })
   yield* factoryMethod({
     isNested: false,
-    name: makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature]),
+    sanitizer,
+    name: sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature]),
     signature: methodSignature,
     args: method.args,
     paramTypes: 'AppClientCallCoreParams & CoreAppCallArgs',
@@ -135,6 +138,7 @@ function* factoryMethod({
   signature,
   args,
   paramTypes,
+  sanitizer,
 }:
   | {
       isNested: boolean
@@ -142,6 +146,7 @@ function* factoryMethod({
       signature?: undefined
       args?: undefined
       paramTypes: string
+      sanitizer: Sanitizer
     }
   | {
       isNested: boolean
@@ -149,15 +154,17 @@ function* factoryMethod({
       signature: string
       args: Array<{ name: string }>
       paramTypes: string
+      sanitizer: Sanitizer
     }) {
-  yield `${isNested ? '' : 'static '}${name}(${signature === undefined ? '' : `args: MethodArgs<'${signature}'>, `}params: ${paramTypes}) {`
+  const signatureSafe = signature && sanitizer.makeSafeStringTypeLiteral(signature)
+  yield `${isNested ? '' : 'static '}${name}(${signature === undefined ? '' : `args: MethodArgs<'${signatureSafe}'>, `}params: ${paramTypes}) {`
   yield IncIndent
   yield `return {`
   yield IncIndent
   if (signature) {
-    yield `method: '${signature}' as const,`
+    yield `method: '${signatureSafe}' as const,`
     yield `methodArgs: Array.isArray(args) ? args : [${args
-      .map((a) => (isSafeVariableIdentifier(a.name) ? `args.${a.name}` : `args['${makeSafePropertyIdentifier(a.name)}']`))
+      .map((a) => `args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name))}`)
       .join(', ')}],`
   } else {
     yield `method: undefined,`

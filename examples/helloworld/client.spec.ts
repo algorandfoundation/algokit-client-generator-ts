@@ -1,14 +1,19 @@
-import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { beforeEach, describe, expect, test } from '@jest/globals'
 import { HelloWorldAppClient } from './client'
+import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
 import { AtomicTransactionComposer } from 'algosdk'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
+import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
+import { setUpLocalnet } from '../../src/tests/util'
 
 describe('hello world typed client', () => {
-  const localnet = algorandFixture({
-    testAccountFunding: microAlgos(1_000_000),
+  let localnet: AlgorandFixture
+
+  beforeAll(async () => {
+    localnet = await setUpLocalnet()
   })
-  beforeEach(localnet.beforeEach, 10_000)
+  beforeEach(async () => {
+    await localnet.beforeEach()
+  }, 10_000)
 
   test('Calls hello', async () => {
     const { algod, indexer, testAccount } = localnet.context

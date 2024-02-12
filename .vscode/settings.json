@@ -13,8 +13,8 @@
   // TypeScript
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.organizeImports": false
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
   },
   "jest.jestCommandLine": "npm run test --",
   "jest.autoRun": {},
@@ -24,9 +24,8 @@
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
   "[python]": {
     "editor.codeActionsOnSave": {
-      "source.fixAll": true,
-      // Prevent default import sorting from running; Ruff will sort imports for us anyway
-      "source.organizeImports": false
+      "source.fixAll": "explicit",
+      "source.organizeImports": "never"
     },
     "editor.defaultFormatter": null
   },

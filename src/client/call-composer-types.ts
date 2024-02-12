@@ -1,7 +1,7 @@
 import { DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
 import { GeneratorContext } from './generator-context'
 import * as algokit from '@algorandfoundation/algokit-utils'
-import { makeSafeMethodIdentifier } from '../util/sanitization'
+
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
 
@@ -96,10 +96,11 @@ function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentP
   yield NewLine
 }
 
-function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUniqueName }: GeneratorContext): DocumentParts {
+function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
   for (const method of app.contract.methods) {
     const methodSignature = algokit.getABIMethodSignature(method)
-    const methodName = makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
+    const methodSignatureSafe = sanitizer.makeSafeStringTypeLiteral(methodSignature)
+    const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
     // Skip methods which don't support a no_op call config
     if (!callConfig.callMethods.includes(methodSignature)) continue
     yield* jsDoc({
@@ -111,13 +112,13 @@ function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUnique
       },
       returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
     })
-    yield `${methodName}(args: MethodArgs<'${methodSignature}'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): ${name}Composer<[...TReturns, MethodReturn<'${methodSignature}'>]>`
+    yield `${methodName}(args: MethodArgs<'${methodSignatureSafe}'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs): ${name}Composer<[...TReturns, MethodReturn<'${methodSignatureSafe}'>]>`
     yield NewLine
   }
 }
 
 function* callComposerOperationMethodType(
-  { app, methodSignatureToUniqueName, name }: GeneratorContext,
+  { app, methodSignatureToUniqueName, name, sanitizer }: GeneratorContext,
   description: string,
   methods: MethodList,
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
@@ -150,11 +151,12 @@ function* callComposerOperationMethodType(
           },
           returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
         })
-        yield `${makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSig}'>, params${
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
+        yield `${sanitizer.makeSafeMethodIdentifier(uniqueName)}(args: MethodArgs<'${methodSigSafe}'>, params${
           onComplete?.isOptional !== false ? '?' : ''
         }: AppClientComposeCallCoreParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
           onComplete?.type ? ` & ${onComplete.type}` : ''
-        }): ${name}Composer<[...TReturns, MethodReturn<'${methodSig}'>]>`
+        }): ${name}Composer<[...TReturns, MethodReturn<'${methodSigSafe}'>]>`
       }
     }
     yield DecIndentAndCloseBlock

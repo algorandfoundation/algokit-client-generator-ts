@@ -2,7 +2,6 @@ import { GeneratorContext } from './generator-context'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, inline, jsDoc, NewLine } from '../output/writer'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { getEquivalentType } from './helpers/get-equivalent-type'
-import { makeSafePropertyIdentifier, makeSafeTypeIdentifier, makeSafeVariableIdentifier } from '../util/sanitization'
 
 export function* appTypes(ctx: GeneratorContext): DocumentParts {
   const { app, methodSignatureToUniqueName, name } = ctx
@@ -14,8 +13,10 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield IncIndent
   for (const method of app.contract.methods) {
     const methodSig = algokit.getABIMethodSignature(method)
+    const methodSigSafe = ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)
     const uniqueName = methodSignatureToUniqueName[methodSig]
-    yield `& Record<'${methodSig}'${methodSig !== uniqueName ? ` | '${uniqueName}'` : ''}, {`
+    const uniqueNameSafe = ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)
+    yield `& Record<'${methodSigSafe}'${methodSig !== uniqueName ? ` | '${uniqueNameSafe}'` : ''}, {`
     yield IncIndent
     yield `argsObj: {`
     yield IncIndent
@@ -28,7 +29,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
 
     for (const arg of argsMeta) {
       if (arg.desc) yield* jsDoc(arg.desc)
-      yield `${makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
+      yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
     }
     yield DecIndentAndCloseBlock
     yield* inline(
@@ -36,7 +37,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
       argsMeta
         .map(
           (arg) =>
-            `${makeSafeVariableIdentifier(arg.name)}: ${getEquivalentType(arg.type, 'input')}${arg.hasDefault ? ' | undefined' : ''}`,
+            `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${getEquivalentType(arg.type, 'input')}${arg.hasDefault ? ' | undefined' : ''}`,
         )
         .join(', '),
       ']',
@@ -44,7 +45,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     const outputStruct = ctx.app.hints?.[methodSig]?.structs?.output
     if (method.returns.desc) yield* jsDoc(method.returns.desc)
     if (outputStruct) {
-      yield `returns: ${makeSafeTypeIdentifier(outputStruct.name)}`
+      yield `returns: ${ctx.sanitizer.makeSafeTypeIdentifier(outputStruct.name)}`
     } else {
       yield `returns: ${getEquivalentType(method.returns.type ?? 'void', 'output')}`
     }
@@ -79,30 +80,30 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-function* structs({ app }: GeneratorContext): DocumentParts {
+function* structs({ app, sanitizer }: GeneratorContext): DocumentParts {
   if (app.hints === undefined) return
   for (const methodHint of Object.values(app.hints)) {
     if (methodHint.structs === undefined) continue
     for (const struct of Object.values(methodHint.structs)) {
       yield* jsDoc(`Represents a ${struct.name} result as a struct`)
-      yield `export type ${makeSafeTypeIdentifier(struct.name)} = {`
+      yield `export type ${sanitizer.makeSafeTypeIdentifier(struct.name)} = {`
       yield IncIndent
       for (const [key, type] of struct.elements) {
-        yield `${makeSafePropertyIdentifier(key)}: ${getEquivalentType(type, 'output')}`
+        yield `${sanitizer.makeSafePropertyIdentifier(key)}: ${getEquivalentType(type, 'output')}`
       }
       yield DecIndentAndCloseBlock
       yield* jsDoc(`Converts the tuple representation of a ${struct.name} to the struct representation`)
       yield* inline(
-        `export function ${makeSafeTypeIdentifier(struct.name)}(`,
-        `[${struct.elements.map(([key]) => makeSafeVariableIdentifier(key)).join(', ')}]: `,
+        `export function ${sanitizer.makeSafeTypeIdentifier(struct.name)}(`,
+        `[${struct.elements.map(([key]) => sanitizer.makeSafeVariableIdentifier(key)).join(', ')}]: `,
         `[${struct.elements.map(([_, type]) => getEquivalentType(type, 'output')).join(', ')}] ) {`,
       )
       yield IncIndent
       yield `return {`
       yield IncIndent
       for (const [key] of struct.elements) {
-        const prop = makeSafePropertyIdentifier(key)
-        const param = makeSafeVariableIdentifier(key)
+        const prop = sanitizer.makeSafePropertyIdentifier(key)
+        const param = sanitizer.makeSafeVariableIdentifier(key)
         yield `${prop}${prop !== param ? `: ${param}` : ''},`
       }
       yield DecIndentAndCloseBlock
@@ -111,7 +112,7 @@ function* structs({ app }: GeneratorContext): DocumentParts {
   }
 }
 
-function* appState({ app }: GeneratorContext): DocumentParts {
+function* appState({ app, sanitizer }: GeneratorContext): DocumentParts {
   const hasLocal = app.schema.local?.declared && Object.keys(app.schema.local.declared).length
   const hasGlobal = app.schema.global?.declared && Object.keys(app.schema.global.declared).length
   if (hasLocal || hasGlobal) {
@@ -125,8 +126,9 @@ function* appState({ app }: GeneratorContext): DocumentParts {
         if (prop.descr) {
           yield* jsDoc(prop.descr)
         }
+        const keySafe = sanitizer.makeSafePropertyIdentifier(prop.key)
 
-        yield `'${prop.key}'?: ${prop.type === 'uint64' ? 'IntegerState' : 'BinaryState'}`
+        yield `${keySafe}?: ${prop.type === 'uint64' ? 'IntegerState' : 'BinaryState'}`
       }
       yield DecIndentAndCloseBlock
     }
@@ -137,8 +139,9 @@ function* appState({ app }: GeneratorContext): DocumentParts {
         if (prop.descr) {
           yield* jsDoc(prop.descr)
         }
+        const keySafe = sanitizer.makeSafePropertyIdentifier(prop.key)
 
-        yield `'${prop.key}'?: ${prop.type === 'uint64' ? 'IntegerState' : 'BinaryState'}`
+        yield `${keySafe}?: ${prop.type === 'uint64' ? 'IntegerState' : 'BinaryState'}`
       }
       yield DecIndentAndCloseBlock
     }

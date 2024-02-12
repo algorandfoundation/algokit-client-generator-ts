@@ -1,7 +1,6 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent } from '../output/writer'
 import { GeneratorContext } from './generator-context'
 import * as algokit from '@algorandfoundation/algokit-utils'
-import { makeSafeMethodIdentifier } from '../util/sanitization'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
 
@@ -67,16 +66,18 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield DecIndentAndCloseBlock
 }
 
-function* callComposerNoops({ app, callConfig, methodSignatureToUniqueName }: GeneratorContext): DocumentParts {
+function* callComposerNoops({ app, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
   for (const method of app.contract.methods) {
     const methodSignature = algokit.getABIMethodSignature(method)
-    const methodName = makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
+    const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
+    const methodSignatureSafe = sanitizer.makeSafeStringTypeLiteral(methodSignature)
+    const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
     // Skip methods which don't support a no_op call config
     if (!callConfig.callMethods.includes(methodSignature)) continue
 
-    yield `${methodName}(args: MethodArgs<'${methodSignature}'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {`
+    yield `${methodName}(args: MethodArgs<'${methodSignatureSafe}'>, params?: AppClientComposeCallCoreParams & CoreAppCallArgs) {`
     yield IncIndent
-    yield `promiseChain = promiseChain.then(() => client.${methodName}(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))`
+    yield `promiseChain = promiseChain.then(() => client${methodNameAccessor}(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))`
     const outputTypeName = app.hints?.[methodSignature]?.structs?.output?.name
     yield `resultMappers.push(${outputTypeName ?? 'undefined'})`
     yield `return this`
@@ -96,7 +97,7 @@ function* callComposerClearState(): DocumentParts {
 }
 
 function* callComposerOperationMethods(
-  { app, methodSignatureToUniqueName }: GeneratorContext,
+  { app, methodSignatureToUniqueName, sanitizer }: GeneratorContext,
   methods: MethodList,
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
   includeCompilation?: boolean,
@@ -121,14 +122,16 @@ function* callComposerOperationMethods(
         yield '},'
       } else {
         const uniqueName = methodSignatureToUniqueName[methodSig]
-        const methodName = makeSafeMethodIdentifier(uniqueName)
-        yield `${methodName}(args: MethodArgs<'${methodSig}'>, params${
+        const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
+        const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
+        yield `${methodName}(args: MethodArgs<'${methodSigSafe}'>, params${
           onComplete?.isOptional !== false ? '?' : ''
         }: AppClientComposeCallCoreParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
           onComplete?.type ? ` & ${onComplete.type}` : ''
         }) {`
         yield IncIndent
-        yield `promiseChain = promiseChain.then(() => client.${verb}.${methodName}(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))`
+        yield `promiseChain = promiseChain.then(() => client.${verb}${methodNameAccessor}(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))`
         const outputTypeName = app.hints?.[methodSig]?.structs?.output?.name
         yield `resultMappers.push(${outputTypeName ?? 'undefined'})`
         yield `return $this`
