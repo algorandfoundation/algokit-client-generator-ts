@@ -1,9 +1,10 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { loadApplicationJson } from './schema/load'
 import * as path from 'path'
 import { generate } from './client/generate'
 import { writeDocumentPartsToStream } from './output/writer'
 import { colorConsole } from './util/color-console'
+import { IdentifierNaming } from './util/sanitization'
 
 export function cli(workingDirectory: string, args: string[]) {
   const program = new Command()
@@ -12,9 +13,24 @@ export function cli(workingDirectory: string, args: string[]) {
     .description('Generates a TypeScript client for the given application.json file')
     .requiredOption('-a --application <path>', 'Specifies the application.json file')
     .requiredOption('-o --output <path>', 'Specifies the output file path')
-    .option('-pn --preserve-names', 'Preserve names from application.json spec instead of sanitizing them')
+    .addOption(
+      new Option(
+        '-in --identifier-names <name>',
+        'Specifies a strategy for sanitizing identifier names read from the application.json' + ' spec.',
+      )
+        .choices([IdentifierNaming.JavaScript, IdentifierNaming.Preserve, IdentifierNaming.Legacy])
+        .default('js'),
+    )
     .action(
-      async ({ application, output, preserveNames }: { application: string; output: string; preserveNames?: boolean }): Promise<void> => {
+      async ({
+        application,
+        output,
+        identifierNames,
+      }: {
+        application: string
+        output: string
+        identifierNames: IdentifierNaming
+      }): Promise<void> => {
         const fs = await import('fs')
         const resolvedAppJsonPath = path.resolve(workingDirectory, application)
         const resolvedOutPath = path.resolve(workingDirectory, output)
@@ -22,7 +38,7 @@ export function cli(workingDirectory: string, args: string[]) {
         colorConsole.info`Reading application.json file from path ${resolvedAppJsonPath}`
         const spec = await loadApplicationJson(resolvedAppJsonPath)
         colorConsole.info`Generating TS client for ${spec.contract.name}`
-        const parts = generate(spec, { preserveNames: Boolean(preserveNames) })
+        const parts = generate(spec, { identifierNames: identifierNames })
         if (!fs.existsSync(resolvedOutDir)) {
           colorConsole.warn`Output directory ${resolvedOutDir} does not exist and will be created.`
           fs.mkdirSync(resolvedOutDir, { recursive: true })

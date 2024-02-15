@@ -8,8 +8,9 @@ import { imports } from './imports'
 import { createGeneratorContext, GeneratorOptions } from './generator-context'
 import { appTypes } from './app-types'
 import { callComposerType } from './call-composer-types'
+import { IdentifierNaming } from '../util/sanitization'
 
-export function* generate(app: AlgoAppSpec, options: GeneratorOptions = { preserveNames: false }): DocumentParts {
+export function* generate(app: AlgoAppSpec, options: GeneratorOptions = { identifierNames: IdentifierNaming.JavaScript }): DocumentParts {
   const ctx = createGeneratorContext(app, options)
   yield `/* eslint-disable */`
   yield `/**`

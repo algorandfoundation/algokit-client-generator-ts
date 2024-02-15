@@ -14,6 +14,25 @@ export interface Sanitizer {
   isSafeVariableIdentifier(value: string): boolean
 }
 
+export enum IdentifierNaming {
+  /*
+  Convert identifiers to match js style guides.
+  i.e. camelCase vars and props, PascalCase types
+   */
+  JavaScript = 'js',
+  /*
+  Preserve the original values from the application.json whenever
+  possible. Type names may need to be sanitised if they contain invalid chars
+   */
+  Preserve = 'preserve',
+  /*
+  Matches the casing used in version < 3 of the client generator.
+
+  Js naming for most identifiers, but original case for state values.
+   */
+  Legacy = 'legacy',
+}
+
 const defaultSanitiser: Sanitizer = {
   makeSafePropertyIdentifier(value: string) {
     return camelCase(replaceInvalidWithUnderscore(value))
@@ -35,6 +54,13 @@ const defaultSanitiser: Sanitizer = {
   },
   getSafeMemberAccessor(value: string): string {
     return this.isSafeVariableIdentifier(value) ? `.${value}` : `[${value}]`
+  },
+}
+
+const legacySanitiser: Sanitizer = {
+  ...defaultSanitiser,
+  makeSafePropertyIdentifier(value: string) {
+    return this.isSafeVariableIdentifier(value) ? value : `"${escapeQuotes(value)}"`
   },
 }
 
@@ -62,4 +88,13 @@ const preservingSanitiser: Sanitizer = {
   },
 }
 
-export const getSanitizer = ({ preserveNames }: { preserveNames: boolean }) => (preserveNames ? preservingSanitiser : defaultSanitiser)
+export const getSanitizer = ({ identifierNames }: { identifierNames: IdentifierNaming }) => {
+  switch (identifierNames) {
+    case IdentifierNaming.Preserve:
+      return preservingSanitiser
+    case IdentifierNaming.Legacy:
+      return legacySanitiser
+    case IdentifierNaming.JavaScript:
+      return defaultSanitiser
+  }
+}

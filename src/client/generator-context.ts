@@ -1,6 +1,6 @@
 import { AlgoAppSpec } from '../schema/application'
 import { CallConfigSummary, getCallConfigSummary } from './helpers/get-call-config-summary'
-import { getSanitizer, Sanitizer } from '../util/sanitization'
+import { getSanitizer, IdentifierNaming, Sanitizer } from '../util/sanitization'
 import * as algokit from '@algorandfoundation/algokit-utils'
 
 export type GeneratorContext = {
@@ -12,7 +12,7 @@ export type GeneratorContext = {
 }
 
 export type GeneratorOptions = {
-  preserveNames: boolean
+  identifierNames: IdentifierNaming
 }
 
 export const createGeneratorContext = (app: AlgoAppSpec, options: GeneratorOptions) => {
