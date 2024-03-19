@@ -12,6 +12,7 @@ import type {
   AppCompilationResult,
   AppReference,
   AppState,
+  AppStorageSchema,
   CoreAppCallArgs,
   RawAppCallArgs,
   TealTemplateParams,
@@ -328,6 +329,13 @@ export type AppClientComposeCallCoreParams = Omit<AppClientCallCoreParams, 'send
   sendParams?: Omit<SendTransactionParams, 'skipSending' | 'atc' | 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources'>
 }
 export type AppClientComposeExecuteParams = Pick<SendTransactionParams, 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources' | 'suppressLog'>
+
+export type IncludeSchema = {
+  /**
+   * Any overrides for the storage schema to request for the created app; by default the schema indicated by the app spec is used.
+   */
+  schema?: Partial<AppStorageSchema>
+}
 
 /**
  * Defines the types of available calls and state of the VotingRoundApp smart contract.
@@ -690,7 +698,7 @@ export class VotingRoundAppClient {
    * @param params The arguments for the contract calls and any additional parameters for the call
    * @returns The deployment result
    */
-  public deploy(params: VotingRoundAppDeployArgs & AppClientDeployCoreParams = {}): ReturnType<ApplicationClient['deploy']> {
+  public deploy(params: VotingRoundAppDeployArgs & AppClientDeployCoreParams & IncludeSchema = {}): ReturnType<ApplicationClient['deploy']> {
     const createArgs = params.createCall?.(VotingRoundAppCallFactory.create)
     const deleteArgs = params.deleteCall?.(VotingRoundAppCallFactory.delete)
     return this.appClient.deploy({
@@ -714,7 +722,7 @@ export class VotingRoundAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      async create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}) {
+      async create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & AppClientCompilationParams& IncludeSchema  & (OnCompleteNoOp) = {}) {
         return $this.mapReturnValue<MethodReturn<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, AppCreateCallTransactionResult>(await $this.appClient.create(VotingRoundAppCallFactory.create.create(args, params)))
       },
     }
