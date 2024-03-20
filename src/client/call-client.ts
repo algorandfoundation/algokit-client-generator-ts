@@ -203,7 +203,7 @@ function* operationMethod(
         yield `async ${methodName}(args: MethodArgs<'${methodSigSafe}'>, params: AppClientCallCoreParams${
           includeCompilation ? ' & AppClientCompilationParams' : ''
         }${
-          includeSchema ? '& IncludeSchema ' : ''
+          includeSchema ? ' & IncludeSchema' : ''
         }${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}) {`
         yield* indent(
           `return $this.mapReturnValue<MethodReturn<'${methodSigSafe}'>${responseTypeGenericParam}>(await $this.appClient.${verb}(${name}CallFactory.${verb}${methodNameAccessor}(args, params)))`,

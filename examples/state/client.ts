@@ -1157,7 +1157,7 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      async createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams& IncludeSchema  & (OnCompleteNoOp) = {}) {
+      async createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & (OnCompleteNoOp) = {}) {
         return $this.mapReturnValue<MethodReturn<'create_abi(string)string'>, AppCreateCallTransactionResult>(await $this.appClient.create(StateAppCallFactory.create.createAbi(args, params)))
       },
     }
