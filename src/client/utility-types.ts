@@ -40,6 +40,14 @@ export function* utilityTypes(): DocumentParts {
   )
   yield `}`
   yield `export type AppClientComposeExecuteParams = Pick<SendTransactionParams, 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources' | 'suppressLog'>`
+  yield NewLine
+  yield `export type IncludeSchema = {`
+  yield IncIndent
+  yield* jsDoc(
+    `Any overrides for the storage schema to request for the created app; by default the schema indicated by the app spec is used.`,
+  )
+  yield `schema?: Partial<AppStorageSchema>`
+  yield DecIndentAndCloseBlock
 }
 
 export const OnCompleteCodeMap = {

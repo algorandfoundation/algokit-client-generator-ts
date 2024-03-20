@@ -12,6 +12,7 @@ import type {
   AppCompilationResult,
   AppReference,
   AppState,
+  AppStorageSchema,
   CoreAppCallArgs,
   RawAppCallArgs,
   TealTemplateParams,
@@ -532,6 +533,13 @@ export type AppClientComposeCallCoreParams = Omit<AppClientCallCoreParams, 'send
   sendParams?: Omit<SendTransactionParams, 'skipSending' | 'atc' | 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources'>
 }
 export type AppClientComposeExecuteParams = Pick<SendTransactionParams, 'skipWaiting' | 'maxRoundsToWaitForConfirmation' | 'populateAppCallResources' | 'suppressLog'>
+
+export type IncludeSchema = {
+  /**
+   * Any overrides for the storage schema to request for the created app; by default the schema indicated by the app spec is used.
+   */
+  schema?: Partial<AppStorageSchema>
+}
 
 /**
  * Defines the types of available calls and state of the StateApp smart contract.
@@ -1114,7 +1122,7 @@ export class StateAppClient {
    * @param params The arguments for the contract calls and any additional parameters for the call
    * @returns The deployment result
    */
-  public deploy(params: StateAppDeployArgs & AppClientDeployCoreParams = {}): ReturnType<ApplicationClient['deploy']> {
+  public deploy(params: StateAppDeployArgs & AppClientDeployCoreParams & IncludeSchema = {}): ReturnType<ApplicationClient['deploy']> {
     const createArgs = params.createCall?.(StateAppCallFactory.create)
     const updateArgs = params.updateCall?.(StateAppCallFactory.update)
     const deleteArgs = params.deleteCall?.(StateAppCallFactory.delete)
@@ -1139,7 +1147,7 @@ export class StateAppClient {
        * @param args The arguments for the bare call
        * @returns The create result
        */
-      async bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn) = {}) {
+      async bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & CoreAppCallArgs & (OnCompleteNoOp | OnCompleteOptIn) = {}) {
         return $this.mapReturnValue<undefined, AppCreateCallTransactionResult>(await $this.appClient.create(args))
       },
       /**
@@ -1149,7 +1157,7 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      async createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & (OnCompleteNoOp) = {}) {
+      async createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & (OnCompleteNoOp) = {}) {
         return $this.mapReturnValue<MethodReturn<'create_abi(string)string'>, AppCreateCallTransactionResult>(await $this.appClient.create(StateAppCallFactory.create.createAbi(args, params)))
       },
     }

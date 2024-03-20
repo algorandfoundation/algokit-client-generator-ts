@@ -94,7 +94,7 @@ function* opMethods(ctx: GeneratorContext): DocumentParts {
     },
     returns: 'The deployment result',
   })
-  yield `public deploy(params: ${name}DeployArgs & AppClientDeployCoreParams = {}): ReturnType<ApplicationClient['deploy']> {`
+  yield `public deploy(params: ${name}DeployArgs & AppClientDeployCoreParams & IncludeSchema = {}): ReturnType<ApplicationClient['deploy']> {`
   yield IncIndent
 
   if (callConfig.createMethods.length) yield `const createArgs = params.createCall?.(${name}CallFactory.create)`
@@ -114,7 +114,14 @@ function* opMethods(ctx: GeneratorContext): DocumentParts {
   yield `})`
   yield DecIndentAndCloseBlock
   yield NewLine
-  yield* operationMethod(ctx, `Creates a new instance of the ${app.contract.name} smart contract`, callConfig.createMethods, 'create', true)
+  yield* operationMethod(
+    ctx,
+    `Creates a new instance of the ${app.contract.name} smart contract`,
+    callConfig.createMethods,
+    'create',
+    true,
+    true,
+  )
   yield* operationMethod(
     ctx,
     `Updates an existing instance of the ${app.contract.name} smart contract`,
@@ -143,6 +150,7 @@ function* operationMethod(
   methods: MethodList,
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
   includeCompilation?: boolean,
+  includeSchema?: boolean,
 ): DocumentParts {
   let responseTypeGenericParam
   switch (verb) {
@@ -173,8 +181,8 @@ function* operationMethod(
           },
           returns: `The ${verb} result`,
         })
-        yield `async bare(args: BareCallArgs & AppClientCallCoreParams ${
-          includeCompilation ? '& AppClientCompilationParams ' : ''
+        yield `async bare(args: BareCallArgs & AppClientCallCoreParams ${includeCompilation ? '& AppClientCompilationParams ' : ''}${
+          includeSchema ? '& IncludeSchema ' : ''
         }& CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}) {`
         yield* indent(`return $this.mapReturnValue<undefined${responseTypeGenericParam}>(await $this.appClient.${verb}(args))`)
         yield '},'
@@ -194,6 +202,8 @@ function* operationMethod(
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
         yield `async ${methodName}(args: MethodArgs<'${methodSigSafe}'>, params: AppClientCallCoreParams${
           includeCompilation ? ' & AppClientCompilationParams' : ''
+        }${
+          includeSchema ? ' & IncludeSchema' : ''
         }${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}) {`
         yield* indent(
           `return $this.mapReturnValue<MethodReturn<'${methodSigSafe}'>${responseTypeGenericParam}>(await $this.appClient.${verb}(${name}CallFactory.${verb}${methodNameAccessor}(args, params)))`,
