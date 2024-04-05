@@ -3,7 +3,7 @@ import * as path from 'path'
 import { colorConsole } from '../src/util/color-console'
 
 function updateApprovals() {
-  const dirs = ['helloworld', 'lifecycle', 'state', 'voting'].map((app) => path.join(process.cwd(), 'examples', app))
+  const dirs = ['helloworld', 'lifecycle', 'minimal', 'state', 'voting'].map((app) => path.join(process.cwd(), 'examples', app))
 
   for (const exampleDir of dirs) {
     const generatedPath = path.join(exampleDir, 'client.generated.ts')
