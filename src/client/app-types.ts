@@ -9,7 +9,11 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield `export type ${name} = {`
   yield IncIndent
   yield* jsDoc('Maps method signatures / names to their argument and return types.')
-  yield 'methods:'
+  if (app.contract.methods.length == 0) {
+    yield 'methods: {}'
+  } else {
+    yield 'methods:'
+  }
   yield IncIndent
   for (const method of app.contract.methods) {
     const methodSig = algokit.getABIMethodSignature(method)

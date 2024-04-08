@@ -6,7 +6,7 @@
   "module": "index.mjs",
   "private": false,
   "engines": {
-    "node": ">=19.0"
+    "node": ">=18.0"
   },
   "type": "commonjs",
   "scripts": {
@@ -16,6 +16,8 @@
     "dev:helloworld-pn": "tsx src/dev.ts generate -a ./examples/helloworld/application.json -o ./examples/helloworld/client.pn.generated.ts -pn",
     "dev:lifecycle": "tsx src/dev.ts generate -a ./examples/lifecycle/application.json -o ./examples/lifecycle/client.generated.ts",
     "dev:lifecycle-pn": "tsx src/dev.ts generate -a ./examples/lifecycle/application.json -o ./examples/lifecycle/client.pn.generated.ts -pn",
+    "dev:minimal": "tsx src/dev.ts generate -a ./examples/minimal/application.json -o ./examples/minimal/client.generated.ts",
+    "dev:minimal-pn": "tsx src/dev.ts generate -a ./examples/minimal/application.json -o ./examples/minimal/client.pn.generated.ts -pn",
     "dev:state": "tsx src/dev.ts generate -a ./examples/state/application.json -o ./examples/state/client.generated.ts",
     "dev:state-pn": "tsx src/dev.ts generate -a ./examples/state/application.json -o ./examples/state/client.pn.generated.ts -pn",
     "dev:voting": "tsx src/dev.ts generate -a ./examples/voting/application.json -o ./examples/voting/client.generated.ts",
