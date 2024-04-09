@@ -1157,7 +1157,7 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      async createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & (OnCompleteNoOp) = {}) {
+      async createAbi(args: MethodArgs<'create_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & CoreAppCallArgs & (OnCompleteNoOp) = {}) {
         return $this.mapReturnValue<MethodReturn<'create_abi(string)string'>, AppCreateCallTransactionResult>(await $this.appClient.create(StateAppCallFactory.create.createAbi(args, params)))
       },
     }
@@ -1185,7 +1185,7 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The update result
        */
-      async updateAbi(args: MethodArgs<'update_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams = {}) {
+      async updateAbi(args: MethodArgs<'update_abi(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs = {}) {
         return $this.mapReturnValue<MethodReturn<'update_abi(string)string'>, AppUpdateCallTransactionResult>(await $this.appClient.update(StateAppCallFactory.update.updateAbi(args, params)))
       },
     }
@@ -1213,7 +1213,7 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The delete result
        */
-      async deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params: AppClientCallCoreParams = {}) {
+      async deleteAbi(args: MethodArgs<'delete_abi(string)string'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
         return $this.mapReturnValue<MethodReturn<'delete_abi(string)string'>>(await $this.appClient.delete(StateAppCallFactory.delete.deleteAbi(args, params)))
       },
     }
@@ -1232,7 +1232,7 @@ export class StateAppClient {
        * @param params Any additional parameters for the call
        * @returns The optIn result
        */
-      async optIn(args: MethodArgs<'opt_in()void'>, params: AppClientCallCoreParams = {}) {
+      async optIn(args: MethodArgs<'opt_in()void'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
         return $this.mapReturnValue<MethodReturn<'opt_in()void'>>(await $this.appClient.optIn(StateAppCallFactory.optIn.optIn(args, params)))
       },
     }
