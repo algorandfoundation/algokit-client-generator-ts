@@ -204,7 +204,7 @@ function* operationMethod(
           includeCompilation ? ' & AppClientCompilationParams' : ''
         }${
           includeSchema ? ' & IncludeSchema' : ''
-        }${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}) {`
+        } & CoreAppCallArgs${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}) {`
         yield* indent(
           `return $this.mapReturnValue<MethodReturn<'${methodSigSafe}'>${responseTypeGenericParam}>(await $this.appClient.${verb}(${name}CallFactory.${verb}${methodNameAccessor}(args, params)))`,
         )
