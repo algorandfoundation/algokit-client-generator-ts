@@ -520,7 +520,7 @@ export class LifeCycleAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result: The formatted greeting
        */
-      async createStringString(args: MethodArgs<'create(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & (OnCompleteNoOp) = {}) {
+      async createStringString(args: MethodArgs<'create(string)string'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & CoreAppCallArgs & (OnCompleteNoOp) = {}) {
         return $this.mapReturnValue<MethodReturn<'create(string)string'>, AppCreateCallTransactionResult>(await $this.appClient.create(LifeCycleAppCallFactory.create.createStringString(args, params)))
       },
       /**
@@ -530,7 +530,7 @@ export class LifeCycleAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      async createStringUint32Void(args: MethodArgs<'create(string,uint32)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & (OnCompleteNoOp) = {}) {
+      async createStringUint32Void(args: MethodArgs<'create(string,uint32)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & CoreAppCallArgs & (OnCompleteNoOp) = {}) {
         return $this.mapReturnValue<MethodReturn<'create(string,uint32)void'>, AppCreateCallTransactionResult>(await $this.appClient.create(LifeCycleAppCallFactory.create.createStringUint32Void(args, params)))
       },
     }

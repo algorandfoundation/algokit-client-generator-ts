@@ -722,7 +722,7 @@ export class VotingRoundAppClient {
        * @param params Any additional parameters for the call
        * @returns The create result
        */
-      async create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & (OnCompleteNoOp) = {}) {
+      async create(args: MethodArgs<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, params: AppClientCallCoreParams & AppClientCompilationParams & IncludeSchema & CoreAppCallArgs & (OnCompleteNoOp) = {}) {
         return $this.mapReturnValue<MethodReturn<'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'>, AppCreateCallTransactionResult>(await $this.appClient.create(VotingRoundAppCallFactory.create.create(args, params)))
       },
     }
