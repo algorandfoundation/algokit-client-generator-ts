@@ -86,9 +86,14 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
 
 function* structs({ app, sanitizer }: GeneratorContext): DocumentParts {
   if (app.hints === undefined) return
+  const definedStructs = new Set()
+
   for (const methodHint of Object.values(app.hints)) {
     if (methodHint.structs === undefined) continue
     for (const struct of Object.values(methodHint.structs)) {
+      if (definedStructs.has(struct.name)) continue
+      definedStructs.add(struct.name)
+
       yield* jsDoc(`Represents a ${struct.name} result as a struct`)
       yield `export type ${sanitizer.makeSafeTypeIdentifier(struct.name)} = {`
       yield IncIndent

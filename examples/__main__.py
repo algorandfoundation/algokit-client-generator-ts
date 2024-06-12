@@ -24,7 +24,7 @@ def cwd(path: Path) -> Generator[None, None, None]:
 def main(action: str) -> None:
     match action:
         case "build":
-            example_dirs = filter(lambda file: file.is_dir() and "__" not in file.name, root_path.glob("*"))
+            example_dirs = filter(lambda file: file.is_dir() and "__" not in file.name and file.name != "duplicate_structs", root_path.glob("*"))
             for example in example_dirs:
                 logger.info(f"Building example {example.name}")
                 with cwd(root_path):
