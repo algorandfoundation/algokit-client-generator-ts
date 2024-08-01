@@ -18,7 +18,6 @@ describe('When generating a ts client for a the contract', () => {
     if (writeActual) fs.writeFileSync(path.join(dir, `client.generated.ts`), result)
 
     const approvedClient = fs.readFileSync(path.join(dir, `client.ts`), 'utf-8')
-    console.log(path.join(dir, `client.ts`))
     expect(result).toBe(approvedClient)
   })
 })
