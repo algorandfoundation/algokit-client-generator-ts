@@ -38,7 +38,13 @@ export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'
     }
     if (abiType instanceof ABIArrayDynamicType) {
       if (abiType.childType instanceof ABIByteType) return 'Uint8Array'
-      return `${abiTypeToTs(abiType.childType, ioType)}[]`
+
+      const childTsType = abiTypeToTs(abiType.childType, ioType)
+      if (childTsType === 'bigint | number') {
+        return 'bigint[] | number[]'
+      }
+
+      return `${childTsType}[]`
     }
     if (abiType instanceof ABIArrayStaticType) {
       if (abiType.childType instanceof ABIByteType) return 'Uint8Array'
