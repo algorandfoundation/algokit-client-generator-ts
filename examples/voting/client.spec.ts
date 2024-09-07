@@ -1,4 +1,7 @@
 import * as ed from '@noble/ed25519'
+import { webcrypto } from 'node:crypto'
+// @ts-ignore https://github.com/paulmillr/noble-ed25519?tab=readme-ov-file#usage
+if (!globalThis.crypto) globalThis.crypto = webcrypto
 import algosdk, { AtomicTransactionComposer } from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
