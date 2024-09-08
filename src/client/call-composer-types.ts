@@ -1,9 +1,9 @@
 import { DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
 import { GeneratorContext } from './generator-context'
-import * as algokit from '@algorandfoundation/algokit-utils'
 
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
+import { ABIMethod } from 'algosdk'
 
 export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   const { name, callConfig, app } = ctx
@@ -13,26 +13,26 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* callComposerTypeNoops(ctx)
   yield* callComposerOperationMethodType(
     ctx,
-    `Updates an existing instance of the ${app.contract.name} smart contract`,
+    `Updates an existing instance of the ${app.name} smart contract`,
     callConfig.updateMethods,
     'update',
     true,
   )
   yield* callComposerOperationMethodType(
     ctx,
-    `Deletes an existing instance of the ${app.contract.name} smart contract`,
+    `Deletes an existing instance of the ${app.name} smart contract`,
     callConfig.deleteMethods,
     'delete',
   )
   yield* callComposerOperationMethodType(
     ctx,
-    `Opts the user into an existing instance of the ${app.contract.name} smart contract`,
+    `Opts the user into an existing instance of the ${app.name} smart contract`,
     callConfig.optInMethods,
     'optIn',
   )
   yield* callComposerOperationMethodType(
     ctx,
-    `Makes a close out call to an existing instance of the ${app.contract.name} smart contract`,
+    `Makes a close out call to an existing instance of the ${app.name} smart contract`,
     callConfig.closeOutMethods,
     'closeOut',
   )
@@ -86,7 +86,7 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
 
 function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentParts {
   yield* jsDoc({
-    description: `Makes a clear_state call to an existing instance of the ${app.contract.name} smart contract.`,
+    description: `Makes a clear_state call to an existing instance of the ${app.name} smart contract.`,
     params: {
       args: `The arguments for the bare call`,
     },
@@ -97,14 +97,14 @@ function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentP
 }
 
 function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
-  for (const method of app.contract.methods) {
-    const methodSignature = algokit.getABIMethodSignature(method)
+  for (const method of app.methods) {
+    const methodSignature = new ABIMethod(method).getSignature()
     const methodSignatureSafe = sanitizer.makeSafeStringTypeLiteral(methodSignature)
     const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
     // Skip methods which don't support a no_op call config
     if (!callConfig.callMethods.includes(methodSignature)) continue
     yield* jsDoc({
-      description: `Calls the ${algokit.getABIMethodSignature(method)} ABI method.`,
+      description: `Calls the ${new ABIMethod(method).getSignature()} ABI method.`,
       abiDescription: method.desc,
       params: {
         args: `The arguments for the contract call`,

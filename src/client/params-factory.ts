@@ -5,15 +5,17 @@ import { GeneratorContext } from './generator-context'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
 import { Sanitizer } from '../util/sanitization'
+import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { ABIMethod } from 'algosdk'
 
-export function* callFactory(ctx: GeneratorContext): DocumentParts {
-  yield* jsDoc('Exposes methods for constructing all available smart contract calls')
-  yield `export abstract class ${ctx.name}CallFactory {`
+export function* paramsFactory(ctx: GeneratorContext): DocumentParts {
+  yield* jsDoc('Exposes methods for constructing `AppClient` params objects for all known smart contract calls to ' + ctx.name)
+  yield `export abstract class ${ctx.name}ParamsFactory {`
   yield IncIndent
 
   yield* opMethods(ctx)
 
-  for (const method of ctx.app.contract.methods) {
+  for (const method of ctx.app.methods) {
     yield* callFactoryMethod(ctx, method)
   }
 
@@ -25,28 +27,11 @@ export function* callFactory(ctx: GeneratorContext): DocumentParts {
 function* opMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig } = ctx
 
-  yield* operationMethod(
-    ctx,
-    `Constructs a create call for the ${app.contract.name} smart contract`,
-    callConfig.createMethods,
-    'create',
-    true,
-  )
-  yield* operationMethod(
-    ctx,
-    `Constructs an update call for the ${app.contract.name} smart contract`,
-    callConfig.updateMethods,
-    'update',
-    true,
-  )
-  yield* operationMethod(ctx, `Constructs a delete call for the ${app.contract.name} smart contract`, callConfig.deleteMethods, 'delete')
-  yield* operationMethod(ctx, `Constructs an opt in call for the ${app.contract.name} smart contract`, callConfig.optInMethods, 'optIn')
-  yield* operationMethod(
-    ctx,
-    `Constructs a close out call for the ${app.contract.name} smart contract`,
-    callConfig.closeOutMethods,
-    'closeOut',
-  )
+  yield* operationMethod(ctx, `Constructs create params for the ${app.name} smart contract`, callConfig.createMethods, 'create', true)
+  yield* operationMethod(ctx, `Constructs update params for the ${app.name} smart contract`, callConfig.updateMethods, 'update', true)
+  yield* operationMethod(ctx, `Constructs delete params for the ${app.name} smart contract`, callConfig.deleteMethods, 'delete')
+  yield* operationMethod(ctx, `Constructs opt-in params for the ${app.name} smart contract`, callConfig.optInMethods, 'optIn')
+  yield* operationMethod(ctx, `Constructs close out params for the ${app.name} smart contract`, callConfig.closeOutMethods, 'closeOut')
 }
 
 function* operationMethod(
@@ -57,7 +42,7 @@ function* operationMethod(
   includeCompilation?: boolean,
 ): DocumentParts {
   if (methods.length) {
-    yield* jsDoc(`Gets available ${verb} call factories`)
+    yield* jsDoc(`Gets available ${verb} param factories`)
     yield `static get ${verb}() {`
     yield IncIndent
     yield `return {`
@@ -65,31 +50,31 @@ function* operationMethod(
     for (const methodSig of methods) {
       const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
       if (methodSig === BARE_CALL) {
+        // todo: delete the bare call here???
         yield* jsDoc({
           description: `${description} using a bare call`,
           params: {
             params: `Any parameters for the call`,
           },
-          returns: `A TypedCallParams object for the call`,
+          returns: 'An `AppClientBareCallParams` object for the call',
         })
         yield* factoryMethod({
           isNested: true,
           name: 'bare',
           sanitizer,
-          paramTypes: `BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs${
+          additionalParamTypes: `${
             includeCompilation ? ' & AppClientCompilationParams' : ''
-          }${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false ? ' = {}' : ''}`,
+          }${onComplete?.type ? ` & ${onComplete.type}` : ''}`,
         })
       } else {
-        const method = app.contract.methods.find((m) => algokit.getABIMethodSignature(m) === methodSig)!
+        const method = app.methods.find((m) => new ABIMethod(m).getSignature() === methodSig)!
         const uniqueName = methodSignatureToUniqueName[methodSig]
         yield* jsDoc({
           description: `${description} using the ${methodSig} ABI method`,
           params: {
-            args: `Any args for the contract call`,
-            params: `Any additional parameters for the call`,
+            params: `Parameters for the call`,
           },
-          returns: `A TypedCallParams object for the call`,
+          returns: 'An `AppClientMethodCallParams` object for the call',
         })
         yield* factoryMethod({
           isNested: true,
@@ -97,7 +82,7 @@ function* operationMethod(
           name: sanitizer.makeSafeMethodIdentifier(uniqueName),
           signature: methodSig,
           args: method.args,
-          paramTypes: `AppClientCallCoreParams & CoreAppCallArgs${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+          additionalParamTypes: `${includeCompilation ? ' & AppClientCompilationParams' : ''}${
             onComplete?.type ? ` & ${onComplete.type}` : ''
           }${onComplete?.isOptional !== false ? ' = {}' : ''}`,
         })
@@ -109,18 +94,17 @@ function* operationMethod(
   }
 }
 
-function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer }: GeneratorContext, method: ContractMethod) {
-  const methodSignature = algokit.getABIMethodSignature(method)
+function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer }: GeneratorContext, method: Method) {
+  const methodSignature = new ABIMethod(method).getSignature()
   if (!callConfig.callMethods.includes(methodSignature)) return
 
   yield* jsDoc({
     description: `Constructs a no op call for the ${methodSignature} ABI method`,
     abiDescription: method.desc,
     params: {
-      args: `Any args for the contract call`,
-      params: `Any additional parameters for the call`,
+      params: `Parameters for the call`,
     },
-    returns: `A TypedCallParams object for the call`,
+    returns: 'An `AppClientMethodCallParams` object for the call',
   })
   yield* factoryMethod({
     isNested: false,
@@ -128,7 +112,7 @@ function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer
     name: sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature]),
     signature: methodSignature,
     args: method.args,
-    paramTypes: 'AppClientCallCoreParams & CoreAppCallArgs',
+    additionalParamTypes: ' & CallOnComplete',
   })
 }
 
@@ -137,7 +121,7 @@ function* factoryMethod({
   name,
   signature,
   args,
-  paramTypes,
+  additionalParamTypes,
   sanitizer,
 }:
   | {
@@ -145,33 +129,29 @@ function* factoryMethod({
       name?: string
       signature?: undefined
       args?: undefined
-      paramTypes: string
+      additionalParamTypes?: string
       sanitizer: Sanitizer
     }
   | {
       isNested: boolean
       name?: string
       signature: string
-      args: Array<{ name: string }>
-      paramTypes: string
+      args: Array<{ name?: string }>
+      additionalParamTypes?: string
       sanitizer: Sanitizer
     }) {
   const signatureSafe = signature && sanitizer.makeSafeStringTypeLiteral(signature)
-  yield `${isNested ? '' : 'static '}${name}(${signature === undefined ? '' : `args: MethodArgs<'${signatureSafe}'>, `}params: ${paramTypes}) {`
+  yield `${isNested ? '' : 'static '}${name}(params: ${signature === undefined ? 'AppClientBareCallParams' : `CallParams<'${signatureSafe}'>`}${additionalParamTypes}): ${signature !== undefined ? 'AppClientMethodCallParams' : 'AppClientBareCallParams'}${additionalParamTypes} {`
   yield IncIndent
   yield `return {`
   yield IncIndent
+  yield '...params,'
   if (signature) {
     yield `method: '${signatureSafe}' as const,`
-    yield `methodArgs: Array.isArray(args) ? args : [${args
-      .map((a) => `args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name))}`)
+    yield `args: Array.isArray(params.args) ? params.args : [${args
+      .map((a, i) => `params.args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name ?? `arg${i + 1}`))}`)
       .join(', ')}],`
-  } else {
-    yield `method: undefined,`
-    yield `methodArgs: undefined,`
   }
-
-  yield '...params,'
   yield DecIndent
   yield '}'
   yield DecIndent

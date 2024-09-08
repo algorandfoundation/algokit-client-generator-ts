@@ -1,22 +1,24 @@
 import { GeneratorContext } from './generator-context'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, inline, jsDoc, NewLine } from '../output/writer'
-import * as algokit from '@algorandfoundation/algokit-utils'
 import { getEquivalentType } from './helpers/get-equivalent-type'
+import { ABIMethod } from 'algosdk'
+import { Arc56Contract, StorageKey, StorageMap, StructFields } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Sanitizer } from '../util/sanitization'
 
 export function* appTypes(ctx: GeneratorContext): DocumentParts {
   const { app, methodSignatureToUniqueName, name } = ctx
   yield* jsDoc(`Defines the types of available calls and state of the ${name} smart contract.`)
-  yield `export type ${name} = {`
+  yield `export type ${name}Types = {`
   yield IncIndent
   yield* jsDoc('Maps method signatures / names to their argument and return types.')
-  if (app.contract.methods.length == 0) {
+  if (app.methods.length == 0) {
     yield 'methods: {}'
   } else {
     yield 'methods:'
   }
   yield IncIndent
-  for (const method of app.contract.methods) {
-    const methodSig = algokit.getABIMethodSignature(method)
+  for (const method of app.methods) {
+    const methodSig = new ABIMethod(method).getSignature()
     const methodSigSafe = ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)
     const uniqueName = methodSignatureToUniqueName[methodSig]
     const uniqueNameSafe = ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)
@@ -25,10 +27,11 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     yield `argsObj: {`
     yield IncIndent
 
-    const argsMeta = method.args.map((arg) => ({
+    const argsMeta = method.args.map((arg, i) => ({
       ...arg,
-      hasDefault: app.hints?.[methodSig]?.default_arguments?.[arg.name],
-      tsType: getEquivalentType(arg.type, 'input'),
+      name: arg.name ?? `arg${i + 1}`,
+      hasDefault: !!arg.defaultValue,
+      tsType: getEquivalentType(arg.type, 'input', ctx.app),
     }))
 
     for (const arg of argsMeta) {
@@ -39,20 +42,12 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     yield* inline(
       `argsTuple: [`,
       argsMeta
-        .map(
-          (arg) =>
-            `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${getEquivalentType(arg.type, 'input')}${arg.hasDefault ? ' | undefined' : ''}`,
-        )
+        .map((arg) => `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${arg.tsType}${arg.hasDefault ? ' | undefined' : ''}`)
         .join(', '),
       ']',
     )
-    const outputStruct = ctx.app.hints?.[methodSig]?.structs?.output
     if (method.returns.desc) yield* jsDoc(method.returns.desc)
-    if (outputStruct) {
-      yield `returns: ${ctx.sanitizer.makeSafeTypeIdentifier(outputStruct.name)}`
-    } else {
-      yield `returns: ${getEquivalentType(method.returns.type ?? 'void', 'output')}`
-    }
+    yield `returns: ${getEquivalentType(method.returns.type ?? 'void', 'output', ctx.app)}`
 
     yield DecIndent
     yield '}>'
@@ -61,69 +56,105 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield* appState(ctx)
   yield DecIndentAndCloseBlock
 
-  yield* jsDoc('Defines the possible abi call signatures')
-  yield `export type ${name}Sig = keyof ${name}['methods']`
-  yield* jsDoc(
-    'Defines an object containing all relevant parameters for a single call to the contract. Where TSignature is undefined, a' +
-      ' bare call is made',
-  )
-  yield `export type TypedCallParams<TSignature extends ${name}Sig | undefined> = {`
-  yield IncIndent
-  yield 'method: TSignature'
-  yield 'methodArgs: TSignature extends undefined ? undefined : Array<ABIAppCallArg | undefined>'
-  yield DecIndent
-  yield '} & AppClientCallCoreParams & CoreAppCallArgs'
-  yield* jsDoc('Defines the arguments required for a bare call')
-  yield `export type BareCallArgs = Omit<RawAppCallArgs, keyof CoreAppCallArgs>`
+  yield `
+  /**
+   * Defines the possible abi call signatures.
+   */
+  export type ${name}Signatures = keyof ${name}Types['methods']
+  /**
+   * Defines an object containing all relevant parameters for a single call to the contract.
+   */
+  export type CallParams<TSignature extends ${name}Signatures> = Expand<
+    Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
+      { args: Expand<MethodArgs<TSignature>> }
+  >
+  /**
+   * Maps a method signature from the ${name} smart contract to the method's arguments in either tuple or struct form
+   */
+  export type MethodArgs<TSignature extends ${name}Signatures> = ${name}Types['methods'][TSignature]['argsObj' | 'argsTuple']
+  /**
+   * Maps a method signature from the ${name} smart contract to the method's return type
+   */
+  export type MethodReturn<TSignature extends ${name}Signatures> = ${name}Types['methods'][TSignature]['returns']
+  `
 
-  yield* structs(ctx)
-  yield* jsDoc(`Maps a method signature from the ${name} smart contract to the method's arguments in either tuple of struct form`)
-  yield `export type MethodArgs<TSignature extends ${name}Sig> = ${name}['methods'][TSignature]['argsObj' | 'argsTuple']`
-  yield* jsDoc(`Maps a method signature from the ${name} smart contract to the method's return type`)
-  yield `export type MethodReturn<TSignature extends ${name}Sig> = ${name}['methods'][TSignature]['returns']`
   yield NewLine
 }
 
-function* structs({ app, sanitizer }: GeneratorContext): DocumentParts {
-  if (app.hints === undefined) return
-  const definedStructs = new Set()
-
-  for (const methodHint of Object.values(app.hints)) {
-    if (methodHint.structs === undefined) continue
-    for (const struct of Object.values(methodHint.structs)) {
-      if (definedStructs.has(struct.name)) continue
-      definedStructs.add(struct.name)
-
-      yield* jsDoc(`Represents a ${struct.name} result as a struct`)
-      yield `export type ${sanitizer.makeSafeTypeIdentifier(struct.name)} = {`
+function* structPart(struct: StructFields, app: Arc56Contract, sanitizer: Sanitizer): DocumentParts {
+  for (const [key, type] of Object.entries(struct)) {
+    if (typeof type === 'string') {
+      yield `${sanitizer.makeSafePropertyIdentifier(key)}: ${getEquivalentType(type, 'output', app)}`
+    } else {
+      yield `${sanitizer.makeSafePropertyIdentifier(key)}: {`
       yield IncIndent
-      for (const [key, type] of struct.elements) {
-        yield `${sanitizer.makeSafePropertyIdentifier(key)}: ${getEquivalentType(type, 'output')}`
-      }
-      yield DecIndentAndCloseBlock
-      yield* jsDoc(`Converts the tuple representation of a ${struct.name} to the struct representation`)
-      yield* inline(
-        `export function ${sanitizer.makeSafeTypeIdentifier(struct.name)}(`,
-        `[${struct.elements.map(([key]) => sanitizer.makeSafeVariableIdentifier(key)).join(', ')}]: `,
-        `[${struct.elements.map(([_, type]) => getEquivalentType(type, 'output')).join(', ')}] ) {`,
-      )
-      yield IncIndent
-      yield `return {`
-      yield IncIndent
-      for (const [key] of struct.elements) {
-        const prop = sanitizer.makeSafePropertyIdentifier(key)
-        const param = sanitizer.makeSafeVariableIdentifier(key)
-        yield `${prop}${prop !== param ? `: ${param}` : ''},`
-      }
-      yield DecIndentAndCloseBlock
+      yield* structPart(type, app, sanitizer)
       yield DecIndentAndCloseBlock
     }
   }
 }
 
+function* structs({ app, sanitizer }: GeneratorContext): DocumentParts {
+  if (app.structs === undefined) return
+
+  for (const name of Object.keys(app.structs)) {
+    const struct = app.structs[name]
+
+    yield* jsDoc(`Represents a ${name} as a struct`)
+    yield `export type ${sanitizer.makeSafeTypeIdentifier(name)} = {`
+    yield IncIndent
+    yield* structPart(struct, app, sanitizer)
+    yield DecIndentAndCloseBlock
+  }
+}
+
+function* keysAndMaps(
+  app: Arc56Contract,
+  sanitizer: Sanitizer,
+  keys: {
+    [name: string]: StorageKey
+  },
+  maps: {
+    [name: string]: StorageMap
+  },
+): DocumentParts {
+  if (keys && Object.keys(keys).length) {
+    yield 'keys: {'
+    yield IncIndent
+    for (const name of Object.keys(keys)) {
+      const prop = keys[name]
+      if (prop.desc) {
+        yield* jsDoc(prop.desc)
+      }
+      const keySafe = sanitizer.makeSafePropertyIdentifier(name)
+
+      yield `${keySafe}?: ${prop.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', app)}`
+    }
+    yield DecIndentAndCloseBlock
+  }
+
+  if (maps && Object.keys(maps).length) {
+    yield 'maps: {'
+    yield IncIndent
+    for (const name of Object.keys(maps)) {
+      const prop = maps[name]
+      if (prop.desc) {
+        yield* jsDoc(prop.desc)
+      }
+      const keySafe = sanitizer.makeSafePropertyIdentifier(name)
+
+      yield `${keySafe}?: Map<${getEquivalentType(prop.keyType, 'input', app)},${prop.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', app)}>`
+    }
+    yield DecIndentAndCloseBlock
+  }
+}
+
 function* appState({ app, sanitizer }: GeneratorContext): DocumentParts {
-  const hasLocal = app.schema.local?.declared && Object.keys(app.schema.local.declared).length
-  const hasGlobal = app.schema.global?.declared && Object.keys(app.schema.global.declared).length
+  const hasLocal =
+    (app.state.keys.local && Object.keys(app.state.keys.local).length) || (app.state.maps.local && Object.keys(app.state.maps.local).length)
+  const hasGlobal =
+    (app.state.keys.global && Object.keys(app.state.keys.global).length) ||
+    (app.state.maps.global && Object.keys(app.state.maps.global).length)
   if (hasLocal || hasGlobal) {
     yield* jsDoc('Defines the shape of the global and local state of the application.')
     yield 'state: {'
@@ -131,30 +162,15 @@ function* appState({ app, sanitizer }: GeneratorContext): DocumentParts {
     if (hasGlobal) {
       yield 'global: {'
       yield IncIndent
-      for (const prop of Object.values(app.schema.global!.declared!)) {
-        if (prop.descr) {
-          yield* jsDoc(prop.descr)
-        }
-        const keySafe = sanitizer.makeSafePropertyIdentifier(prop.key)
-
-        yield `${keySafe}?: ${prop.type === 'uint64' ? 'IntegerState' : 'BinaryState'}`
-      }
+      yield* keysAndMaps(app, sanitizer, app.state.keys.global, app.state.maps.global)
       yield DecIndentAndCloseBlock
     }
     if (hasLocal) {
       yield 'local: {'
       yield IncIndent
-      for (const prop of Object.values(app.schema.local!.declared!)) {
-        if (prop.descr) {
-          yield* jsDoc(prop.descr)
-        }
-        const keySafe = sanitizer.makeSafePropertyIdentifier(prop.key)
-
-        yield `${keySafe}?: ${prop.type === 'uint64' ? 'IntegerState' : 'BinaryState'}`
-      }
+      yield* keysAndMaps(app, sanitizer, app.state.keys.local, app.state.maps.local)
       yield DecIndentAndCloseBlock
     }
-
     yield DecIndentAndCloseBlock
   }
 }

@@ -1,3 +1,4 @@
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import {
   ABIAddressType,
   ABIArrayDynamicType,
@@ -13,9 +14,12 @@ import {
   abiTypeIsTransaction,
 } from 'algosdk'
 
-export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'): string {
+export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output', app: Arc56Contract): string {
   if (abiTypeStr == 'void') {
     return 'void'
+  }
+  if (abiTypeStr == 'bytes') {
+    return 'Uint8Array'
   }
   if (abiTypeIsTransaction(abiTypeStr)) {
     return 'TransactionToSign | Transaction | Promise<SendTransactionResult>'
@@ -24,7 +28,10 @@ export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'
     return 'string | Uint8Array'
   }
   if (abiTypeStr == ABIReferenceType.application || abiTypeStr == ABIReferenceType.asset) {
-    return 'number | bigint'
+    return 'bigint'
+  }
+  if (Object.keys(app.structs).includes(abiTypeStr)) {
+    return abiTypeStr
   }
 
   const abiType = ABIType.from(abiTypeStr)

@@ -1,8 +1,8 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent } from '../output/writer'
 import { GeneratorContext } from './generator-context'
-import * as algokit from '@algorandfoundation/algokit-utils'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
+import { ABIMethod } from 'algosdk'
 
 export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   const { name, callConfig } = ctx
@@ -67,8 +67,8 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
 }
 
 function* callComposerNoops({ app, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
-  for (const method of app.contract.methods) {
-    const methodSignature = algokit.getABIMethodSignature(method)
+  for (const method of app.methods) {
+    const methodSignature = new ABIMethod(method).getSignature()
     const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
     const methodSignatureSafe = sanitizer.makeSafeStringTypeLiteral(methodSignature)
     const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
