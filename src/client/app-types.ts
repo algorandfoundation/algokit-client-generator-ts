@@ -5,6 +5,89 @@ import { ABIMethod, ABITupleType, abiTypeIsTransaction } from 'algosdk'
 import { Arc56Contract, StorageKey, StorageMap, StructFields } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { Sanitizer } from '../util/sanitization'
 
+export function* appTypes(ctx: GeneratorContext): DocumentParts {
+  yield* abiTypes(ctx)
+  yield* structTypes(ctx)
+  yield* templateVariableTypes(ctx)
+
+  const { app, methodSignatureToUniqueName, name } = ctx
+  yield* jsDoc(`Defines the types of available calls and state of the ${name} smart contract.`)
+  yield `export type ${name}Types = {`
+  yield IncIndent
+  yield* jsDoc('Maps method signatures / names to their argument and return types.')
+  if (app.methods.length == 0) {
+    yield 'methods: {}'
+  } else {
+    yield 'methods:'
+  }
+  yield IncIndent
+  for (const method of app.methods) {
+    const methodSig = new ABIMethod(method).getSignature()
+    const methodSigSafe = ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)
+    const uniqueName = methodSignatureToUniqueName[methodSig]
+    const uniqueNameSafe = ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)
+    yield `& Record<'${methodSigSafe}'${methodSig !== uniqueName ? ` | '${uniqueNameSafe}'` : ''}, {`
+    yield IncIndent
+    yield `argsObj: {`
+    yield IncIndent
+
+    const argsMeta = method.args.map((arg, i) => ({
+      ...arg,
+      name: arg.name ?? `arg${i + 1}`,
+      hasDefault: !!arg.defaultValue,
+      tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx.app),
+    }))
+
+    for (const arg of argsMeta) {
+      if (arg.desc) yield* jsDoc(arg.desc)
+      yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
+    }
+    yield DecIndentAndCloseBlock
+    yield* inline(
+      `argsTuple: [`,
+      argsMeta
+        .map((arg) => `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${arg.tsType}${arg.hasDefault ? ' | undefined' : ''}`)
+        .join(', '),
+      ']',
+    )
+    if (method.returns.desc) yield* jsDoc(method.returns.desc)
+    yield `returns: ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx.app)}`
+
+    yield DecIndent
+    yield '}>'
+  }
+  yield DecIndent
+  yield* appState(ctx)
+  yield DecIndentAndCloseBlock
+
+  yield `
+  /**
+   * Defines the possible abi call signatures.
+   */
+  export type ${name}Signatures = keyof ${name}Types['methods']
+  /**
+   * Defines an object containing all relevant parameters for a single call to the contract.
+   */
+  export type CallParams<TSignature extends ${name}Signatures> = Expand<
+    Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
+      {
+        /** The args for the ABI method call, either as an ordered array or an object */
+        args: Expand<MethodArgs<TSignature>>
+      }
+  >
+  /**
+   * Maps a method signature from the ${name} smart contract to the method's arguments in either tuple or struct form
+   */
+  export type MethodArgs<TSignature extends ${name}Signatures> = ${name}Types['methods'][TSignature]['argsObj' | 'argsTuple']
+  /**
+   * Maps a method signature from the ${name} smart contract to the method's return type
+   */
+  export type MethodReturn<TSignature extends ${name}Signatures> = ${name}Types['methods'][TSignature]['returns']
+  `
+
+  yield NewLine
+}
+
 function* abiTypes({ app }: GeneratorContext): DocumentParts {
   const abiTypes: string[] = []
 
@@ -107,86 +190,6 @@ function* templateVariableTypes({ app }: GeneratorContext): DocumentParts {
   }
 
   yield DecIndentAndCloseBlock
-}
-
-export function* appTypes(ctx: GeneratorContext): DocumentParts {
-  yield* abiTypes(ctx)
-  yield* structTypes(ctx)
-  yield* templateVariableTypes(ctx)
-
-  const { app, methodSignatureToUniqueName, name } = ctx
-  yield* jsDoc(`Defines the types of available calls and state of the ${name} smart contract.`)
-  yield `export type ${name}Types = {`
-  yield IncIndent
-  yield* jsDoc('Maps method signatures / names to their argument and return types.')
-  if (app.methods.length == 0) {
-    yield 'methods: {}'
-  } else {
-    yield 'methods:'
-  }
-  yield IncIndent
-  for (const method of app.methods) {
-    const methodSig = new ABIMethod(method).getSignature()
-    const methodSigSafe = ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)
-    const uniqueName = methodSignatureToUniqueName[methodSig]
-    const uniqueNameSafe = ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)
-    yield `& Record<'${methodSigSafe}'${methodSig !== uniqueName ? ` | '${uniqueNameSafe}'` : ''}, {`
-    yield IncIndent
-    yield `argsObj: {`
-    yield IncIndent
-
-    const argsMeta = method.args.map((arg, i) => ({
-      ...arg,
-      name: arg.name ?? `arg${i + 1}`,
-      hasDefault: !!arg.defaultValue,
-      tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx.app),
-    }))
-
-    for (const arg of argsMeta) {
-      if (arg.desc) yield* jsDoc(arg.desc)
-      yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
-    }
-    yield DecIndentAndCloseBlock
-    yield* inline(
-      `argsTuple: [`,
-      argsMeta
-        .map((arg) => `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${arg.tsType}${arg.hasDefault ? ' | undefined' : ''}`)
-        .join(', '),
-      ']',
-    )
-    if (method.returns.desc) yield* jsDoc(method.returns.desc)
-    yield `returns: ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx.app)}`
-
-    yield DecIndent
-    yield '}>'
-  }
-  yield DecIndent
-  yield* appState(ctx)
-  yield DecIndentAndCloseBlock
-
-  yield `
-  /**
-   * Defines the possible abi call signatures.
-   */
-  export type ${name}Signatures = keyof ${name}Types['methods']
-  /**
-   * Defines an object containing all relevant parameters for a single call to the contract.
-   */
-  export type CallParams<TSignature extends ${name}Signatures> = Expand<
-    Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
-      { args: Expand<MethodArgs<TSignature>> }
-  >
-  /**
-   * Maps a method signature from the ${name} smart contract to the method's arguments in either tuple or struct form
-   */
-  export type MethodArgs<TSignature extends ${name}Signatures> = ${name}Types['methods'][TSignature]['argsObj' | 'argsTuple']
-  /**
-   * Maps a method signature from the ${name} smart contract to the method's return type
-   */
-  export type MethodReturn<TSignature extends ${name}Signatures> = ${name}Types['methods'][TSignature]['returns']
-  `
-
-  yield NewLine
 }
 
 function* structPart(struct: StructFields, app: Arc56Contract, sanitizer: Sanitizer): DocumentParts {

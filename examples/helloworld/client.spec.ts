@@ -1,9 +1,11 @@
 import { HelloWorldAppClient } from './client'
 import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
-import { AtomicTransactionComposer } from 'algosdk'
+import { AtomicTransactionComposer, OnApplicationComplete } from 'algosdk'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { setUpLocalnet } from '../../src/tests/util'
+import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
+import { arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 describe('hello world typed client', () => {
   let localnet: AlgorandFixture
@@ -16,7 +18,8 @@ describe('hello world typed client', () => {
   }, 10_000)
 
   test('Calls hello', async () => {
-    const { algod, indexer, testAccount } = localnet.context
+    const { algorand, algod, indexer, testAccount } = localnet.context
+
     const client = new HelloWorldAppClient(
       {
         resolveBy: 'creatorAndName',

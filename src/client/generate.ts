@@ -8,6 +8,7 @@ import { createGeneratorContext, GeneratorOptions } from './generator-context'
 import { appTypes } from './app-types'
 import { callComposerType } from './call-composer-types'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { appFactory } from './app-factory'
 
 export function* generate(app: Arc56Contract, options: GeneratorOptions = { preserveNames: false }): DocumentParts {
   const ctx = createGeneratorContext(app, options)
@@ -32,6 +33,8 @@ export function* generate(app: Arc56Contract, options: GeneratorOptions = { pres
   // Write a call factory
   yield* paramsFactory(ctx)
   yield NewLine
+  // Write a factory
+  yield* appFactory(ctx)
   // Write a client
   yield* appClient(ctx)
 

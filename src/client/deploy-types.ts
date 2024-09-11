@@ -30,7 +30,7 @@ export function getCallOnCompleteOptions(method: MethodIdentifier, app: Arc56Con
   }
 }
 
-export function* deployTypes({ app, callConfig, sanitizer }: GeneratorContext): DocumentParts {
+export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniqueName }: GeneratorContext): DocumentParts {
   const name = sanitizer.makeSafeTypeIdentifier(app.name)
 
   if (callConfig.createMethods.length > 0) {
@@ -40,10 +40,15 @@ export function* deployTypes({ app, callConfig, sanitizer }: GeneratorContext): 
     for (const method of callConfig.createMethods) {
       const onComplete = getCreateOnCompleteOptions(method, app)
       if (method === BARE_CALL) {
-        yield `| (AppClientBareCallParams & ${onComplete.type})`
+        yield `| Expand<AppClientBareCallParams & {method?: undefined} & ${onComplete.type} & CreateSchema>`
       } else {
+        const uniqueName = methodSignatureToUniqueName[method]
+        if (uniqueName !== method) {
+          const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
+          yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'} & ${onComplete.type} & CreateSchema>`
+        }
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
-        yield `| (CallParams<'${methodSigSafe}'> & ${onComplete.type})`
+        yield `| Expand<CallParams<'${methodSigSafe}'> & {method: '${methodSigSafe}'} & ${onComplete.type} & CreateSchema>`
       }
     }
     yield DecIndent
@@ -54,11 +59,15 @@ export function* deployTypes({ app, callConfig, sanitizer }: GeneratorContext): 
     yield IncIndent
     for (const method of callConfig.updateMethods) {
       if (method === BARE_CALL) {
-        yield `| AppClientBareCallParams`
+        yield `| Expand<AppClientBareCallParams> & {method?: undefined}`
       } else {
+        const uniqueName = methodSignatureToUniqueName[method]
+        if (uniqueName !== method) {
+          const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
+          yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'}>`
+        }
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
-
-        yield `| CallParams<'${methodSigSafe}'>`
+        yield `| Expand<CallParams<'${methodSigSafe}'> & {method: '${methodSigSafe}'}>`
       }
     }
     yield DecIndent
@@ -70,29 +79,39 @@ export function* deployTypes({ app, callConfig, sanitizer }: GeneratorContext): 
     yield IncIndent
     for (const method of callConfig.deleteMethods) {
       if (method === BARE_CALL) {
-        yield `| AppClientBareCallParams`
+        yield `| Expand<AppClientBareCallParams> & {method?: undefined}`
       } else {
+        const uniqueName = methodSignatureToUniqueName[method]
+        if (uniqueName !== method) {
+          const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
+          yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'}>`
+        }
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
-
-        yield `| CallParams<'${methodSigSafe}'>`
+        yield `| Expand<CallParams<'${methodSigSafe}'> & {method: '${methodSigSafe}'}>`
       }
     }
     yield DecIndent
   }
 
   yield* jsDoc('Defines arguments required for the deploy method.')
-  yield `export type ${name}DeployParams = Expand<AppFactoryDeployParams & {`
+  yield `export type ${name}DeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {`
   yield IncIndent
   if (callConfig.createMethods.length) {
-    yield* jsDoc('Create transaction parameters to use if a create needs to be issued as part of deployment')
+    yield* jsDoc(
+      'Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)',
+    )
     yield `createParams?: ${name}CreateCallParams`
   }
   if (callConfig.updateMethods.length) {
-    yield* jsDoc('Update transaction parameters to use if a create needs to be issued as part of deployment')
+    yield* jsDoc(
+      'Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)',
+    )
     yield `updateParams?: ${name}UpdateCallParams`
   }
   if (callConfig.deleteMethods.length) {
-    yield* jsDoc('Delete transaction parameters to use if a create needs to be issued as part of deployment')
+    yield* jsDoc(
+      'Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)',
+    )
     yield `deleteParams?: ${name}DeleteCallParams`
   }
   yield DecIndent

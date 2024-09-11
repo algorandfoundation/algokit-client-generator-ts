@@ -1,4 +1,4 @@
-import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
+import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, jsDoc, NewLine } from '../output/writer'
 import { GeneratorContext } from './generator-context'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
@@ -33,22 +33,48 @@ function* opMethods(ctx: GeneratorContext): DocumentParts {
 }
 
 function* operationMethod(
-  { app, methodSignatureToUniqueName, sanitizer }: GeneratorContext,
+  ctx: GeneratorContext,
   description: string,
   methods: MethodList,
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
   includeCompilation?: boolean,
 ): DocumentParts {
+  const { app, methodSignatureToUniqueName, sanitizer } = ctx
   if (methods.length) {
     yield* jsDoc(`Gets available ${verb} param factories`)
     yield `static get ${verb}() {`
     yield IncIndent
     yield `return {`
     yield IncIndent
+
+    if (['create', 'update', 'delete'].includes(verb)) {
+      yield `_resolveByMethod<TSignature extends ${ctx.name}Signatures, TParams extends ${ctx.name}${verb[0].toUpperCase()}${verb.substring(1)}CallParams & CallParams<TSignature> & {method: TSignature}>(params: TParams) {`
+      yield IncIndent
+      yield `switch(params.method) {`
+      yield IncIndent
+
+      for (const methodSig of methods) {
+        if (methodSig === BARE_CALL) continue
+
+        const uniqueName = methodSignatureToUniqueName[methodSig]
+        if (uniqueName !== methodSig) {
+          yield `case '${sanitizer.makeSafeMethodIdentifier(uniqueName)}':`
+        }
+        yield `case '${sanitizer.makeSafeStringTypeLiteral(methodSig)}':`
+        yield* indent(`return ${ctx.name}ParamsFactory.${verb}.${sanitizer.makeSafeMethodIdentifier(uniqueName)}(params)`)
+      }
+      yield DecIndentAndCloseBlock
+
+      yield 'throw new Error(`Unknown ' + verb + ' method: ${params.method}`)'
+      yield DecIndent
+      yield '},'
+      yield DecIndent
+      yield NewLine
+    }
+
     for (const methodSig of methods) {
       const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
       if (methodSig === BARE_CALL) {
-        // todo: delete the bare call here???
         yield* jsDoc({
           description: `${description} using a bare call`,
           params: {

@@ -175,7 +175,7 @@ function* abiMethodCall({
     params: {
       params: `The params for the smart contract call`,
     },
-    returns: `The ${verb} result${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
+    returns: `The ${verb} ${type === 'params' ? 'params' : type === 'transactions' ? 'transaction' : 'result'}${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
   })
   const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
   const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
@@ -292,41 +292,6 @@ function* noopMethods(generator: GeneratorContext, type: 'params' | 'transaction
       includeCompilation: false,
     })
   }
-}
-
-// todo: factory
-function* factoryMethods(ctx: GeneratorContext, type: 'params' | 'transactions' | 'send'): DocumentParts {
-  const { app, callConfig, name } = ctx
-
-  // todo: type??
-  yield* jsDoc({
-    description: `Idempotently deploys the ${app.name} smart contract.`,
-    params: {
-      params: 'The arguments for the contract calls and any additional parameters for the call',
-    },
-    returns: 'The deployment result',
-  })
-  yield `public deploy(params: ${name}DeployParams = {}): ReturnType<AppFactory['deploy']> {`
-  yield IncIndent
-
-  if (callConfig.createMethods.length) yield `const createParams = params.createCall?.(${name}ParamsFactory.create)`
-  if (callConfig.updateMethods.length) yield `const updateParams = params.updateCall?.(${name}ParamsFactory.update)`
-  if (callConfig.deleteMethods.length) yield `const deleteParams = params.deleteCall?.(${name}ParamsFactory.delete)`
-
-  yield `return this.appClient.deploy({`
-  yield IncIndent
-  yield `...params,`
-  if (callConfig.updateMethods.length) yield 'updateParams,'
-  if (callConfig.deleteMethods.length) yield 'deleteParams,'
-  if (callConfig.createMethods.length) {
-    yield 'createParams,'
-  }
-  yield DecIndent
-  yield `})`
-  yield DecIndentAndCloseBlock
-  yield NewLine
-
-  yield* operationMethods(ctx, `Creates a new instance of the ${app.name} smart contract`, callConfig.createMethods, 'create', type, true)
 }
 
 function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentParts {

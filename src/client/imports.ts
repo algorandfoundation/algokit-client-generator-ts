@@ -11,8 +11,9 @@ export function* imports(): DocumentParts {
       AppClientBareCallParams,
       CallOnComplete,
       AppClientCompilationParams,
+      ResolveAppClientByCreatorAndName,
     } from '@algorandfoundation/algokit-utils/types/app-client'
-    import { AppFactory, AppFactoryDeployParams } from '@algorandfoundation/algokit-utils/types/app-factory'
+    import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
     import { AppCallMethodCall, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
     import { ExecuteParams, SendSingleTransactionResult } from '@algorandfoundation/algokit-utils/types/transaction'
     import { OnApplicationComplete } from 'algosdk'
