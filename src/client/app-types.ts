@@ -1,11 +1,119 @@
 import { GeneratorContext } from './generator-context'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, inline, jsDoc, NewLine } from '../output/writer'
 import { getEquivalentType } from './helpers/get-equivalent-type'
-import { ABIMethod } from 'algosdk'
+import { ABIMethod, ABITupleType, abiTypeIsTransaction } from 'algosdk'
 import { Arc56Contract, StorageKey, StorageMap, StructFields } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { Sanitizer } from '../util/sanitization'
 
+function* abiTypes({ app }: GeneratorContext): DocumentParts {
+  const abiTypes: string[] = []
+
+  const pushType = (type: string) => {
+    // If we already have this type, skip
+    if (abiTypes.includes(type)) return
+
+    // void and string are the same types in TS
+    if (['void', 'string'].includes(type)) return
+
+    // Skip structs
+    if (app.structs[type]) return
+
+    // If this is an array type, push the base type
+    if (type.match(/\[\d*\]$/)) {
+      pushType(type.replace(/\[\d*\]$/, ''))
+      return
+    }
+
+    if (type.startsWith('(')) {
+      const tupleType = ABITupleType.from(type) as ABITupleType
+
+      tupleType.childTypes.forEach((t) => {
+        pushType(t.toString())
+      })
+
+      return
+    }
+
+    abiTypes.push(type)
+  }
+
+  Object.values(app.templateVariables ?? {}).forEach((t) => {
+    pushType(t.type)
+  })
+
+  app.methods.forEach((m) => {
+    m.args.forEach((a) => {
+      pushType(a.type)
+    })
+
+    pushType(m.returns.type)
+  })
+  ;(['global', 'local', 'box'] as ['global', 'local', 'box']).forEach((storageType) => {
+    Object.values(app.state.keys[storageType]).forEach((k) => {
+      pushType(k.keyType)
+      pushType(k.valueType)
+    })
+
+    Object.values(app.state.maps[storageType]).forEach((m) => {
+      pushType(m.keyType)
+      pushType(m.valueType)
+    })
+  })
+
+  const pushStructFields = (fields: StructFields) => {
+    Object.values(fields).forEach((sf) => {
+      if (typeof sf === 'string') pushType(sf)
+      else pushStructFields(sf)
+    })
+  }
+
+  Object.values(app.structs).forEach((sf) => {
+    pushStructFields(sf)
+  })
+
+  yield '// Aliases for non-encoded ABI values'
+  yield NewLine
+  for (const t of abiTypes) {
+    yield `type ${t} = ${getEquivalentType(t, 'output', app)};`
+  }
+}
+
+function* structTypes({ app }: GeneratorContext): DocumentParts {
+  if (Object.keys(app.structs).length === 0) return
+
+  yield '// Type definitions for ARC56 structs'
+  yield NewLine
+
+  for (const structName of Object.keys(app.structs)) {
+    yield `export type ${structName.split('.').at(-1)} = ${JSON.stringify(app.structs[structName], null, 2)
+      .replace(/"/g, '')
+      .replaceAll('(', '[')
+      .replaceAll(')', ']')
+      .replace(/\[\d+\]/g, '[]')}`
+  }
+}
+
+function* templateVariableTypes({ app }: GeneratorContext): DocumentParts {
+  if (Object.keys(app.templateVariables ?? {}).length === 0) {
+    return
+  }
+
+  yield* jsDoc('Deploy-time template variables')
+  yield 'export type TemplateVariables = {'
+  yield IncIndent
+
+  for (const name of Object.keys(app.templateVariables ?? {})) {
+    yield `${name}: ${app.templateVariables![name].type},`
+  }
+
+  yield DecIndentAndCloseBlock
+}
+
 export function* appTypes(ctx: GeneratorContext): DocumentParts {
+  yield* abiTypes(ctx)
+  yield* structTypes(ctx)
+  yield* templateVariableTypes(ctx)
+
   const { app, methodSignatureToUniqueName, name } = ctx
   yield* jsDoc(`Defines the types of available calls and state of the ${name} smart contract.`)
   yield `export type ${name}Types = {`
@@ -31,7 +139,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
       ...arg,
       name: arg.name ?? `arg${i + 1}`,
       hasDefault: !!arg.defaultValue,
-      tsType: getEquivalentType(arg.type, 'input', ctx.app),
+      tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx.app),
     }))
 
     for (const arg of argsMeta) {
@@ -47,7 +155,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
       ']',
     )
     if (method.returns.desc) yield* jsDoc(method.returns.desc)
-    yield `returns: ${getEquivalentType(method.returns.type ?? 'void', 'output', ctx.app)}`
+    yield `returns: ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx.app)}`
 
     yield DecIndent
     yield '}>'

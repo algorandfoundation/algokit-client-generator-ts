@@ -30,27 +30,6 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
         appSpec: APP_SPEC,
       })
     }
-
-    /**
-     * Checks for decode errors on the AppCallTransactionResult and maps the return value to the specified generic type
-     *
-     * @param result The AppCallTransactionResult to be mapped
-     * @param returnValueFormatter An optional delegate to format the return value if required
-     * @returns The smart contract response with an updated return value
-     */
-    protected mapReturnValue<TReturn, TResult extends SendAppTransactionResult = SendAppTransactionResult>(
-      result: SendAppTransactionResult,
-      returnValueFormatter?: (value: any) => TReturn,
-    ): Expand<Omit<TResult, 'return'> & AppReturn<TReturn>> {
-      if (result.return?.decodeError) {
-        throw result.return.decodeError
-      }
-      const returnValue =
-        result.return?.returnValue !== undefined && returnValueFormatter !== undefined
-          ? returnValueFormatter(result.return.returnValue)
-          : (result.return?.returnValue as TReturn | undefined)
-      return { ...result, return: returnValue } as TResult & AppReturn<TReturn>
-    }
   `
 
   yield* params(ctx)
@@ -203,12 +182,11 @@ function* abiMethodCall({
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
   yield `async ${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${method.args.length === 0 ? ' = {}' : ''}) {`
+  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${method.args.length === 0 ? ' = {args: []}' : ''}) {`
   if (type === 'send') {
     yield* indent(
-      `return $this.mapReturnValue<MethodReturn<'${methodSigSafe}'>${responseTypeGenericParam ?? ''}>(`,
-      `  await $this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
-      `)`,
+      `const result = await $this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
+      `return {...result, return: result.return as undefined | MethodReturn<'${methodSigSafe}'>}`,
     )
   } else {
     yield* indent(
@@ -286,21 +264,22 @@ function* clearState(generator: GeneratorContext, type: 'params' | 'transactions
 }
 
 function* call(generator: GeneratorContext, type: 'params' | 'transactions' | 'send'): DocumentParts {
-  yield* bareMethodCall({
-    generator,
-    name: 'bare',
-    description: `Makes a call to the ${generator.app.name} smart contract using a bare call`,
-    verb: 'call',
-    type,
-  })
-  yield NewLine
+  if (generator.callConfig.callMethods.includes(BARE_CALL)) {
+    yield* bareMethodCall({
+      generator,
+      name: 'bare',
+      description: `Makes a call to the ${generator.app.name} smart contract using a bare call`,
+      verb: 'call',
+      type,
+    })
+    yield NewLine
+  }
 }
 
 function* noopMethods(generator: GeneratorContext, type: 'params' | 'transactions' | 'send'): DocumentParts {
   const { app, callConfig } = generator
   for (const method of app.methods) {
     const methodSignature = new ABIMethod(method).getSignature()
-    console.log(methodSignature, callConfig.callMethods)
     // Skip methods which don't support a no_op call config
     if (!callConfig.callMethods.includes(methodSignature)) continue
 

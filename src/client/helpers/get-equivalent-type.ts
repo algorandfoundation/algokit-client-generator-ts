@@ -22,7 +22,7 @@ export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'
     return 'Uint8Array'
   }
   if (abiTypeIsTransaction(abiTypeStr)) {
-    return 'TransactionToSign | Transaction | Promise<SendTransactionResult>'
+    return 'AppMethodCallTransactionArgument'
   }
   if (abiTypeStr == ABIReferenceType.account) {
     return 'string | Uint8Array'
@@ -47,10 +47,6 @@ export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'
       if (abiType.childType instanceof ABIByteType) return 'Uint8Array'
 
       const childTsType = abiTypeToTs(abiType.childType, ioType)
-      if (childTsType === 'bigint | number') {
-        return 'bigint[] | number[]'
-      }
-
       return `${childTsType}[]`
     }
     if (abiType instanceof ABIArrayStaticType) {

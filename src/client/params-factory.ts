@@ -1,6 +1,4 @@
-import { ContractMethod } from '../schema/application'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
-import * as algokit from '@algorandfoundation/algokit-utils'
 import { GeneratorContext } from './generator-context'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { getCreateOnCompleteOptions } from './deploy-types'
@@ -84,7 +82,7 @@ function* operationMethod(
           args: method.args,
           additionalParamTypes: `${includeCompilation ? ' & AppClientCompilationParams' : ''}${
             onComplete?.type ? ` & ${onComplete.type}` : ''
-          }${onComplete?.isOptional !== false ? ' = {}' : ''}`,
+          }`,
         })
       }
     }

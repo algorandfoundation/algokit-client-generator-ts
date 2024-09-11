@@ -13,7 +13,7 @@ export function* imports(): DocumentParts {
       AppClientCompilationParams,
     } from '@algorandfoundation/algokit-utils/types/app-client'
     import { AppFactory, AppFactoryDeployParams } from '@algorandfoundation/algokit-utils/types/app-factory'
-    import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
+    import { AppCallMethodCall, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
     import { ExecuteParams, SendSingleTransactionResult } from '@algorandfoundation/algokit-utils/types/transaction'
     import { OnApplicationComplete } from 'algosdk'
   `

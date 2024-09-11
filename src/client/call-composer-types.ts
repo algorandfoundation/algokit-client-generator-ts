@@ -48,7 +48,7 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
         ' include a signer.',
     },
   })
-  yield `addTransaction(txn: TransactionWithSigner | TransactionToSign | Transaction | Promise<SendTransactionResult>, defaultSender?: SendTransactionFrom): ${name}Composer<TReturns>`
+  yield `addTransaction(txn: AppMethodCallTransactionArgument, defaultSender?: string): ${name}Composer<TReturns>`
 
   yield* jsDoc({
     description: 'Returns the underlying AtomicTransactionComposer instance',

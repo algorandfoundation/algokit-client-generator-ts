@@ -533,7 +533,7 @@
       "type": "object"
     },
     "SourceInfo": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "disassembledTeal": {
           "description": "The line of the dissasembled TEAL this line of pre-compiled TEAL corresponds to",

@@ -23,7 +23,7 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield* callComposerOperationMethods(ctx, callConfig.closeOutMethods, 'closeOut')
   yield* callComposerClearState()
 
-  yield `addTransaction(txn: TransactionWithSigner | TransactionToSign | Transaction | Promise<SendTransactionResult>, defaultSender?: SendTransactionFrom) {`
+  yield `addTransaction(txn: AppMethodCallTransactionArgument) {`
   yield IncIndent
   yield 'promiseChain = promiseChain.then(async () => atc.addTransaction(await algokit.getTransactionWithSigner(txn, defaultSender ??' +
     ' client.sender)))'

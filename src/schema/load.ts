@@ -15,16 +15,19 @@ export async function loadApplicationJson(appJsonPath: string): Promise<Arc56Con
 }
 
 export function validateApplicationJson(json: unknown, appJsonPath: string): Arc56Contract {
-  const arc32Validator = new Validator()
-  arc32Validator.addSchema(contractSchema, '/contract.schema.json')
-  const arc32Result = arc32Validator.validate(json, arc32Schema as unknown as Schema)
+  if (typeof json !== 'object') boom(`Could not parse ${appJsonPath} as JSON object`)
 
+  if ('contract' in (json as any)) {
+    // ARC-32
+    const arc32Validator = new Validator()
+    arc32Validator.addSchema(contractSchema, '/contract.schema.json')
+    const arc32Result = arc32Validator.validate(json, arc32Schema as unknown as Schema)
+    if (!arc32Result.valid) boom(`Could not parse ${appJsonPath} as ARC-32.\n${arc32Result}`)
+    return arc32ToArc56(json as AppSpec)
+  }
+  // ARC-56
   const arc56Validator = new Validator()
   const arc56Result = arc56Validator.validate(json, arc56Schema as unknown as Schema)
-
-  if (!arc32Result.valid && !arc56Result.valid) boom(`Could not parse ${appJsonPath} as ARC-32 or ARC-56. ${arc32Result}. ${arc56Result}`)
-
-  if (!arc56Result.valid) return arc32ToArc56(json as AppSpec)
-
+  if (!arc56Result.valid) boom(`Could not parse ${appJsonPath} as ARC-56.\n${arc56Result}`)
   return json as Arc56Contract
 }
