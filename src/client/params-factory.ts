@@ -7,7 +7,7 @@ import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { ABIMethod } from 'algosdk'
 
 export function* paramsFactory(ctx: GeneratorContext): DocumentParts {
-  yield* jsDoc('Exposes methods for constructing `AppClient` params objects for all known smart contract calls to ' + ctx.name)
+  yield* jsDoc('Exposes methods for constructing `AppClient` params objects for ABI calls to the ' + ctx.name + ' smart contract')
   yield `export abstract class ${ctx.name}ParamsFactory {`
   yield IncIndent
 
@@ -25,11 +25,28 @@ export function* paramsFactory(ctx: GeneratorContext): DocumentParts {
 function* opMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig } = ctx
 
-  yield* operationMethod(ctx, `Constructs create params for the ${app.name} smart contract`, callConfig.createMethods, 'create', true)
-  yield* operationMethod(ctx, `Constructs update params for the ${app.name} smart contract`, callConfig.updateMethods, 'update', true)
-  yield* operationMethod(ctx, `Constructs delete params for the ${app.name} smart contract`, callConfig.deleteMethods, 'delete')
-  yield* operationMethod(ctx, `Constructs opt-in params for the ${app.name} smart contract`, callConfig.optInMethods, 'optIn')
-  yield* operationMethod(ctx, `Constructs close out params for the ${app.name} smart contract`, callConfig.closeOutMethods, 'closeOut')
+  yield* operationMethod(
+    ctx,
+    `Constructs create ABI call params for the ${app.name} smart contract`,
+    callConfig.createMethods,
+    'create',
+    true,
+  )
+  yield* operationMethod(
+    ctx,
+    `Constructs update ABI call params for the ${app.name} smart contract`,
+    callConfig.updateMethods,
+    'update',
+    true,
+  )
+  yield* operationMethod(ctx, `Constructs delete ABI call params for the ${app.name} smart contract`, callConfig.deleteMethods, 'delete')
+  yield* operationMethod(ctx, `Constructs opt-in ABI call params for the ${app.name} smart contract`, callConfig.optInMethods, 'optIn')
+  yield* operationMethod(
+    ctx,
+    `Constructs close out ABI call params for the ${app.name} smart contract`,
+    callConfig.closeOutMethods,
+    'closeOut',
+  )
 }
 
 function* operationMethod(
@@ -41,14 +58,14 @@ function* operationMethod(
 ): DocumentParts {
   const { app, methodSignatureToUniqueName, sanitizer } = ctx
   if (methods.length) {
-    yield* jsDoc(`Gets available ${verb} param factories`)
+    yield* jsDoc(`Gets available ${verb} ABI call param factories`)
     yield `static get ${verb}() {`
     yield IncIndent
     yield `return {`
     yield IncIndent
 
     if (['create', 'update', 'delete'].includes(verb)) {
-      yield `_resolveByMethod<TSignature extends ${ctx.name}Signatures, TParams extends ${ctx.name}${verb[0].toUpperCase()}${verb.substring(1)}CallParams & CallParams<TSignature> & {method: TSignature}>(params: TParams) {`
+      yield `_resolveByMethod<TParams extends ${ctx.name}${verb[0].toUpperCase()}${verb.substring(1)}CallParams & {method: string}>(params: TParams) {`
       yield IncIndent
       yield `switch(params.method) {`
       yield IncIndent
@@ -58,14 +75,15 @@ function* operationMethod(
 
         const uniqueName = methodSignatureToUniqueName[methodSig]
         if (uniqueName !== methodSig) {
-          yield `case '${sanitizer.makeSafeMethodIdentifier(uniqueName)}':`
+          yield `case '${sanitizer.makeSafeStringTypeLiteral(uniqueName)}':`
         }
         yield `case '${sanitizer.makeSafeStringTypeLiteral(methodSig)}':`
         yield* indent(`return ${ctx.name}ParamsFactory.${verb}.${sanitizer.makeSafeMethodIdentifier(uniqueName)}(params)`)
       }
       yield DecIndentAndCloseBlock
 
-      yield 'throw new Error(`Unknown ' + verb + ' method: ${params.method}`)'
+      // Ordinarily we'd pop in the params.method value, but we can't here since it knows at compile time the type of params.method is never
+      yield 'throw new Error(`Unknown ' + verb + ' method`)'
       yield DecIndent
       yield '},'
       yield DecIndent
@@ -74,23 +92,7 @@ function* operationMethod(
 
     for (const methodSig of methods) {
       const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
-      if (methodSig === BARE_CALL) {
-        yield* jsDoc({
-          description: `${description} using a bare call`,
-          params: {
-            params: `Any parameters for the call`,
-          },
-          returns: 'An `AppClientBareCallParams` object for the call',
-        })
-        yield* factoryMethod({
-          isNested: true,
-          name: 'bare',
-          sanitizer,
-          additionalParamTypes: `${
-            includeCompilation ? ' & AppClientCompilationParams' : ''
-          }${onComplete?.type ? ` & ${onComplete.type}` : ''}`,
-        })
-      } else {
+      if (methodSig !== BARE_CALL) {
         const method = app.methods.find((m) => new ABIMethod(m).getSignature() === methodSig)!
         const uniqueName = methodSignatureToUniqueName[methodSig]
         yield* jsDoc({
@@ -140,32 +142,17 @@ function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer
   })
 }
 
-function* factoryMethod({
-  isNested,
-  name,
-  signature,
-  args,
-  additionalParamTypes,
-  sanitizer,
-}:
-  | {
-      isNested: boolean
-      name?: string
-      signature?: undefined
-      args?: undefined
-      additionalParamTypes?: string
-      sanitizer: Sanitizer
-    }
-  | {
-      isNested: boolean
-      name?: string
-      signature: string
-      args: Array<{ name?: string }>
-      additionalParamTypes?: string
-      sanitizer: Sanitizer
-    }) {
+function* factoryMethod(m: {
+  isNested: boolean
+  name?: string
+  signature: string
+  args: Array<{ name?: string }>
+  additionalParamTypes?: string
+  sanitizer: Sanitizer
+}) {
+  const { isNested, name, signature, args, additionalParamTypes, sanitizer } = m
   const signatureSafe = signature && sanitizer.makeSafeStringTypeLiteral(signature)
-  yield `${isNested ? '' : 'static '}${name}(params: ${signature === undefined ? 'AppClientBareCallParams' : `CallParams<'${signatureSafe}'>`}${additionalParamTypes}): ${signature !== undefined ? 'AppClientMethodCallParams' : 'AppClientBareCallParams'}${additionalParamTypes} {`
+  yield `${isNested ? '' : 'static '}${name}(params: CallParams<'${signatureSafe}'>${additionalParamTypes}): AppClientMethodCallParams${additionalParamTypes} {`
   yield IncIndent
   yield `return {`
   yield IncIndent

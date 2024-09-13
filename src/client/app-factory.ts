@@ -42,7 +42,7 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
      * @returns The \`AppClient\`
      */
     public getAppClientById(params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec'>>) {
-      return this.appFactory.getAppClientById(params)
+      return new ${name}Client(this.appFactory.getAppClientById(params))
     }
 
     /**
@@ -54,10 +54,10 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
      * @param params The parameters to create the app client
      * @returns The \`AppClient\`
      */
-    public getAppClientByCreatorAddressAndName(
+    public async getAppClientByCreatorAddressAndName(
       params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec' | 'appId'> & ResolveAppClientByCreatorAndName>,
     ) {
-      return this.appFactory.getAppClientByCreatorAddressAndName(params)
+      return new ${name}Client(await this.appFactory.getAppClientByCreatorAddressAndName(params))
     }
   `
 
@@ -146,7 +146,7 @@ function* paramMethods(ctx: GeneratorContext): DocumentParts {
 }
 
 function* bareMethodCallParams({
-  generator: { app },
+  generator: { app, name: clientName },
   name,
   description,
   verb,
@@ -168,13 +168,16 @@ function* bareMethodCallParams({
     },
     returns: type === 'params' ? `The params for a ${verb} call` : `The ${verb} result`,
   })
-  yield `${name}(params?: Expand<AppClientBareCallParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+  yield `${type === 'send' ? 'async ' : ''}${name}(params?: Expand<AppClientBareCallParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
   }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) {`
   if (type === 'params') {
     yield* indent(`return $this.appFactory.params.bare.${verb}(params)`)
   } else {
-    yield* indent(`return $this.appFactory.create(params)`)
+    yield* indent(
+      `const result = await $this.appFactory.create(params)`,
+      `return { result: result.result, app: new ${clientName}Client(result.app) }`,
+    )
   }
   yield '},'
 }
@@ -208,7 +211,7 @@ function* abiMethodCallParams({
   const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
   const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-  yield `async ${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+  yield `${type === 'send' ? 'async ' : ''}${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
   }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${method.args.length === 0 ? ' = {args: []}' : ''}) {`
   if (type === 'params') {
@@ -216,7 +219,10 @@ function* abiMethodCallParams({
       `return $this.appFactory.params.${verb}(${name}ParamsFactory.${verb == 'deployDelete' ? 'delete' : verb === 'deployUpdate' ? 'update' : verb}${methodNameAccessor}(params))`,
     )
   } else {
-    yield* indent(`return $this.appFactory.create(${name}ParamsFactory.${verb}${methodNameAccessor}(params))`)
+    yield* indent(
+      `const result = await $this.appFactory.create(${name}ParamsFactory.${verb}${methodNameAccessor}(params))`,
+      `return { result: result.result, app: new ${name}Client(result.app) }`,
+    )
   }
   yield '},'
 }
@@ -272,10 +278,10 @@ function* deployMethod(ctx: GeneratorContext): DocumentParts {
     },
     returns: 'The deployment result',
   })
-  yield `public deploy(params: ${name}DeployParams = {}): ReturnType<AppFactory['deploy']> {`
+  yield `public async deploy(params: ${name}DeployParams = {}) {`
   yield IncIndent
 
-  yield `return this.appFactory.deploy({`
+  yield `const result = await this.appFactory.deploy({`
   yield IncIndent
   yield `...params,`
   if (callConfig.createMethods.filter((m) => m !== BARE_CALL).length) {
@@ -289,6 +295,7 @@ function* deployMethod(ctx: GeneratorContext): DocumentParts {
   }
   yield DecIndent
   yield `})`
+  yield `return { result: result.result, app: new ${name}Client(result.app) }`
   yield DecIndentAndCloseBlock
   yield NewLine
 }

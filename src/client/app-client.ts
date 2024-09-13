@@ -16,17 +16,22 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
   yield 'public readonly appClient: AppClient'
   yield NewLine
 
-  yield* jsDoc({
-    description: `Creates a new instance of \`${name}Client\``,
-    params: {
-      params: 'The parameters to initialise the app client with',
-    },
-  })
-
   yield `
-    constructor(params: Expand<Omit<AppClientParams, 'appSpec'>>) {
-      this.appClient = new AppClient({
-        ...params,
+    /**
+     * Creates a new instance of \`${name}Client\`
+     *
+     * @param appClient An \`AppClient\` instance which has been created with the ${name} app spec
+     */
+    constructor(appClient: AppClient)
+    /**
+     * Creates a new instance of \`${name}Client\`
+     *
+     * @param params The parameters to initialise the app client with
+     */
+    constructor(params: Expand<Omit<AppClientParams, 'appSpec'>>)
+    constructor(appClientOrParams: AppClient | Expand<Omit<AppClientParams, 'appSpec'>>) {
+      this.appClient = appClientOrParams instanceof AppClient ? appClientOrParams : new AppClient({
+        ...appClientOrParams,
         appSpec: APP_SPEC,
       })
     }
@@ -297,3 +302,63 @@ function* noopMethods(generator: GeneratorContext, type: 'params' | 'transaction
 function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentParts {
   yield `// todo: state values`
 }
+/*
+
+getStateLines(): string[] {
+  if (Object.keys(this.arc56.state).length === 0) return [];
+  const lines = ["state = {"];
+
+  if (Object.keys(this.arc56.state.keys).length > 0) {
+    lines.push("keys: {");
+
+    (["global", "local", "box"] as ("global" | "local" | "box")[]).forEach(
+      (storageType) => {
+        Object.keys(this.arc56.state.keys[storageType]).forEach((name) => {
+          const k = this.arc56.state.keys[storageType][name];
+          if (storageType === "local") {
+            lines.push(
+              `${name}: async (address: string): Promise<${this.getTypeScriptType(k.valueType)}> => { return this.getState.key("${name}", address) },`
+            );
+          } else {
+            lines.push(
+              `${name}: async (): Promise<${this.getTypeScriptType(k.valueType)}> => { return this.getState.key("${name}") },`
+            );
+          }
+        });
+      }
+    );
+
+    lines.push("},");
+  }
+
+  if (Object.keys(this.arc56.state.maps).length > 0) {
+    lines.push("maps: {");
+
+    (["global", "local", "box"] as ("global" | "local" | "box")[]).forEach(
+      (storageType) => {
+        Object.keys(this.arc56.state.maps[storageType]).forEach((name) => {
+          const m = this.arc56.state.maps[storageType][name];
+          lines.push(`${name}: {`);
+
+          if (storageType === "local") {
+            lines.push(
+              `value: async (address: string, key: ${this.getTypeScriptType(m.keyType)}): Promise<${this.getTypeScriptType(m.valueType)}> => { return this.getState.map.value("${name}", key, address) },`
+            );
+          } else {
+            lines.push(
+              `value: async (key: ${this.getTypeScriptType(m.keyType)}): Promise<${this.getTypeScriptType(m.valueType)}> => { return this.getState.map.value("${name}", key) },`
+            );
+          }
+
+          lines.push("},");
+        });
+      }
+    );
+  }
+  lines.push("},");
+  lines.push("};");
+
+  return lines;
+}
+
+*/

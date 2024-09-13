@@ -44,7 +44,7 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
       } else {
         const uniqueName = methodSignatureToUniqueName[method]
         if (uniqueName !== method) {
-          const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
+          const methodName = sanitizer.makeSafeStringTypeLiteral(uniqueName)
           yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'} & ${onComplete.type} & CreateSchema>`
         }
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
@@ -63,7 +63,7 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
       } else {
         const uniqueName = methodSignatureToUniqueName[method]
         if (uniqueName !== method) {
-          const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
+          const methodName = sanitizer.makeSafeStringTypeLiteral(uniqueName)
           yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'}>`
         }
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
@@ -83,7 +83,7 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
       } else {
         const uniqueName = methodSignatureToUniqueName[method]
         if (uniqueName !== method) {
-          const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
+          const methodName = sanitizer.makeSafeStringTypeLiteral(uniqueName)
           yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'}>`
         }
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
