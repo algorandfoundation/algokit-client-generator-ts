@@ -14,6 +14,7 @@
     "dev": "run-s dev:*",
     "dev:helloworld": "tsx src/dev.ts generate -a ./examples/helloworld/application.json -o ./examples/helloworld/client.generated.ts",
     "dev:reti": "tsx src/dev.ts generate -a ./examples/reti/application.arc56.json -o ./examples/reti/client.generated.ts",
+    "dev:arc56_test": "tsx src/dev.ts generate -a ./examples/arc56_test/ARC56Test.arc56.json -o ./examples/arc56_test/client.generated.ts",
     "dev:helloworld-pn": "tsx src/dev.ts generate -a ./examples/helloworld/application.json -o ./examples/helloworld/client.pn.generated.ts -pn",
     "dev:lifecycle": "tsx src/dev.ts generate -a ./examples/lifecycle/application.json -o ./examples/lifecycle/client.generated.ts",
     "dev:lifecycle-pn": "tsx src/dev.ts generate -a ./examples/lifecycle/application.json -o ./examples/lifecycle/client.pn.generated.ts -pn",

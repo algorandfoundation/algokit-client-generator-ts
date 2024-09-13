@@ -13,8 +13,14 @@ import {
   ABIUintType,
   abiTypeIsTransaction,
 } from 'algosdk'
+import { Sanitizer } from '../../util/sanitization'
 
-export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output', app: Arc56Contract): string {
+export function getEquivalentType(
+  abiTypeStr: string,
+  ioType: 'input' | 'output',
+  ctx: { app: Arc56Contract; sanitizer: Sanitizer },
+): string {
+  const { app, sanitizer } = ctx
   if (abiTypeStr == 'void') {
     return 'void'
   }
@@ -31,7 +37,7 @@ export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'
     return 'bigint'
   }
   if (Object.keys(app.structs).includes(abiTypeStr)) {
-    return abiTypeStr
+    return sanitizer.makeSafeTypeIdentifier(abiTypeStr)
   }
 
   const abiType = ABIType.from(abiTypeStr)

@@ -36,6 +36,14 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
         appSpec: APP_SPEC,
       })
     }
+
+    /**
+     * Checks for decode errors on the given return value and maps the return value to the return type for the given method
+     * @returns The typed return value or undefined if there was no value
+     */
+    decodeReturnValue<TSignature extends ${name}NonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
+      return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
+    }
   `
 
   yield* params(ctx)
@@ -186,7 +194,7 @@ function* abiMethodCall({
   const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
   const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-  yield `async ${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+  yield `${type === 'send' ? 'async ' : ''}${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
   }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${method.args.length === 0 ? ' = {args: []}' : ''}) {`
   if (type === 'send') {
@@ -337,7 +345,7 @@ function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentP
       const name = sanitizer.makeSafeStringTypeLiteral(n)
       const k = app.state.keys[storageType][n]
       yield* jsDoc(`Get the current value of the ${n} key in ${storageType} state`)
-      yield `${name}: async (): Promise<${k.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(k.valueType, 'output', app) + ' | undefined'}> => { return ${k.valueType === 'bytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'bytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', app)} | undefined`} },`
+      yield `${name}: async (): Promise<${k.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(k.valueType, 'output', { app, sanitizer }) + ' | undefined'}> => { return ${k.valueType === 'bytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'bytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
     }
 
     for (const n of Object.keys(app.state.maps[storageType])) {
@@ -348,10 +356,10 @@ function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentP
       yield IncIndent
 
       yield* jsDoc(`Get all current values of the ${n} map in ${storageType} state`)
-      yield `getMap: async (): Promise<Map<${getEquivalentType(m.keyType, 'output', app)}, ${getEquivalentType(m.valueType, 'output', app)}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${getEquivalentType(m.keyType, 'output', app)}, ${getEquivalentType(m.valueType, 'output', app)}> },`
+      yield `getMap: async (): Promise<Map<${getEquivalentType(m.keyType, 'output', { app, sanitizer })}, ${getEquivalentType(m.valueType, 'output', { app, sanitizer })}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${getEquivalentType(m.keyType, 'output', { app, sanitizer })}, ${getEquivalentType(m.valueType, 'output', { app, sanitizer })}> },`
 
       yield* jsDoc(`Get a current value of the ${n} map by key from ${storageType} state`)
-      yield `value: async (key: ${getEquivalentType(m.keyType, 'input', app)}): Promise<${getEquivalentType(m.valueType, 'output', app)} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${getEquivalentType(m.valueType, 'output', app)} | undefined },`
+      yield `value: async (key: ${getEquivalentType(m.keyType, 'input', { app, sanitizer })}): Promise<${getEquivalentType(m.valueType, 'output', { app, sanitizer })} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${getEquivalentType(m.valueType, 'output', { app, sanitizer })} | undefined },`
 
       yield DecIndent
       yield `},`

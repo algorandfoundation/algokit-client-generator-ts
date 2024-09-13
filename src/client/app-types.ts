@@ -35,7 +35,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
       ...arg,
       name: arg.name ?? `arg${i + 1}`,
       hasDefault: !!arg.defaultValue,
-      tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx.app),
+      tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx),
     }))
 
     for (const arg of argsMeta) {
@@ -51,7 +51,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
       ']',
     )
     if (method.returns.desc) yield* jsDoc(method.returns.desc)
-    yield `returns: ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx.app)}`
+    yield `returns: ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx)}`
 
     yield DecIndent
     yield '}>'
@@ -76,6 +76,10 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
    * Defines the possible abi call signatures.
    */
   export type ${name}Signatures = keyof ${name}Types['methods']
+  /**
+   * Defines the possible abi call signatures for methods that return a non-void value.
+   */
+  export type ${name}NonVoidMethodSignatures = keyof ${name}Types['methods'] extends infer T ? T extends keyof ${name}Types['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
   /**
    * Defines an object containing all relevant parameters for a single call to the contract.
    */
@@ -126,7 +130,8 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-function* abiTypes({ app }: GeneratorContext): DocumentParts {
+function* abiTypes(ctx: GeneratorContext): DocumentParts {
+  const { app } = ctx
   const abiTypes: string[] = []
 
   const pushType = (type: string) => {
@@ -195,19 +200,19 @@ function* abiTypes({ app }: GeneratorContext): DocumentParts {
   yield '// Aliases for non-encoded ABI values'
   yield NewLine
   for (const t of abiTypes) {
-    yield `type ${t} = ${getEquivalentType(t, 'output', app)};`
+    yield `type ${t} = ${getEquivalentType(t, 'output', ctx)};`
   }
   yield NewLine
 }
 
-function* structTypes({ app }: GeneratorContext): DocumentParts {
+function* structTypes({ app, sanitizer }: GeneratorContext): DocumentParts {
   if (Object.keys(app.structs).length === 0) return
 
-  yield '// Type definitions for ARC56 structs'
+  yield '// Type definitions for ARC-56 structs'
   yield NewLine
 
   for (const structName of Object.keys(app.structs)) {
-    yield `export type ${structName.split('.').at(-1)} = ${JSON.stringify(app.structs[structName], null, 2)
+    yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(app.structs[structName], null, 2)
       .replace(/"/g, '')
       .replaceAll('(', '[')
       .replaceAll(')', ']')
@@ -253,7 +258,7 @@ function* keysAndMaps(
       }
       const keySafe = sanitizer.makeSafePropertyIdentifier(name)
 
-      yield `${keySafe}: ${prop.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', app)}`
+      yield `${keySafe}: ${prop.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', { app, sanitizer })}`
     }
     yield DecIndentAndCloseBlock
   }
@@ -268,7 +273,7 @@ function* keysAndMaps(
       }
       const keySafe = sanitizer.makeSafePropertyIdentifier(name)
 
-      yield `${keySafe}: Map<${getEquivalentType(prop.keyType, 'input', app)}, ${getEquivalentType(prop.valueType, 'output', app)}>`
+      yield `${keySafe}: Map<${getEquivalentType(prop.keyType, 'input', { app, sanitizer })}, ${getEquivalentType(prop.valueType, 'output', { app, sanitizer })}>`
     }
     yield DecIndentAndCloseBlock
   }
