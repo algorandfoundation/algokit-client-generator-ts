@@ -14,8 +14,8 @@ export function* imports(): DocumentParts {
       ResolveAppClientByCreatorAndName,
     } from '@algorandfoundation/algokit-utils/types/app-client'
     import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
-    import { AppCallMethodCall, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+    import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
     import { ExecuteParams, SendSingleTransactionResult } from '@algorandfoundation/algokit-utils/types/transaction'
-    import { OnApplicationComplete } from 'algosdk'
+    import { OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
   `
 }

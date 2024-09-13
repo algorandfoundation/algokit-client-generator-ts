@@ -1,8 +1,7 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { GeneratorContext } from './generator-context'
-import { getCallOnCompleteOptions, getCreateOnCompleteOptions } from './deploy-types'
-import { composeMethod } from './call-composer'
+import { getCreateOnCompleteOptions } from './deploy-types'
 import { ABIMethod } from 'algosdk'
 import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 

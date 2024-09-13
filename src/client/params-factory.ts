@@ -57,7 +57,7 @@ function* operationMethod(
   includeCompilation?: boolean,
 ): DocumentParts {
   const { app, methodSignatureToUniqueName, sanitizer } = ctx
-  if (methods.length) {
+  if (methods.length > 0 && methods.some((m) => m !== BARE_CALL)) {
     yield* jsDoc(`Gets available ${verb} ABI call param factories`)
     yield `static get ${verb}() {`
     yield IncIndent
@@ -86,7 +86,6 @@ function* operationMethod(
       yield 'throw new Error(`Unknown ' + verb + ' method`)'
       yield DecIndent
       yield '},'
-      yield DecIndent
       yield NewLine
     }
 

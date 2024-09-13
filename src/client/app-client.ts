@@ -169,7 +169,6 @@ function* abiMethodCall({
   verb,
   type,
   includeCompilation,
-  responseTypeGenericParam,
 }: {
   generator: GeneratorContext
   method: Method
@@ -177,7 +176,6 @@ function* abiMethodCall({
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete' | 'call'
   type: 'params' | 'transactions' | 'send'
   includeCompilation?: boolean
-  responseTypeGenericParam?: string
 }) {
   const methodSig = new ABIMethod(method).getSignature()
   const uniqueName = methodSignatureToUniqueName[methodSig]
@@ -218,18 +216,6 @@ function* operationMethods(
   type: 'params' | 'transactions' | 'send',
   includeCompilation?: boolean,
 ): DocumentParts {
-  let responseTypeGenericParam
-  switch (verb) {
-    case 'create':
-      responseTypeGenericParam = ', SendAppCreateTransactionResult'
-      break
-    case 'update':
-      responseTypeGenericParam = ', SendAppUpdateTransactionResult'
-      break
-    default:
-      responseTypeGenericParam = ''
-      break
-  }
   if (methods.length) {
     yield* jsDoc(`Gets available ${verb} methods`)
     yield `get ${verb}() {`
@@ -255,7 +241,6 @@ function* operationMethods(
           verb,
           type,
           includeCompilation,
-          responseTypeGenericParam,
         })
       }
     }
@@ -335,21 +320,21 @@ function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentP
       ...Object.keys(app.state.keys[storageType])
         .filter((n) => app.state.keys[storageType][n].valueType === 'bytes')
         .map((n) => {
-          return `  ${sanitizer.makeSafeStringTypeLiteral(n)}: new BinaryStateValue(result.${sanitizer.makeSafeStringTypeLiteral(n)}),`
+          return `  ${sanitizer.makeSafePropertyIdentifier(n)}: new BinaryStateValue(result.${sanitizer.makeSafeStringTypeLiteral(n)}),`
         }),
       `}`,
     )
     yield `},`
 
     for (const n of Object.keys(app.state.keys[storageType])) {
-      const name = sanitizer.makeSafeStringTypeLiteral(n)
+      const name = sanitizer.makeSafePropertyIdentifier(n)
       const k = app.state.keys[storageType][n]
       yield* jsDoc(`Get the current value of the ${n} key in ${storageType} state`)
       yield `${name}: async (): Promise<${k.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(k.valueType, 'output', { app, sanitizer }) + ' | undefined'}> => { return ${k.valueType === 'bytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'bytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
     }
 
     for (const n of Object.keys(app.state.maps[storageType])) {
-      const name = sanitizer.makeSafeStringTypeLiteral(app.state.keys[storageType][n] ? `${n}Map` : n)
+      const name = sanitizer.makeSafePropertyIdentifier(app.state.keys[storageType][n] ? `${n}Map` : n)
       const m = app.state.maps[storageType][n]
       yield* jsDoc(`Get values from the ${n} map in ${storageType} state`)
       yield `${name}: {`
