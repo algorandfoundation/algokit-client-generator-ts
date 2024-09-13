@@ -57,8 +57,19 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     yield '}>'
   }
   yield DecIndent
-  yield* appState(ctx)
+
+  const hasLocal =
+    (app.state.keys.local && Object.keys(app.state.keys.local).length > 0) ||
+    (app.state.maps.local && Object.keys(app.state.maps.local).length > 0)
+  const hasGlobal =
+    (app.state.keys.global && Object.keys(app.state.keys.global).length > 0) ||
+    (app.state.maps.global && Object.keys(app.state.maps.global).length > 0)
+  const hasBox =
+    (app.state.keys.box && Object.keys(app.state.keys.box).length > 0) || (app.state.maps.box && Object.keys(app.state.maps.box).length > 0)
+  yield* appState(ctx, { hasBox, hasGlobal, hasLocal })
+
   yield DecIndentAndCloseBlock
+  yield NewLine
 
   yield `
   /**
@@ -84,6 +95,33 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
    */
   export type MethodReturn<TSignature extends ${name}Signatures> = ${name}Types['methods'][TSignature]['returns']
   `
+
+  if (hasGlobal) {
+    yield `
+      /**
+       * Defines the shape of the keyed global state of the application.
+       */
+      export type GlobalKeysState = ${name}Types['state']['global']['keys']
+    `
+  }
+
+  if (hasLocal) {
+    yield `
+      /**
+       * Defines the shape of the keyed local state of the application.
+       */
+      export type LocalKeysState = ${name}Types['state']['local']['keys']
+    `
+  }
+
+  if (hasBox) {
+    yield `
+      /**
+       * Defines the shape of the keyed box state of the application.
+       */
+      export type BoxKeysState = ${name}Types['state']['box']['keys']
+    `
+  }
 
   yield NewLine
 }
@@ -159,6 +197,7 @@ function* abiTypes({ app }: GeneratorContext): DocumentParts {
   for (const t of abiTypes) {
     yield `type ${t} = ${getEquivalentType(t, 'output', app)};`
   }
+  yield NewLine
 }
 
 function* structTypes({ app }: GeneratorContext): DocumentParts {
@@ -174,6 +213,8 @@ function* structTypes({ app }: GeneratorContext): DocumentParts {
       .replaceAll(')', ']')
       .replace(/\[\d+\]/g, '[]')}`
   }
+
+  yield NewLine
 }
 
 function* templateVariableTypes({ app }: GeneratorContext): DocumentParts {
@@ -190,33 +231,6 @@ function* templateVariableTypes({ app }: GeneratorContext): DocumentParts {
   }
 
   yield DecIndentAndCloseBlock
-}
-
-function* structPart(struct: StructFields, app: Arc56Contract, sanitizer: Sanitizer): DocumentParts {
-  for (const [key, type] of Object.entries(struct)) {
-    if (typeof type === 'string') {
-      yield `${sanitizer.makeSafePropertyIdentifier(key)}: ${getEquivalentType(type, 'output', app)}`
-    } else {
-      yield `${sanitizer.makeSafePropertyIdentifier(key)}: {`
-      yield IncIndent
-      yield* structPart(type, app, sanitizer)
-      yield DecIndentAndCloseBlock
-    }
-  }
-}
-
-function* structs({ app, sanitizer }: GeneratorContext): DocumentParts {
-  if (app.structs === undefined) return
-
-  for (const name of Object.keys(app.structs)) {
-    const struct = app.structs[name]
-
-    yield* jsDoc(`Represents a ${name} as a struct`)
-    yield `export type ${sanitizer.makeSafeTypeIdentifier(name)} = {`
-    yield IncIndent
-    yield* structPart(struct, app, sanitizer)
-    yield DecIndentAndCloseBlock
-  }
 }
 
 function* keysAndMaps(
@@ -239,7 +253,7 @@ function* keysAndMaps(
       }
       const keySafe = sanitizer.makeSafePropertyIdentifier(name)
 
-      yield `${keySafe}?: ${prop.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', app)}`
+      yield `${keySafe}: ${prop.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', app)}`
     }
     yield DecIndentAndCloseBlock
   }
@@ -254,20 +268,20 @@ function* keysAndMaps(
       }
       const keySafe = sanitizer.makeSafePropertyIdentifier(name)
 
-      yield `${keySafe}?: Map<${getEquivalentType(prop.keyType, 'input', app)},${prop.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', app)}>`
+      yield `${keySafe}: Map<${getEquivalentType(prop.keyType, 'input', app)}, ${getEquivalentType(prop.valueType, 'output', app)}>`
     }
     yield DecIndentAndCloseBlock
   }
 }
 
-function* appState({ app, sanitizer }: GeneratorContext): DocumentParts {
-  const hasLocal =
-    (app.state.keys.local && Object.keys(app.state.keys.local).length) || (app.state.maps.local && Object.keys(app.state.maps.local).length)
-  const hasGlobal =
-    (app.state.keys.global && Object.keys(app.state.keys.global).length) ||
-    (app.state.maps.global && Object.keys(app.state.maps.global).length)
+function* appState(
+  { app, sanitizer }: GeneratorContext,
+  stateFlags: { hasLocal: boolean; hasGlobal: boolean; hasBox: boolean },
+): DocumentParts {
+  const { hasBox, hasGlobal, hasLocal } = stateFlags
+
   if (hasLocal || hasGlobal) {
-    yield* jsDoc('Defines the shape of the global and local state of the application.')
+    yield* jsDoc('Defines the shape of the state of the application.')
     yield 'state: {'
     yield IncIndent
     if (hasGlobal) {
@@ -280,6 +294,12 @@ function* appState({ app, sanitizer }: GeneratorContext): DocumentParts {
       yield 'local: {'
       yield IncIndent
       yield* keysAndMaps(app, sanitizer, app.state.keys.local, app.state.maps.local)
+      yield DecIndentAndCloseBlock
+    }
+    if (hasBox) {
+      yield 'box: {'
+      yield IncIndent
+      yield* keysAndMaps(app, sanitizer, app.state.keys.box, app.state.maps.box)
       yield DecIndentAndCloseBlock
     }
     yield DecIndentAndCloseBlock

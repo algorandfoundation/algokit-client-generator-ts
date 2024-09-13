@@ -318,11 +318,20 @@ function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentP
     yield `${storageType}${storageType === 'local' ? ': (address: string) => ({' : ': {'}`
     yield IncIndent
 
-    yield* jsDoc(`Get all current key values from ${storageType} state`)
+    yield* jsDoc(`Get all current keyed values from ${storageType} state`)
+    yield `getAll: async (): Promise<Partial<Expand<${storageType[0].toUpperCase()}${storageType.substring(1)}KeysState>>> => {`
     yield* indent(
-      ``,
-      //todo: `getAll: async (): Promise<${k.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(k.valueType, 'output', app)}> => { return ${k.valueType === 'bytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'bytes' ? ')' : ''} },`,
+      `const result = await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getAll()`,
+      `return {`,
+      `  ...result,`,
+      ...Object.keys(app.state.keys[storageType])
+        .filter((n) => app.state.keys[storageType][n].valueType === 'bytes')
+        .map((n) => {
+          return `  ${sanitizer.makeSafeStringTypeLiteral(n)}: new BinaryStateValue(result.${sanitizer.makeSafeStringTypeLiteral(n)}),`
+        }),
+      `}`,
     )
+    yield `},`
 
     for (const n of Object.keys(app.state.keys[storageType])) {
       const name = sanitizer.makeSafeStringTypeLiteral(n)
@@ -336,12 +345,15 @@ function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentP
       const m = app.state.maps[storageType][n]
       yield* jsDoc(`Get values from the ${n} map in ${storageType} state`)
       yield `${name}: {`
+      yield IncIndent
 
-      yield* indent(
-        `all: async (): Promise<Map<${getEquivalentType(m.keyType, 'output', app)}, ${getEquivalentType(m.valueType, 'output', app)}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${getEquivalentType(m.keyType, 'output', app)}, ${getEquivalentType(m.valueType, 'output', app)}> },`,
-        `value: async (key: ${getEquivalentType(m.keyType, 'input', app)}): Promise<${getEquivalentType(m.valueType, 'output', app)} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${getEquivalentType(m.valueType, 'output', app)} | undefined },`,
-      )
+      yield* jsDoc(`Get all current values of the ${n} map in ${storageType} state`)
+      yield `getMap: async (): Promise<Map<${getEquivalentType(m.keyType, 'output', app)}, ${getEquivalentType(m.valueType, 'output', app)}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${getEquivalentType(m.keyType, 'output', app)}, ${getEquivalentType(m.valueType, 'output', app)}> },`
 
+      yield* jsDoc(`Get a current value of the ${n} map by key from ${storageType} state`)
+      yield `value: async (key: ${getEquivalentType(m.keyType, 'input', app)}): Promise<${getEquivalentType(m.valueType, 'output', app)} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${getEquivalentType(m.valueType, 'output', app)} | undefined },`
+
+      yield DecIndent
       yield `},`
     }
 
