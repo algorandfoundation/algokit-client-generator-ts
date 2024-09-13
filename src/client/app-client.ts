@@ -5,6 +5,7 @@ import { getCallOnCompleteOptions, getCreateOnCompleteOptions } from './deploy-t
 import { composeMethod } from './call-composer'
 import { ABIMethod } from 'algosdk'
 import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { getEquivalentType } from './helpers/get-equivalent-type'
 
 export function* appClient(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
@@ -300,65 +301,54 @@ function* noopMethods(generator: GeneratorContext, type: 'params' | 'transaction
 }
 
 function* getStateMethods({ app, name, sanitizer }: GeneratorContext): DocumentParts {
-  yield `// todo: state values`
-}
-/*
+  if (Object.keys(app.state).length === 0) return
 
-getStateLines(): string[] {
-  if (Object.keys(this.arc56.state).length === 0) return [];
-  const lines = ["state = {"];
+  yield* jsDoc(`Methods to access state for the current ${app.name} app`)
+  yield 'state = {'
+  yield IncIndent
 
-  if (Object.keys(this.arc56.state.keys).length > 0) {
-    lines.push("keys: {");
+  const storageTypes = ['global', 'local', 'box'] as const
 
-    (["global", "local", "box"] as ("global" | "local" | "box")[]).forEach(
-      (storageType) => {
-        Object.keys(this.arc56.state.keys[storageType]).forEach((name) => {
-          const k = this.arc56.state.keys[storageType][name];
-          if (storageType === "local") {
-            lines.push(
-              `${name}: async (address: string): Promise<${this.getTypeScriptType(k.valueType)}> => { return this.getState.key("${name}", address) },`
-            );
-          } else {
-            lines.push(
-              `${name}: async (): Promise<${this.getTypeScriptType(k.valueType)}> => { return this.getState.key("${name}") },`
-            );
-          }
-        });
-      }
-    );
+  for (const storageType of storageTypes) {
+    const hasKeys = Object.keys(app.state.keys[storageType]).length > 0
+    const hasMaps = Object.keys(app.state.maps[storageType]).length > 0
+    if (!hasKeys && !hasMaps) continue
 
-    lines.push("},");
+    yield* jsDoc(`Methods to access ${storageType} state for the current ${app.name} app`)
+    yield `${storageType}${storageType === 'local' ? ': (address: string) => ({' : ': {'}`
+    yield IncIndent
+
+    yield* jsDoc(`Get all current key values from ${storageType} state`)
+    yield* indent(
+      ``,
+      //todo: `getAll: async (): Promise<${k.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(k.valueType, 'output', app)}> => { return ${k.valueType === 'bytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'bytes' ? ')' : ''} },`,
+    )
+
+    for (const n of Object.keys(app.state.keys[storageType])) {
+      const name = sanitizer.makeSafeStringTypeLiteral(n)
+      const k = app.state.keys[storageType][n]
+      yield* jsDoc(`Get the current value of the ${n} key in ${storageType} state`)
+      yield `${name}: async (): Promise<${k.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(k.valueType, 'output', app) + ' | undefined'}> => { return ${k.valueType === 'bytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'bytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', app)} | undefined`} },`
+    }
+
+    for (const n of Object.keys(app.state.maps[storageType])) {
+      const name = sanitizer.makeSafeStringTypeLiteral(app.state.keys[storageType][n] ? `${n}Map` : n)
+      const m = app.state.maps[storageType][n]
+      yield* jsDoc(`Get values from the ${n} map in ${storageType} state`)
+      yield `${name}: {`
+
+      yield* indent(
+        `all: async (): Promise<Map<${getEquivalentType(m.keyType, 'output', app)}, ${getEquivalentType(m.valueType, 'output', app)}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${getEquivalentType(m.keyType, 'output', app)}, ${getEquivalentType(m.valueType, 'output', app)}> },`,
+        `value: async (key: ${getEquivalentType(m.keyType, 'input', app)}): Promise<${getEquivalentType(m.valueType, 'output', app)} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${getEquivalentType(m.valueType, 'output', app)} | undefined },`,
+      )
+
+      yield `},`
+    }
+
+    yield DecIndent
+    yield `}${storageType === 'local' ? ')' : ''},`
   }
 
-  if (Object.keys(this.arc56.state.maps).length > 0) {
-    lines.push("maps: {");
-
-    (["global", "local", "box"] as ("global" | "local" | "box")[]).forEach(
-      (storageType) => {
-        Object.keys(this.arc56.state.maps[storageType]).forEach((name) => {
-          const m = this.arc56.state.maps[storageType][name];
-          lines.push(`${name}: {`);
-
-          if (storageType === "local") {
-            lines.push(
-              `value: async (address: string, key: ${this.getTypeScriptType(m.keyType)}): Promise<${this.getTypeScriptType(m.valueType)}> => { return this.getState.map.value("${name}", key, address) },`
-            );
-          } else {
-            lines.push(
-              `value: async (key: ${this.getTypeScriptType(m.keyType)}): Promise<${this.getTypeScriptType(m.valueType)}> => { return this.getState.map.value("${name}", key) },`
-            );
-          }
-
-          lines.push("},");
-        });
-      }
-    );
-  }
-  lines.push("},");
-  lines.push("};");
-
-  return lines;
+  yield DecIndentAndCloseBlock
+  yield NewLine
 }
-
-*/
