@@ -7,8 +7,18 @@ import { imports } from './imports'
 import { createGeneratorContext, GeneratorOptions } from './generator-context'
 import { appTypes } from './app-types'
 import { callComposerType } from './call-composer-types'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, StructFields } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { appFactory } from './app-factory'
+import { Sanitizer } from '../util/sanitization'
+
+function convertStructs(s: StructFields, sanitizer: Sanitizer): StructFields {
+  return Object.fromEntries(
+    Object.keys(s).map((key) => [
+      sanitizer.makeSafePropertyIdentifier(key),
+      typeof s[key] === 'string' ? s[key] : convertStructs(s[key] as StructFields, sanitizer),
+    ]),
+  )
+}
 
 export function* generate(app: Arc56Contract, options: GeneratorOptions = { preserveNames: false }): DocumentParts {
   const ctx = createGeneratorContext(app, options)
@@ -21,6 +31,10 @@ export function* generate(app: Arc56Contract, options: GeneratorOptions = { pres
   yield ` */`
 
   yield* imports()
+  // Change the structs definition to sanitize property names according to the defined rules
+  // for instance, this may (unless you passed in --preserve-names) convert properties like my_prop to myProp
+  const x = app.structs
+  app.structs = Object.fromEntries(Object.keys(app.structs).map((key) => [key, convertStructs(app.structs[key], ctx.sanitizer)]))
   yield* inline('export const APP_SPEC: Arc56Contract = ', JSON.stringify(app))
   yield NewLine
 

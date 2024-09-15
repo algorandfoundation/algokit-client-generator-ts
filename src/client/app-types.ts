@@ -4,7 +4,6 @@ import { getEquivalentType } from './helpers/get-equivalent-type'
 import { ABIMethod, ABITupleType } from 'algosdk'
 import { Arc56Contract, StorageKey, StorageMap, StructFields } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { Sanitizer } from '../util/sanitization'
-import { Struct } from '../schema/application'
 
 export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield* abiTypes(ctx)
@@ -213,43 +212,11 @@ function* structTypes({ app, sanitizer }: GeneratorContext): DocumentParts {
   yield NewLine
 
   for (const structName of Object.keys(app.structs)) {
-    const struct = app.structs[structName]
-
     yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(app.structs[structName], null, 2)
       .replace(/"/g, '')
       .replaceAll('(', '[')
       .replaceAll(')', ']')
       .replace(/\[\d+\]/g, '[]')}`
-
-    function structFields(s: StructFields): string {
-      return `{${Object.keys(s)
-        .map(
-          (key) =>
-            `${sanitizer.makeSafePropertyIdentifier(key)}: ${typeof s[key] === 'string' ? `'${s[key]}'` : structFields(s[key] as StructFields)}`,
-        )
-        .join(', ')}}`
-    }
-
-    yield `
-      /**
-       * Converts the ABI return of a ${structName} to the struct representation
-       */
-      export function ${sanitizer.makeSafeTypeIdentifier(structName)}ABIReturnFormatter(returnValue: ABIReturn | undefined) {
-        if (returnValue === undefined) return undefined
-        if (returnValue.decodeError) throw returnValue.decodeError
-        return getABIStructFromABITuple<${sanitizer.makeSafeTypeIdentifier(structName)}>(returnValue.returnValue as ABIValue[],
-          ${structFields(struct)}
-        )
-      }
-      /**
-       * Converts a ${structName} to an ABI tuple
-       */
-      export function ${sanitizer.makeSafeTypeIdentifier(structName)}ToABITuple(struct: ${sanitizer.makeSafeTypeIdentifier(structName)}) {
-        return getABITupleFromABIStruct(struct,
-          ${structFields(struct)}
-        )
-      }
-    `
   }
 
   yield NewLine

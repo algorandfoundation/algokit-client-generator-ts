@@ -110,7 +110,6 @@ function* operationMethod(
           additionalParamTypes: `${includeCompilation ? ' & AppClientCompilationParams' : ''}${
             onComplete?.type ? ` & ${onComplete.type}` : ''
           }`,
-          returnStruct: method.returns.struct,
         })
       }
     }
@@ -139,7 +138,6 @@ function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer
     signature: methodSignature,
     args: method.args,
     additionalParamTypes: ' & CallOnComplete',
-    returnStruct: method.returns.struct,
   })
 }
 
@@ -147,10 +145,9 @@ function* factoryMethod(m: {
   isNested: boolean
   name?: string
   signature: string
-  args: Array<{ name?: string; struct?: string }>
+  args: Array<{ name?: string }>
   additionalParamTypes?: string
   sanitizer: Sanitizer
-  returnStruct: string | undefined
 }) {
   const { isNested, name, signature, args, additionalParamTypes, sanitizer } = m
   const signatureSafe = signature && sanitizer.makeSafeStringTypeLiteral(signature)
@@ -162,14 +159,8 @@ function* factoryMethod(m: {
   if (signature) {
     yield `method: '${signatureSafe}' as const,`
     yield `args: Array.isArray(params.args) ? params.args : [${args
-      .map(
-        (a, i) =>
-          `${a.struct ? `${sanitizer.makeSafeTypeIdentifier(a.struct)}ToABITuple(` : ''}params.args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name ?? `arg${i + 1}`))}${a.struct ? ')' : ''}`,
-      )
+      .map((a, i) => `params.args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name ?? `arg${i + 1}`))}`)
       .join(', ')}],`
-    if (m.returnStruct) {
-      yield `returnValueFormatter: ${sanitizer.makeSafeTypeIdentifier(m.returnStruct)}ABIReturnFormatter`
-    }
   }
   yield DecIndent
   yield '}'

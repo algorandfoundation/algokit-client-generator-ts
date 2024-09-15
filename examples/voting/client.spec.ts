@@ -263,8 +263,8 @@ describe('voting typed client', () => {
         })
         .execute()
 
-      expect(result.returns[0].hasAlreadyVoted).toBe(0n)
-      expect(result.returns[3].hasAlreadyVoted).toBe(1n)
+      expect(result.returns[0]?.hasAlreadyVoted).toBe(0n)
+      expect(result.returns[3]?.hasAlreadyVoted).toBe(1n)
     })
   })
 })

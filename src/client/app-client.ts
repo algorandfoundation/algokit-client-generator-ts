@@ -52,8 +52,31 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
      * @returns The typed return value or undefined if there was no value
      */
     decodeReturnValue<TSignature extends ${name}NonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
-      return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), ${structFields(ctx.app.structs, ctx.sanitizer)}) : undefined
+      return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
     }
+
+    /**
+     * Returns a new \`${name}Client\` client, resolving the app by creator address and name
+     * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
+     * @param params The parameters to create the app client
+     */
+    public static async fromCreatorAndName(params: Expand<Omit<ResolveAppClientByCreatorAndName, 'appSpec'>>): Promise<${name}Client> {
+      return new ${name}Client(await AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+    }
+
+    /**
+     * Returns an \`${name}Client\` instance for the current network based on
+     * pre-determined network-specific app IDs specified in the ARC-56 app spec.
+     *
+     * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
+     * @param params The parameters to create the app client
+     */
+    static async fromNetwork(
+      params: Expand<Omit<AppClientParams, 'appSpec' | 'appId'>>
+    ): Promise<${name}Client> {
+      return new ${name}Client(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+    }
+
   `
 
   yield* params(ctx)
@@ -204,7 +227,7 @@ function* abiMethodCall({
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
   yield `${type === 'send' ? 'async ' : ''}${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${method.args.length === 0 ? ' = {args: []}' : ''}) {`
+  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((a) => 'undefined').join(', ')}]}` : ''}) {`
   if (type === 'send') {
     yield* indent(
       `const result = await $this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,

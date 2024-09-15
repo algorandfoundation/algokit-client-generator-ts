@@ -1,4 +1,4 @@
-import { HelloWorldAppFactory } from './client'
+import { HelloWorldAppClient, HelloWorldAppFactory } from './client'
 import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { setUpLocalnet } from '../../src/tests/util'
@@ -41,7 +41,12 @@ describe('hello world typed client', () => {
 
     const transactions = await client.transactions.helloWorldCheck({ args: { name: 'World' } })
 
-    const transactions2 = await client.transactions.hello({ args: { name: 'Bananas' } })
+    // Test out getting the app client from algorandclient
+    const client2 = await algorand.client.getTypedAppClientByCreatorAndName(HelloWorldAppClient, {
+      creatorAddress: testAccount.addr,
+    })
+
+    const transactions2 = await client2.transactions.hello({ args: { name: 'Bananas' }, sender: testAccount.addr })
 
     // Add a transactions in the middle of the method calls and check that it doesn't mess up the return values
     const result = await client

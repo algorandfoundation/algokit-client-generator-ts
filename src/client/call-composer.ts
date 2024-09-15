@@ -27,7 +27,6 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield `addTransaction(txn: Transaction, signer?: TransactionSigner) {`
   yield IncIndent
   yield 'composer.addTransaction(txn, signer)'
-  yield 'resultMappers.push(undefined)'
   yield 'return this'
   yield DecIndent
   yield '},'
@@ -70,7 +69,6 @@ function* callComposerNoops({ app, callConfig, methodSignatureToUniqueName, sani
     yield `bare(params: AppClientBareCallParams & ${getCallOnCompleteOptions(BARE_CALL, app).type}) {`
     yield IncIndent
     yield `composer.addAppCall(client.params.bare(params))`
-    yield `resultMappers.push(undefined)`
     yield `return this`
     yield DecIndent
     yield '},'
@@ -99,7 +97,6 @@ function* callComposerClearState({ app }: GeneratorContext): DocumentParts {
   yield `clearState(params: AppClientBareCallParams) {`
   yield IncIndent
   yield `composer.addAppCall(client.params.clearState(params))`
-  yield `resultMappers.push(undefined)`
   yield `return this`
   yield DecIndent
   yield '},'
@@ -123,7 +120,6 @@ function* callComposerOperationMethods(
         yield `bare(params?: AppClientBareCallParams ${includeCompilation ? '& AppClientCompilationParams ' : ''}) {`
         yield IncIndent
         yield `composer.addApp${callType}(client.params.${verb}.bare(params))`
-        yield `resultMappers.push(undefined)`
         yield `return $this`
         yield DecIndent
         yield '},'

@@ -5,6 +5,7 @@ import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing
 import { setUpLocalnet } from '../../src/tests/util'
 import { Arc56TestFactory, Inputs } from './client.generated'
 import invariant from 'tiny-invariant'
+import { Arc56TestClient } from './client'
 
 describe('state typed client', () => {
   let localnet: AlgorandFixture
