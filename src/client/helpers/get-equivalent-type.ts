@@ -25,7 +25,7 @@ export function getEquivalentType(
     return 'void'
   }
   if (abiTypeStr == 'bytes') {
-    return 'Uint8Array'
+    return ioType === 'input' ? 'Uint8Array | string' : 'Uint8Array'
   }
   if (abiTypeIsTransaction(abiTypeStr)) {
     return 'AppMethodCallTransactionArgument'

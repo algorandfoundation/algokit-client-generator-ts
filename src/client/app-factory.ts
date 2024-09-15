@@ -1,4 +1,4 @@
-import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
+import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, jsDoc, NewLine } from '../output/writer'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { GeneratorContext } from './generator-context'
 import { getCreateOnCompleteOptions } from './deploy-types'
@@ -220,7 +220,7 @@ function* abiMethodCallParams({
   } else {
     yield* indent(
       `const result = await $this.appFactory.create(${name}ParamsFactory.${verb}${methodNameAccessor}(params))`,
-      `return { result: result.result, app: new ${name}Client(result.app) }`,
+      `return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'${methodSigSafe}'> }, app: new ${name}Client(result.app) }`,
     )
   }
   yield '},'

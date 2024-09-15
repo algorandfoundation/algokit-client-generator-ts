@@ -7,7 +7,7 @@ import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { ABIMethod } from 'algosdk'
 
 export function* paramsFactory(ctx: GeneratorContext): DocumentParts {
-  yield* jsDoc('Exposes methods for constructing `AppClient` params objects for ABI calls to the ' + ctx.name + ' smart contract')
+  yield* jsDoc(`Exposes methods for constructing \`AppClient\` params objects for ABI calls to the ${ctx.name} smart contract`)
   yield `export abstract class ${ctx.name}ParamsFactory {`
   yield IncIndent
 
@@ -83,7 +83,7 @@ function* operationMethod(
       yield DecIndentAndCloseBlock
 
       // Ordinarily we'd pop in the params.method value, but we can't here since it knows at compile time the type of params.method is never
-      yield 'throw new Error(`Unknown ' + verb + ' method`)'
+      yield `throw new Error(\`Unknown ' + verb + ' method\`)`
       yield DecIndent
       yield '},'
       yield NewLine
@@ -110,6 +110,7 @@ function* operationMethod(
           additionalParamTypes: `${includeCompilation ? ' & AppClientCompilationParams' : ''}${
             onComplete?.type ? ` & ${onComplete.type}` : ''
           }`,
+          returnStruct: method.returns.struct,
         })
       }
     }
@@ -138,6 +139,7 @@ function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer
     signature: methodSignature,
     args: method.args,
     additionalParamTypes: ' & CallOnComplete',
+    returnStruct: method.returns.struct,
   })
 }
 
@@ -145,9 +147,10 @@ function* factoryMethod(m: {
   isNested: boolean
   name?: string
   signature: string
-  args: Array<{ name?: string }>
+  args: Array<{ name?: string; struct?: string }>
   additionalParamTypes?: string
   sanitizer: Sanitizer
+  returnStruct: string | undefined
 }) {
   const { isNested, name, signature, args, additionalParamTypes, sanitizer } = m
   const signatureSafe = signature && sanitizer.makeSafeStringTypeLiteral(signature)
@@ -159,8 +162,14 @@ function* factoryMethod(m: {
   if (signature) {
     yield `method: '${signatureSafe}' as const,`
     yield `args: Array.isArray(params.args) ? params.args : [${args
-      .map((a, i) => `params.args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name ?? `arg${i + 1}`))}`)
+      .map(
+        (a, i) =>
+          `${a.struct ? `${sanitizer.makeSafeTypeIdentifier(a.struct)}ToABITuple(` : ''}params.args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name ?? `arg${i + 1}`))}${a.struct ? ')' : ''}`,
+      )
       .join(', ')}],`
+    if (m.returnStruct) {
+      yield `returnValueFormatter: ${sanitizer.makeSafeTypeIdentifier(m.returnStruct)}ABIReturnFormatter`
+    }
   }
   yield DecIndent
   yield '}'

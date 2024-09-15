@@ -3,7 +3,7 @@ import { DocumentParts } from '../output/writer'
 export function* imports(): DocumentParts {
   yield `
     import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-    import { Arc56Contract, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
+    import { Arc56Contract, getABIStructFromABITuple, getABITupleFromABIStruct, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
     import {
       AppClient,
       AppClientMethodCallParams,
@@ -15,7 +15,8 @@ export function* imports(): DocumentParts {
     } from '@algorandfoundation/algokit-utils/types/app-client'
     import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
     import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-    import { ExecuteParams, SendSingleTransactionResult } from '@algorandfoundation/algokit-utils/types/transaction'
-    import { OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+    import { ExecuteParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+    import { ABIValue, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+    import SimulateResponse = modelsv2.SimulateResponse
   `
 }

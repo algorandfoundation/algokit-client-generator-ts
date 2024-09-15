@@ -1,4 +1,4 @@
-import { DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, jsDoc, NewLine } from '../output/writer'
+import { DocumentParts } from '../output/writer'
 
 export function* utilityTypes(): DocumentParts {
   yield `

@@ -3,7 +3,7 @@ import * as path from 'path'
 import { colorConsole } from '../src/util/color-console'
 
 function updateApprovals() {
-  const dirs = ['helloworld', 'lifecycle', 'minimal', 'state', 'voting', 'duplicate_structs'].map((app) =>
+  const dirs = ['helloworld', 'lifecycle', 'minimal', 'state', 'voting', 'duplicate_structs', 'minimal', 'reti', 'arc56_test'].map((app) =>
     path.join(process.cwd(), 'examples', app),
   )
 
@@ -16,7 +16,7 @@ function updateApprovals() {
       process.exit(-1)
     }
     colorConsole.info`Overwriting ${approvedPath} with contents of ${generatedPath}`
-    fs.rmSync(approvedPath)
+    fs.rmSync(approvedPath, { force: true })
     const generated = fs.readFileSync(generatedPath, 'utf-8')
     fs.writeFileSync(approvedPath, generated, 'utf-8')
   }

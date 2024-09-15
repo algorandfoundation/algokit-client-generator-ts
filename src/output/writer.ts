@@ -156,7 +156,7 @@ function writeDocumentPartsTo(document: DocumentParts, { indent = '  ', ...optio
           if (writer.last.slice(-1)[0] !== '\n') writer.write('\n')
           const normalisedLineEndings = part.replaceAll(/\r\n/g, '\n').replaceAll(/\r/g, '\n').replace(/^\n/, '').trimEnd()
           const lines = normalisedLineEndings.split('\n')
-          let baseIndent = lines[0].match(/^\s+/)?.[0] ?? ''
+          const baseIndent = lines[0].match(/^\s+/)?.[0] ?? ''
           for (const line of lines) {
             writer.write(curIndent + line.replace(new RegExp(`^${baseIndent}`, ''), '').trimEnd())
             writer.write('\n')

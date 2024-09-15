@@ -17,6 +17,7 @@ export async function loadApplicationJson(appJsonPath: string): Promise<Arc56Con
 export function validateApplicationJson(json: unknown, appJsonPath: string): Arc56Contract {
   if (typeof json !== 'object') boom(`Could not parse ${appJsonPath} as JSON object`)
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   if ('contract' in (json as any)) {
     // ARC-32
     const arc32Validator = new Validator()

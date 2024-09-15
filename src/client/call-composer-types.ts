@@ -49,7 +49,7 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Simulates the transaction group and returns the result',
   })
-  yield `simulate(options?: SimulateOptions): Promise<${name}ComposerResults<TReturns>>`
+  yield `simulate(options?: SimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
 
   yield* jsDoc({
     description: 'Executes the transaction group and returns the results',
@@ -57,13 +57,12 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield `execute(params?: ExecuteParams): Promise<${name}ComposerResults<TReturns>>`
 
   yield DecIndentAndCloseBlock
-  yield `export type ${name}ComposerResults<TReturns extends [...any[]]> = {`
-  yield IncIndent
-  yield `returns: TReturns`
-  yield `groupId: string`
-  yield `txIds: string[]`
-  yield `transactions: Transaction[]`
-  yield DecIndentAndCloseBlock
+
+  yield `
+  export type ${name}ComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+    returns: TReturns
+  }>
+  `
 }
 
 function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentParts {
@@ -95,7 +94,7 @@ function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUnique
       },
       returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
     })
-    yield `${methodName}(params?: CallParams<'${methodSignatureSafe}'>): ${name}Composer<[...TReturns, MethodReturn<'${methodSignatureSafe}'>]>`
+    yield `${methodName}(params?: CallParams<'${methodSignatureSafe}'>): ${name}Composer<[...TReturns, MethodReturn<'${methodSignatureSafe}'> | undefined]>`
     yield NewLine
   }
 }
@@ -139,7 +138,7 @@ function* callComposerOperationMethodType(
           onComplete?.isOptional !== false ? '?' : ''
         }: CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
           onComplete?.type ? ` & ${onComplete.type}` : ''
-        }): ${name}Composer<[...TReturns, MethodReturn<'${methodSigSafe}'>]>`
+        }): ${name}Composer<[...TReturns, MethodReturn<'${methodSigSafe}'> | undefined]>`
       }
     }
     yield DecIndentAndCloseBlock

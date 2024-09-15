@@ -1,7 +1,7 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc } from '../output/writer'
 import { GeneratorContext } from './generator-context'
 import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
-import { getCallOnCompleteOptions, getCreateOnCompleteOptions } from './deploy-types'
+import { getCallOnCompleteOptions } from './deploy-types'
 import { ABIMethod, ABIMethodParams } from 'algosdk'
 
 export function* composeMethod(ctx: GeneratorContext): DocumentParts {
