@@ -9,7 +9,7 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
 
   yield* jsDoc(
-    `A factory to create and deploy one or more instance of  the ${app.name} smart contract and to create one or more app clients to interact with those (or other) app instances`,
+    `A factory to create and deploy one or more instance of the ${app.name} smart contract and to create one or more app clients to interact with those (or other) app instances`,
   )
   yield `export class ${name}Factory {`
   yield IncIndent

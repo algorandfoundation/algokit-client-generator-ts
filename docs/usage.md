@@ -1,6 +1,6 @@
 # Application Client Usage
 
-After using the cli tool to generate an application client you will end up with a typescript file containing several type definitions, an application factory class and and an application client class that is named after the target smart contract. For example, if the contract name is `HelloWorldApp` then you will end up with `HelloWorldAppFactory` and `HelloWorldAppClient` classes. The contract name will also be used to prefix a number of other types in the generated file which allows you to generate clients for multiple smart contracts in the one project without ambiguous type names.
+After using the cli tool to generate an application client you will end up with a typescript file containing several type definitions, an application factory class and an application client class that is named after the target smart contract. For example, if the contract name is `HelloWorldApp` then you will end up with `HelloWorldAppFactory` and `HelloWorldAppClient` classes. The contract name will also be used to prefix a number of other types in the generated file which allows you to generate clients for multiple smart contracts in the one project without ambiguous type names.
 
 ## Creating an application client instance
 
@@ -126,7 +126,7 @@ const clientWithOptionalParams = algorand.client.getTypedAppClientByNetwork(Hell
 
 ## Deploying a smart contract (create, update, delete, deploy)
 
-The app factory and client will variously include methods for creating (factory), updating (client), and deleting (client) the smart contract based on the presence relevant on completion actions and call config values in the ARC-32 / ARC-56 application spec file. If a smart contract does not support being updated for instance, then no update methods will be generated in the client.
+The app factory and client will variously include methods for creating (factory), updating (client), and deleting (client) the smart contract based on the presence of relevant on completion actions and call config values in the ARC-32 / ARC-56 application spec file. If a smart contract does not support being updated for instance, then no update methods will be generated in the client.
 
 In addition, the app factory will also include a `deploy` method which will...
 
@@ -234,27 +234,27 @@ These params values (`createParams`, `updateParams` and `deleteParams`) will onl
 ```ts
 client.deploy({
   createParams: {
-    onComplete: OnApplicationComplete.OptIn
+    onComplete: OnApplicationComplete.OptIn,
   },
   updateParams: {
-    method: 'named_update(uint64,string)string'm
+    method: 'named_update(uint64,string)string',
     args: {
       arg1: 123,
       arg2: 'foo',
-    }
+    },
   },
   // Can leave this out and it will do an argumentless bare call (if that call is allowed)
   //deleteParams: {}
   allowUpdate: true,
   allowDelete: true,
   onUpdate: 'update',
-  onSchemaBreak: 'replace'
+  onSchemaBreak: 'replace',
 })
 ```
 
 ## Opt in and close out
 
-Methods with an `opt_in` or `close_out` `onCompletionAction` are grouped under properties of the same name within the `send`, `transactions` and `params` properties of the client. If the smart contract does not handle on of these on completion actions, it will be omitted.
+Methods with an `opt_in` or `close_out` `onCompletionAction` are grouped under properties of the same name within the `send`, `transactions` and `params` properties of the client. If the smart contract does not handle one of these on completion actions, it will be omitted.
 
 ```ts
 // Opt in with bare call
