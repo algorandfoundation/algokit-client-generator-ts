@@ -5,7 +5,6 @@
     "orta.vscode-jest",
     "ms-python.python",
     "charliermarsh.ruff",
-    "matangover.mypy",
-    "bungcip.better-toml"
+    "matangover.mypy"
   ]
 }

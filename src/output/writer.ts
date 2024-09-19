@@ -151,8 +151,20 @@ function writeDocumentPartsTo(document: DocumentParts, { indent = '  ', ...optio
         writer.write('\n')
         break
       default:
-        if (writer.last.slice(-1)[0] === '\n') writer.write(curIndent)
-        writer.write(part)
+        // Multi-line
+        if (part.includes('\n') || part.includes('\r')) {
+          if (writer.last.slice(-1)[0] !== '\n') writer.write('\n')
+          const normalisedLineEndings = part.replaceAll(/\r\n/g, '\n').replaceAll(/\r/g, '\n').replace(/^\n/, '').trimEnd()
+          const lines = normalisedLineEndings.split('\n')
+          const baseIndent = lines[0].match(/^\s+/)?.[0] ?? ''
+          for (const line of lines) {
+            writer.write(curIndent + line.replace(new RegExp(`^${baseIndent}`, ''), '').trimEnd())
+            writer.write('\n')
+          }
+        } else {
+          if (writer.last.slice(-1)[0] === '\n') writer.write(curIndent)
+          writer.write(part)
+        }
         if (currentLineMode() === NewLineMode) writer.write('\n')
         break
     }

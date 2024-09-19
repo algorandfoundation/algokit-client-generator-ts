@@ -1,4 +1,4 @@
-import { StateAppClient } from './client'
+import { StateAppFactory } from './client'
 import { expect, test, describe, beforeAll, beforeEach } from 'vitest'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
@@ -6,165 +6,131 @@ import { setUpLocalnet } from '../../src/tests/util'
 
 describe('state typed client', () => {
   let localnet: AlgorandFixture
+  let factory: StateAppFactory
 
   beforeAll(async () => {
     localnet = await setUpLocalnet()
   })
   beforeEach(async () => {
     await localnet.beforeEach()
+    const { algorand, testAccount } = localnet.context
+    factory = algorand.client.getTypedAppFactory(StateAppFactory, {
+      defaultSender: testAccount.addr,
+    })
   }, 10_000)
 
   test('Exposes state correctly', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new StateAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { testAccount } = localnet.context
 
-    await client.setGlobal({ int1: 1, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) })
+    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
-    const globalState = await client.getGlobalState()
+    await client.send.setGlobal({ args: { int1: 1, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
 
-    expect(globalState.int1?.asNumber()).toBe(1)
-    expect(globalState.int2?.asNumber()).toBe(2)
+    const globalState = await client.state.global.getAll()
+
+    expect(globalState.int1).toBe(1n)
+    expect(globalState.int2).toBe(2n)
     expect(globalState.bytes1?.asString()).toBe('asdf')
     expect(globalState.bytes2?.asByteArray()).toEqual(new Uint8Array([1, 2, 3, 4]))
 
-    await client.optIn.optIn([])
-    await client.setLocal({ int1: 1, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) })
+    await client.send.optIn.optIn()
+    await client.send.setLocal({ args: { int1: 1, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
 
-    const localState = await client.getLocalState(testAccount)
+    const localState = await client.state.local(testAccount.addr).getAll()
 
-    expect(localState.localInt1?.asNumber()).toBe(1)
-    expect(localState.localInt2?.asNumber()).toBe(2)
+    expect(localState.localInt1).toBe(1n)
+    expect(localState.localInt2).toBe(2n)
     expect(localState.localBytes1?.asString()).toBe('asdf')
     expect(localState.localBytes2?.asByteArray()).toEqual(new Uint8Array([1, 2, 3, 4]))
   })
 
   test('Readonly methods do not consume algos', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new StateAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     const minBalance = 100_000
     const txCost = 1_000
 
     const lowFundsAccount = await localnet.context.generateAccount({ initialFunds: microAlgos(minBalance + txCost) })
 
-    const result = await client.callAbi({ value: 'oh hi' }, { sender: lowFundsAccount })
+    const result = await client.send.callAbi({ args: { value: 'oh hi' }, sender: lowFundsAccount.addr })
 
     expect(result.return).toBe('Hello, oh hi')
 
     // If we can invoke this method twice it confirms that we are still above the min balance + single tx amount and the previous call
     // did not consume algos
-    await client.callAbi({ value: 'oh hi' }, { sender: lowFundsAccount })
+    const result2 = await client.send.callAbi({ args: { value: 'oh hi 2' }, sender: lowFundsAccount.addr })
+    expect(result2.return).toBe('Hello, oh hi 2')
   })
 
   test('Arguments with defaults defined are not required, and use their default value strategies when set to undefined', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new StateAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy({ deployTimeParams: { VALUE: 1 } })
-    await client.setGlobal({ int1: 50, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) })
-    await client.optIn.optIn({})
-    await client.setLocal({ bytes1: 'default value', int2: 0, int1: 0, bytes2: new Uint8Array([1, 2, 3, 4]) })
+    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
-    const constantDefined = await client.defaultValue({ argWithDefault: 'defined value' })
+    await client.send.setGlobal({ args: { int1: 50, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
+    await client.send.optIn.optIn()
+    await client.send.setLocal({ args: { bytes1: 'default value', int2: 0, int1: 0, bytes2: new Uint8Array([1, 2, 3, 4]) } })
+
+    const constantDefined = await client.send.defaultValue({ args: { argWithDefault: 'defined value' } })
     expect(constantDefined.return).toBe('defined value')
 
-    const constantDefault = await client.defaultValue({})
+    const constantDefault = await client.send.defaultValue()
     expect(constantDefault.return).toBe('default value')
 
-    const abiDefined = await client.defaultValueFromAbi({ argWithDefault: 'defined value' })
+    const abiDefined = await client.send.defaultValueFromAbi({ args: { argWithDefault: 'defined value' } })
     expect(abiDefined.return).toBe('ABI, defined value')
 
-    const abiDefault = await client.defaultValueFromAbi({})
-    expect(abiDefault.return).toBe('ABI, default value')
+    // todo: uncomment when ARC-56 supports this
+    // const abiDefault = await client.send.defaultValueFromAbi()
+    // expect(abiDefault.return).toBe('ABI, default value')
 
-    const intDefined = await client.defaultValueInt({ argWithDefault: 42 })
+    const intDefined = await client.send.defaultValueInt({ args: { argWithDefault: 42 } })
     expect(intDefined.return).toBe(42n)
 
-    const intDefault = await client.defaultValueInt({})
+    const intDefault = await client.send.defaultValueInt()
     expect(intDefault.return).toBe(123n)
 
-    const globalDefined = await client.defaultValueFromGlobalState({ argWithDefault: 123 })
+    const globalDefined = await client.send.defaultValueFromGlobalState({ args: { argWithDefault: 123 } })
     expect(globalDefined.return).toBe(123n)
 
-    const globalState = await client.getGlobalState()
-    const globalDefault = await client.defaultValueFromGlobalState({})
-    expect(globalDefault.return).toBe(globalState.int1?.asBigInt())
+    // todo: uncomment when ARC-56 supports this
+    // const globalState = await client.state.global.getAll()
+    // const globalDefault = await client.send.defaultValueFromGlobalState()
+    // expect(globalDefault.return).toBe(globalState.int1)
 
-    const localDefined = await client.defaultValueFromLocalState({ argWithDefault: 'defined value' })
+    const localDefined = await client.send.defaultValueFromLocalState({ args: { argWithDefault: 'defined value' } })
     expect(localDefined.return).toBe('Local state, defined value')
 
-    const localState = await client.getLocalState(testAccount)
-    const localDefault = await client.defaultValueFromLocalState({})
-    expect(localDefault.return).toBe(`Local state, ${localState.localBytes1?.asString()}`)
+    // todo: uncomment when ARC-56 supports this
+    // const localState = await client.state.local(testAccount.addr).getAll()
+    // const localDefault = await client.send.defaultValueFromLocalState()
+    // expect(localDefault.return).toBe(`Local state, ${localState.localBytes1?.asString()}`)
   })
 
   test('Methods can be composed', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new StateAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { testAccount } = localnet.context
+    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     await client
-      .compose()
-      .optIn.optIn({})
-      .setLocal({ bytes1: 'default value', int2: 0, int1: 0, bytes2: new Uint8Array([1, 2, 3, 4]) })
+      .newGroup()
+      .optIn.optIn()
+      .setLocal({ args: { bytes1: 'default value', int2: 0, int1: 0, bytes2: new Uint8Array([1, 2, 3, 4]) } })
       .execute()
 
-    const localState = await client.getLocalState(testAccount)
+    const localState = await client.state.local(testAccount.addr).getAll()
 
     expect(localState.localBytes1?.asString()).toBe('default value')
   })
 
   test('ABI methods which take references can be called', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new StateAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { testAccount } = localnet.context
+    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     // Call with number
-    await client.callWithReferences({
-      asset: 1234,
-      account: testAccount.addr,
-      application: (await client.appClient.getAppReference()).appId,
+    await client.send.callWithReferences({
+      args: {
+        asset: 1234n,
+        account: testAccount.addr,
+        application: client.appClient.appId,
+      },
     })
   })
 })

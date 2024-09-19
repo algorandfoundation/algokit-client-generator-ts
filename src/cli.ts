@@ -21,7 +21,7 @@ export function cli(workingDirectory: string, args: string[]) {
         const resolvedOutDir = path.dirname(resolvedOutPath)
         colorConsole.info`Reading application.json file from path ${resolvedAppJsonPath}`
         const spec = await loadApplicationJson(resolvedAppJsonPath)
-        colorConsole.info`Generating TS client for ${spec.contract.name}`
+        colorConsole.info`Generating TS client for ${spec.name}`
         const parts = generate(spec, { preserveNames: Boolean(preserveNames) })
         if (!fs.existsSync(resolvedOutDir)) {
           colorConsole.warn`Output directory ${resolvedOutDir} does not exist and will be created.`

@@ -1,28 +1,22 @@
 import { DocumentParts } from '../output/writer'
 
 export function* imports(): DocumentParts {
-  yield `import * as algokit from '@algorandfoundation/algokit-utils'
-import type {
-  ABIAppCallArg,
-  AppCallTransactionResult,
-  AppCallTransactionResultOfType,
-  AppCompilationResult,
-  AppReference,
-  AppState,
-  AppStorageSchema,
-  CoreAppCallArgs,
-  RawAppCallArgs,
-  TealTemplateParams,
-} from '@algorandfoundation/algokit-utils/types/app'
-import type {
-  AppClientCallCoreParams,
-  AppClientCompilationParams,
-  AppClientDeployCoreParams,
-  AppDetails,
-  ApplicationClient,
-} from '@algorandfoundation/algokit-utils/types/app-client'
-import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import type { SendTransactionResult, TransactionToSign, SendTransactionFrom, SendTransactionParams } from '@algorandfoundation/algokit-utils/types/transaction'
-import type { ABIResult, TransactionWithSigner } from 'algosdk'
-import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer, modelsv2 } from 'algosdk'`
+  yield `
+    import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
+    import { Arc56Contract, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
+    import {
+      AppClient,
+      AppClientMethodCallParams,
+      AppClientParams,
+      AppClientBareCallParams,
+      CallOnComplete,
+      AppClientCompilationParams,
+      ResolveAppClientByCreatorAndName,
+    } from '@algorandfoundation/algokit-utils/types/app-client'
+    import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+    import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
+    import { ExecuteParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+    import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+    import SimulateResponse = modelsv2.SimulateResponse
+  `
 }

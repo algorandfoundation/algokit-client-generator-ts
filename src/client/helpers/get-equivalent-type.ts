@@ -1,3 +1,4 @@
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import {
   ABIAddressType,
   ABIArrayDynamicType,
@@ -12,19 +13,31 @@ import {
   ABIUintType,
   abiTypeIsTransaction,
 } from 'algosdk'
+import { Sanitizer } from '../../util/sanitization'
 
-export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'): string {
+export function getEquivalentType(
+  abiTypeStr: string,
+  ioType: 'input' | 'output',
+  ctx: { app: Arc56Contract; sanitizer: Sanitizer },
+): string {
+  const { app, sanitizer } = ctx
   if (abiTypeStr == 'void') {
     return 'void'
   }
+  if (abiTypeStr == 'bytes') {
+    return ioType === 'input' ? 'Uint8Array | string' : 'Uint8Array'
+  }
   if (abiTypeIsTransaction(abiTypeStr)) {
-    return 'TransactionToSign | Transaction | Promise<SendTransactionResult>'
+    return 'AppMethodCallTransactionArgument'
   }
   if (abiTypeStr == ABIReferenceType.account) {
     return 'string | Uint8Array'
   }
   if (abiTypeStr == ABIReferenceType.application || abiTypeStr == ABIReferenceType.asset) {
-    return 'number | bigint'
+    return 'bigint'
+  }
+  if (Object.keys(app.structs).includes(abiTypeStr)) {
+    return sanitizer.makeSafeTypeIdentifier(abiTypeStr)
   }
 
   const abiType = ABIType.from(abiTypeStr)
@@ -40,10 +53,6 @@ export function getEquivalentType(abiTypeStr: string, ioType: 'input' | 'output'
       if (abiType.childType instanceof ABIByteType) return 'Uint8Array'
 
       const childTsType = abiTypeToTs(abiType.childType, ioType)
-      if (childTsType === 'bigint | number') {
-        return 'bigint[] | number[]'
-      }
-
       return `${childTsType}[]`
     }
     if (abiType instanceof ABIArrayStaticType) {
