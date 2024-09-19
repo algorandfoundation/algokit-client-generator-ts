@@ -4,18 +4,8 @@ import { GeneratorContext } from './generator-context'
 import { getCallOnCompleteOptions, getCreateOnCompleteOptions } from './deploy-types'
 import { composeMethod } from './call-composer'
 import { ABIMethod } from 'algosdk'
-import { Method, StructFields } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { getEquivalentType } from './helpers/get-equivalent-type'
-import { Sanitizer } from '../util/sanitization'
-
-function structFields(s: StructFields, sanitizer: Sanitizer): string {
-  return `{${Object.keys(s)
-    .map(
-      (key) =>
-        `${sanitizer.makeSafePropertyIdentifier(key)}: ${typeof s[key] === 'string' ? `'${s[key]}'` : structFields(s[key] as StructFields, sanitizer)}`,
-    )
-    .join(', ')}}`
-}
 
 export function* appClient(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
@@ -227,7 +217,7 @@ function* abiMethodCall({
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
   yield `${type === 'send' ? 'async ' : ''}${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((a) => 'undefined').join(', ')}]}` : ''}) {`
+  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) {`
   if (type === 'send') {
     yield* indent(
       `const result = await $this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,

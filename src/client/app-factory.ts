@@ -212,7 +212,7 @@ function* abiMethodCallParams({
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
   yield `${type === 'send' ? 'async ' : ''}${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((a) => 'undefined').join(', ')}]}` : ''}) {`
+  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) {`
   if (type === 'params') {
     yield* indent(
       `return $this.appFactory.params.${verb}(${name}ParamsFactory.${verb == 'deployDelete' ? 'delete' : verb === 'deployUpdate' ? 'update' : verb}${methodNameAccessor}(params))`,

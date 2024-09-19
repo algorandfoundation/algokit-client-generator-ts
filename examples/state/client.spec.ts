@@ -63,7 +63,6 @@ describe('state typed client', () => {
   })
 
   test('Arguments with defaults defined are not required, and use their default value strategies when set to undefined', async () => {
-    const { testAccount } = localnet.context
     const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     await client.send.setGlobal({ args: { int1: 50, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
