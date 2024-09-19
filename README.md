@@ -12,7 +12,7 @@ To be able to consume the generated file you need to include it in a TypeScript 
 npm install @algorandfoundation/algokit-utils
 ```
 
-Note: you need at least version 7 of AlgoKit Utils to work with the latest version of the generator.
+Note: you need at least version 7 of AlgoKit Utils to work with the latest version of the generator. It currently only works with algosdk v2.
 
 ### Use
 

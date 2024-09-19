@@ -172,7 +172,7 @@ export abstract class DuplicateStructsContractParamsFactory {
 }
 
 /**
- * A factory to create and deploy one or more instance of  the DuplicateStructsContract smart contract and to create one or more app clients to interact with those (or other) app instances
+ * A factory to create and deploy one or more instance of the DuplicateStructsContract smart contract and to create one or more app clients to interact with those (or other) app instances
  */
 export class DuplicateStructsContractFactory {
   /**
