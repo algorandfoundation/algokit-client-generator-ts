@@ -23,7 +23,7 @@ describe('lifecycle typed client', () => {
   }, 10_000)
 
   test('create_bare', async () => {
-    const { result, app: client } = await factory.send.create.bare({ updatable: true })
+    const { result, appClient: client } = await factory.send.create.bare({ updatable: true })
     expect(result.transaction.appOnComplete).toBe(OnApplicationComplete.NoOpOC)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
@@ -32,7 +32,7 @@ describe('lifecycle typed client', () => {
   })
 
   test('create_bare_optin', async () => {
-    const { result, app: client } = await factory.send.create.bare({ updatable: true, onComplete: OnApplicationComplete.OptInOC })
+    const { result, appClient: client } = await factory.send.create.bare({ updatable: true, onComplete: OnApplicationComplete.OptInOC })
     expect(result.transaction.appOnComplete).toBe(OnApplicationComplete.OptInOC)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
@@ -41,7 +41,7 @@ describe('lifecycle typed client', () => {
   })
 
   test('deploy_bare', async () => {
-    const { result: createResult, app: client } = await factory.deploy()
+    const { result: createResult, appClient: client } = await factory.deploy()
     invariant(createResult.operationPerformed === 'create')
     expect(createResult.return).toBe(undefined)
     expect(createResult.transaction.appOnComplete).toBe(OnApplicationComplete.NoOpOC)
@@ -52,7 +52,7 @@ describe('lifecycle typed client', () => {
   })
 
   test('deploy_bare_opt_in', async () => {
-    const { result: createResult, app: client } = await factory.deploy({
+    const { result: createResult, appClient: client } = await factory.deploy({
       createParams: { onComplete: OnApplicationComplete.OptInOC },
     })
     invariant(createResult.operationPerformed === 'create')
@@ -65,7 +65,7 @@ describe('lifecycle typed client', () => {
   })
 
   test('create_1arg', async () => {
-    const { result: createResult, app: client } = await factory.send.create.createStringString({
+    const { result: createResult, appClient: client } = await factory.send.create.createStringString({
       args: { greeting: 'greeting' },
       updatable: true,
     })
@@ -78,7 +78,7 @@ describe('lifecycle typed client', () => {
   })
 
   test('deploy_create_1arg', async () => {
-    const { result: createResult, app: client } = await factory.deploy({
+    const { result: createResult, appClient: client } = await factory.deploy({
       createParams: { method: 'create(string)string', args: { greeting: 'greeting' } },
     })
     invariant(createResult.operationPerformed === 'create')
@@ -91,7 +91,7 @@ describe('lifecycle typed client', () => {
   })
 
   test('create_2arg', async () => {
-    const { result: createResult, app: client } = await factory.send.create.createStringUint32Void({
+    const { result: createResult, appClient: client } = await factory.send.create.createStringUint32Void({
       args: { greeting: 'Greetings', times: 2 },
       updatable: true,
     })

@@ -52,9 +52,9 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield `simulate(options?: SimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
 
   yield* jsDoc({
-    description: 'Executes the transaction group and returns the results',
+    description: 'Sends the transaction group to the network and returns the results',
   })
-  yield `execute(params?: ExecuteParams): Promise<${name}ComposerResults<TReturns>>`
+  yield `send(params?: SendParams): Promise<${name}ComposerResults<TReturns>>`
 
   yield DecIndentAndCloseBlock
 

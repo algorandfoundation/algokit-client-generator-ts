@@ -12,10 +12,11 @@ export function* imports(): DocumentParts {
       CallOnComplete,
       AppClientCompilationParams,
       ResolveAppClientByCreatorAndName,
+      ResolveAppClientByNetwork,
     } from '@algorandfoundation/algokit-utils/types/app-client'
-    import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+    import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
     import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-    import { ExecuteParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+    import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
     import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
     import SimulateResponse = modelsv2.SimulateResponse
   `

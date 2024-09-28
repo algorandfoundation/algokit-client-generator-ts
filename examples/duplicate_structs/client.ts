@@ -15,14 +15,15 @@ import {
   CallOnComplete,
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
 } from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-import { ExecuteParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"DuplicateStructsContract","desc":"\n        This contract is to be used as a test artifact to verify behavior around struct generation to ensure that \n        the scenarios similar to whats outlined in this contract can not result in a typed client with duplicate struct \n        definitions.\n    ","structs":{"SomeStruct":{"a":"uint64","b":"uint64"}},"methods":[{"name":"method_a_that_uses_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"method_b_that_uses_same_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5hcHByb3ZhbF9wcm9ncmFtOgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fYmFyZV9yb3V0aW5nQDYKICAgIG1ldGhvZCAibWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdCgpKHVpbnQ2NCx1aW50NjQpIgogICAgbWV0aG9kICJtZXRob2RfYl90aGF0X3VzZXNfc2FtZV9zdHJ1Y3QoKSh1aW50NjQsdWludDY0KSIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdF9yb3V0ZUAyIG1haW5fbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0X3JvdXRlQDMKICAgIGVyciAvLyByZWplY3QgdHJhbnNhY3Rpb24KCm1haW5fbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdF9yb3V0ZUAyOgogICAgLy8gY29udHJhY3QucHk6MTkKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gaXMgbm90IGNyZWF0aW5nCiAgICBjYWxsc3ViIG1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3QKICAgIGJ5dGUgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludCAxCiAgICByZXR1cm4KCm1haW5fbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0X3JvdXRlQDM6CiAgICAvLyBjb250cmFjdC5weToyNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBpcyBub3QgY3JlYXRpbmcKICAgIGNhbGxzdWIgbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0CiAgICBieXRlIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnQgMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A2OgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIHJlamVjdCB0cmFuc2FjdGlvbgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBpcyBjcmVhdGluZwogICAgaW50IDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5kZWxlZ2F0b3JfY29udHJhY3QuY29udHJhY3QuRHVwbGljYXRlU3RydWN0c0NvbnRyYWN0Lm1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3QoKSAtPiBieXRlczoKbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdDoKICAgIC8vIGNvbnRyYWN0LnB5OjE5LTIwCiAgICAvLyBAYXJjNC5hYmltZXRob2QoKQogICAgLy8gZGVmIG1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3Qoc2VsZikgLT4gU29tZVN0cnVjdDoKICAgIHByb3RvIDAgMQogICAgLy8gY29udHJhY3QucHk6MjEtMjQKICAgIC8vIHJldHVybiBTb21lU3RydWN0KAogICAgLy8gICAgIGFyYzQuVUludDY0KDEpLAogICAgLy8gICAgIGFyYzQuVUludDY0KDIpLAogICAgLy8gKQogICAgYnl0ZSAweDAwMDAwMDAwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAyCiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5tZXRob2RfYl90aGF0X3VzZXNfc2FtZV9zdHJ1Y3QoKSAtPiBieXRlczoKbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0OgogICAgLy8gY29udHJhY3QucHk6MjYtMjcKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICAvLyBkZWYgbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0KHNlbGYpIC0+IFNvbWVTdHJ1Y3Q6CiAgICBwcm90byAwIDEKICAgIC8vIGNvbnRyYWN0LnB5OjI4LTMxCiAgICAvLyByZXR1cm4gU29tZVN0cnVjdCgKICAgIC8vICAgICBhcmM0LlVJbnQ2NCgzKSwKICAgIC8vICAgICBhcmM0LlVJbnQ2NCg0KSwKICAgIC8vICkKICAgIGJ5dGUgMHgwMDAwMDAwMDAwMDAwMDAzMDAwMDAwMDAwMDAwMDAwNAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5jbGVhcl9zdGF0ZV9wcm9ncmFtOgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgaW50IDEKICAgIHJldHVybgo="},"bareActions":{"create":["NoOp"],"call":[]}}
+export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"DuplicateStructsContract","desc":"\n        This contract is to be used as a test artifact to verify behavior around struct generation to ensure that \n        the scenarios similar to whats outlined in this contract can not result in a typed client with duplicate struct \n        definitions.\n    ","structs":{"SomeStruct":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]},"methods":[{"name":"method_a_that_uses_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"method_b_that_uses_same_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5hcHByb3ZhbF9wcm9ncmFtOgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fYmFyZV9yb3V0aW5nQDYKICAgIG1ldGhvZCAibWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdCgpKHVpbnQ2NCx1aW50NjQpIgogICAgbWV0aG9kICJtZXRob2RfYl90aGF0X3VzZXNfc2FtZV9zdHJ1Y3QoKSh1aW50NjQsdWludDY0KSIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdF9yb3V0ZUAyIG1haW5fbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0X3JvdXRlQDMKICAgIGVyciAvLyByZWplY3QgdHJhbnNhY3Rpb24KCm1haW5fbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdF9yb3V0ZUAyOgogICAgLy8gY29udHJhY3QucHk6MTkKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gaXMgbm90IGNyZWF0aW5nCiAgICBjYWxsc3ViIG1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3QKICAgIGJ5dGUgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludCAxCiAgICByZXR1cm4KCm1haW5fbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0X3JvdXRlQDM6CiAgICAvLyBjb250cmFjdC5weToyNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBpcyBub3QgY3JlYXRpbmcKICAgIGNhbGxzdWIgbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0CiAgICBieXRlIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnQgMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A2OgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIHJlamVjdCB0cmFuc2FjdGlvbgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBpcyBjcmVhdGluZwogICAgaW50IDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5kZWxlZ2F0b3JfY29udHJhY3QuY29udHJhY3QuRHVwbGljYXRlU3RydWN0c0NvbnRyYWN0Lm1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3QoKSAtPiBieXRlczoKbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdDoKICAgIC8vIGNvbnRyYWN0LnB5OjE5LTIwCiAgICAvLyBAYXJjNC5hYmltZXRob2QoKQogICAgLy8gZGVmIG1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3Qoc2VsZikgLT4gU29tZVN0cnVjdDoKICAgIHByb3RvIDAgMQogICAgLy8gY29udHJhY3QucHk6MjEtMjQKICAgIC8vIHJldHVybiBTb21lU3RydWN0KAogICAgLy8gICAgIGFyYzQuVUludDY0KDEpLAogICAgLy8gICAgIGFyYzQuVUludDY0KDIpLAogICAgLy8gKQogICAgYnl0ZSAweDAwMDAwMDAwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAyCiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5tZXRob2RfYl90aGF0X3VzZXNfc2FtZV9zdHJ1Y3QoKSAtPiBieXRlczoKbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0OgogICAgLy8gY29udHJhY3QucHk6MjYtMjcKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICAvLyBkZWYgbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0KHNlbGYpIC0+IFNvbWVTdHJ1Y3Q6CiAgICBwcm90byAwIDEKICAgIC8vIGNvbnRyYWN0LnB5OjI4LTMxCiAgICAvLyByZXR1cm4gU29tZVN0cnVjdCgKICAgIC8vICAgICBhcmM0LlVJbnQ2NCgzKSwKICAgIC8vICAgICBhcmM0LlVJbnQ2NCg0KSwKICAgIC8vICkKICAgIGJ5dGUgMHgwMDAwMDAwMDAwMDAwMDAzMDAwMDAwMDAwMDAwMDAwNAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5jbGVhcl9zdGF0ZV9wcm9ncmFtOgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgaW50IDEKICAgIHJldHVybgo="},"bareActions":{"create":["NoOp"],"call":[]}}
 
 /**
  * A state record containing binary data
@@ -185,7 +186,7 @@ export class DuplicateStructsContractFactory {
    *
    * @param params The parameters to initialise the app factory with
    */
-  constructor(params: Expand<Omit<AppFactoryParams, 'appSpec'>>) {
+  constructor(params: Omit<AppFactoryParams, 'appSpec'>) {
     this.appFactory = new AppFactory({
       ...params,
       appSpec: APP_SPEC,
@@ -200,7 +201,7 @@ export class DuplicateStructsContractFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public getAppClientById(params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec'>>) {
+  public getAppClientById(params: AppFactoryAppClientParams) {
     return new DuplicateStructsContractClient(this.appFactory.getAppClientById(params))
   }
   
@@ -213,10 +214,10 @@ export class DuplicateStructsContractFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public async getAppClientByCreatorAddressAndName(
-    params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec' | 'appId'> & ResolveAppClientByCreatorAndName>,
+  public async getAppClientByCreatorAndName(
+    params: AppFactoryResolveAppClientByCreatorAndNameParams,
   ) {
-    return new DuplicateStructsContractClient(await this.appFactory.getAppClientByCreatorAddressAndName(params))
+    return new DuplicateStructsContractClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
   /**
@@ -229,11 +230,11 @@ export class DuplicateStructsContractFactory {
     const result = await this.appFactory.deploy({
       ...params,
     })
-    return { result: result.result, app: new DuplicateStructsContractClient(result.app) }
+    return { result: result.result, appClient: new DuplicateStructsContractClient(result.appClient) }
   }
 
   /**
-   * Get parameters to define transactions to the current app
+   * Get parameters to create transactions (create and deploy related calls) for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
    */
   readonly params = (($this) => {
     return {
@@ -245,7 +246,32 @@ export class DuplicateStructsContractFactory {
           /**
            * Creates a new instance of the DuplicateStructsContract smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
+           * @returns The params for a create call
+           */
+          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+            return $this.appFactory.params.bare.create(params)
+          },
+        }
+      },
+
+    }
+  })(this)
+
+  /**
+   * Create transactions for the current app
+   */
+  readonly createTransaction = (($this) => {
+    return {
+      /**
+       * Gets available create methods
+       */
+      get create() {
+        return {
+          /**
+           * Creates a new instance of the DuplicateStructsContract smart contract using a bare call.
+           *
+           * @param params The params for the bare (raw) call
            * @returns The params for a create call
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) {
@@ -270,12 +296,12 @@ export class DuplicateStructsContractFactory {
           /**
            * Creates a new instance of the DuplicateStructsContract smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The create result
            */
-          async bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-            const result = await $this.appFactory.create(params)
-            return { result: result.result, app: new DuplicateStructsContractClient(result.app) }
+          async bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+            const result = await $this.appFactory.send.bare.create(params)
+            return { result: result.result, appClient: new DuplicateStructsContractClient(result.appClient) }
           },
         }
       },
@@ -304,8 +330,8 @@ export class DuplicateStructsContractClient {
    *
    * @param params The parameters to initialise the app client with
    */
-  constructor(params: Expand<Omit<AppClientParams, 'appSpec'>>)
-  constructor(appClientOrParams: AppClient | Expand<Omit<AppClientParams, 'appSpec'>>) {
+  constructor(params: Omit<AppClientParams, 'appSpec'>)
+  constructor(appClientOrParams: AppClient | Omit<AppClientParams, 'appSpec'>) {
     this.appClient = appClientOrParams instanceof AppClient ? appClientOrParams : new AppClient({
       ...appClientOrParams,
       appSpec: APP_SPEC,
@@ -325,7 +351,7 @@ export class DuplicateStructsContractClient {
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
    */
-  public static async fromCreatorAndName(params: Expand<Omit<ResolveAppClientByCreatorAndName, 'appSpec'>>): Promise<DuplicateStructsContractClient> {
+  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<DuplicateStructsContractClient> {
     return new DuplicateStructsContractClient(await AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
@@ -337,20 +363,20 @@ export class DuplicateStructsContractClient {
    * @param params The parameters to create the app client
    */
   static async fromNetwork(
-    params: Expand<Omit<AppClientParams, 'appSpec' | 'appId'>>
+    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
   ): Promise<DuplicateStructsContractClient> {
     return new DuplicateStructsContractClient(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
 
   /**
-   * Get parameters to define transactions to the current app
+   * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
    */
   readonly params = (($this) => {
     return {
       /**
        * Makes a clear_state call to an existing instance of the DuplicateStructsContract smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
       clearState(params?: Expand<AppClientBareCallParams>) {
@@ -379,18 +405,18 @@ export class DuplicateStructsContractClient {
   })(this)
 
   /**
-   * Get parameters to define transactions to the current app
+   * Create transactions for the current app
    */
-  readonly transactions = (($this) => {
+  readonly createTransaction = (($this) => {
     return {
       /**
        * Makes a clear_state call to an existing instance of the DuplicateStructsContract smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
       clearState(params?: Expand<AppClientBareCallParams>) {
-        return $this.appClient.transactions.bare.clearState(params)
+        return $this.appClient.createTransaction.bare.clearState(params)
       },
 
       /**
@@ -400,7 +426,7 @@ export class DuplicateStructsContractClient {
        * @returns The call transaction
        */
       methodAThatUsesStruct(params: Expand<CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
-        return $this.appClient.transactions.call(DuplicateStructsContractParamsFactory.methodAThatUsesStruct(params))
+        return $this.appClient.createTransaction.call(DuplicateStructsContractParamsFactory.methodAThatUsesStruct(params))
       },
       /**
        * Makes a call to the DuplicateStructsContract smart contract using the method_b_that_uses_same_struct()(uint64,uint64) ABI method.
@@ -409,7 +435,7 @@ export class DuplicateStructsContractClient {
        * @returns The call transaction
        */
       methodBThatUsesSameStruct(params: Expand<CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
-        return $this.appClient.transactions.call(DuplicateStructsContractParamsFactory.methodBThatUsesSameStruct(params))
+        return $this.appClient.createTransaction.call(DuplicateStructsContractParamsFactory.methodBThatUsesSameStruct(params))
       },
     }
   })(this)
@@ -422,10 +448,10 @@ export class DuplicateStructsContractClient {
       /**
        * Makes a clear_state call to an existing instance of the DuplicateStructsContract smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
-      clearState(params?: Expand<AppClientBareCallParams & ExecuteParams>) {
+      clearState(params?: Expand<AppClientBareCallParams & SendParams>) {
         return $this.appClient.send.bare.clearState(params)
       },
 
@@ -435,7 +461,7 @@ export class DuplicateStructsContractClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async methodAThatUsesStruct(params: Expand<CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
+      async methodAThatUsesStruct(params: Expand<CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
         const result = await $this.appClient.send.call(DuplicateStructsContractParamsFactory.methodAThatUsesStruct(params))
         return {...result, return: result.return as undefined | MethodReturn<'method_a_that_uses_struct()(uint64,uint64)'>}
       },
@@ -445,7 +471,7 @@ export class DuplicateStructsContractClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async methodBThatUsesSameStruct(params: Expand<CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
+      async methodBThatUsesSameStruct(params: Expand<CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
         const result = await $this.appClient.send.call(DuplicateStructsContractParamsFactory.methodBThatUsesSameStruct(params))
         return {...result, return: result.return as undefined | MethodReturn<'method_b_that_uses_same_struct()(uint64,uint64)'>}
       },
@@ -461,13 +487,14 @@ export class DuplicateStructsContractClient {
   public newGroup(): DuplicateStructsContractComposer {
     const client = this
     const composer = client.appClient.newGroup()
+    let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a method_a_that_uses_struct()(uint64,uint64) method call against the DuplicateStructsContract contract
        */
       methodAThatUsesStruct(params: CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.methodAThatUsesStruct(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.methodAThatUsesStruct(params)))
         resultMappers.push((v) => client.decodeReturnValue('method_a_that_uses_struct()(uint64,uint64)', v))
         return this
       },
@@ -475,7 +502,7 @@ export class DuplicateStructsContractClient {
        * Add a method_b_that_uses_same_struct()(uint64,uint64) method call against the DuplicateStructsContract contract
        */
       methodBThatUsesSameStruct(params: CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.methodBThatUsesSameStruct(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.methodBThatUsesSameStruct(params)))
         resultMappers.push((v) => client.decodeReturnValue('method_b_that_uses_same_struct()(uint64,uint64)', v))
         return this
       },
@@ -483,25 +510,28 @@ export class DuplicateStructsContractClient {
        * Add a clear state call to the DuplicateStructsContract contract
        */
       clearState(params: AppClientBareCallParams) {
-        composer.addAppCall(client.params.clearState(params))
+        promiseChain = promiseChain.then(() => composer.addAppCall(client.params.clearState(params)))
         return this
       },
       addTransaction(txn: Transaction, signer?: TransactionSigner) {
-        composer.addTransaction(txn, signer)
+        promiseChain = promiseChain.then(() => composer.addTransaction(txn, signer))
         return this
       },
-      composer() {
+      async composer() {
+        await promiseChain
         return composer
       },
       async simulate(options?: SimulateOptions) {
+        await promiseChain
         const result = await composer.simulate(options)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
         }
       },
-      async execute(params?: ExecuteParams) {
-        const result = await composer.execute(params)
+      async send(params?: SendParams) {
+        await promiseChain
+        const result = await composer.send(params)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
@@ -553,9 +583,9 @@ export type DuplicateStructsContractComposer<TReturns extends [...any[]] = []> =
    */
   simulate(options?: SimulateOptions): Promise<DuplicateStructsContractComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
-   * Executes the transaction group and returns the results
+   * Sends the transaction group to the network and returns the results
    */
-  execute(params?: ExecuteParams): Promise<DuplicateStructsContractComposerResults<TReturns>>
+  send(params?: SendParams): Promise<DuplicateStructsContractComposerResults<TReturns>>
 }
 export type DuplicateStructsContractComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns

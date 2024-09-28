@@ -19,7 +19,7 @@ describe('hello world typed client', () => {
     const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
       defaultSender: testAccount.addr,
     })
-    const { app: client } = await factory.deploy()
+    const { appClient: client } = await factory.deploy()
 
     const response = await client.send.hello({ args: { name: 'World' } })
     expect(response.return).toBe('Hello, World')
@@ -37,16 +37,16 @@ describe('hello world typed client', () => {
     const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
       defaultSender: testAccount.addr,
     })
-    const { app: client } = await factory.deploy()
+    const { appClient: client } = await factory.deploy()
 
-    const transactions = await client.transactions.helloWorldCheck({ args: { name: 'World' } })
+    const transactions = await client.createTransaction.helloWorldCheck({ args: { name: 'World' } })
 
     // Test out getting the app client from algorandclient
     const client2 = await algorand.client.getTypedAppClientByCreatorAndName(HelloWorldAppClient, {
       creatorAddress: testAccount.addr,
     })
 
-    const transactions2 = await client2.transactions.hello({ args: { name: 'Bananas' }, sender: testAccount.addr })
+    const transactions2 = await client2.createTransaction.hello({ args: { name: 'Bananas' }, sender: testAccount.addr })
 
     // Add a transactions in the middle of the method calls and check that it doesn't mess up the return values
     const result = await client
@@ -55,12 +55,12 @@ describe('hello world typed client', () => {
       .addTransaction(transactions.transactions[0], transactions.signers.get(0))
       .addTransaction(transactions2.transactions[0])
       .addTransaction(
-        await client.appClient.transactions.fundAppAccount({
+        await client.appClient.createTransaction.fundAppAccount({
           amount: (100_000).microAlgo(),
         }),
       )
       .hello({ args: { name: 'World!' } })
-      .execute()
+      .send()
 
     expect(result.returns[0]).toBe('Hello, World')
     expect(result.returns[1]).toBe('Hello, World!')
@@ -73,7 +73,7 @@ describe('hello world typed client', () => {
     const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
       defaultSender: testAccount.addr,
     })
-    const { app: client } = await factory.deploy()
+    const { appClient: client } = await factory.deploy()
 
     const response = await client
       .newGroup()

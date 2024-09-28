@@ -41,7 +41,7 @@ describe('voting typed client', () => {
     const privateKey = Buffer.from(ed.utils.randomPrivateKey())
     const publicKey = await ed.getPublicKeyAsync(privateKey)
 
-    const { result: createResult, app: client } = await factory.send.create.create({
+    const { result: createResult, appClient: client } = await factory.send.create.create({
       args: {
         voteId: `V${new Date().getTime().toString(32).toUpperCase()}`,
         metadataIpfsCid: 'cid',
@@ -81,9 +81,9 @@ describe('voting typed client', () => {
   test('struct_mapping', async () => {
     const { testAccount, totalQuestionOptions, privateKey, client } = await createRandomVotingRoundApp()
 
-    await client.transactions.bootstrap({
+    await client.createTransaction.bootstrap({
       args: {
-        fundMinBalReq: client.appClient.transactions.fundAppAccount({
+        fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
           amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
         }),
       },
@@ -106,7 +106,6 @@ describe('voting typed client', () => {
 
   test('global_state', async () => {
     const { questionCounts, currentTime, quorum, publicKey, totalQuestionOptions, client } = await createRandomVotingRoundApp()
-
     const state = await client.state.global.getAll()
 
     invariant(state.snapshotPublicKey !== undefined)
@@ -143,7 +142,7 @@ describe('voting typed client', () => {
 
       await client.send.bootstrap({
         args: {
-          fundMinBalReq: client.appClient.transactions.fundAppAccount({
+          fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
             amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
           }),
         },
@@ -154,7 +153,7 @@ describe('voting typed client', () => {
       await client.send.vote({
         args: {
           answerIds: randomAnswerIds,
-          fundMinBalReq: client.appClient.transactions.fundAppAccount({
+          fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
             amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
           }),
           signature,
@@ -179,12 +178,16 @@ describe('voting typed client', () => {
       const result = await algorand
         .newGroup()
         .addAppCallMethodCall(
-          client.params.getPreconditions({ args: { signature }, staticFee: microAlgos(1_000 + 3 * 1_000), boxReferences: [testAccount] }),
+          await client.params.getPreconditions({
+            args: { signature },
+            staticFee: microAlgos(1_000 + 3 * 1_000),
+            boxReferences: [testAccount],
+          }),
         )
         .addAppCallMethodCall(
-          client.params.bootstrap({
+          await client.params.bootstrap({
             args: {
-              fundMinBalReq: client.appClient.transactions.fundAppAccount({
+              fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
                 amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
               }),
             },
@@ -193,10 +196,10 @@ describe('voting typed client', () => {
           }),
         )
         .addAppCallMethodCall(
-          client.params.vote({
+          await client.params.vote({
             args: {
               answerIds: randomAnswerIds,
-              fundMinBalReq: client.appClient.transactions.fundAppAccount({
+              fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
                 amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
               }),
               signature,
@@ -206,7 +209,7 @@ describe('voting typed client', () => {
           }),
         )
         .addAppCallMethodCall(
-          client.params.getPreconditions({
+          await client.params.getPreconditions({
             args: {
               signature,
             },
@@ -234,7 +237,7 @@ describe('voting typed client', () => {
         })
         .bootstrap({
           args: {
-            fundMinBalReq: client.appClient.transactions.fundAppAccount({
+            fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
               amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
             }),
           },
@@ -244,7 +247,7 @@ describe('voting typed client', () => {
         .vote({
           args: {
             answerIds: randomAnswerIds,
-            fundMinBalReq: client.appClient.transactions.fundAppAccount({
+            fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
               amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
             }),
             signature,
@@ -260,7 +263,7 @@ describe('voting typed client', () => {
           boxReferences: [testAccount],
           note: 'hmmm',
         })
-        .execute()
+        .send()
 
       expect(result.returns[0]?.hasAlreadyVoted).toBe(0n)
       expect(result.returns[3]?.hasAlreadyVoted).toBe(1n)

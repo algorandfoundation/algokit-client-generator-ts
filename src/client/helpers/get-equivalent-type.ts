@@ -24,8 +24,14 @@ export function getEquivalentType(
   if (abiTypeStr == 'void') {
     return 'void'
   }
-  if (abiTypeStr == 'bytes') {
+  if (abiTypeStr == 'AVMBytes') {
     return ioType === 'input' ? 'Uint8Array | string' : 'Uint8Array'
+  }
+  if (abiTypeStr == 'AVMString') {
+    return 'string'
+  }
+  if (abiTypeStr == 'AVMUint64') {
+    return 'bigint'
   }
   if (abiTypeIsTransaction(abiTypeStr)) {
     return 'AppMethodCallTransactionArgument'

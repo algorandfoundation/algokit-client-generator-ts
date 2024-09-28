@@ -366,90 +366,135 @@
   ],
   "arcs": [4, 56],
   "structs": {
-    "ValidatorInfo": {
-      "config": {
-        "id": "uint64",
-        "owner": "address",
-        "manager": "address",
-        "nfdForInfo": "uint64",
-        "entryGatingType": "uint8",
-        "entryGatingAddress": "address",
-        "entryGatingAssets": "uint64[4]",
-        "gatingAssetMinBalance": "uint64",
-        "rewardTokenId": "uint64",
-        "rewardPerPayout": "uint64",
-        "epochRoundLength": "uint32",
-        "percentToValidator": "uint32",
-        "validatorCommissionAddress": "address",
-        "minEntryStake": "uint64",
-        "maxAlgoPerPool": "uint64",
-        "poolsPerNode": "uint8",
-        "sunsettingOn": "uint64",
-        "sunsettingTo": "uint64"
+    "ValidatorInfo": [
+      {
+        "name": "config",
+        "type": [
+          { "name": "id", "type": "uint64" },
+          { "name": "owner", "type": "address" },
+          { "name": "manager", "type": "address" },
+          { "name": "nfdForInfo", "type": "uint64" },
+          { "name": "entryGatingType", "type": "uint8" },
+          { "name": "entryGatingAddress", "type": "address" },
+          { "name": "entryGatingAssets", "type": "uint64[4]" },
+          { "name": "gatingAssetMinBalance", "type": "uint64" },
+          { "name": "rewardTokenId", "type": "uint64" },
+          { "name": "rewardPerPayout", "type": "uint64" },
+          { "name": "epochRoundLength", "type": "uint32" },
+          { "name": "percentToValidator", "type": "uint32" },
+          { "name": "validatorCommissionAddress", "type": "address" },
+          { "name": "minEntryStake", "type": "uint64" },
+          { "name": "maxAlgoPerPool", "type": "uint64" },
+          { "name": "poolsPerNode", "type": "uint8" },
+          { "name": "sunsettingOn", "type": "uint64" },
+          { "name": "sunsettingTo", "type": "uint64" }
+        ]
       },
-      "state": { "numPools": "uint16", "totalStakers": "uint64", "totalAlgoStaked": "uint64", "rewardTokenHeldBack": "uint64" },
-      "pools": "(uint64,uint16,uint64)[24]",
-      "tokenPayoutRatio": { "poolPctOfWhole": "uint64[24]", "updatedForPayout": "uint64" },
-      "nodePoolAssignments": { "nodes": "(uint64[3])[8]" }
-    },
-    "MbrAmounts": { "addValidatorMbr": "uint64", "addPoolMbr": "uint64", "poolInitMbr": "uint64", "addStakerMbr": "uint64" },
-    "Constraints": {
-      "epochPayoutRoundsMin": "uint64",
-      "epochPayoutRoundsMax": "uint64",
-      "minPctToValidatorWFourDecimals": "uint64",
-      "maxPctToValidatorWFourDecimals": "uint64",
-      "minEntryStake": "uint64",
-      "maxAlgoPerPool": "uint64",
-      "maxAlgoPerValidator": "uint64",
-      "amtConsideredSaturated": "uint64",
-      "maxNodes": "uint64",
-      "maxPoolsPerNode": "uint64",
-      "maxStakersPerPool": "uint64"
-    },
-    "ValidatorConfig": {
-      "id": "uint64",
-      "owner": "address",
-      "manager": "address",
-      "nfdForInfo": "uint64",
-      "entryGatingType": "uint8",
-      "entryGatingAddress": "address",
-      "entryGatingAssets": "uint64[4]",
-      "gatingAssetMinBalance": "uint64",
-      "rewardTokenId": "uint64",
-      "rewardPerPayout": "uint64",
-      "epochRoundLength": "uint32",
-      "percentToValidator": "uint32",
-      "validatorCommissionAddress": "address",
-      "minEntryStake": "uint64",
-      "maxAlgoPerPool": "uint64",
-      "poolsPerNode": "uint8",
-      "sunsettingOn": "uint64",
-      "sunsettingTo": "uint64"
-    },
-    "ValidatorCurState": { "numPools": "uint16", "totalStakers": "uint64", "totalAlgoStaked": "uint64", "rewardTokenHeldBack": "uint64" },
-    "PoolInfo": { "poolAppId": "uint64", "totalStakers": "uint16", "totalAlgoStaked": "uint64" },
-    "ValidatorPoolKey": {
-      "id": "uint64",
-      "poolId": "uint64",
-      "poolAppId": "uint64"
-    },
-    "PoolTokenPayoutRatio": {
-      "poolPctOfWhole": "uint64[24]",
-      "updatedForPayout": "uint64"
-    },
-    "NodePoolAssignmentConfig": { "nodes": "(uint64[3])[8]" }
+      {
+        "name": "state",
+        "type": [
+          { "name": "numPools", "type": "uint16" },
+          { "name": "totalStakers", "type": "uint64" },
+          { "name": "totalAlgoStaked", "type": "uint64" },
+          { "name": "rewardTokenHeldBack", "type": "uint64" }
+        ]
+      },
+      {
+        "name": "pools",
+        "type": [
+          { "name": "id", "type": "uint64" },
+          { "name": "poolAppId", "type": "uint16" },
+          { "name": "totalAlgoStaked", "type": "uint64" }
+        ]
+      },
+      {
+        "name": "tokenPayoutRatio",
+        "type": [
+          { "name": "poolPctOfWhole", "type": "uint64[24]" },
+          { "name": "updatedForPayout", "type": "uint64" }
+        ]
+      },
+      {
+        "name": "nodePoolAssignments",
+        "type": [
+          { "name": "nodes", "type": "(uint64[3])[8]" }
+        ]
+      }
+    ],
+    "MbrAmounts": [
+      { "name": "addValidatorMbr", "type": "uint64" },
+      { "name": "addPoolMbr", "type": "uint64" },
+      { "name": "poolInitMbr", "type": "uint64" },
+      { "name": "addStakerMbr", "type": "uint64" }
+    ],
+    "Constraints": [
+      { "name": "epochPayoutRoundsMin", "type": "uint64" },
+      { "name": "epochPayoutRoundsMax", "type": "uint64" },
+      { "name": "minPctToValidatorWFourDecimals", "type": "uint64" },
+      { "name": "maxPctToValidatorWFourDecimals", "type": "uint64" },
+      { "name": "minEntryStake", "type": "uint64" },
+      { "name": "maxAlgoPerPool", "type": "uint64" },
+      { "name": "maxAlgoPerValidator", "type": "uint64" },
+      { "name": "amtConsideredSaturated", "type": "uint64" },
+      { "name": "maxNodes", "type": "uint64" },
+      { "name": "maxPoolsPerNode", "type": "uint64" },
+      { "name": "maxStakersPerPool", "type": "uint64" }
+    ],
+    "ValidatorConfig": [
+      { "name": "id", "type": "uint64" },
+      { "name": "owner", "type": "address" },
+      { "name": "manager", "type": "address" },
+      { "name": "nfdForInfo", "type": "uint64" },
+      { "name": "entryGatingType", "type": "uint8" },
+      { "name": "entryGatingAddress", "type": "address" },
+      { "name": "entryGatingAssets", "type": "uint64[4]" },
+      { "name": "gatingAssetMinBalance", "type": "uint64" },
+      { "name": "rewardTokenId", "type": "uint64" },
+      { "name": "rewardPerPayout", "type": "uint64" },
+      { "name": "epochRoundLength", "type": "uint32" },
+      { "name": "percentToValidator", "type": "uint32" },
+      { "name": "validatorCommissionAddress", "type": "address" },
+      { "name": "minEntryStake", "type": "uint64" },
+      { "name": "maxAlgoPerPool", "type": "uint64" },
+      { "name": "poolsPerNode", "type": "uint8" },
+      { "name": "sunsettingOn", "type": "uint64" },
+      { "name": "sunsettingTo", "type": "uint64" }
+    ],
+    "ValidatorCurState": [
+      { "name": "numPools", "type": "uint16" },
+      { "name": "totalStakers", "type": "uint64" },
+      { "name": "totalAlgoStaked", "type": "uint64" },
+      { "name": "rewardTokenHeldBack", "type": "uint64" }
+    ],
+    "PoolInfo": [
+      { "name": "id", "type": "uint64" },
+      { "name": "totalStakers", "type": "uint16" },
+      { "name": "totalAlgoStaked", "type": "uint64" }
+    ],
+    "ValidatorPoolKey": [
+      { "name": "validatorId", "type": "uint64" },
+      { "name": "poolId", "type": "uint64" },
+      { "name": "poolAppId", "type": "uint64" }
+    ],
+    "PoolTokenPayoutRatio": [
+      { "name": "poolPctOfWhole", "type": "uint64[24]" },
+      { "name": "updatedForPayout", "type": "uint64" }
+    ],
+    "NodePoolAssignmentConfig": [
+      { "name": "nodes", "type": "(uint64[3])[8]" }
+    ]
   },
   "state": {
     "schema": { "global": { "bytes": 1, "ints": 3 }, "local": { "bytes": 0, "ints": 0 } },
     "keys": {
       "global": {
-        "stakingPoolInitialized": { "key": "aW5pdA==", "keyType": "bytes", "valueType": "bool" },
-        "numValidators": { "key": "bnVtVg==", "keyType": "bytes", "valueType": "uint64" },
-        "numStakers": { "key": "bnVtU3Rha2Vycw==", "keyType": "bytes", "valueType": "uint64" },
-        "totalAlgoStaked": { "key": "c3Rha2Vk", "keyType": "bytes", "valueType": "uint64" }
+        "stakingPoolInitialized": { "key": "aW5pdA==", "keyType": "AVMBytes", "valueType": "bool" },
+        "numValidators": { "key": "bnVtVg==", "keyType": "AVMBytes", "valueType": "uint64" },
+        "numStakers": { "key": "bnVtU3Rha2Vycw==", "keyType": "AVMBytes", "valueType": "uint64" },
+        "totalAlgoStaked": { "key": "c3Rha2Vk", "keyType": "AVMBytes", "valueType": "uint64" }
       },
       "local": {},
-      "box": { "stakingPoolApprovalProgram": { "key": "cG9vbFRlbXBsYXRlQXBwcm92YWxCeXRlcw==", "keyType": "bytes", "valueType": "byte[]" } }
+      "box": { "stakingPoolApprovalProgram": { "key": "cG9vbFRlbXBsYXRlQXBwcm92YWxCeXRlcw==", "keyType": "AVMBytes", "valueType": "byte[]" } }
     },
     "maps": {
       "global": {},
