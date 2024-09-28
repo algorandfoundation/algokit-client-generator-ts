@@ -67,6 +67,21 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
       return new ${name}Client(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
     }
 
+    /** The ID of the app instance this client is linked to. */
+    public get appId() {
+      return this.appClient.appId
+    }
+
+    /** The app address of the app instance this client is linked to. */
+    public get appAddress() {
+      return this.appClient.appAddress
+    }
+
+    /** The name of the app. */
+    public get appName() {
+      return this.appClient.appName
+    }
+
   `
 
   yield* params(ctx)

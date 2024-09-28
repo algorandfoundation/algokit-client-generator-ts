@@ -564,6 +564,21 @@ export class VotingRoundAppClient {
   ): Promise<VotingRoundAppClient> {
     return new VotingRoundAppClient(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
+  
+  /** The ID of the app instance this client is linked to. */
+  public get appId() {
+    return this.appClient.appId
+  }
+  
+  /** The app address of the app instance this client is linked to. */
+  public get appAddress() {
+    return this.appClient.appAddress
+  }
+  
+  /** The name of the app. */
+  public get appName() {
+    return this.appClient.appName
+  }
 
   /**
    * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
