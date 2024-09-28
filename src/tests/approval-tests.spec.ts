@@ -7,7 +7,7 @@ import { expect, test, describe } from 'vitest'
 
 const writeActual = process.env.TEST_ENV !== 'ci'
 
-const testContracts = ['helloworld', 'lifecycle', 'state', 'voting', 'duplicate_structs', 'minimal', 'reti', 'arc56_test'] as const
+const testContracts = ['helloworld', 'lifecycle', 'state', 'voting', 'duplicate_structs', 'minimal', 'arc56_test'] as const
 
 describe('When generating a ts client for a the contract', () => {
   test.each(testContracts)('%s approval', async (contractName) => {

@@ -64,7 +64,7 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Aliases for non-encoded ABI values
 
-type uint32 = number;
+type uint32 = bigint;
 type AVMString = string;
 type AVMBytes = Uint8Array;
 type AVMUint64 = bigint;
@@ -106,9 +106,9 @@ export type LifeCycleAppTypes = {
     & Record<'create(string,uint32)void', {
       argsObj: {
         greeting: string
-        times: number
+        times: bigint | number
       }
-      argsTuple: [greeting: string, times: number]
+      argsTuple: [greeting: string, times: bigint | number]
       returns: void
     }>
   /**

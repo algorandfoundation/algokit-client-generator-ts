@@ -78,7 +78,7 @@
       "args": [],
       "returns": {
         "type": "(uint64,uint64,uint64,uint64)",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").MbrAmounts"
+        "struct": "MbrAmounts"
       },
       "actions": {
         "create": [],
@@ -91,7 +91,7 @@
       "args": [],
       "returns": {
         "type": "(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").Constraints"
+        "struct": "Constraints"
       },
       "actions": {
         "create": [],
@@ -120,7 +120,7 @@
       ],
       "returns": {
         "type": "(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorConfig"
+        "struct": "ValidatorConfig"
       },
       "actions": {
         "create": [],
@@ -137,7 +137,7 @@
       ],
       "returns": {
         "type": "(uint16,uint64,uint64,uint64)",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorCurState"
+        "struct": "ValidatorCurState"
       },
       "actions": {
         "create": [],
@@ -204,12 +204,12 @@
         {
           "name": "poolKey",
           "type": "(uint64,uint64,uint64)",
-          "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorPoolKey"
+          "struct": "ValidatorPoolKey"
         }
       ],
       "returns": {
         "type": "(uint64,uint16,uint64)",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").PoolInfo"
+        "struct": "PoolInfo"
       },
       "actions": {
         "create": [],
@@ -281,7 +281,7 @@
       ],
       "returns": {
         "type": "(uint64[24],uint64)",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").PoolTokenPayoutRatio"
+        "struct": "PoolTokenPayoutRatio"
       },
       "actions": {
         "create": [],
@@ -298,7 +298,7 @@
       ],
       "returns": {
         "type": "((uint64[3])[8])",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").NodePoolAssignmentConfig"
+        "struct": "NodePoolAssignmentConfig"
       },
       "actions": {
         "create": [],
@@ -334,7 +334,7 @@
           "name": "config",
           "type": "(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)",
           "desc": "ValidatorConfig struct",
-          "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorConfig"
+          "struct": "ValidatorConfig"
         }
       ],
       "returns": {
@@ -526,7 +526,7 @@
       "returns": {
         "type": "(uint64,uint64,uint64)",
         "desc": "ValidatorPoolKey pool key to created pool",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorPoolKey"
+        "struct": "ValidatorPoolKey"
       },
       "events": [
         {
@@ -576,7 +576,7 @@
       "returns": {
         "type": "(uint64,uint64,uint64)",
         "desc": "ValidatorPoolKey - The key of the validator pool.",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorPoolKey"
+        "struct": "ValidatorPoolKey"
       },
       "events": [
         {
@@ -624,7 +624,7 @@
       "returns": {
         "type": "(uint64[24],uint64)",
         "desc": "PoolTokenPayoutRatio - the finished ratio data",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").PoolTokenPayoutRatio"
+        "struct": "PoolTokenPayoutRatio"
       },
       "actions": {
         "create": [],
@@ -639,7 +639,7 @@
           "name": "poolKey",
           "type": "(uint64,uint64,uint64)",
           "desc": "ValidatorPoolKey type",
-          "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorPoolKey"
+          "struct": "ValidatorPoolKey"
         },
         {
           "name": "algoToAdd",
@@ -714,7 +714,7 @@
           "name": "poolKey",
           "type": "(uint64,uint64,uint64)",
           "desc": "calling us from which stake was removed",
-          "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorPoolKey"
+          "struct": "ValidatorPoolKey"
         },
         {
           "name": "staker",
@@ -1119,7 +1119,7 @@
         ]
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").MbrAmounts": [
+    "MbrAmounts": [
       {
         "name": "addValidatorMbr",
         "type": "uint64"
@@ -1137,7 +1137,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").Constraints": [
+    "Constraints": [
       {
         "name": "epochPayoutRoundsMin",
         "type": "uint64"
@@ -1183,7 +1183,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorConfig": [
+    "ValidatorConfig": [
       {
         "name": "id",
         "type": "uint64"
@@ -1257,7 +1257,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorCurState": [
+    "ValidatorCurState": [
       {
         "name": "numPools",
         "type": "uint16"
@@ -1275,7 +1275,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").PoolInfo": [
+    "PoolInfo": [
       {
         "name": "poolAppId",
         "type": "uint64"
@@ -1289,7 +1289,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorPoolKey": [
+    "ValidatorPoolKey": [
       {
         "name": "id",
         "type": "uint64"
@@ -1303,7 +1303,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").PoolTokenPayoutRatio": [
+    "PoolTokenPayoutRatio": [
       {
         "name": "poolPctOfWhole",
         "type": "uint64[24]"
@@ -1313,7 +1313,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").NodePoolAssignmentConfig": [
+    "NodePoolAssignmentConfig": [
       {
         "name": "nodes",
         "type": "(uint64[3])[8]"

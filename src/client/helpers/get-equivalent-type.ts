@@ -52,7 +52,6 @@ export function getEquivalentType(
 
   function abiTypeToTs(abiType: ABIType, ioType: 'input' | 'output'): string {
     if (abiType instanceof ABIUintType) {
-      if (abiType.bitSize <= 51) return 'number'
       return ioType === 'input' ? 'bigint | number' : 'bigint'
     }
     if (abiType instanceof ABIArrayDynamicType) {

@@ -66,7 +66,7 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 type byte = number;
 type uint64 = bigint;
-type uint8 = number;
+type uint8 = bigint;
 type pay = AppMethodCallTransactionArgument;
 type AVMString = string;
 type AVMUint64 = bigint;
@@ -97,11 +97,11 @@ export type VotingRoundAppTypes = {
         metadataIpfsCid: string
         startTime: bigint | number
         endTime: bigint | number
-        optionCounts: number[]
+        optionCounts: bigint | number[]
         quorum: bigint | number
         nftImageUrl: string
       }
-      argsTuple: [voteId: string, snapshotPublicKey: Uint8Array, metadataIpfsCid: string, startTime: bigint | number, endTime: bigint | number, optionCounts: number[], quorum: bigint | number, nftImageUrl: string]
+      argsTuple: [voteId: string, snapshotPublicKey: Uint8Array, metadataIpfsCid: string, startTime: bigint | number, endTime: bigint | number, optionCounts: bigint | number[], quorum: bigint | number, nftImageUrl: string]
       returns: void
     }>
     & Record<'bootstrap(pay)void' | 'bootstrap', {
@@ -134,9 +134,9 @@ export type VotingRoundAppTypes = {
       argsObj: {
         fundMinBalReq: AppMethodCallTransactionArgument
         signature: Uint8Array
-        answerIds: number[]
+        answerIds: bigint | number[]
       }
-      argsTuple: [fundMinBalReq: AppMethodCallTransactionArgument, signature: Uint8Array, answerIds: number[]]
+      argsTuple: [fundMinBalReq: AppMethodCallTransactionArgument, signature: Uint8Array, answerIds: bigint | number[]]
       returns: void
     }>
   /**

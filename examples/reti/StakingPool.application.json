@@ -137,7 +137,7 @@
       "returns": {
         "type": "(address,uint64,uint64,uint64,uint64)",
         "desc": "StakedInfo - The staked information for the given staker.",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/stakingPool.algo\").StakedInfo"
+        "struct": "StakedInfo"
       },
       "actions": {
         "create": [],
@@ -290,12 +290,12 @@
           "name": "poolKey",
           "type": "(uint64,uint64,uint64)",
           "desc": "ValidatorPoolKey tuple",
-          "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorPoolKey"
+          "struct": "ValidatorPoolKey"
         }
       ],
       "returns": {
         "type": "(uint64[24],uint64)",
-        "struct": "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").PoolTokenPayoutRatio"
+        "struct": "PoolTokenPayoutRatio"
       },
       "actions": {
         "create": [],
@@ -305,7 +305,7 @@
   ],
   "arcs": [4, 56],
   "structs": {
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/stakingPool.algo\").StakedInfo": [
+    "StakedInfo": [
       {
         "name": "account",
         "type": "address"
@@ -327,7 +327,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").PoolTokenPayoutRatio": [
+    "PoolTokenPayoutRatio": [
       {
         "name": "poolPctOfWhole",
         "type": "uint64[24]"
@@ -337,7 +337,7 @@
         "type": "uint64"
       }
     ],
-    "import(\"/Users/patrickb/dev/git-reps/reti/contracts/contracts/validatorConfigs.algo\").ValidatorPoolKey": [
+    "ValidatorPoolKey": [
       {
         "name": "id",
         "type": "uint64"

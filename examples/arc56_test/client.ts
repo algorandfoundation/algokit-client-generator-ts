@@ -66,7 +66,7 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 type uint64 = bigint;
 type AVMBytes = Uint8Array;
-type uint16 = number;
+type uint16 = bigint;
 
 // Type definitions for ARC-56 structs
 
