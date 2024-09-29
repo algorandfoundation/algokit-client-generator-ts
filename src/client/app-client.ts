@@ -29,8 +29,8 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
      *
      * @param params The parameters to initialise the app client with
      */
-    constructor(params: Expand<Omit<AppClientParams, 'appSpec'>>)
-    constructor(appClientOrParams: AppClient | Expand<Omit<AppClientParams, 'appSpec'>>) {
+    constructor(params: Omit<AppClientParams, 'appSpec'>)
+    constructor(appClientOrParams: AppClient | Omit<AppClientParams, 'appSpec'>) {
       this.appClient = appClientOrParams instanceof AppClient ? appClientOrParams : new AppClient({
         ...appClientOrParams,
         appSpec: APP_SPEC,
@@ -50,7 +50,7 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
      * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
      * @param params The parameters to create the app client
      */
-    public static async fromCreatorAndName(params: Expand<Omit<ResolveAppClientByCreatorAndName, 'appSpec'>>): Promise<${name}Client> {
+    public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<${name}Client> {
       return new ${name}Client(await AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
     }
 
@@ -62,15 +62,30 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
      * @param params The parameters to create the app client
      */
     static async fromNetwork(
-      params: Expand<Omit<AppClientParams, 'appSpec' | 'appId'>>
+      params: Omit<ResolveAppClientByNetwork, 'appSpec'>
     ): Promise<${name}Client> {
       return new ${name}Client(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+    }
+
+    /** The ID of the app instance this client is linked to. */
+    public get appId() {
+      return this.appClient.appId
+    }
+
+    /** The app address of the app instance this client is linked to. */
+    public get appAddress() {
+      return this.appClient.appAddress
+    }
+
+    /** The name of the app. */
+    public get appName() {
+      return this.appClient.appName
     }
 
   `
 
   yield* params(ctx)
-  yield* transactions(ctx)
+  yield* createTransaction(ctx)
   yield* send(ctx)
 
   yield* getStateMethods(ctx)
@@ -79,7 +94,9 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
 }
 
 function* params(ctx: GeneratorContext): DocumentParts {
-  yield* jsDoc(`Get parameters to define transactions to the current app`)
+  yield* jsDoc(
+    `Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.`,
+  )
   yield `readonly params = (($this) => {`
   yield IncIndent
   yield `return {`
@@ -94,16 +111,16 @@ function* params(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-function* transactions(ctx: GeneratorContext): DocumentParts {
-  yield* jsDoc(`Get parameters to define transactions to the current app`)
-  yield `readonly transactions = (($this) => {`
+function* createTransaction(ctx: GeneratorContext): DocumentParts {
+  yield* jsDoc(`Create transactions for the current app`)
+  yield `readonly createTransaction = (($this) => {`
   yield IncIndent
   yield `return {`
   yield IncIndent
-  yield* opMethods(ctx, 'transactions')
-  yield* clearState(ctx, 'transactions')
-  yield* call(ctx, 'transactions')
-  yield* noopMethods(ctx, 'transactions')
+  yield* opMethods(ctx, 'createTransaction')
+  yield* clearState(ctx, 'createTransaction')
+  yield* call(ctx, 'createTransaction')
+  yield* noopMethods(ctx, 'createTransaction')
   yield DecIndentAndCloseBlock
   yield DecIndent
   yield `})(this)`
@@ -126,7 +143,7 @@ function* send(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-function* opMethods(ctx: GeneratorContext, type: 'params' | 'transactions' | 'send'): DocumentParts {
+function* opMethods(ctx: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
   const { app, callConfig } = ctx
 
   yield* operationMethods(
@@ -166,7 +183,7 @@ function* bareMethodCall({
   name: string
   description: string
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete' | 'clearState' | 'call'
-  type: 'params' | 'transactions' | 'send'
+  type: 'params' | 'createTransaction' | 'send'
   includeCompilation?: boolean
 }): DocumentParts {
   const onComplete =
@@ -174,13 +191,13 @@ function* bareMethodCall({
   yield* jsDoc({
     description: `${description}.`,
     params: {
-      params: `The params for the bare (non-ABI) call`,
+      params: `The params for the bare (raw) call`,
     },
     returns: `The ${verb} result`,
   })
   yield `${name}(params?: Expand<AppClientBareCallParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) {`
   yield* indent(`return $this.appClient.${type}.bare.${verb}(params)`)
   yield '},'
 }
@@ -197,7 +214,7 @@ function* abiMethodCall({
   method: Method
   description: string
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete' | 'call'
-  type: 'params' | 'transactions' | 'send'
+  type: 'params' | 'createTransaction' | 'send'
   includeCompilation?: boolean
 }) {
   const methodSig = new ABIMethod(method).getSignature()
@@ -210,14 +227,14 @@ function* abiMethodCall({
     params: {
       params: `The params for the smart contract call`,
     },
-    returns: `The ${verb} ${type === 'params' ? 'params' : type === 'transactions' ? 'transaction' : 'result'}${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
+    returns: `The ${verb} ${type === 'params' ? 'params' : type === 'createTransaction' ? 'transaction' : 'result'}${method?.returns?.desc ? `: ${method.returns.desc}` : ''}`,
   })
   const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
   const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
   yield `${type === 'send' ? 'async ' : ''}${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & ExecuteParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) {`
   if (type === 'send') {
     yield* indent(
       `const result = await $this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
@@ -236,7 +253,7 @@ function* operationMethods(
   description: string,
   methods: MethodList,
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
-  type: 'params' | 'transactions' | 'send',
+  type: 'params' | 'createTransaction' | 'send',
   includeCompilation?: boolean,
 ): DocumentParts {
   if (methods.length) {
@@ -274,7 +291,7 @@ function* operationMethods(
   }
 }
 
-function* clearState(generator: GeneratorContext, type: 'params' | 'transactions' | 'send'): DocumentParts {
+function* clearState(generator: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
   yield* bareMethodCall({
     generator,
     name: 'clearState',
@@ -285,7 +302,7 @@ function* clearState(generator: GeneratorContext, type: 'params' | 'transactions
   yield NewLine
 }
 
-function* call(generator: GeneratorContext, type: 'params' | 'transactions' | 'send'): DocumentParts {
+function* call(generator: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
   if (generator.callConfig.callMethods.includes(BARE_CALL)) {
     yield* bareMethodCall({
       generator,
@@ -298,7 +315,7 @@ function* call(generator: GeneratorContext, type: 'params' | 'transactions' | 's
   }
 }
 
-function* noopMethods(generator: GeneratorContext, type: 'params' | 'transactions' | 'send'): DocumentParts {
+function* noopMethods(generator: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
   const { app, callConfig } = generator
   for (const method of app.methods) {
     const methodSignature = new ABIMethod(method).getSignature()
@@ -340,7 +357,7 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
       `const result = await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getAll()`,
       `return {`,
       ...Object.keys(app.state.keys[storageType]).map((n) => {
-        return `  ${sanitizer.makeSafePropertyIdentifier(n)}: ${app.state.keys[storageType][n].valueType === 'bytes' ? `new BinaryStateValue(result${sanitizer.getSafeMemberAccessor(n)})` : `result${sanitizer.getSafeMemberAccessor(n)}`},`
+        return `  ${sanitizer.makeSafePropertyIdentifier(n)}: ${app.state.keys[storageType][n].valueType === 'AVMBytes' ? `new BinaryStateValue(result${sanitizer.getSafeMemberAccessor(n)})` : `result${sanitizer.getSafeMemberAccessor(n)}`},`
       }),
       `}`,
     )
@@ -350,7 +367,7 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
       const name = sanitizer.makeSafePropertyIdentifier(n)
       const k = app.state.keys[storageType][n]
       yield* jsDoc(`Get the current value of the ${n} key in ${storageType} state`)
-      yield `${name}: async (): Promise<${k.valueType === 'bytes' ? 'BinaryState' : `${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`}> => { return ${k.valueType === 'bytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'bytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
+      yield `${name}: async (): Promise<${k.valueType === 'AVMBytes' ? 'BinaryState' : `${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`}> => { return ${k.valueType === 'AVMBytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'AVMBytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
     }
 
     for (const n of Object.keys(app.state.maps[storageType])) {

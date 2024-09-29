@@ -15,10 +15,11 @@ import {
   CallOnComplete,
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
 } from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-import { ExecuteParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
@@ -200,7 +201,7 @@ export class HelloWorldAppFactory {
    *
    * @param params The parameters to initialise the app factory with
    */
-  constructor(params: Expand<Omit<AppFactoryParams, 'appSpec'>>) {
+  constructor(params: Omit<AppFactoryParams, 'appSpec'>) {
     this.appFactory = new AppFactory({
       ...params,
       appSpec: APP_SPEC,
@@ -215,7 +216,7 @@ export class HelloWorldAppFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public getAppClientById(params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec'>>) {
+  public getAppClientById(params: AppFactoryAppClientParams) {
     return new HelloWorldAppClient(this.appFactory.getAppClientById(params))
   }
   
@@ -228,10 +229,10 @@ export class HelloWorldAppFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public async getAppClientByCreatorAddressAndName(
-    params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec' | 'appId'> & ResolveAppClientByCreatorAndName>,
+  public async getAppClientByCreatorAndName(
+    params: AppFactoryResolveAppClientByCreatorAndNameParams,
   ) {
-    return new HelloWorldAppClient(await this.appFactory.getAppClientByCreatorAddressAndName(params))
+    return new HelloWorldAppClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
   /**
@@ -244,11 +245,11 @@ export class HelloWorldAppFactory {
     const result = await this.appFactory.deploy({
       ...params,
     })
-    return { result: result.result, app: new HelloWorldAppClient(result.app) }
+    return { result: result.result, appClient: new HelloWorldAppClient(result.appClient) }
   }
 
   /**
-   * Get parameters to define transactions to the current app
+   * Get parameters to create transactions (create and deploy related calls) for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
    */
   readonly params = (($this) => {
     return {
@@ -260,7 +261,7 @@ export class HelloWorldAppFactory {
           /**
            * Creates a new instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a create call
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) {
@@ -277,7 +278,7 @@ export class HelloWorldAppFactory {
           /**
            * Updates an existing instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a deployUpdate call
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
@@ -294,11 +295,36 @@ export class HelloWorldAppFactory {
           /**
            * Deletes an existing instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a deployDelete call
            */
           bare(params?: Expand<AppClientBareCallParams>) {
             return $this.appFactory.params.bare.deployDelete(params)
+          },
+        }
+      },
+
+    }
+  })(this)
+
+  /**
+   * Create transactions for the current app
+   */
+  readonly createTransaction = (($this) => {
+    return {
+      /**
+       * Gets available create methods
+       */
+      get create() {
+        return {
+          /**
+           * Creates a new instance of the HelloWorldApp smart contract using a bare call.
+           *
+           * @param params The params for the bare (raw) call
+           * @returns The params for a create call
+           */
+          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+            return $this.appFactory.params.bare.create(params)
           },
         }
       },
@@ -319,12 +345,12 @@ export class HelloWorldAppFactory {
           /**
            * Creates a new instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The create result
            */
-          async bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-            const result = await $this.appFactory.create(params)
-            return { result: result.result, app: new HelloWorldAppClient(result.app) }
+          async bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+            const result = await $this.appFactory.send.bare.create(params)
+            return { result: result.result, appClient: new HelloWorldAppClient(result.appClient) }
           },
         }
       },
@@ -353,8 +379,8 @@ export class HelloWorldAppClient {
    *
    * @param params The parameters to initialise the app client with
    */
-  constructor(params: Expand<Omit<AppClientParams, 'appSpec'>>)
-  constructor(appClientOrParams: AppClient | Expand<Omit<AppClientParams, 'appSpec'>>) {
+  constructor(params: Omit<AppClientParams, 'appSpec'>)
+  constructor(appClientOrParams: AppClient | Omit<AppClientParams, 'appSpec'>) {
     this.appClient = appClientOrParams instanceof AppClient ? appClientOrParams : new AppClient({
       ...appClientOrParams,
       appSpec: APP_SPEC,
@@ -374,7 +400,7 @@ export class HelloWorldAppClient {
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
    */
-  public static async fromCreatorAndName(params: Expand<Omit<ResolveAppClientByCreatorAndName, 'appSpec'>>): Promise<HelloWorldAppClient> {
+  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<HelloWorldAppClient> {
     return new HelloWorldAppClient(await AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
@@ -386,13 +412,28 @@ export class HelloWorldAppClient {
    * @param params The parameters to create the app client
    */
   static async fromNetwork(
-    params: Expand<Omit<AppClientParams, 'appSpec' | 'appId'>>
+    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
   ): Promise<HelloWorldAppClient> {
     return new HelloWorldAppClient(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
+  
+  /** The ID of the app instance this client is linked to. */
+  public get appId() {
+    return this.appClient.appId
+  }
+  
+  /** The app address of the app instance this client is linked to. */
+  public get appAddress() {
+    return this.appClient.appAddress
+  }
+  
+  /** The name of the app. */
+  public get appName() {
+    return this.appClient.appName
+  }
 
   /**
-   * Get parameters to define transactions to the current app
+   * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
    */
   readonly params = (($this) => {
     return {
@@ -404,7 +445,7 @@ export class HelloWorldAppClient {
           /**
            * Updates an existing instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
@@ -421,7 +462,7 @@ export class HelloWorldAppClient {
           /**
            * Deletes an existing instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
           bare(params?: Expand<AppClientBareCallParams>) {
@@ -433,7 +474,7 @@ export class HelloWorldAppClient {
       /**
        * Makes a clear_state call to an existing instance of the HelloWorldApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
       clearState(params?: Expand<AppClientBareCallParams>) {
@@ -466,9 +507,9 @@ export class HelloWorldAppClient {
   })(this)
 
   /**
-   * Get parameters to define transactions to the current app
+   * Create transactions for the current app
    */
-  readonly transactions = (($this) => {
+  readonly createTransaction = (($this) => {
     return {
       /**
        * Gets available update methods
@@ -478,11 +519,11 @@ export class HelloWorldAppClient {
           /**
            * Updates an existing instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
-            return $this.appClient.transactions.bare.update(params)
+            return $this.appClient.createTransaction.bare.update(params)
           },
         }
       },
@@ -495,11 +536,11 @@ export class HelloWorldAppClient {
           /**
            * Deletes an existing instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
           bare(params?: Expand<AppClientBareCallParams>) {
-            return $this.appClient.transactions.bare.delete(params)
+            return $this.appClient.createTransaction.bare.delete(params)
           },
         }
       },
@@ -507,11 +548,11 @@ export class HelloWorldAppClient {
       /**
        * Makes a clear_state call to an existing instance of the HelloWorldApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
       clearState(params?: Expand<AppClientBareCallParams>) {
-        return $this.appClient.transactions.bare.clearState(params)
+        return $this.appClient.createTransaction.bare.clearState(params)
       },
 
       /**
@@ -523,7 +564,7 @@ export class HelloWorldAppClient {
        * @returns The call transaction
        */
       hello(params: Expand<CallParams<'hello(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(HelloWorldAppParamsFactory.hello(params))
+        return $this.appClient.createTransaction.call(HelloWorldAppParamsFactory.hello(params))
       },
       /**
        * Makes a call to the HelloWorldApp smart contract using the hello_world_check(string)void ABI method.
@@ -534,7 +575,7 @@ export class HelloWorldAppClient {
        * @returns The call transaction
        */
       helloWorldCheck(params: Expand<CallParams<'hello_world_check(string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(HelloWorldAppParamsFactory.helloWorldCheck(params))
+        return $this.appClient.createTransaction.call(HelloWorldAppParamsFactory.helloWorldCheck(params))
       },
     }
   })(this)
@@ -552,10 +593,10 @@ export class HelloWorldAppClient {
           /**
            * Updates an existing instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
-          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & ExecuteParams>) {
+          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) {
             return $this.appClient.send.bare.update(params)
           },
         }
@@ -569,10 +610,10 @@ export class HelloWorldAppClient {
           /**
            * Deletes an existing instance of the HelloWorldApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
-          bare(params?: Expand<AppClientBareCallParams & ExecuteParams>) {
+          bare(params?: Expand<AppClientBareCallParams & SendParams>) {
             return $this.appClient.send.bare.delete(params)
           },
         }
@@ -581,10 +622,10 @@ export class HelloWorldAppClient {
       /**
        * Makes a clear_state call to an existing instance of the HelloWorldApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
-      clearState(params?: Expand<AppClientBareCallParams & ExecuteParams>) {
+      clearState(params?: Expand<AppClientBareCallParams & SendParams>) {
         return $this.appClient.send.bare.clearState(params)
       },
 
@@ -596,7 +637,7 @@ export class HelloWorldAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async hello(params: Expand<CallParams<'hello(string)string'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async hello(params: Expand<CallParams<'hello(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(HelloWorldAppParamsFactory.hello(params))
         return {...result, return: result.return as undefined | MethodReturn<'hello(string)string'>}
       },
@@ -608,7 +649,7 @@ export class HelloWorldAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async helloWorldCheck(params: Expand<CallParams<'hello_world_check(string)void'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async helloWorldCheck(params: Expand<CallParams<'hello_world_check(string)void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(HelloWorldAppParamsFactory.helloWorldCheck(params))
         return {...result, return: result.return as undefined | MethodReturn<'hello_world_check(string)void'>}
       },
@@ -624,13 +665,14 @@ export class HelloWorldAppClient {
   public newGroup(): HelloWorldAppComposer {
     const client = this
     const composer = client.appClient.newGroup()
+    let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a hello(string)string method call against the HelloWorldApp contract
        */
       hello(params: CallParams<'hello(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.hello(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.hello(params)))
         resultMappers.push((v) => client.decodeReturnValue('hello(string)string', v))
         return this
       },
@@ -638,15 +680,24 @@ export class HelloWorldAppClient {
        * Add a hello_world_check(string)void method call against the HelloWorldApp contract
        */
       helloWorldCheck(params: CallParams<'hello_world_check(string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.helloWorldCheck(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloWorldCheck(params)))
         resultMappers.push(undefined)
         return this
+      },
+      get update() {
+        const $this = this
+        return {
+          bare(params?: AppClientBareCallParams & AppClientCompilationParams ) {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
+            return $this
+          },
+        }
       },
       get delete() {
         const $this = this
         return {
           bare(params?: AppClientBareCallParams ) {
-            composer.addAppDelete(client.params.delete.bare(params))
+            promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
             return $this
           },
         }
@@ -655,25 +706,28 @@ export class HelloWorldAppClient {
        * Add a clear state call to the HelloWorldApp contract
        */
       clearState(params: AppClientBareCallParams) {
-        composer.addAppCall(client.params.clearState(params))
+        promiseChain = promiseChain.then(() => composer.addAppCall(client.params.clearState(params)))
         return this
       },
       addTransaction(txn: Transaction, signer?: TransactionSigner) {
-        composer.addTransaction(txn, signer)
+        promiseChain = promiseChain.then(() => composer.addTransaction(txn, signer))
         return this
       },
-      composer() {
+      async composer() {
+        await promiseChain
         return composer
       },
       async simulate(options?: SimulateOptions) {
+        await promiseChain
         const result = await composer.simulate(options)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
         }
       },
-      async execute(params?: ExecuteParams) {
-        const result = await composer.execute(params)
+      async send(params?: SendParams) {
+        await promiseChain
+        const result = await composer.send(params)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
@@ -742,9 +796,9 @@ export type HelloWorldAppComposer<TReturns extends [...any[]] = []> = {
    */
   simulate(options?: SimulateOptions): Promise<HelloWorldAppComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
-   * Executes the transaction group and returns the results
+   * Sends the transaction group to the network and returns the results
    */
-  execute(params?: ExecuteParams): Promise<HelloWorldAppComposerResults<TReturns>>
+  send(params?: SendParams): Promise<HelloWorldAppComposerResults<TReturns>>
 }
 export type HelloWorldAppComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns

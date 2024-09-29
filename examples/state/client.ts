@@ -15,14 +15,15 @@ import {
   CallOnComplete,
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
 } from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-import { ExecuteParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"StateApp","structs":{},"methods":[{"name":"call_abi","args":[{"name":"value","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"call_abi_txn","args":[{"name":"txn","type":"pay"},{"name":"value","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"call_with_references","args":[{"name":"asset","type":"asset"},{"name":"account","type":"account"},{"name":"application","type":"application"}],"returns":{"type":"uint64"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_global","args":[{"name":"int1","type":"uint64"},{"name":"int2","type":"uint64"},{"name":"bytes1","type":"string"},{"name":"bytes2","type":"byte[4]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_local","args":[{"name":"int1","type":"uint64"},{"name":"int2","type":"uint64"},{"name":"bytes1","type":"string"},{"name":"bytes2","type":"byte[4]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_box","args":[{"name":"name","type":"byte[4]"},{"name":"value","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"error","args":[],"returns":{"type":"void"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value","args":[{"name":"arg_with_default","type":"string","defaultValue":"AA1kZWZhdWx0IHZhbHVl"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_int","args":[{"name":"arg_with_default","type":"uint64","defaultValue":"AAAAAAAAAHs="}],"returns":{"type":"uint64"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_abi","args":[{"name":"arg_with_default","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_global_state","args":[{"name":"arg_with_default","type":"uint64"}],"returns":{"type":"uint64"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_local_state","args":[{"name":"arg_with_default","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"create_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"update_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["UpdateApplication"]}},{"name":"delete_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["DeleteApplication"]}},{"name":"opt_in","args":[],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["OptIn"]}}],"state":{"schema":{"global":{"ints":3,"bytes":3},"local":{"ints":2,"bytes":3}},"keys":{"global":{"bytes1":{"key":"Ynl0ZXMx","keyType":"bytes","valueType":"bytes","desc":""},"bytes2":{"key":"Ynl0ZXMy","keyType":"bytes","valueType":"bytes","desc":""},"int1":{"key":"aW50MQ==","keyType":"bytes","valueType":"uint64","desc":""},"int2":{"key":"aW50Mg==","keyType":"bytes","valueType":"uint64","desc":""},"value":{"key":"dmFsdWU=","keyType":"bytes","valueType":"uint64","desc":""}},"local":{"local_bytes1":{"key":"bG9jYWxfYnl0ZXMx","keyType":"bytes","valueType":"bytes","desc":""},"local_bytes2":{"key":"bG9jYWxfYnl0ZXMy","keyType":"bytes","valueType":"bytes","desc":""},"local_int1":{"key":"bG9jYWxfaW50MQ==","keyType":"bytes","valueType":"uint64","desc":""},"local_int2":{"key":"bG9jYWxfaW50Mg==","keyType":"bytes","valueType":"uint64","desc":""}},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMSAxMCA1IFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCmJ5dGVjYmxvY2sgMHgxNTFmN2M3NSAweAp0eG4gTnVtQXBwQXJncwppbnRjXzAgLy8gMAo9PQpibnogbWFpbl9sMzQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhmMTdlODBhNSAvLyAiY2FsbF9hYmkoc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMzCnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4MGE5MmE4MWUgLy8gImNhbGxfYWJpX3R4bihwYXksc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMyCnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4ZmVmZGYxMWUgLy8gImNhbGxfd2l0aF9yZWZlcmVuY2VzKGFzc2V0LGFjY291bnQsYXBwbGljYXRpb24pdWludDY0Igo9PQpibnogbWFpbl9sMzEKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhNGNmOGRlYSAvLyAic2V0X2dsb2JhbCh1aW50NjQsdWludDY0LHN0cmluZyxieXRlWzRdKXZvaWQiCj09CmJueiBtYWluX2wzMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweGNlYzI4MzRhIC8vICJzZXRfbG9jYWwodWludDY0LHVpbnQ2NCxzdHJpbmcsYnl0ZVs0XSl2b2lkIgo9PQpibnogbWFpbl9sMjkKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhNGI0YTIzMCAvLyAic2V0X2JveChieXRlWzRdLHN0cmluZyl2b2lkIgo9PQpibnogbWFpbl9sMjgKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg0NGQwZGEwZCAvLyAiZXJyb3IoKXZvaWQiCj09CmJueiBtYWluX2wyNwp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDU3NGI1NWM4IC8vICJkZWZhdWx0X3ZhbHVlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyNgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDM2MDM2MmU5IC8vICJkZWZhdWx0X3ZhbHVlX2ludCh1aW50NjQpdWludDY0Igo9PQpibnogbWFpbl9sMjUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg0NmQyMTFhMyAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2FiaShzdHJpbmcpc3RyaW5nIgo9PQpibnogbWFpbl9sMjQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgwY2ZjYmIwMCAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2dsb2JhbF9zdGF0ZSh1aW50NjQpdWludDY0Igo9PQpibnogbWFpbl9sMjMKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhkMGYwYmFmOCAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2xvY2FsX3N0YXRlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDlkNTIzMDQwIC8vICJjcmVhdGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDNjYTVjZWI3IC8vICJ1cGRhdGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDI3MWI0ZWU5IC8vICJkZWxldGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wxOQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDMwYzZkNThhIC8vICJvcHRfaW4oKXZvaWQiCj09CmJueiBtYWluX2wxOAplcnIKbWFpbl9sMTg6CnR4biBPbkNvbXBsZXRpb24KaW50Y18xIC8vIE9wdEluCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIG9wdGluXzE5CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxOToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzMgLy8gRGVsZXRlQXBwbGljYXRpb24KPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBkZWxldGVhYmlfMTgKc3RvcmUgMjUKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMjUKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjA6CnR4biBPbkNvbXBsZXRpb24KcHVzaGludCA0IC8vIFVwZGF0ZUFwcGxpY2F0aW9uCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgdXBkYXRlYWJpXzE2CnN0b3JlIDI0CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDI0CmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDIxOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgY3JlYXRlYWJpXzE0CnN0b3JlIDIzCmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDIzCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDIyOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgZGVmYXVsdHZhbHVlZnJvbWxvY2Fsc3RhdGVfMTIKc3RvcmUgMjIKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMjIKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpjYWxsc3ViIGRlZmF1bHR2YWx1ZWZyb21nbG9iYWxzdGF0ZV8xMQpzdG9yZSAyMQpieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAyMQppdG9iCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgZGVmYXVsdHZhbHVlZnJvbWFiaV8xMApzdG9yZSAyMApieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAyMApjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wyNToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpidG9pCmNhbGxzdWIgZGVmYXVsdHZhbHVlaW50XzkKc3RvcmUgMTkKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMTkKaXRvYgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wyNjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpjYWxsc3ViIGRlZmF1bHR2YWx1ZV84CnN0b3JlIDE4CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDE4CmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI3Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIGVycm9yXzcKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI4Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCnN0b3JlIDE2CnR4bmEgQXBwbGljYXRpb25BcmdzIDIKc3RvcmUgMTcKbG9hZCAxNgpsb2FkIDE3CmNhbGxzdWIgc2V0Ym94XzYKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI5Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmJ0b2kKc3RvcmUgMTIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgpidG9pCnN0b3JlIDEzCnR4bmEgQXBwbGljYXRpb25BcmdzIDMKc3RvcmUgMTQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNApzdG9yZSAxNQpsb2FkIDEyCmxvYWQgMTMKbG9hZCAxNApsb2FkIDE1CmNhbGxzdWIgc2V0bG9jYWxfNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMzA6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpzdG9yZSA4CnR4bmEgQXBwbGljYXRpb25BcmdzIDIKYnRvaQpzdG9yZSA5CnR4bmEgQXBwbGljYXRpb25BcmdzIDMKc3RvcmUgMTAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNApzdG9yZSAxMQpsb2FkIDgKbG9hZCA5CmxvYWQgMTAKbG9hZCAxMQpjYWxsc3ViIHNldGdsb2JhbF80CmludGNfMSAvLyAxCnJldHVybgptYWluX2wzMToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDYKbG9hZCA0CmxvYWQgNQpsb2FkIDYKY2FsbHN1YiBjYWxsd2l0aHJlZmVyZW5jZXNfMwpzdG9yZSA3CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDcKaXRvYgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wzMjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpzdG9yZSAyCnR4biBHcm91cEluZGV4CmludGNfMSAvLyAxCi0Kc3RvcmUgMQpsb2FkIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18xIC8vIHBheQo9PQphc3NlcnQKbG9hZCAxCmxvYWQgMgpjYWxsc3ViIGNhbGxhYml0eG5fMgpzdG9yZSAzCmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDMKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMzM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBjYWxsYWJpXzAKc3RvcmUgMApieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAwCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDM0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2w0Mgp0eG4gT25Db21wbGV0aW9uCmludGNfMSAvLyBPcHRJbgo9PQpibnogbWFpbl9sNDEKdHhuIE9uQ29tcGxldGlvbgpwdXNoaW50IDQgLy8gVXBkYXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDQwCnR4biBPbkNvbXBsZXRpb24KaW50Y18zIC8vIERlbGV0ZUFwcGxpY2F0aW9uCj09CmJueiBtYWluX2wzOQplcnIKbWFpbl9sMzk6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIGRlbGV0ZV8xNwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDA6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIHVwZGF0ZV8xNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDE6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydApjYWxsc3ViIGNyZWF0ZV8xMwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDI6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydApjYWxsc3ViIGNyZWF0ZV8xMwppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIGNhbGxfYWJpCmNhbGxhYmlfMDoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKcHVzaGJ5dGVzIDB4NDg2NTZjNmM2ZjJjMjAgLy8gIkhlbGxvLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBpdG9hCml0b2FfMToKcHJvdG8gMSAxCmZyYW1lX2RpZyAtMQppbnRjXzAgLy8gMAo9PQpibnogaXRvYV8xX2w1CmZyYW1lX2RpZyAtMQppbnRjXzIgLy8gMTAKLwppbnRjXzAgLy8gMAo+CmJueiBpdG9hXzFfbDQKYnl0ZWNfMSAvLyAiIgppdG9hXzFfbDM6CnB1c2hieXRlcyAweDMwMzEzMjMzMzQzNTM2MzczODM5IC8vICIwMTIzNDU2Nzg5IgpmcmFtZV9kaWcgLTEKaW50Y18yIC8vIDEwCiUKaW50Y18xIC8vIDEKZXh0cmFjdDMKY29uY2F0CmIgaXRvYV8xX2w2Cml0b2FfMV9sNDoKZnJhbWVfZGlnIC0xCmludGNfMiAvLyAxMAovCmNhbGxzdWIgaXRvYV8xCmIgaXRvYV8xX2wzCml0b2FfMV9sNToKcHVzaGJ5dGVzIDB4MzAgLy8gIjAiCml0b2FfMV9sNjoKcmV0c3ViCgovLyBjYWxsX2FiaV90eG4KY2FsbGFiaXR4bl8yOgpwcm90byAyIDEKYnl0ZWNfMSAvLyAiIgpwdXNoYnl0ZXMgMHg1MzY1NmU3NDIwIC8vICJTZW50ICIKZnJhbWVfZGlnIC0yCmd0eG5zIEFtb3VudApjYWxsc3ViIGl0b2FfMQpjb25jYXQKcHVzaGJ5dGVzIDB4MmUyMCAvLyAiLiAiCmNvbmNhdApmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKY29uY2F0CmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gY2FsbF93aXRoX3JlZmVyZW5jZXMKY2FsbHdpdGhyZWZlcmVuY2VzXzM6CnByb3RvIDMgMQppbnRjXzAgLy8gMApmcmFtZV9kaWcgLTMKdHhuYXMgQXNzZXRzCi8vIGFzc2V0IG5vdCBwcm92aWRlZAphc3NlcnQKZnJhbWVfZGlnIC0yCnR4bmFzIEFjY291bnRzCmxlbgovLyBhY2NvdW50IG5vdCBwcm92aWRlZAphc3NlcnQKZnJhbWVfZGlnIC0xCnR4bmFzIEFwcGxpY2F0aW9ucwovLyBhcHBsaWNhdGlvbiBub3QgcHJvdmlkZWQKYXNzZXJ0CmludGNfMSAvLyAxCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHNldF9nbG9iYWwKc2V0Z2xvYmFsXzQ6CnByb3RvIDQgMApwdXNoYnl0ZXMgMHg2OTZlNzQzMSAvLyAiaW50MSIKZnJhbWVfZGlnIC00CmFwcF9nbG9iYWxfcHV0CnB1c2hieXRlcyAweDY5NmU3NDMyIC8vICJpbnQyIgpmcmFtZV9kaWcgLTMKYXBwX2dsb2JhbF9wdXQKcHVzaGJ5dGVzIDB4NjI3OTc0NjU3MzMxIC8vICJieXRlczEiCmZyYW1lX2RpZyAtMgpleHRyYWN0IDIgMAphcHBfZ2xvYmFsX3B1dApwdXNoYnl0ZXMgMHg2Mjc5NzQ2NTczMzIgLy8gImJ5dGVzMiIKZnJhbWVfZGlnIC0xCmFwcF9nbG9iYWxfcHV0CnJldHN1YgoKLy8gc2V0X2xvY2FsCnNldGxvY2FsXzU6CnByb3RvIDQgMAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjY5NmU3NDMxIC8vICJsb2NhbF9pbnQxIgpmcmFtZV9kaWcgLTQKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjY5NmU3NDMyIC8vICJsb2NhbF9pbnQyIgpmcmFtZV9kaWcgLTMKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjYyNzk3NDY1NzMzMSAvLyAibG9jYWxfYnl0ZXMxIgpmcmFtZV9kaWcgLTIKZXh0cmFjdCAyIDAKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjYyNzk3NDY1NzMzMiAvLyAibG9jYWxfYnl0ZXMyIgpmcmFtZV9kaWcgLTEKYXBwX2xvY2FsX3B1dApyZXRzdWIKCi8vIHNldF9ib3gKc2V0Ym94XzY6CnByb3RvIDIgMApmcmFtZV9kaWcgLTIKYm94X2RlbApwb3AKZnJhbWVfZGlnIC0yCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApib3hfcHV0CnJldHN1YgoKLy8gZXJyb3IKZXJyb3JfNzoKcHJvdG8gMCAwCmludGNfMCAvLyAwCi8vIERlbGliZXJhdGUgZXJyb3IKYXNzZXJ0CnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZQpkZWZhdWx0dmFsdWVfODoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZV9pbnQKZGVmYXVsdHZhbHVlaW50Xzk6CnByb3RvIDEgMQppbnRjXzAgLy8gMApmcmFtZV9kaWcgLTEKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZV9mcm9tX2FiaQpkZWZhdWx0dmFsdWVmcm9tYWJpXzEwOgpwcm90byAxIDEKYnl0ZWNfMSAvLyAiIgpwdXNoYnl0ZXMgMHg0MTQyNDkyYzIwIC8vICJBQkksICIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmNvbmNhdApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlZmF1bHRfdmFsdWVfZnJvbV9nbG9iYWxfc3RhdGUKZGVmYXVsdHZhbHVlZnJvbWdsb2JhbHN0YXRlXzExOgpwcm90byAxIDEKaW50Y18wIC8vIDAKZnJhbWVfZGlnIC0xCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlZmF1bHRfdmFsdWVfZnJvbV9sb2NhbF9zdGF0ZQpkZWZhdWx0dmFsdWVmcm9tbG9jYWxzdGF0ZV8xMjoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKcHVzaGJ5dGVzIDB4NGM2ZjYzNjE2YzIwNzM3NDYxNzQ2NTJjMjAgLy8gIkxvY2FsIHN0YXRlLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBjcmVhdGUKY3JlYXRlXzEzOgpwcm90byAwIDAKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydApwdXNoYnl0ZXMgMHg3NjYxNmM3NTY1IC8vICJ2YWx1ZSIKcHVzaGludCBUTVBMX1ZBTFVFIC8vIFRNUExfVkFMVUUKYXBwX2dsb2JhbF9wdXQKcmV0c3ViCgovLyBjcmVhdGVfYWJpCmNyZWF0ZWFiaV8xNDoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydApmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyB1cGRhdGUKdXBkYXRlXzE1Ogpwcm90byAwIDAKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydAppbnRjIDQgLy8gVE1QTF9VUERBVEFCTEUKLy8gQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZQphc3NlcnQKcmV0c3ViCgovLyB1cGRhdGVfYWJpCnVwZGF0ZWFiaV8xNjoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydAppbnRjIDQgLy8gVE1QTF9VUERBVEFCTEUKLy8gQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZQphc3NlcnQKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVsZXRlCmRlbGV0ZV8xNzoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKaW50YyA1IC8vIFRNUExfREVMRVRBQkxFCi8vIENoZWNrIGFwcCBpcyBkZWxldGFibGUKYXNzZXJ0CnJldHN1YgoKLy8gZGVsZXRlX2FiaQpkZWxldGVhYmlfMTg6CnByb3RvIDEgMQpieXRlY18xIC8vICIiCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKaW50YyA1IC8vIFRNUExfREVMRVRBQkxFCi8vIENoZWNrIGFwcCBpcyBkZWxldGFibGUKYXNzZXJ0CmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIG9wdF9pbgpvcHRpbl8xOToKcHJvdG8gMCAwCmludGNfMSAvLyAxCnJldHVybg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"},"bareActions":{"create":["NoOp","OptIn"],"call":["DeleteApplication","UpdateApplication"]}}
+export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"StateApp","structs":{},"methods":[{"name":"call_abi","args":[{"name":"value","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"call_abi_txn","args":[{"name":"txn","type":"pay"},{"name":"value","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"call_with_references","args":[{"name":"asset","type":"asset"},{"name":"account","type":"account"},{"name":"application","type":"application"}],"returns":{"type":"uint64"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_global","args":[{"name":"int1","type":"uint64"},{"name":"int2","type":"uint64"},{"name":"bytes1","type":"string"},{"name":"bytes2","type":"byte[4]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_local","args":[{"name":"int1","type":"uint64"},{"name":"int2","type":"uint64"},{"name":"bytes1","type":"string"},{"name":"bytes2","type":"byte[4]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_box","args":[{"name":"name","type":"byte[4]"},{"name":"value","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"error","args":[],"returns":{"type":"void"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value","args":[{"name":"arg_with_default","type":"string","defaultValue":{"source":"literal","data":"ZGVmYXVsdCB2YWx1ZQ==","type":"AVMString"}}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_int","args":[{"name":"arg_with_default","type":"uint64","defaultValue":{"source":"literal","data":123,"type":"uint64"}}],"returns":{"type":"uint64"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_abi","args":[{"name":"arg_with_default","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_global_state","args":[{"name":"arg_with_default","type":"uint64","defaultValue":{"source":"global","data":"aW50MQ==","type":"uint64"}}],"returns":{"type":"uint64"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_local_state","args":[{"name":"arg_with_default","type":"string","defaultValue":{"source":"local","data":"bG9jYWxfYnl0ZXMx","type":"AVMString"}}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"create_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"update_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["UpdateApplication"]}},{"name":"delete_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["DeleteApplication"]}},{"name":"opt_in","args":[],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["OptIn"]}}],"state":{"schema":{"global":{"ints":3,"bytes":3},"local":{"ints":2,"bytes":3}},"keys":{"global":{"bytes1":{"key":"Ynl0ZXMx","keyType":"AVMString","valueType":"AVMBytes","desc":""},"bytes2":{"key":"Ynl0ZXMy","keyType":"AVMString","valueType":"AVMBytes","desc":""},"int1":{"key":"aW50MQ==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"int2":{"key":"aW50Mg==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"value":{"key":"dmFsdWU=","keyType":"AVMString","valueType":"AVMUint64","desc":""}},"local":{"local_bytes1":{"key":"bG9jYWxfYnl0ZXMx","keyType":"AVMString","valueType":"AVMBytes","desc":""},"local_bytes2":{"key":"bG9jYWxfYnl0ZXMy","keyType":"AVMString","valueType":"AVMBytes","desc":""},"local_int1":{"key":"bG9jYWxfaW50MQ==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"local_int2":{"key":"bG9jYWxfaW50Mg==","keyType":"AVMString","valueType":"AVMUint64","desc":""}},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMSAxMCA1IFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCmJ5dGVjYmxvY2sgMHgxNTFmN2M3NSAweAp0eG4gTnVtQXBwQXJncwppbnRjXzAgLy8gMAo9PQpibnogbWFpbl9sMzQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhmMTdlODBhNSAvLyAiY2FsbF9hYmkoc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMzCnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4MGE5MmE4MWUgLy8gImNhbGxfYWJpX3R4bihwYXksc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMyCnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4ZmVmZGYxMWUgLy8gImNhbGxfd2l0aF9yZWZlcmVuY2VzKGFzc2V0LGFjY291bnQsYXBwbGljYXRpb24pdWludDY0Igo9PQpibnogbWFpbl9sMzEKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhNGNmOGRlYSAvLyAic2V0X2dsb2JhbCh1aW50NjQsdWludDY0LHN0cmluZyxieXRlWzRdKXZvaWQiCj09CmJueiBtYWluX2wzMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweGNlYzI4MzRhIC8vICJzZXRfbG9jYWwodWludDY0LHVpbnQ2NCxzdHJpbmcsYnl0ZVs0XSl2b2lkIgo9PQpibnogbWFpbl9sMjkKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhNGI0YTIzMCAvLyAic2V0X2JveChieXRlWzRdLHN0cmluZyl2b2lkIgo9PQpibnogbWFpbl9sMjgKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg0NGQwZGEwZCAvLyAiZXJyb3IoKXZvaWQiCj09CmJueiBtYWluX2wyNwp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDU3NGI1NWM4IC8vICJkZWZhdWx0X3ZhbHVlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyNgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDM2MDM2MmU5IC8vICJkZWZhdWx0X3ZhbHVlX2ludCh1aW50NjQpdWludDY0Igo9PQpibnogbWFpbl9sMjUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg0NmQyMTFhMyAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2FiaShzdHJpbmcpc3RyaW5nIgo9PQpibnogbWFpbl9sMjQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgwY2ZjYmIwMCAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2dsb2JhbF9zdGF0ZSh1aW50NjQpdWludDY0Igo9PQpibnogbWFpbl9sMjMKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhkMGYwYmFmOCAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2xvY2FsX3N0YXRlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDlkNTIzMDQwIC8vICJjcmVhdGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDNjYTVjZWI3IC8vICJ1cGRhdGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDI3MWI0ZWU5IC8vICJkZWxldGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wxOQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDMwYzZkNThhIC8vICJvcHRfaW4oKXZvaWQiCj09CmJueiBtYWluX2wxOAplcnIKbWFpbl9sMTg6CnR4biBPbkNvbXBsZXRpb24KaW50Y18xIC8vIE9wdEluCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIG9wdGluXzE5CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxOToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzMgLy8gRGVsZXRlQXBwbGljYXRpb24KPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBkZWxldGVhYmlfMTgKc3RvcmUgMjUKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMjUKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjA6CnR4biBPbkNvbXBsZXRpb24KcHVzaGludCA0IC8vIFVwZGF0ZUFwcGxpY2F0aW9uCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgdXBkYXRlYWJpXzE2CnN0b3JlIDI0CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDI0CmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDIxOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgY3JlYXRlYWJpXzE0CnN0b3JlIDIzCmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDIzCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDIyOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgZGVmYXVsdHZhbHVlZnJvbWxvY2Fsc3RhdGVfMTIKc3RvcmUgMjIKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMjIKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpjYWxsc3ViIGRlZmF1bHR2YWx1ZWZyb21nbG9iYWxzdGF0ZV8xMQpzdG9yZSAyMQpieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAyMQppdG9iCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgZGVmYXVsdHZhbHVlZnJvbWFiaV8xMApzdG9yZSAyMApieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAyMApjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wyNToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpidG9pCmNhbGxzdWIgZGVmYXVsdHZhbHVlaW50XzkKc3RvcmUgMTkKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMTkKaXRvYgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wyNjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpjYWxsc3ViIGRlZmF1bHR2YWx1ZV84CnN0b3JlIDE4CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDE4CmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI3Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIGVycm9yXzcKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI4Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCnN0b3JlIDE2CnR4bmEgQXBwbGljYXRpb25BcmdzIDIKc3RvcmUgMTcKbG9hZCAxNgpsb2FkIDE3CmNhbGxzdWIgc2V0Ym94XzYKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI5Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmJ0b2kKc3RvcmUgMTIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgpidG9pCnN0b3JlIDEzCnR4bmEgQXBwbGljYXRpb25BcmdzIDMKc3RvcmUgMTQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNApzdG9yZSAxNQpsb2FkIDEyCmxvYWQgMTMKbG9hZCAxNApsb2FkIDE1CmNhbGxzdWIgc2V0bG9jYWxfNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMzA6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpzdG9yZSA4CnR4bmEgQXBwbGljYXRpb25BcmdzIDIKYnRvaQpzdG9yZSA5CnR4bmEgQXBwbGljYXRpb25BcmdzIDMKc3RvcmUgMTAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNApzdG9yZSAxMQpsb2FkIDgKbG9hZCA5CmxvYWQgMTAKbG9hZCAxMQpjYWxsc3ViIHNldGdsb2JhbF80CmludGNfMSAvLyAxCnJldHVybgptYWluX2wzMToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDYKbG9hZCA0CmxvYWQgNQpsb2FkIDYKY2FsbHN1YiBjYWxsd2l0aHJlZmVyZW5jZXNfMwpzdG9yZSA3CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDcKaXRvYgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wzMjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpzdG9yZSAyCnR4biBHcm91cEluZGV4CmludGNfMSAvLyAxCi0Kc3RvcmUgMQpsb2FkIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18xIC8vIHBheQo9PQphc3NlcnQKbG9hZCAxCmxvYWQgMgpjYWxsc3ViIGNhbGxhYml0eG5fMgpzdG9yZSAzCmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDMKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMzM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBjYWxsYWJpXzAKc3RvcmUgMApieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAwCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDM0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2w0Mgp0eG4gT25Db21wbGV0aW9uCmludGNfMSAvLyBPcHRJbgo9PQpibnogbWFpbl9sNDEKdHhuIE9uQ29tcGxldGlvbgpwdXNoaW50IDQgLy8gVXBkYXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDQwCnR4biBPbkNvbXBsZXRpb24KaW50Y18zIC8vIERlbGV0ZUFwcGxpY2F0aW9uCj09CmJueiBtYWluX2wzOQplcnIKbWFpbl9sMzk6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIGRlbGV0ZV8xNwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDA6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIHVwZGF0ZV8xNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDE6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydApjYWxsc3ViIGNyZWF0ZV8xMwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDI6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydApjYWxsc3ViIGNyZWF0ZV8xMwppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIGNhbGxfYWJpCmNhbGxhYmlfMDoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKcHVzaGJ5dGVzIDB4NDg2NTZjNmM2ZjJjMjAgLy8gIkhlbGxvLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBpdG9hCml0b2FfMToKcHJvdG8gMSAxCmZyYW1lX2RpZyAtMQppbnRjXzAgLy8gMAo9PQpibnogaXRvYV8xX2w1CmZyYW1lX2RpZyAtMQppbnRjXzIgLy8gMTAKLwppbnRjXzAgLy8gMAo+CmJueiBpdG9hXzFfbDQKYnl0ZWNfMSAvLyAiIgppdG9hXzFfbDM6CnB1c2hieXRlcyAweDMwMzEzMjMzMzQzNTM2MzczODM5IC8vICIwMTIzNDU2Nzg5IgpmcmFtZV9kaWcgLTEKaW50Y18yIC8vIDEwCiUKaW50Y18xIC8vIDEKZXh0cmFjdDMKY29uY2F0CmIgaXRvYV8xX2w2Cml0b2FfMV9sNDoKZnJhbWVfZGlnIC0xCmludGNfMiAvLyAxMAovCmNhbGxzdWIgaXRvYV8xCmIgaXRvYV8xX2wzCml0b2FfMV9sNToKcHVzaGJ5dGVzIDB4MzAgLy8gIjAiCml0b2FfMV9sNjoKcmV0c3ViCgovLyBjYWxsX2FiaV90eG4KY2FsbGFiaXR4bl8yOgpwcm90byAyIDEKYnl0ZWNfMSAvLyAiIgpwdXNoYnl0ZXMgMHg1MzY1NmU3NDIwIC8vICJTZW50ICIKZnJhbWVfZGlnIC0yCmd0eG5zIEFtb3VudApjYWxsc3ViIGl0b2FfMQpjb25jYXQKcHVzaGJ5dGVzIDB4MmUyMCAvLyAiLiAiCmNvbmNhdApmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKY29uY2F0CmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gY2FsbF93aXRoX3JlZmVyZW5jZXMKY2FsbHdpdGhyZWZlcmVuY2VzXzM6CnByb3RvIDMgMQppbnRjXzAgLy8gMApmcmFtZV9kaWcgLTMKdHhuYXMgQXNzZXRzCi8vIGFzc2V0IG5vdCBwcm92aWRlZAphc3NlcnQKZnJhbWVfZGlnIC0yCnR4bmFzIEFjY291bnRzCmxlbgovLyBhY2NvdW50IG5vdCBwcm92aWRlZAphc3NlcnQKZnJhbWVfZGlnIC0xCnR4bmFzIEFwcGxpY2F0aW9ucwovLyBhcHBsaWNhdGlvbiBub3QgcHJvdmlkZWQKYXNzZXJ0CmludGNfMSAvLyAxCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHNldF9nbG9iYWwKc2V0Z2xvYmFsXzQ6CnByb3RvIDQgMApwdXNoYnl0ZXMgMHg2OTZlNzQzMSAvLyAiaW50MSIKZnJhbWVfZGlnIC00CmFwcF9nbG9iYWxfcHV0CnB1c2hieXRlcyAweDY5NmU3NDMyIC8vICJpbnQyIgpmcmFtZV9kaWcgLTMKYXBwX2dsb2JhbF9wdXQKcHVzaGJ5dGVzIDB4NjI3OTc0NjU3MzMxIC8vICJieXRlczEiCmZyYW1lX2RpZyAtMgpleHRyYWN0IDIgMAphcHBfZ2xvYmFsX3B1dApwdXNoYnl0ZXMgMHg2Mjc5NzQ2NTczMzIgLy8gImJ5dGVzMiIKZnJhbWVfZGlnIC0xCmFwcF9nbG9iYWxfcHV0CnJldHN1YgoKLy8gc2V0X2xvY2FsCnNldGxvY2FsXzU6CnByb3RvIDQgMAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjY5NmU3NDMxIC8vICJsb2NhbF9pbnQxIgpmcmFtZV9kaWcgLTQKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjY5NmU3NDMyIC8vICJsb2NhbF9pbnQyIgpmcmFtZV9kaWcgLTMKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjYyNzk3NDY1NzMzMSAvLyAibG9jYWxfYnl0ZXMxIgpmcmFtZV9kaWcgLTIKZXh0cmFjdCAyIDAKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjYyNzk3NDY1NzMzMiAvLyAibG9jYWxfYnl0ZXMyIgpmcmFtZV9kaWcgLTEKYXBwX2xvY2FsX3B1dApyZXRzdWIKCi8vIHNldF9ib3gKc2V0Ym94XzY6CnByb3RvIDIgMApmcmFtZV9kaWcgLTIKYm94X2RlbApwb3AKZnJhbWVfZGlnIC0yCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApib3hfcHV0CnJldHN1YgoKLy8gZXJyb3IKZXJyb3JfNzoKcHJvdG8gMCAwCmludGNfMCAvLyAwCi8vIERlbGliZXJhdGUgZXJyb3IKYXNzZXJ0CnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZQpkZWZhdWx0dmFsdWVfODoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZV9pbnQKZGVmYXVsdHZhbHVlaW50Xzk6CnByb3RvIDEgMQppbnRjXzAgLy8gMApmcmFtZV9kaWcgLTEKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZV9mcm9tX2FiaQpkZWZhdWx0dmFsdWVmcm9tYWJpXzEwOgpwcm90byAxIDEKYnl0ZWNfMSAvLyAiIgpwdXNoYnl0ZXMgMHg0MTQyNDkyYzIwIC8vICJBQkksICIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmNvbmNhdApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlZmF1bHRfdmFsdWVfZnJvbV9nbG9iYWxfc3RhdGUKZGVmYXVsdHZhbHVlZnJvbWdsb2JhbHN0YXRlXzExOgpwcm90byAxIDEKaW50Y18wIC8vIDAKZnJhbWVfZGlnIC0xCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlZmF1bHRfdmFsdWVfZnJvbV9sb2NhbF9zdGF0ZQpkZWZhdWx0dmFsdWVmcm9tbG9jYWxzdGF0ZV8xMjoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKcHVzaGJ5dGVzIDB4NGM2ZjYzNjE2YzIwNzM3NDYxNzQ2NTJjMjAgLy8gIkxvY2FsIHN0YXRlLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBjcmVhdGUKY3JlYXRlXzEzOgpwcm90byAwIDAKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydApwdXNoYnl0ZXMgMHg3NjYxNmM3NTY1IC8vICJ2YWx1ZSIKcHVzaGludCBUTVBMX1ZBTFVFIC8vIFRNUExfVkFMVUUKYXBwX2dsb2JhbF9wdXQKcmV0c3ViCgovLyBjcmVhdGVfYWJpCmNyZWF0ZWFiaV8xNDoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydApmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyB1cGRhdGUKdXBkYXRlXzE1Ogpwcm90byAwIDAKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydAppbnRjIDQgLy8gVE1QTF9VUERBVEFCTEUKLy8gQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZQphc3NlcnQKcmV0c3ViCgovLyB1cGRhdGVfYWJpCnVwZGF0ZWFiaV8xNjoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydAppbnRjIDQgLy8gVE1QTF9VUERBVEFCTEUKLy8gQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZQphc3NlcnQKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVsZXRlCmRlbGV0ZV8xNzoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKaW50YyA1IC8vIFRNUExfREVMRVRBQkxFCi8vIENoZWNrIGFwcCBpcyBkZWxldGFibGUKYXNzZXJ0CnJldHN1YgoKLy8gZGVsZXRlX2FiaQpkZWxldGVhYmlfMTg6CnByb3RvIDEgMQpieXRlY18xIC8vICIiCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKaW50YyA1IC8vIFRNUExfREVMRVRBQkxFCi8vIENoZWNrIGFwcCBpcyBkZWxldGFibGUKYXNzZXJ0CmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIG9wdF9pbgpvcHRpbl8xOToKcHJvdG8gMCAwCmludGNfMSAvLyAxCnJldHVybg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"},"bareActions":{"create":["NoOp","OptIn"],"call":["DeleteApplication","UpdateApplication"]}}
 
 /**
  * A state record containing binary data
@@ -69,7 +70,9 @@ type account = string | Uint8Array;
 type application = bigint;
 type uint64 = bigint;
 type byte = number;
-type bytes = Uint8Array;
+type AVMString = string;
+type AVMBytes = Uint8Array;
+type AVMUint64 = bigint;
 
 /**
  * Defines the types of available calls and state of the StateApp smart contract.
@@ -160,16 +163,16 @@ export type StateAppTypes = {
     }>
     & Record<'default_value_from_global_state(uint64)uint64' | 'default_value_from_global_state', {
       argsObj: {
-        argWithDefault: bigint | number
+        argWithDefault?: bigint | number
       }
-      argsTuple: [argWithDefault: bigint | number]
+      argsTuple: [argWithDefault: bigint | number | undefined]
       returns: bigint
     }>
     & Record<'default_value_from_local_state(string)string' | 'default_value_from_local_state', {
       argsObj: {
-        argWithDefault: string
+        argWithDefault?: string
       }
-      argsTuple: [argWithDefault: string]
+      argsTuple: [argWithDefault: string | undefined]
       returns: string
     }>
     & Record<'create_abi(string)string' | 'create_abi', {
@@ -588,7 +591,7 @@ export class StateAppFactory {
    *
    * @param params The parameters to initialise the app factory with
    */
-  constructor(params: Expand<Omit<AppFactoryParams, 'appSpec'>>) {
+  constructor(params: Omit<AppFactoryParams, 'appSpec'>) {
     this.appFactory = new AppFactory({
       ...params,
       appSpec: APP_SPEC,
@@ -603,7 +606,7 @@ export class StateAppFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public getAppClientById(params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec'>>) {
+  public getAppClientById(params: AppFactoryAppClientParams) {
     return new StateAppClient(this.appFactory.getAppClientById(params))
   }
   
@@ -616,10 +619,10 @@ export class StateAppFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public async getAppClientByCreatorAddressAndName(
-    params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec' | 'appId'> & ResolveAppClientByCreatorAndName>,
+  public async getAppClientByCreatorAndName(
+    params: AppFactoryResolveAppClientByCreatorAndNameParams,
   ) {
-    return new StateAppClient(await this.appFactory.getAppClientByCreatorAddressAndName(params))
+    return new StateAppClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
   /**
@@ -635,11 +638,11 @@ export class StateAppFactory {
       updateParams: params.updateParams?.method ? StateAppParamsFactory.update._resolveByMethod(params.updateParams) : params.updateParams,
       deleteParams: params.deleteParams?.method ? StateAppParamsFactory.delete._resolveByMethod(params.deleteParams) : params.deleteParams,
     })
-    return { result: result.result, app: new StateAppClient(result.app) }
+    return { result: result.result, appClient: new StateAppClient(result.appClient) }
   }
 
   /**
-   * Get parameters to define transactions to the current app
+   * Get parameters to create transactions (create and deploy related calls) for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
    */
   readonly params = (($this) => {
     return {
@@ -651,7 +654,7 @@ export class StateAppFactory {
           /**
            * Creates a new instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a create call
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) {
@@ -677,7 +680,7 @@ export class StateAppFactory {
           /**
            * Updates an existing instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a deployUpdate call
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
@@ -703,7 +706,7 @@ export class StateAppFactory {
           /**
            * Deletes an existing instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a deployDelete call
            */
           bare(params?: Expand<AppClientBareCallParams>) {
@@ -725,6 +728,40 @@ export class StateAppFactory {
   })(this)
 
   /**
+   * Create transactions for the current app
+   */
+  readonly createTransaction = (($this) => {
+    return {
+      /**
+       * Gets available create methods
+       */
+      get create() {
+        return {
+          /**
+           * Creates a new instance of the StateApp smart contract using a bare call.
+           *
+           * @param params The params for the bare (raw) call
+           * @returns The params for a create call
+           */
+          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) {
+            return $this.appFactory.params.bare.create(params)
+          },
+          /**
+           * Creates a new instance of the StateApp smart contract using the create_abi(string)string ABI method.
+           *
+           * @param params The params for the smart contract call
+           * @returns The create params
+           */
+          createAbi(params: Expand<CallParams<'create_abi(string)string'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+            return $this.appFactory.params.create(StateAppParamsFactory.create.createAbi(params))
+          },
+        }
+      },
+
+    }
+  })(this)
+
+  /**
    * Send calls to the current app
    */
   readonly send = (($this) => {
@@ -737,12 +774,12 @@ export class StateAppFactory {
           /**
            * Creates a new instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The create result
            */
-          async bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) {
-            const result = await $this.appFactory.create(params)
-            return { result: result.result, app: new StateAppClient(result.app) }
+          async bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) {
+            const result = await $this.appFactory.send.bare.create(params)
+            return { result: result.result, appClient: new StateAppClient(result.appClient) }
           },
           /**
            * Creates a new instance of the StateApp smart contract using an ABI method call using the create_abi(string)string ABI method.
@@ -750,9 +787,9 @@ export class StateAppFactory {
            * @param params The params for the smart contract call
            * @returns The create result
            */
-          async createAbi(params: Expand<CallParams<'create_abi(string)string'> & AppClientCompilationParams & CreateSchema & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-            const result = await $this.appFactory.create(StateAppParamsFactory.create.createAbi(params))
-            return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'create_abi(string)string'> }, app: new StateAppClient(result.app) }
+          async createAbi(params: Expand<CallParams<'create_abi(string)string'> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+            const result = await $this.appFactory.send.create(StateAppParamsFactory.create.createAbi(params))
+            return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'create_abi(string)string'> }, appClient: new StateAppClient(result.appClient) }
           },
         }
       },
@@ -781,8 +818,8 @@ export class StateAppClient {
    *
    * @param params The parameters to initialise the app client with
    */
-  constructor(params: Expand<Omit<AppClientParams, 'appSpec'>>)
-  constructor(appClientOrParams: AppClient | Expand<Omit<AppClientParams, 'appSpec'>>) {
+  constructor(params: Omit<AppClientParams, 'appSpec'>)
+  constructor(appClientOrParams: AppClient | Omit<AppClientParams, 'appSpec'>) {
     this.appClient = appClientOrParams instanceof AppClient ? appClientOrParams : new AppClient({
       ...appClientOrParams,
       appSpec: APP_SPEC,
@@ -802,7 +839,7 @@ export class StateAppClient {
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
    */
-  public static async fromCreatorAndName(params: Expand<Omit<ResolveAppClientByCreatorAndName, 'appSpec'>>): Promise<StateAppClient> {
+  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<StateAppClient> {
     return new StateAppClient(await AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
@@ -814,13 +851,28 @@ export class StateAppClient {
    * @param params The parameters to create the app client
    */
   static async fromNetwork(
-    params: Expand<Omit<AppClientParams, 'appSpec' | 'appId'>>
+    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
   ): Promise<StateAppClient> {
     return new StateAppClient(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
+  
+  /** The ID of the app instance this client is linked to. */
+  public get appId() {
+    return this.appClient.appId
+  }
+  
+  /** The app address of the app instance this client is linked to. */
+  public get appAddress() {
+    return this.appClient.appAddress
+  }
+  
+  /** The name of the app. */
+  public get appName() {
+    return this.appClient.appName
+  }
 
   /**
-   * Get parameters to define transactions to the current app
+   * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
    */
   readonly params = (($this) => {
     return {
@@ -832,7 +884,7 @@ export class StateAppClient {
           /**
            * Updates an existing instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
@@ -858,7 +910,7 @@ export class StateAppClient {
           /**
            * Deletes an existing instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
           bare(params?: Expand<AppClientBareCallParams>) {
@@ -896,7 +948,7 @@ export class StateAppClient {
       /**
        * Makes a clear_state call to an existing instance of the StateApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
       clearState(params?: Expand<AppClientBareCallParams>) {
@@ -999,7 +1051,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call params
        */
-      defaultValueFromGlobalState(params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      defaultValueFromGlobalState(params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
         return $this.appClient.params.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
       },
       /**
@@ -1008,16 +1060,16 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call params
        */
-      defaultValueFromLocalState(params: Expand<CallParams<'default_value_from_local_state(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      defaultValueFromLocalState(params: Expand<CallParams<'default_value_from_local_state(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
         return $this.appClient.params.call(StateAppParamsFactory.defaultValueFromLocalState(params))
       },
     }
   })(this)
 
   /**
-   * Get parameters to define transactions to the current app
+   * Create transactions for the current app
    */
-  readonly transactions = (($this) => {
+  readonly createTransaction = (($this) => {
     return {
       /**
        * Gets available update methods
@@ -1027,11 +1079,11 @@ export class StateAppClient {
           /**
            * Updates an existing instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
-            return $this.appClient.transactions.bare.update(params)
+            return $this.appClient.createTransaction.bare.update(params)
           },
           /**
            * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
@@ -1040,7 +1092,7 @@ export class StateAppClient {
            * @returns The update transaction
            */
           updateAbi(params: Expand<CallParams<'update_abi(string)string'> & AppClientCompilationParams>) {
-            return $this.appClient.transactions.update(StateAppParamsFactory.update.updateAbi(params))
+            return $this.appClient.createTransaction.update(StateAppParamsFactory.update.updateAbi(params))
           },
         }
       },
@@ -1053,11 +1105,11 @@ export class StateAppClient {
           /**
            * Deletes an existing instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
           bare(params?: Expand<AppClientBareCallParams>) {
-            return $this.appClient.transactions.bare.delete(params)
+            return $this.appClient.createTransaction.bare.delete(params)
           },
           /**
            * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
@@ -1066,7 +1118,7 @@ export class StateAppClient {
            * @returns The delete transaction
            */
           deleteAbi(params: Expand<CallParams<'delete_abi(string)string'>>) {
-            return $this.appClient.transactions.delete(StateAppParamsFactory.delete.deleteAbi(params))
+            return $this.appClient.createTransaction.delete(StateAppParamsFactory.delete.deleteAbi(params))
           },
         }
       },
@@ -1083,7 +1135,7 @@ export class StateAppClient {
            * @returns The optIn transaction
            */
           optIn(params: Expand<CallParams<'opt_in()void'>> = {args: []}) {
-            return $this.appClient.transactions.optIn(StateAppParamsFactory.optIn.optIn(params))
+            return $this.appClient.createTransaction.optIn(StateAppParamsFactory.optIn.optIn(params))
           },
         }
       },
@@ -1091,11 +1143,11 @@ export class StateAppClient {
       /**
        * Makes a clear_state call to an existing instance of the StateApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
       clearState(params?: Expand<AppClientBareCallParams>) {
-        return $this.appClient.transactions.bare.clearState(params)
+        return $this.appClient.createTransaction.bare.clearState(params)
       },
 
       /**
@@ -1105,7 +1157,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       callAbi(params: Expand<CallParams<'call_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.callAbi(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.callAbi(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the call_abi_txn(pay,string)string ABI method.
@@ -1114,7 +1166,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       callAbiTxn(params: Expand<CallParams<'call_abi_txn(pay,string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.callAbiTxn(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.callAbiTxn(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the call_with_references(asset,account,application)uint64 ABI method.
@@ -1123,7 +1175,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       callWithReferences(params: Expand<CallParams<'call_with_references(asset,account,application)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.callWithReferences(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.callWithReferences(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the set_global(uint64,uint64,string,byte[4])void ABI method.
@@ -1132,7 +1184,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       setGlobal(params: Expand<CallParams<'set_global(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.setGlobal(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.setGlobal(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the set_local(uint64,uint64,string,byte[4])void ABI method.
@@ -1141,7 +1193,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       setLocal(params: Expand<CallParams<'set_local(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.setLocal(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.setLocal(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the set_box(byte[4],string)void ABI method.
@@ -1150,7 +1202,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       setBox(params: Expand<CallParams<'set_box(byte[4],string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.setBox(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.setBox(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the error()void ABI method.
@@ -1159,7 +1211,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       error(params: Expand<CallParams<'error()void'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.error(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.error(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the default_value(string)string ABI method.
@@ -1168,7 +1220,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       defaultValue(params: Expand<CallParams<'default_value(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.defaultValue(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.defaultValue(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the default_value_int(uint64)uint64 ABI method.
@@ -1177,7 +1229,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       defaultValueInt(params: Expand<CallParams<'default_value_int(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.defaultValueInt(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.defaultValueInt(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the default_value_from_abi(string)string ABI method.
@@ -1186,7 +1238,7 @@ export class StateAppClient {
        * @returns The call transaction
        */
       defaultValueFromAbi(params: Expand<CallParams<'default_value_from_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.defaultValueFromAbi(params))
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.defaultValueFromAbi(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the default_value_from_global_state(uint64)uint64 ABI method.
@@ -1194,8 +1246,8 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call transaction
        */
-      defaultValueFromGlobalState(params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
+      defaultValueFromGlobalState(params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
       },
       /**
        * Makes a call to the StateApp smart contract using the default_value_from_local_state(string)string ABI method.
@@ -1203,8 +1255,8 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call transaction
        */
-      defaultValueFromLocalState(params: Expand<CallParams<'default_value_from_local_state(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-        return $this.appClient.transactions.call(StateAppParamsFactory.defaultValueFromLocalState(params))
+      defaultValueFromLocalState(params: Expand<CallParams<'default_value_from_local_state(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
+        return $this.appClient.createTransaction.call(StateAppParamsFactory.defaultValueFromLocalState(params))
       },
     }
   })(this)
@@ -1222,10 +1274,10 @@ export class StateAppClient {
           /**
            * Updates an existing instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
-          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & ExecuteParams>) {
+          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) {
             return $this.appClient.send.bare.update(params)
           },
           /**
@@ -1234,7 +1286,7 @@ export class StateAppClient {
            * @param params The params for the smart contract call
            * @returns The update result
            */
-          async updateAbi(params: Expand<CallParams<'update_abi(string)string'> & AppClientCompilationParams & ExecuteParams>) {
+          async updateAbi(params: Expand<CallParams<'update_abi(string)string'> & AppClientCompilationParams & SendParams>) {
             const result = await $this.appClient.send.update(StateAppParamsFactory.update.updateAbi(params))
             return {...result, return: result.return as undefined | MethodReturn<'update_abi(string)string'>}
           },
@@ -1249,10 +1301,10 @@ export class StateAppClient {
           /**
            * Deletes an existing instance of the StateApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
-          bare(params?: Expand<AppClientBareCallParams & ExecuteParams>) {
+          bare(params?: Expand<AppClientBareCallParams & SendParams>) {
             return $this.appClient.send.bare.delete(params)
           },
           /**
@@ -1261,7 +1313,7 @@ export class StateAppClient {
            * @param params The params for the smart contract call
            * @returns The delete result
            */
-          async deleteAbi(params: Expand<CallParams<'delete_abi(string)string'> & ExecuteParams>) {
+          async deleteAbi(params: Expand<CallParams<'delete_abi(string)string'> & SendParams>) {
             const result = await $this.appClient.send.delete(StateAppParamsFactory.delete.deleteAbi(params))
             return {...result, return: result.return as undefined | MethodReturn<'delete_abi(string)string'>}
           },
@@ -1279,7 +1331,7 @@ export class StateAppClient {
            * @param params The params for the smart contract call
            * @returns The optIn result
            */
-          async optIn(params: Expand<CallParams<'opt_in()void'> & ExecuteParams> = {args: []}) {
+          async optIn(params: Expand<CallParams<'opt_in()void'> & SendParams> = {args: []}) {
             const result = await $this.appClient.send.optIn(StateAppParamsFactory.optIn.optIn(params))
             return {...result, return: result.return as undefined | MethodReturn<'opt_in()void'>}
           },
@@ -1289,10 +1341,10 @@ export class StateAppClient {
       /**
        * Makes a clear_state call to an existing instance of the StateApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
-      clearState(params?: Expand<AppClientBareCallParams & ExecuteParams>) {
+      clearState(params?: Expand<AppClientBareCallParams & SendParams>) {
         return $this.appClient.send.bare.clearState(params)
       },
 
@@ -1302,7 +1354,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async callAbi(params: Expand<CallParams<'call_abi(string)string'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async callAbi(params: Expand<CallParams<'call_abi(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.callAbi(params))
         return {...result, return: result.return as undefined | MethodReturn<'call_abi(string)string'>}
       },
@@ -1312,7 +1364,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async callAbiTxn(params: Expand<CallParams<'call_abi_txn(pay,string)string'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async callAbiTxn(params: Expand<CallParams<'call_abi_txn(pay,string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.callAbiTxn(params))
         return {...result, return: result.return as undefined | MethodReturn<'call_abi_txn(pay,string)string'>}
       },
@@ -1322,7 +1374,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async callWithReferences(params: Expand<CallParams<'call_with_references(asset,account,application)uint64'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async callWithReferences(params: Expand<CallParams<'call_with_references(asset,account,application)uint64'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.callWithReferences(params))
         return {...result, return: result.return as undefined | MethodReturn<'call_with_references(asset,account,application)uint64'>}
       },
@@ -1332,7 +1384,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async setGlobal(params: Expand<CallParams<'set_global(uint64,uint64,string,byte[4])void'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async setGlobal(params: Expand<CallParams<'set_global(uint64,uint64,string,byte[4])void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.setGlobal(params))
         return {...result, return: result.return as undefined | MethodReturn<'set_global(uint64,uint64,string,byte[4])void'>}
       },
@@ -1342,7 +1394,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async setLocal(params: Expand<CallParams<'set_local(uint64,uint64,string,byte[4])void'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async setLocal(params: Expand<CallParams<'set_local(uint64,uint64,string,byte[4])void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.setLocal(params))
         return {...result, return: result.return as undefined | MethodReturn<'set_local(uint64,uint64,string,byte[4])void'>}
       },
@@ -1352,7 +1404,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async setBox(params: Expand<CallParams<'set_box(byte[4],string)void'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async setBox(params: Expand<CallParams<'set_box(byte[4],string)void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.setBox(params))
         return {...result, return: result.return as undefined | MethodReturn<'set_box(byte[4],string)void'>}
       },
@@ -1362,7 +1414,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async error(params: Expand<CallParams<'error()void'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
+      async error(params: Expand<CallParams<'error()void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.error(params))
         return {...result, return: result.return as undefined | MethodReturn<'error()void'>}
       },
@@ -1372,7 +1424,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async defaultValue(params: Expand<CallParams<'default_value(string)string'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
+      async defaultValue(params: Expand<CallParams<'default_value(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.defaultValue(params))
         return {...result, return: result.return as undefined | MethodReturn<'default_value(string)string'>}
       },
@@ -1382,7 +1434,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async defaultValueInt(params: Expand<CallParams<'default_value_int(uint64)uint64'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
+      async defaultValueInt(params: Expand<CallParams<'default_value_int(uint64)uint64'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.defaultValueInt(params))
         return {...result, return: result.return as undefined | MethodReturn<'default_value_int(uint64)uint64'>}
       },
@@ -1392,7 +1444,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async defaultValueFromAbi(params: Expand<CallParams<'default_value_from_abi(string)string'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async defaultValueFromAbi(params: Expand<CallParams<'default_value_from_abi(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.defaultValueFromAbi(params))
         return {...result, return: result.return as undefined | MethodReturn<'default_value_from_abi(string)string'>}
       },
@@ -1402,7 +1454,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async defaultValueFromGlobalState(params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async defaultValueFromGlobalState(params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
         return {...result, return: result.return as undefined | MethodReturn<'default_value_from_global_state(uint64)uint64'>}
       },
@@ -1412,7 +1464,7 @@ export class StateAppClient {
        * @param params The params for the smart contract call
        * @returns The call result
        */
-      async defaultValueFromLocalState(params: Expand<CallParams<'default_value_from_local_state(string)string'> & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+      async defaultValueFromLocalState(params: Expand<CallParams<'default_value_from_local_state(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) {
         const result = await $this.appClient.send.call(StateAppParamsFactory.defaultValueFromLocalState(params))
         return {...result, return: result.return as undefined | MethodReturn<'default_value_from_local_state(string)string'>}
       },
@@ -1499,13 +1551,14 @@ export class StateAppClient {
   public newGroup(): StateAppComposer {
     const client = this
     const composer = client.appClient.newGroup()
+    let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a call_abi(string)string method call against the StateApp contract
        */
       callAbi(params: CallParams<'call_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.callAbi(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbi(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi(string)string', v))
         return this
       },
@@ -1513,7 +1566,7 @@ export class StateAppClient {
        * Add a call_abi_txn(pay,string)string method call against the StateApp contract
        */
       callAbiTxn(params: CallParams<'call_abi_txn(pay,string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.callAbiTxn(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbiTxn(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi_txn(pay,string)string', v))
         return this
       },
@@ -1521,7 +1574,7 @@ export class StateAppClient {
        * Add a call_with_references(asset,account,application)uint64 method call against the StateApp contract
        */
       callWithReferences(params: CallParams<'call_with_references(asset,account,application)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.callWithReferences(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callWithReferences(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_with_references(asset,account,application)uint64', v))
         return this
       },
@@ -1529,7 +1582,7 @@ export class StateAppClient {
        * Add a set_global(uint64,uint64,string,byte[4])void method call against the StateApp contract
        */
       setGlobal(params: CallParams<'set_global(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.setGlobal(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setGlobal(params)))
         resultMappers.push(undefined)
         return this
       },
@@ -1537,7 +1590,7 @@ export class StateAppClient {
        * Add a set_local(uint64,uint64,string,byte[4])void method call against the StateApp contract
        */
       setLocal(params: CallParams<'set_local(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.setLocal(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setLocal(params)))
         resultMappers.push(undefined)
         return this
       },
@@ -1545,7 +1598,7 @@ export class StateAppClient {
        * Add a set_box(byte[4],string)void method call against the StateApp contract
        */
       setBox(params: CallParams<'set_box(byte[4],string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.setBox(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setBox(params)))
         resultMappers.push(undefined)
         return this
       },
@@ -1553,7 +1606,7 @@ export class StateAppClient {
        * Add a error()void method call against the StateApp contract
        */
       error(params: CallParams<'error()void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.error(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.error(params)))
         resultMappers.push(undefined)
         return this
       },
@@ -1561,7 +1614,7 @@ export class StateAppClient {
        * Add a default_value(string)string method call against the StateApp contract
        */
       defaultValue(params: CallParams<'default_value(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.defaultValue(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValue(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value(string)string', v))
         return this
       },
@@ -1569,7 +1622,7 @@ export class StateAppClient {
        * Add a default_value_int(uint64)uint64 method call against the StateApp contract
        */
       defaultValueInt(params: CallParams<'default_value_int(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.defaultValueInt(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueInt(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_int(uint64)uint64', v))
         return this
       },
@@ -1577,7 +1630,7 @@ export class StateAppClient {
        * Add a default_value_from_abi(string)string method call against the StateApp contract
        */
       defaultValueFromAbi(params: CallParams<'default_value_from_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.defaultValueFromAbi(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromAbi(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_abi(string)string', v))
         return this
       },
@@ -1585,7 +1638,7 @@ export class StateAppClient {
        * Add a default_value_from_global_state(uint64)uint64 method call against the StateApp contract
        */
       defaultValueFromGlobalState(params: CallParams<'default_value_from_global_state(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.defaultValueFromGlobalState(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromGlobalState(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_global_state(uint64)uint64', v))
         return this
       },
@@ -1593,19 +1646,33 @@ export class StateAppClient {
        * Add a default_value_from_local_state(string)string method call against the StateApp contract
        */
       defaultValueFromLocalState(params: CallParams<'default_value_from_local_state(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        composer.addAppCallMethodCall(client.params.defaultValueFromLocalState(params))
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromLocalState(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_local_state(string)string', v))
         return this
+      },
+      get update() {
+        const $this = this
+        return {
+          bare(params?: AppClientBareCallParams & AppClientCompilationParams ) {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
+            return $this
+          },
+          updateAbi(params: CallParams<'update_abi(string)string'> & AppClientCompilationParams) {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.updateAbi(params)))
+            resultMappers.push((v) => client.decodeReturnValue('update_abi(string)string', v))
+            return $this
+          },
+        }
       },
       get delete() {
         const $this = this
         return {
           bare(params?: AppClientBareCallParams ) {
-            composer.addAppDelete(client.params.delete.bare(params))
+            promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
             return $this
           },
           deleteAbi(params: CallParams<'delete_abi(string)string'>) {
-            composer.addAppDeleteMethodCall(client.params.delete.deleteAbi(params))
+            promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.deleteAbi(params)))
             resultMappers.push((v) => client.decodeReturnValue('delete_abi(string)string', v))
             return $this
           },
@@ -1615,7 +1682,7 @@ export class StateAppClient {
         const $this = this
         return {
           optIn(params: CallParams<'opt_in()void'>) {
-            composer.addAppCallMethodCall(client.params.optIn.optIn(params))
+            promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.optIn(params)))
             resultMappers.push(undefined)
             return $this
           },
@@ -1625,25 +1692,28 @@ export class StateAppClient {
        * Add a clear state call to the StateApp contract
        */
       clearState(params: AppClientBareCallParams) {
-        composer.addAppCall(client.params.clearState(params))
+        promiseChain = promiseChain.then(() => composer.addAppCall(client.params.clearState(params)))
         return this
       },
       addTransaction(txn: Transaction, signer?: TransactionSigner) {
-        composer.addTransaction(txn, signer)
+        promiseChain = promiseChain.then(() => composer.addTransaction(txn, signer))
         return this
       },
-      composer() {
+      async composer() {
+        await promiseChain
         return composer
       },
       async simulate(options?: SimulateOptions) {
+        await promiseChain
         const result = await composer.simulate(options)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
         }
       },
-      async execute(params?: ExecuteParams) {
-        const result = await composer.execute(params)
+      async send(params?: SendParams) {
+        await promiseChain
+        const result = await composer.send(params)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
@@ -1820,9 +1890,9 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    */
   simulate(options?: SimulateOptions): Promise<StateAppComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
-   * Executes the transaction group and returns the results
+   * Sends the transaction group to the network and returns the results
    */
-  execute(params?: ExecuteParams): Promise<StateAppComposerResults<TReturns>>
+  send(params?: SendParams): Promise<StateAppComposerResults<TReturns>>
 }
 export type StateAppComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns

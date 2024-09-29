@@ -15,10 +15,11 @@ import {
   CallOnComplete,
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
 } from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-import { ExecuteParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
@@ -156,7 +157,7 @@ export class MinimalAppFactory {
    *
    * @param params The parameters to initialise the app factory with
    */
-  constructor(params: Expand<Omit<AppFactoryParams, 'appSpec'>>) {
+  constructor(params: Omit<AppFactoryParams, 'appSpec'>) {
     this.appFactory = new AppFactory({
       ...params,
       appSpec: APP_SPEC,
@@ -171,7 +172,7 @@ export class MinimalAppFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public getAppClientById(params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec'>>) {
+  public getAppClientById(params: AppFactoryAppClientParams) {
     return new MinimalAppClient(this.appFactory.getAppClientById(params))
   }
   
@@ -184,10 +185,10 @@ export class MinimalAppFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public async getAppClientByCreatorAddressAndName(
-    params: Expand<Omit<AppClientParams, 'algorand' | 'appSpec' | 'appId'> & ResolveAppClientByCreatorAndName>,
+  public async getAppClientByCreatorAndName(
+    params: AppFactoryResolveAppClientByCreatorAndNameParams,
   ) {
-    return new MinimalAppClient(await this.appFactory.getAppClientByCreatorAddressAndName(params))
+    return new MinimalAppClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
   /**
@@ -200,11 +201,11 @@ export class MinimalAppFactory {
     const result = await this.appFactory.deploy({
       ...params,
     })
-    return { result: result.result, app: new MinimalAppClient(result.app) }
+    return { result: result.result, appClient: new MinimalAppClient(result.appClient) }
   }
 
   /**
-   * Get parameters to define transactions to the current app
+   * Get parameters to create transactions (create and deploy related calls) for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
    */
   readonly params = (($this) => {
     return {
@@ -216,7 +217,7 @@ export class MinimalAppFactory {
           /**
            * Creates a new instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a create call
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) {
@@ -233,7 +234,7 @@ export class MinimalAppFactory {
           /**
            * Updates an existing instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a deployUpdate call
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
@@ -250,11 +251,36 @@ export class MinimalAppFactory {
           /**
            * Deletes an existing instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The params for a deployDelete call
            */
           bare(params?: Expand<AppClientBareCallParams>) {
             return $this.appFactory.params.bare.deployDelete(params)
+          },
+        }
+      },
+
+    }
+  })(this)
+
+  /**
+   * Create transactions for the current app
+   */
+  readonly createTransaction = (($this) => {
+    return {
+      /**
+       * Gets available create methods
+       */
+      get create() {
+        return {
+          /**
+           * Creates a new instance of the MinimalApp smart contract using a bare call.
+           *
+           * @param params The params for the bare (raw) call
+           * @returns The params for a create call
+           */
+          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+            return $this.appFactory.params.bare.create(params)
           },
         }
       },
@@ -275,12 +301,12 @@ export class MinimalAppFactory {
           /**
            * Creates a new instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The create result
            */
-          async bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & ExecuteParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
-            const result = await $this.appFactory.create(params)
-            return { result: result.result, app: new MinimalAppClient(result.app) }
+          async bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) {
+            const result = await $this.appFactory.send.bare.create(params)
+            return { result: result.result, appClient: new MinimalAppClient(result.appClient) }
           },
         }
       },
@@ -309,8 +335,8 @@ export class MinimalAppClient {
    *
    * @param params The parameters to initialise the app client with
    */
-  constructor(params: Expand<Omit<AppClientParams, 'appSpec'>>)
-  constructor(appClientOrParams: AppClient | Expand<Omit<AppClientParams, 'appSpec'>>) {
+  constructor(params: Omit<AppClientParams, 'appSpec'>)
+  constructor(appClientOrParams: AppClient | Omit<AppClientParams, 'appSpec'>) {
     this.appClient = appClientOrParams instanceof AppClient ? appClientOrParams : new AppClient({
       ...appClientOrParams,
       appSpec: APP_SPEC,
@@ -330,7 +356,7 @@ export class MinimalAppClient {
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
    */
-  public static async fromCreatorAndName(params: Expand<Omit<ResolveAppClientByCreatorAndName, 'appSpec'>>): Promise<MinimalAppClient> {
+  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<MinimalAppClient> {
     return new MinimalAppClient(await AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
@@ -342,13 +368,28 @@ export class MinimalAppClient {
    * @param params The parameters to create the app client
    */
   static async fromNetwork(
-    params: Expand<Omit<AppClientParams, 'appSpec' | 'appId'>>
+    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
   ): Promise<MinimalAppClient> {
     return new MinimalAppClient(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
+  
+  /** The ID of the app instance this client is linked to. */
+  public get appId() {
+    return this.appClient.appId
+  }
+  
+  /** The app address of the app instance this client is linked to. */
+  public get appAddress() {
+    return this.appClient.appAddress
+  }
+  
+  /** The name of the app. */
+  public get appName() {
+    return this.appClient.appName
+  }
 
   /**
-   * Get parameters to define transactions to the current app
+   * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
    */
   readonly params = (($this) => {
     return {
@@ -360,7 +401,7 @@ export class MinimalAppClient {
           /**
            * Updates an existing instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
@@ -377,7 +418,7 @@ export class MinimalAppClient {
           /**
            * Deletes an existing instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
           bare(params?: Expand<AppClientBareCallParams>) {
@@ -389,7 +430,7 @@ export class MinimalAppClient {
       /**
        * Makes a clear_state call to an existing instance of the MinimalApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
       clearState(params?: Expand<AppClientBareCallParams>) {
@@ -400,9 +441,9 @@ export class MinimalAppClient {
   })(this)
 
   /**
-   * Get parameters to define transactions to the current app
+   * Create transactions for the current app
    */
-  readonly transactions = (($this) => {
+  readonly createTransaction = (($this) => {
     return {
       /**
        * Gets available update methods
@@ -412,11 +453,11 @@ export class MinimalAppClient {
           /**
            * Updates an existing instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
           bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) {
-            return $this.appClient.transactions.bare.update(params)
+            return $this.appClient.createTransaction.bare.update(params)
           },
         }
       },
@@ -429,11 +470,11 @@ export class MinimalAppClient {
           /**
            * Deletes an existing instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
           bare(params?: Expand<AppClientBareCallParams>) {
-            return $this.appClient.transactions.bare.delete(params)
+            return $this.appClient.createTransaction.bare.delete(params)
           },
         }
       },
@@ -441,11 +482,11 @@ export class MinimalAppClient {
       /**
        * Makes a clear_state call to an existing instance of the MinimalApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
       clearState(params?: Expand<AppClientBareCallParams>) {
-        return $this.appClient.transactions.bare.clearState(params)
+        return $this.appClient.createTransaction.bare.clearState(params)
       },
 
     }
@@ -464,10 +505,10 @@ export class MinimalAppClient {
           /**
            * Updates an existing instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The update result
            */
-          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & ExecuteParams>) {
+          bare(params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) {
             return $this.appClient.send.bare.update(params)
           },
         }
@@ -481,10 +522,10 @@ export class MinimalAppClient {
           /**
            * Deletes an existing instance of the MinimalApp smart contract using a bare call.
            *
-           * @param params The params for the bare (non-ABI) call
+           * @param params The params for the bare (raw) call
            * @returns The delete result
            */
-          bare(params?: Expand<AppClientBareCallParams & ExecuteParams>) {
+          bare(params?: Expand<AppClientBareCallParams & SendParams>) {
             return $this.appClient.send.bare.delete(params)
           },
         }
@@ -493,10 +534,10 @@ export class MinimalAppClient {
       /**
        * Makes a clear_state call to an existing instance of the MinimalApp smart contract.
        *
-       * @param params The params for the bare (non-ABI) call
+       * @param params The params for the bare (raw) call
        * @returns The clearState result
        */
-      clearState(params?: Expand<AppClientBareCallParams & ExecuteParams>) {
+      clearState(params?: Expand<AppClientBareCallParams & SendParams>) {
         return $this.appClient.send.bare.clearState(params)
       },
 
@@ -512,13 +553,23 @@ export class MinimalAppClient {
   public newGroup(): MinimalAppComposer {
     const client = this
     const composer = client.appClient.newGroup()
+    let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
+      get update() {
+        const $this = this
+        return {
+          bare(params?: AppClientBareCallParams & AppClientCompilationParams ) {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
+            return $this
+          },
+        }
+      },
       get delete() {
         const $this = this
         return {
           bare(params?: AppClientBareCallParams ) {
-            composer.addAppDelete(client.params.delete.bare(params))
+            promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
             return $this
           },
         }
@@ -527,25 +578,28 @@ export class MinimalAppClient {
        * Add a clear state call to the MinimalApp contract
        */
       clearState(params: AppClientBareCallParams) {
-        composer.addAppCall(client.params.clearState(params))
+        promiseChain = promiseChain.then(() => composer.addAppCall(client.params.clearState(params)))
         return this
       },
       addTransaction(txn: Transaction, signer?: TransactionSigner) {
-        composer.addTransaction(txn, signer)
+        promiseChain = promiseChain.then(() => composer.addTransaction(txn, signer))
         return this
       },
-      composer() {
+      async composer() {
+        await promiseChain
         return composer
       },
       async simulate(options?: SimulateOptions) {
+        await promiseChain
         const result = await composer.simulate(options)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
         }
       },
-      async execute(params?: ExecuteParams) {
-        const result = await composer.execute(params)
+      async send(params?: SendParams) {
+        await promiseChain
+        const result = await composer.send(params)
         return {
           ...result,
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
@@ -592,9 +646,9 @@ export type MinimalAppComposer<TReturns extends [...any[]] = []> = {
    */
   simulate(options?: SimulateOptions): Promise<MinimalAppComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
-   * Executes the transaction group and returns the results
+   * Sends the transaction group to the network and returns the results
    */
-  execute(params?: ExecuteParams): Promise<MinimalAppComposerResults<TReturns>>
+  send(params?: SendParams): Promise<MinimalAppComposerResults<TReturns>>
 }
 export type MinimalAppComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns

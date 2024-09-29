@@ -45,24 +45,30 @@
   ],
   "arcs": [4, 56],
   "structs": {
-    "{ foo: uint16; bar: uint16 }": {
-      "foo": "uint16",
-      "bar": "uint16"
-    },
-    "Outputs": {
-      "sum": "uint64",
-      "difference": "uint64"
-    },
-    "Inputs": {
-      "add": {
-        "a": "uint64",
-        "b": "uint64"
+    "{ foo: uint16; bar: uint16 }": [
+      {"name": "foo", "type": "uint16"},
+      {"name": "bar", "type": "uint16"}
+    ],
+    "Outputs": [
+      {"name": "sum", "type": "uint64"},
+      {"name": "difference", "type": "uint64"}
+    ],
+    "Inputs": [
+      {
+        "name": "add",
+        "type": [
+          {"name": "a", "type": "uint64"},
+          {"name": "b", "type": "uint64"}
+        ]
       },
-      "subtract": {
-        "a": "uint64",
-        "b": "uint64"
+      {
+        "name": "subtract",
+        "type": [
+          {"name": "a", "type": "uint64"},
+          {"name": "b", "type": "uint64"}
+        ]
       }
-    }
+    ]
   },
   "state": {
     "schema": {
@@ -79,21 +85,21 @@
       "global": {
         "globalKey": {
           "key": "Z2xvYmFsS2V5",
-          "keyType": "bytes",
+          "keyType": "AVMBytes",
           "valueType": "uint64"
         }
       },
       "local": {
         "localKey": {
           "key": "bG9jYWxLZXk=",
-          "keyType": "bytes",
+          "keyType": "AVMBytes",
           "valueType": "uint64"
         }
       },
       "box": {
         "boxKey": {
           "key": "Ym94S2V5",
-          "keyType": "bytes",
+          "keyType": "AVMBytes",
           "valueType": "string"
         }
       }
@@ -108,7 +114,7 @@
       },
       "local": {
         "localMap": {
-          "keyType": "bytes",
+          "keyType": "AVMBytes",
           "valueType": "string",
           "prefix": "cA=="
         }

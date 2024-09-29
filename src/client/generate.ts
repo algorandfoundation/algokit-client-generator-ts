@@ -7,16 +7,17 @@ import { imports } from './imports'
 import { createGeneratorContext, GeneratorOptions } from './generator-context'
 import { appTypes } from './app-types'
 import { callComposerType } from './call-composer-types'
-import { Arc56Contract, StructFields } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { appFactory } from './app-factory'
 import { Sanitizer } from '../util/sanitization'
 
-function convertStructs(s: StructFields, sanitizer: Sanitizer): StructFields {
-  return Object.fromEntries(
-    Object.keys(s).map((key) => [
-      sanitizer.makeSafePropertyIdentifier(key),
-      typeof s[key] === 'string' ? s[key] : convertStructs(s[key] as StructFields, sanitizer),
-    ]),
+function convertStructs(s: StructField[], sanitizer: Sanitizer): StructField[] {
+  return s.map(
+    ({ name, type }) =>
+      ({
+        name: sanitizer.makeSafePropertyIdentifier(name),
+        type: typeof type === 'string' ? type : convertStructs(type, sanitizer),
+      }) satisfies StructField,
   )
 }
 

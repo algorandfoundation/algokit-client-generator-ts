@@ -2,7 +2,7 @@ import { GeneratorContext } from './generator-context'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, inline, jsDoc, NewLine } from '../output/writer'
 import { getEquivalentType } from './helpers/get-equivalent-type'
 import { ABIMethod, ABITupleType } from 'algosdk'
-import { Arc56Contract, StorageKey, StorageMap, StructFields } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, StorageKey, StorageMap, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { Sanitizer } from '../util/sanitization'
 
 export function* appTypes(ctx: GeneratorContext): DocumentParts {
@@ -186,10 +186,10 @@ function* abiTypes(ctx: GeneratorContext): DocumentParts {
     })
   })
 
-  const pushStructFields = (fields: StructFields) => {
-    Object.values(fields).forEach((sf) => {
-      if (typeof sf === 'string') pushType(sf)
-      else pushStructFields(sf)
+  const pushStructFields = (fields: StructField[]) => {
+    fields.forEach((sf) => {
+      if (typeof sf.type === 'string' && !app.structs[sf.type]) pushType(sf.type)
+      else if (typeof sf.type !== 'string') pushStructFields(sf.type)
     })
   }
 
@@ -205,6 +205,11 @@ function* abiTypes(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function getStructAsObject(struct: StructField[]): Record<string, any> {
+  return Object.fromEntries(struct.map((s) => [s.name, typeof s.type === 'string' ? s.type : getStructAsObject(s.type)]))
+}
+
 function* structTypes({ app, sanitizer }: GeneratorContext): DocumentParts {
   if (Object.keys(app.structs).length === 0) return
 
@@ -212,7 +217,11 @@ function* structTypes({ app, sanitizer }: GeneratorContext): DocumentParts {
   yield NewLine
 
   for (const structName of Object.keys(app.structs)) {
-    yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(app.structs[structName], null, 2)
+    yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(
+      getStructAsObject(app.structs[structName]),
+      null,
+      2,
+    )
       .replace(/"/g, '')
       .replaceAll('(', '[')
       .replaceAll(')', ']')
@@ -258,7 +267,7 @@ function* keysAndMaps(
       }
       const keySafe = sanitizer.makeSafePropertyIdentifier(name)
 
-      yield `${keySafe}: ${prop.valueType === 'bytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', { app, sanitizer })}`
+      yield `${keySafe}: ${prop.valueType === 'AVMBytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', { app, sanitizer })}`
     }
     yield DecIndentAndCloseBlock
   }

@@ -29,7 +29,7 @@ describe('state typed client', () => {
 
     const {
       result: { appId, appAddress },
-      app: appClient,
+      appClient,
     } = await factory.send.create.createApplication({
       args: [],
       deployTimeParams: { someNumber: 1337n },
@@ -79,9 +79,9 @@ describe('state typed client', () => {
       .newGroup()
       .addAppCallMethodCall(
         // Use the extraFee on the main client to cover the fee for the other client
-        appClient.params.foo({ extraFee: microAlgos(1_000), args: { inputs } }),
+        await appClient.params.foo({ extraFee: microAlgos(1_000), args: { inputs } }),
       )
-      .addAppCallMethodCall(anotherAppClient.params.foo({ staticFee: microAlgos(0), args: { inputs } }))
+      .addAppCallMethodCall(await anotherAppClient.params.foo({ staticFee: microAlgos(0), args: { inputs } }))
       .execute()
 
     const { sum: firstSum } = appClient.decodeReturnValue('foo', result.returns![0])!

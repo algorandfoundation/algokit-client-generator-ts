@@ -20,7 +20,7 @@ describe('minimal typed client', () => {
       defaultSender: testAccount.addr,
     })
 
-    const { app: client } = await factory.deploy()
-    await client.send.delete.bare()
+    const { appClient } = await factory.deploy()
+    await appClient.send.delete.bare()
   })
 })

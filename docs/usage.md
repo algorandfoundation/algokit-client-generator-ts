@@ -1,12 +1,12 @@
 # Application Client Usage
 
-After using the cli tool to generate an application client you will end up with a typescript file containing several type definitions, an application factory class and an application client class that is named after the target smart contract. For example, if the contract name is `HelloWorldApp` then you will end up with `HelloWorldAppFactory` and `HelloWorldAppClient` classes. The contract name will also be used to prefix a number of other types in the generated file which allows you to generate clients for multiple smart contracts in the one project without ambiguous type names.
+After using the cli tool to generate an application client you will end up with a TypeScript file containing several type definitions, an application factory class and an application client class that is named after the target smart contract. For example, if the contract name is `HelloWorldApp` then you will end up with `HelloWorldAppFactory` and `HelloWorldAppClient` classes. The contract name will also be used to prefix a number of other types in the generated file which allows you to generate clients for multiple smart contracts in the one project without ambiguous type names.
 
 ## Creating an application client instance
 
-The first step to using the factory/client is to create an instance, which can be done via the constructor or more easily via an [`AlgorandClient`](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/algorand-client.md) instance.
+The first step to using the factory/client is to create an instance, which can be done via the constructor or more easily via an [`AlgorandClient`](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/algorand-client.md) instance via `algorand.client.getTypedAppFactory()` and `algorand.client.getTypedAppClient*()` (see code examples below).
 
-Once you have an instance, if you want an escape hatch to the underlying untyped `AppClient` / `AppFactory` you can access them as a property:
+Once you have an instance, if you want an escape hatch to the [underlying untyped `AppClient` / `AppFactory`](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) you can access them as a property:
 
 ```typescript
 // Untyped `AppFactory`
@@ -145,7 +145,7 @@ To create an app you need to use the factory. The return value will include a ty
 const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory)
 
 // Create the application using a bare call
-const { result, app: client } = factory.send.create.bare()
+const { result, appClient: client } = factory.send.create.bare()
 
 // Pass in some compilation flags
 factory.send.create.bare({
@@ -178,7 +178,7 @@ factory.send.create.namedCreate({
 })
 ```
 
-If you want to get a built transaction without sending it you can use `factory.transactions.create...` rather than `factory.send.create...`. If you want to receive transaction parameters ready to pass in as an ABI argument or to an `AlgoKitComposer` call then you can use `factory.params.create...`.
+If you want to get a built transaction without sending it you can use `factory.createTransaction.create...` rather than `factory.send.create...`. If you want to receive transaction parameters ready to pass in as an ABI argument or to an `AlgoKitComposer` call then you can use `factory.params.create...`.
 
 ### Update and Delete calls
 
@@ -223,7 +223,7 @@ client.send.delete.bare()
 client.send.delete.namedDelete()
 ```
 
-If you want to get a built transaction without sending it you can use `client.transactions.update...` / `client.transactions.delete...` rather than `client.send.update...` / `client.send.delete...`. If you want to receive transaction parameters ready to pass in as an ABI argument or to an `AlgoKitComposer` call then you can use `client.params.update...` / `client.params.delete...`.
+If you want to get a built transaction without sending it you can use `client.createTransaction.update...` / `client.createTransaction.delete...` rather than `client.send.update...` / `client.send.delete...`. If you want to receive transaction parameters ready to pass in as an ABI argument or to an `AlgoKitComposer` call then you can use `client.params.update...` / `client.params.delete...`.
 
 ### Deploy call
 
@@ -254,14 +254,14 @@ client.deploy({
 
 ## Opt in and close out
 
-Methods with an `opt_in` or `close_out` `onCompletionAction` are grouped under properties of the same name within the `send`, `transactions` and `params` properties of the client. If the smart contract does not handle one of these on completion actions, it will be omitted.
+Methods with an `opt_in` or `close_out` `onCompletionAction` are grouped under properties of the same name within the `send`, `createTransaction` and `params` properties of the client. If the smart contract does not handle one of these on completion actions, it will be omitted.
 
 ```ts
 // Opt in with bare call
 client.send.optIn.bare()
 
 // Opt in with ABI method
-client.transactions.optIn.namedOptIn({ args: { arg1: 123 } })
+client.createTransaction.optIn.namedOptIn({ args: { arg1: 123 } })
 
 // Close out with bare call
 client.params.closeOut.bare()
@@ -276,13 +276,13 @@ All clients will have a clear state method which will call the clear state progr
 
 ```ts
 client.send.clearState()
-client.transactions.clearState()
+client.createTransaction.clearState()
 client.params.clearState()
 ```
 
 ## No-op calls
 
-The remaining ABI methods which should all have an `onCompletionAction` of `OnApplicationComplete.NoOp` will be available on the `send`, `transactions` and `params` properties of the client. If a bare no-op call is allowed it will be available via `bare`.
+The remaining ABI methods which should all have an `onCompletionAction` of `OnApplicationComplete.NoOp` will be available on the `send`, `createTransaction` and `params` properties of the client. If a bare no-op call is allowed it will be available via `bare`.
 
 These methods will allow you to optionally pass in `onComplete` and if the method happens to allow other on-completes than no-op these can also be provided (and those methods will also be available via the on-complete sub-property too per above).
 
@@ -291,7 +291,7 @@ These methods will allow you to optionally pass in `onComplete` and if the metho
 client.send.someMethod()
 
 // Call a no-op bare call
-client.transactions.bare()
+client.createTransaction.bare()
 
 // Call an ABI method, passing args in as a dictionary
 client.params.someOtherMethod({ args: { arg1: 123, arg2: 'foo' } })
@@ -356,7 +356,7 @@ const result = await client
   .newGroup()
   .methodOne({ args: { arg1: 123 }, boxReferences: ['V'] })
   // Non-ABI transactions can still be added to the group
-  .addTransaction(client.appClient.transactions.fundAppAccount({ amount: (5000).microAlgo() }))
+  .addTransaction(client.appClient.createTransaction.fundAppAccount({ amount: (5000).microAlgo() }))
   .methodTwo({ args: { arg1: 'foo' } })
   .execute()
 
@@ -397,23 +397,23 @@ The properties will return values of the corresponding TypeScript type for the t
 ```typescript
 const factory = algorand.client.getTypedAppFactory(Arc56TestFactory, { defaultSender: 'SENDER' })
 
-const { app: appClient } = await factory.send.create.createApplication({
+const { appClient: client } = await factory.send.create.createApplication({
   args: [],
   deployTimeParams: { someNumber: 1337n },
 })
 
-expect(await appClient.state.global.globalKey()).toBe(1337n)
+expect(await client.state.global.globalKey()).toBe(1337n)
 expect(await anotherAppClient.state.global.globalKey()).toBe(1338n)
-expect(await appClient.state.global.globalMap.value('foo')).toEqual({ foo: 13n, bar: 37n })
+expect(await client.state.global.globalMap.value('foo')).toEqual({ foo: 13n, bar: 37n })
 
-await appClient.appClient.fundAppAccount({ amount: microAlgos(1_000_000) })
-await appClient.send.optIn.optInToApplication({ args: [], populateAppCallResources: true })
+await client.appClient.fundAppAccount({ amount: microAlgos(1_000_000) })
+await client.send.optIn.optInToApplication({ args: [], populateAppCallResources: true })
 
-expect(await appClient.state.local(defaultSender).localKey()).toBe(1337n)
-expect(await appClient.state.local(defaultSender).localMap.value('foo')).toBe('bar')
-expect(await appClient.state.box.boxKey()).toBe('baz')
+expect(await client.state.local(defaultSender).localKey()).toBe(1337n)
+expect(await client.state.local(defaultSender).localMap.value('foo')).toBe('bar')
+expect(await client.state.box.boxKey()).toBe('baz')
 expect(
-  await appClient.state.box.boxMap.value({
+  await client.state.box.boxMap.value({
     add: { a: 1n, b: 2n },
     subtract: { a: 4n, b: 3n },
   }),

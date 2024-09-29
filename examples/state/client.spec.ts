@@ -22,7 +22,7 @@ describe('state typed client', () => {
   test('Exposes state correctly', async () => {
     const { testAccount } = localnet.context
 
-    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     await client.send.setGlobal({ args: { int1: 1, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
 
@@ -45,7 +45,7 @@ describe('state typed client', () => {
   })
 
   test('Readonly methods do not consume algos', async () => {
-    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     const minBalance = 100_000
     const txCost = 1_000
@@ -63,7 +63,7 @@ describe('state typed client', () => {
   })
 
   test('Arguments with defaults defined are not required, and use their default value strategies when set to undefined', async () => {
-    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     await client.send.setGlobal({ args: { int1: 50, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
     await client.send.optIn.optIn()
@@ -107,13 +107,13 @@ describe('state typed client', () => {
 
   test('Methods can be composed', async () => {
     const { testAccount } = localnet.context
-    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     await client
       .newGroup()
       .optIn.optIn()
       .setLocal({ args: { bytes1: 'default value', int2: 0, int1: 0, bytes2: new Uint8Array([1, 2, 3, 4]) } })
-      .execute()
+      .send()
 
     const localState = await client.state.local(testAccount.addr).getAll()
 
@@ -122,7 +122,7 @@ describe('state typed client', () => {
 
   test('ABI methods which take references can be called', async () => {
     const { testAccount } = localnet.context
-    const { app: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     // Call with number
     await client.send.callWithReferences({
