@@ -10,7 +10,14 @@ export async function loadApplicationJson(appJsonPath: string): Promise<Arc56Con
   const fs = await import('fs')
   if (!fs.existsSync(appJsonPath)) boom(`Could not find application.json file at ${appJsonPath}`)
 
-  const file = JSON.parse(fs.readFileSync(appJsonPath, 'utf-8'))
+  let jsonText = fs.readFileSync(appJsonPath, 'utf-8')
+  let file = JSON.parse(jsonText)
+  // Temporary to get backwards compatibility with TEALScript draft ARC-56
+  if (!('contract' in file) /* ARC-56 */) {
+    jsonText = jsonText.replace(/ype":\s*"bytes"/g, 'ype":"AVMBytes"').replace(/import\(.+?\)\./g, '')
+    file = JSON.parse(jsonText)
+  }
+
   return validateApplicationJson(file, appJsonPath)
 }
 
