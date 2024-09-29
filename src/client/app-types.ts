@@ -205,6 +205,7 @@ function* abiTypes(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 function getStructAsObject(struct: StructField[]): Record<string, any> {
   return Object.fromEntries(struct.map((s) => [s.name, typeof s.type === 'string' ? s.type : getStructAsObject(s.type)]))
 }
