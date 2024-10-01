@@ -28,21 +28,24 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     const uniqueNameSafe = ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)
     yield `& Record<'${methodSigSafe}'${methodSig !== uniqueName ? ` | '${uniqueNameSafe}'` : ''}, {`
     yield IncIndent
-    yield `argsObj: {`
-    yield IncIndent
-
     const argsMeta = method.args.map((arg, i) => ({
       ...arg,
       name: arg.name ?? `arg${i + 1}`,
       hasDefault: !!arg.defaultValue,
       tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx),
     }))
-
-    for (const arg of argsMeta) {
-      if (arg.desc) yield* jsDoc(arg.desc)
-      yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
+    if (argsMeta.length) {
+      yield `argsObj: {`
+      yield IncIndent
+      for (const arg of argsMeta) {
+        if (arg.desc) yield* jsDoc(arg.desc)
+        yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
+      }
+      yield DecIndentAndCloseBlock
+    } else {
+      yield `argsObj: Record<string, never>`
     }
-    yield DecIndentAndCloseBlock
+
     yield* inline(
       `argsTuple: [`,
       argsMeta

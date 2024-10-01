@@ -97,49 +97,37 @@ function* params(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc(
     `Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.`,
   )
-  yield `readonly params = (($this) => {`
-  yield IncIndent
-  yield `return {`
+  yield `readonly params = {`
   yield IncIndent
   yield* opMethods(ctx, 'params')
   yield* clearState(ctx, 'params')
   yield* call(ctx, 'params')
   yield* noopMethods(ctx, 'params')
   yield DecIndentAndCloseBlock
-  yield DecIndent
-  yield `})(this)`
   yield NewLine
 }
 
 function* createTransaction(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc(`Create transactions for the current app`)
-  yield `readonly createTransaction = (($this) => {`
-  yield IncIndent
-  yield `return {`
+  yield `readonly createTransaction = {`
   yield IncIndent
   yield* opMethods(ctx, 'createTransaction')
   yield* clearState(ctx, 'createTransaction')
   yield* call(ctx, 'createTransaction')
   yield* noopMethods(ctx, 'createTransaction')
   yield DecIndentAndCloseBlock
-  yield DecIndent
-  yield `})(this)`
   yield NewLine
 }
 
 function* send(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc(`Send calls to the current app`)
-  yield `readonly send = (($this) => {`
-  yield IncIndent
-  yield `return {`
+  yield `readonly send = {`
   yield IncIndent
   yield* opMethods(ctx, 'send')
   yield* clearState(ctx, 'send')
   yield* call(ctx, 'send')
   yield* noopMethods(ctx, 'send')
   yield DecIndentAndCloseBlock
-  yield DecIndent
-  yield `})(this)`
   yield NewLine
 }
 
@@ -195,10 +183,10 @@ function* bareMethodCall({
     },
     returns: `The ${verb} result`,
   })
-  yield `${name}(params?: Expand<AppClientBareCallParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+  yield `${name}: (params?: Expand<AppClientBareCallParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) {`
-  yield* indent(`return $this.appClient.${type}.bare.${verb}(params)`)
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) => {`
+  yield* indent(`return this.appClient.${type}.bare.${verb}(params)`)
   yield '},'
 }
 
@@ -232,17 +220,19 @@ function* abiMethodCall({
   const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
   const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-  yield `${type === 'send' ? 'async ' : ''}${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+  yield `${methodName}: ${type === 'send' ? 'async ' : ''}(params: Expand<CallParams<'${methodSigSafe}'>${
+    includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
+  }${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) => {`
   if (type === 'send') {
     yield* indent(
-      `const result = await $this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
+      `const result = await this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
       `return {...result, return: result.return as undefined | MethodReturn<'${methodSigSafe}'>}`,
     )
   } else {
     yield* indent(
-      `return $this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
+      `return this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
     )
   }
   yield '},'
@@ -258,9 +248,7 @@ function* operationMethods(
 ): DocumentParts {
   if (methods.length) {
     yield* jsDoc(`Gets available ${verb} methods`)
-    yield `get ${verb}() {`
-    yield IncIndent
-    yield `return {`
+    yield `${verb}: {`
     yield IncIndent
     for (const methodSig of methods) {
       if (methodSig === BARE_CALL) {
@@ -284,7 +272,6 @@ function* operationMethods(
         })
       }
     }
-    yield DecIndentAndCloseBlock
     yield DecIndent
     yield '},'
     yield NewLine

@@ -114,15 +114,14 @@ function* callComposerOperationMethods(
   if (methods.length) {
     yield `get ${verb}() {`
     yield IncIndent
-    yield `const $this = this`
     yield `return {`
     yield IncIndent
     for (const methodSig of methods) {
       if (methodSig === BARE_CALL) {
-        yield `bare(params?: AppClientBareCallParams ${includeCompilation ? '& AppClientCompilationParams ' : ''}) {`
+        yield `bare: (params?: AppClientBareCallParams ${includeCompilation ? '& AppClientCompilationParams ' : ''}) => {`
         yield IncIndent
         yield `promiseChain = promiseChain.then(${verb === 'update' ? 'async ' : ''}() => composer.addApp${callType}(${verb === 'update' ? 'await ' : ''}client.params.${verb}.bare(params)))`
-        yield `return $this`
+        yield `return this`
         yield DecIndent
         yield '},'
       } else {
@@ -130,12 +129,12 @@ function* callComposerOperationMethods(
         const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
         const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-        yield `${methodName}(params: CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}) {`
+        yield `${methodName}: (params: CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}) => {`
         yield IncIndent
         yield `promiseChain = promiseChain.then(async () => composer.addApp${callType}MethodCall(await client.params.${verb}${methodNameAccessor}(params)))`
         const outputTypeName = app.methods.find((m: ABIMethodParams) => new ABIMethod(m).getSignature() === methodSig)?.returns.type
         yield `resultMappers.push(${outputTypeName && outputTypeName !== 'void' ? `(v) => client.decodeReturnValue('${methodSigSafe}', v)` : 'undefined'})`
-        yield `return $this`
+        yield `return this`
         yield DecIndent
         yield '},'
       }

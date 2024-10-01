@@ -71,40 +71,28 @@ function* params(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc(
     `Get parameters to create transactions (create and deploy related calls) for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.`,
   )
-  yield `readonly params = (($this) => {`
-  yield IncIndent
-  yield `return {`
+  yield `readonly params = {`
   yield IncIndent
   yield* paramMethods(ctx)
   yield DecIndentAndCloseBlock
-  yield DecIndent
-  yield `})(this)`
   yield NewLine
 }
 
 function* createTransaction(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc(`Create transactions for the current app`)
-  yield `readonly createTransaction = (($this) => {`
-  yield IncIndent
-  yield `return {`
+  yield `readonly createTransaction = {`
   yield IncIndent
   yield* createTransactionMethods(ctx)
   yield DecIndentAndCloseBlock
-  yield DecIndent
-  yield `})(this)`
   yield NewLine
 }
 
 function* send(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc(`Send calls to the current app`)
-  yield `readonly send = (($this) => {`
-  yield IncIndent
-  yield `return {`
+  yield `readonly send = {`
   yield IncIndent
   yield* createMethods(ctx)
   yield DecIndentAndCloseBlock
-  yield DecIndent
-  yield `})(this)`
   yield NewLine
 }
 
@@ -112,9 +100,7 @@ function* createMethods(generator: GeneratorContext): DocumentParts {
   const { app } = generator
   if (generator.callConfig.createMethods.length) {
     yield* jsDoc(`Gets available create methods`)
-    yield `get create() {`
-    yield IncIndent
-    yield `return {`
+    yield `create: {`
     yield IncIndent
     for (const methodSig of generator.callConfig.createMethods) {
       if (methodSig === BARE_CALL) {
@@ -138,7 +124,6 @@ function* createMethods(generator: GeneratorContext): DocumentParts {
         })
       }
     }
-    yield DecIndentAndCloseBlock
     yield DecIndent
     yield '},'
     yield NewLine
@@ -189,14 +174,16 @@ function* bareMethodCallParams({
     },
     returns: type === 'params' ? `The params for a ${verb} call` : `The ${verb} result`,
   })
-  yield `${type === 'send' ? 'async ' : ''}${name}(params?: Expand<AppClientBareCallParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+  yield `${name}: ${type === 'send' ? 'async ' : ''}(params?: Expand<AppClientBareCallParams${
+    includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
+  }${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) => {`
   if (type === 'params' || type === 'createTransaction') {
-    yield* indent(`return $this.appFactory.${type}.bare.${verb}(params)`)
+    yield* indent(`return this.appFactory.${type}.bare.${verb}(params)`)
   } else {
     yield* indent(
-      `const result = await $this.appFactory.send.bare.create(params)`,
+      `const result = await this.appFactory.send.bare.create(params)`,
       `return { result: result.result, appClient: new ${clientName}Client(result.appClient) }`,
     )
   }
@@ -232,16 +219,18 @@ function* abiMethodCallParams({
   const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
   const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-  yield `${type === 'send' ? 'async ' : ''}${methodName}(params: Expand<CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+  yield `${methodName}: ${type === 'send' ? 'async ' : ''}(params: Expand<CallParams<'${methodSigSafe}'>${
+    includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
+  }${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) => {`
   if (type === 'params' || type === 'createTransaction') {
     yield* indent(
-      `return $this.appFactory.${type}.${verb}(${name}ParamsFactory.${verb == 'deployDelete' ? 'delete' : verb === 'deployUpdate' ? 'update' : verb}${methodNameAccessor}(params))`,
+      `return this.appFactory.${type}.${verb}(${name}ParamsFactory.${verb == 'deployDelete' ? 'delete' : verb === 'deployUpdate' ? 'update' : verb}${methodNameAccessor}(params))`,
     )
   } else {
     yield* indent(
-      `const result = await $this.appFactory.send.create(${name}ParamsFactory.${verb}${methodNameAccessor}(params))`,
+      `const result = await this.appFactory.send.create(${name}ParamsFactory.${verb}${methodNameAccessor}(params))`,
       `return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'${methodSigSafe}'> }, appClient: new ${name}Client(result.appClient) }`,
     )
   }
@@ -257,9 +246,7 @@ function* operationMethods(
 ): DocumentParts {
   if (methods.length) {
     yield* jsDoc(`Gets available ${verb} methods`)
-    yield `get ${verb}() {`
-    yield IncIndent
-    yield `return {`
+    yield `${verb}: {`
     yield IncIndent
     for (const methodSig of methods) {
       if (methodSig === BARE_CALL) {
@@ -283,7 +270,6 @@ function* operationMethods(
         })
       }
     }
-    yield DecIndentAndCloseBlock
     yield DecIndent
     yield '},'
     yield NewLine
