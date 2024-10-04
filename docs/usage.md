@@ -2,6 +2,10 @@
 
 After using the cli tool to generate an application client you will end up with a TypeScript file containing several type definitions, an application factory class and an application client class that is named after the target smart contract. For example, if the contract name is `HelloWorldApp` then you will end up with `HelloWorldAppFactory` and `HelloWorldAppClient` classes. The contract name will also be used to prefix a number of other types in the generated file which allows you to generate clients for multiple smart contracts in the one project without ambiguous type names.
 
+> ![NOTE]
+>
+> If you are confused about when to use the factory vs client the mental model is: use the client if you know the app ID, use the factory if you don't know the app ID (deferred knowledge or the instance doesn't exist yet on the blockchain) or you have multiple app IDs
+
 ## Creating an application client instance
 
 The first step to using the factory/client is to create an instance, which can be done via the constructor or more easily via an [`AlgorandClient`](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/algorand-client.md) instance via `algorand.client.getTypedAppFactory()` and `algorand.client.getTypedAppClient*()` (see code examples below).
@@ -17,12 +21,31 @@ const untypedClient = client.appClient
 
 ### Get a factory
 
-The [app factory](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) allows you to create and deploy one or more app instances and to create one or more app clients to interact with those (or other) app instances.
+The [app factory](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) allows you to create and deploy one or more app instances and to create one or more app clients to interact with those (or other) app instances when you need to create clients for multiple apps.
+
+If you only need a single client for a single, known app then you can skip using the factory and just [use a client](#get-a-client-by-app-id).
 
 ```typescript
+// Via AlgorandClient
 const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory)
 // Or, using the options:
 const factoryWithOptionalParams = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
+  defaultSender: 'DEFAULTSENDERADDRESS',
+  appName: 'OverriddenName',
+  deletable: true,
+  updatable: false,
+  deployTimeParams: {
+    VALUE: '1',
+  },
+  version: '2.0',
+})
+// Or via the constructor
+const factory = new HelloWorldAppFactory({
+  algorand,
+})
+// with options:
+const factory = new HelloWorldAppFactory({
+  algorand,
   defaultSender: 'DEFAULTSENDERADDRESS',
   appName: 'OverriddenName',
   deletable: true,
@@ -38,9 +61,10 @@ const factoryWithOptionalParams = algorand.client.getTypedAppFactory(HelloWorldA
 
 The typed [app client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) can be retrieved by ID.
 
-You can get one by using a previously created app factory:
+You can get one by using a previously created app factory, from an `AlgorandClient` instance and using the constructor:
 
 ```typescript
+// Via factory
 const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory)
 const client = factory.getAppClientById({ appId: 123n })
 const clientWithOptionalParams = factory.getAppClientById({
@@ -49,15 +73,25 @@ const clientWithOptionalParams = factory.getAppClientById({
   appName: 'OverriddenAppName',
   // Can also pass in `approvalSourceMap`, and `clearSourceMap`
 })
-```
 
-Or you can get one using an `AlgorandClient` instance:
-
-```typescript
+// Via AlgorandClient
 const client = algorand.client.getTypedAppClientById(HelloWorldAppClient, {
   appId: 123n,
 })
 const clientWithOptionalParams = algorand.client.getTypedAppClientById(HelloWorldAppClient, {
+  appId: 123n,
+  defaultSender: 'DEFAULTSENDERADDRESS',
+  appName: 'OverriddenAppName',
+  // Can also pass in `approvalSourceMap`, and `clearSourceMap`
+})
+
+// Via constructor
+const client = new HelloWorldAppClient({
+  algorand,
+  appId: 123n,
+})
+const clientWithOptionalParams = new HelloWorldAppClient({
+  algorand,
   appId: 123n,
   defaultSender: 'DEFAULTSENDERADDRESS',
   appName: 'OverriddenAppName',
