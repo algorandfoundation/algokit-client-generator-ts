@@ -1,5 +1,3 @@
-import type fs from 'fs'
-
 export const IncIndent = Symbol('Increase Indent')
 export const DecIndent = Symbol('Decrease Indent')
 export const DecIndentAndCloseBlock = Symbol('Decrease Indent and write a closing brace')
@@ -32,7 +30,7 @@ interface StringWriter {
   get last(): string
 }
 
-export function writeDocumentPartsToStream(document: DocumentParts, stream: fs.WriteStream, options: WriteOptions = {}) {
+export function writeDocumentPartsToStream(document: DocumentParts, stream: { write(chunk: string): void }, options: WriteOptions = {}) {
   const writer = {
     _last: '',
     write(val: string) {
