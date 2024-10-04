@@ -10,7 +10,7 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield IncIndent
 
   yield `const client = this`
-  yield `const composer = client.appClient.newGroup()`
+  yield `const composer = this.algorand.newGroup()`
   yield `let promiseChain:Promise<unknown> = Promise.resolve()`
   yield `const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []`
   yield `return {`

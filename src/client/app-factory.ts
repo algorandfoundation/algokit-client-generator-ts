@@ -32,6 +32,11 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
       })
     }
 
+    /** A reference to the underlying \`AlgorandClient\` this app factory is using. */
+    public get algorand(): AlgorandClientInterface {
+      return this.appFactory.algorand
+    }
+
     /**
      * Returns a new \`AppClient\` client for an app instance of the given ID.
      *
