@@ -4,7 +4,7 @@ if (!globalThis.crypto) globalThis.crypto = webcrypto
 import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { VotingPreconditions, VotingRoundAppFactory } from './client'
+import { VotingPreconditions, VotingRoundAppClient, VotingRoundAppFactory } from './client'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
@@ -93,15 +93,22 @@ describe('voting typed client', () => {
 
     const decoded = algosdk.decodeAddress(testAccount.addr)
     const signature = await ed.signAsync(decoded.publicKey, privateKey)
-    const preconditionsResult = await client.send.getPreconditions({
+    const preconditionsResult = await client.getPreconditions({
       args: {
         signature,
       },
       staticFee: microAlgos(1_000 + 3 * 1_000),
       boxReferences: [testAccount],
     })
-    expect(preconditionsResult.return).toBeDefined()
-    expectType<VotingPreconditions | undefined>(preconditionsResult.return)
+    expectType<VotingPreconditions>(preconditionsResult)
+    delete (preconditionsResult as any).currentTime
+    expect(preconditionsResult).toMatchInlineSnapshot(`
+      {
+        "hasAlreadyVoted": 0n,
+        "isAllowedToVote": 1n,
+        "isVotingOpen": 0n,
+      }
+    `)
   })
 
   test('global_state', async () => {

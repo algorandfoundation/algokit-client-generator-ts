@@ -32,6 +32,16 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
       })
     }
 
+    /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
+    public get appName() {
+      return this.appFactory.appName
+    }
+
+    /** The ARC-56 app spec being used */
+    get appSpec() {
+      return APP_SPEC
+    }
+
     /** A reference to the underlying \`AlgorandClient\` this app factory is using. */
     public get algorand(): AlgorandClientInterface {
       return this.appFactory.algorand
@@ -224,11 +234,11 @@ function* abiMethodCallParams({
   const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
   const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-  yield `${methodName}: ${type === 'send' ? 'async ' : ''}(params: Expand<CallParams<'${methodSigSafe}'>${
+  yield `${methodName}: ${type === 'send' ? 'async ' : ''}(params: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']>${
     includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
   }${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) => {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) => {`
   if (type === 'params' || type === 'createTransaction') {
     yield* indent(
       `return this.appFactory.${type}.${verb}(${name}ParamsFactory.${verb == 'deployDelete' ? 'delete' : verb === 'deployUpdate' ? 'update' : verb}${methodNameAccessor}(params))`,
@@ -236,7 +246,7 @@ function* abiMethodCallParams({
   } else {
     yield* indent(
       `const result = await this.appFactory.send.create(${name}ParamsFactory.${verb}${methodNameAccessor}(params))`,
-      `return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'${methodSigSafe}'> }, appClient: new ${name}Client(result.appClient) }`,
+      `return { result: { ...result.result, return: result.result.return as undefined | ${name}Returns['${methodSigSafe}'] }, appClient: new ${name}Client(result.appClient) }`,
     )
   }
   yield '},'

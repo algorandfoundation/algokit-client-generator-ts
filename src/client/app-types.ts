@@ -1,16 +1,83 @@
 import { GeneratorContext } from './generator-context'
-import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, inline, jsDoc, NewLine } from '../output/writer'
+import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
 import { getEquivalentType } from './helpers/get-equivalent-type'
 import { ABIMethod, ABITupleType } from 'algosdk'
-import { Arc56Contract, StorageKey, StorageMap, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, Method, StorageKey, StorageMap, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { Sanitizer } from '../util/sanitization'
+
+function getMethodMetadata(method: Method, ctx: GeneratorContext) {
+  const { app, methodSignatureToUniqueName, name, sanitizer } = ctx
+  const methodSig = new ABIMethod(method).getSignature()
+  const uniqueName = methodSignatureToUniqueName[methodSig]
+  const argsMeta = method.args.map((arg, i) => ({
+    ...arg,
+    name: arg.name ?? `arg${i + 1}`,
+    hasDefault: !!arg.defaultValue,
+    tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx),
+  }))
+
+  return { methodSig, uniqueName, argsMeta }
+}
 
 export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield* abiTypes(ctx)
   yield* structTypes(ctx)
   yield* templateVariableTypes(ctx)
 
-  const { app, methodSignatureToUniqueName, name } = ctx
+  const { app, name } = ctx
+
+  yield* jsDoc(`The argument types for the ${name} contract`)
+  yield `export type ${name}Args = {`
+  yield IncIndent
+  yield* jsDoc('The object representation of the arguments for each method')
+  yield 'obj: {'
+  yield IncIndent
+  for (const method of app.methods) {
+    const { methodSig, argsMeta } = getMethodMetadata(method, ctx)
+    if (argsMeta.length) {
+      yield `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': {`
+      yield IncIndent
+      for (const arg of argsMeta) {
+        if (arg.desc) yield* jsDoc(arg.desc)
+        yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
+      }
+      yield DecIndentAndCloseBlock
+    } else {
+      yield `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': Record<string, never>`
+    }
+  }
+  yield DecIndentAndCloseBlock
+
+  yield* jsDoc('The tuple representation of the arguments for each method')
+  yield 'tuple: {'
+  yield IncIndent
+  for (const method of app.methods) {
+    const { methodSig, argsMeta } = getMethodMetadata(method, ctx)
+    yield* inline(
+      `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': [`,
+      argsMeta
+        .map((arg) => `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${arg.tsType}${arg.hasDefault ? ' | undefined' : ''}`)
+        .join(', '),
+      ']',
+    )
+  }
+  yield DecIndentAndCloseBlock
+
+  yield DecIndentAndCloseBlock
+  yield NewLine
+
+  yield* jsDoc('The return type for each method')
+  yield `export type ${name}Returns = {`
+  yield IncIndent
+  for (const method of app.methods) {
+    const { methodSig, argsMeta } = getMethodMetadata(method, ctx)
+    yield* inline(
+      `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx)}`,
+    )
+  }
+  yield DecIndentAndCloseBlock
+  yield NewLine
+
   yield* jsDoc(`Defines the types of available calls and state of the ${name} smart contract.`)
   yield `export type ${name}Types = {`
   yield IncIndent
@@ -22,39 +89,14 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   }
   yield IncIndent
   for (const method of app.methods) {
-    const methodSig = new ABIMethod(method).getSignature()
-    const methodSigSafe = ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)
-    const uniqueName = methodSignatureToUniqueName[methodSig]
-    const uniqueNameSafe = ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)
-    yield `& Record<'${methodSigSafe}'${methodSig !== uniqueName ? ` | '${uniqueNameSafe}'` : ''}, {`
+    const { methodSig, uniqueName, argsMeta } = getMethodMetadata(method, ctx)
+    yield `& Record<'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}'${methodSig !== uniqueName ? ` | '${ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)}'` : ''}, {`
     yield IncIndent
-    const argsMeta = method.args.map((arg, i) => ({
-      ...arg,
-      name: arg.name ?? `arg${i + 1}`,
-      hasDefault: !!arg.defaultValue,
-      tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx),
-    }))
-    if (argsMeta.length) {
-      yield `argsObj: {`
-      yield IncIndent
-      for (const arg of argsMeta) {
-        if (arg.desc) yield* jsDoc(arg.desc)
-        yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
-      }
-      yield DecIndentAndCloseBlock
-    } else {
-      yield `argsObj: Record<string, never>`
-    }
+    yield `argsObj: ${name}Args['obj']['${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}']`
+    yield `argsTuple: ${name}Args['tuple']['${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}']`
 
-    yield* inline(
-      `argsTuple: [`,
-      argsMeta
-        .map((arg) => `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${arg.tsType}${arg.hasDefault ? ' | undefined' : ''}`)
-        .join(', '),
-      ']',
-    )
     if (method.returns.desc) yield* jsDoc(method.returns.desc)
-    yield `returns: ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx)}`
+    yield `returns: ${name}Returns['${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}']`
 
     yield DecIndent
     yield '}>'
@@ -86,11 +128,11 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   /**
    * Defines an object containing all relevant parameters for a single call to the contract.
    */
-  export type CallParams<TSignature extends ${name}Signatures> = Expand<
+  export type CallParams<TArgs> = Expand<
     Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
       {
         /** The args for the ABI method call, either as an ordered array or an object */
-        args: Expand<MethodArgs<TSignature>>
+        args: Expand<TArgs>
       }
   >
   /**
@@ -213,13 +255,19 @@ function getStructAsObject(struct: StructField[]): Record<string, any> {
   return Object.fromEntries(struct.map((s) => [s.name, typeof s.type === 'string' ? s.type : getStructAsObject(s.type)]))
 }
 
-function* structTypes({ app, sanitizer }: GeneratorContext): DocumentParts {
+function getStructAsTupleTypes(struct: StructField[], ctx: GeneratorContext): string {
+  return `[${struct.map((s) => (Array.isArray(s.type) ? getStructAsTupleTypes(s.type, ctx) : getEquivalentType(s.type, 'output', ctx))).join(', ')}]`
+}
+
+function* structTypes(ctx: GeneratorContext): DocumentParts {
+  const { app, sanitizer } = ctx
   if (Object.keys(app.structs).length === 0) return
 
   yield '// Type definitions for ARC-56 structs'
   yield NewLine
 
   for (const structName of Object.keys(app.structs)) {
+    // Emit the struct type
     yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(
       getStructAsObject(app.structs[structName]),
       null,
@@ -229,9 +277,21 @@ function* structTypes({ app, sanitizer }: GeneratorContext): DocumentParts {
       .replaceAll('(', '[')
       .replaceAll(')', ']')
       .replace(/\[\d+\]/g, '[]')}`
-  }
+    yield NewLine
 
-  yield NewLine
+    // Emit method that converts ABI tuple to the struct object
+    yield* jsDoc(`Converts the ABI tuple representation of a ${structName} to the struct representation`)
+    yield* inline(
+      `export function ${sanitizer.makeSafeTypeIdentifier(structName)}FromTuple(`,
+      `abiTuple: ${getStructAsTupleTypes(app.structs[structName], ctx)}`,
+      `) {`,
+    )
+    yield* indent(
+      `return getABIStructFromABITuple(abiTuple, APP_SPEC.structs${sanitizer.getSafeMemberAccessor(structName)}, APP_SPEC.structs) as ${sanitizer.makeSafeTypeIdentifier(structName)}`,
+    )
+    yield '}'
+    yield NewLine
+  }
 }
 
 function* templateVariableTypes({ app }: GeneratorContext): DocumentParts {
@@ -248,6 +308,7 @@ function* templateVariableTypes({ app }: GeneratorContext): DocumentParts {
   }
 
   yield DecIndentAndCloseBlock
+  yield NewLine
 }
 
 function* keysAndMaps(

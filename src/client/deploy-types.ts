@@ -42,13 +42,13 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
       if (method === BARE_CALL) {
         yield `| Expand<AppClientBareCallParams & {method?: undefined} & ${onComplete.type} & CreateSchema>`
       } else {
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
         const uniqueName = methodSignatureToUniqueName[method]
         if (uniqueName !== method) {
           const methodName = sanitizer.makeSafeStringTypeLiteral(uniqueName)
-          yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'} & ${onComplete.type} & CreateSchema>`
+          yield `| Expand<CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']> & {method: '${methodName}'} & ${onComplete.type} & CreateSchema>`
         }
-        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
-        yield `| Expand<CallParams<'${methodSigSafe}'> & {method: '${methodSigSafe}'} & ${onComplete.type} & CreateSchema>`
+        yield `| Expand<CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']> & {method: '${methodSigSafe}'} & ${onComplete.type} & CreateSchema>`
       }
     }
     yield DecIndent
@@ -62,12 +62,12 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
         yield `| Expand<AppClientBareCallParams> & {method?: undefined}`
       } else {
         const uniqueName = methodSignatureToUniqueName[method]
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
         if (uniqueName !== method) {
           const methodName = sanitizer.makeSafeStringTypeLiteral(uniqueName)
-          yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'}>`
+          yield `| Expand<CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']> & {method: '${methodName}'}>`
         }
-        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
-        yield `| Expand<CallParams<'${methodSigSafe}'> & {method: '${methodSigSafe}'}>`
+        yield `| Expand<CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']> & {method: '${methodSigSafe}'}>`
       }
     }
     yield DecIndent
@@ -82,12 +82,12 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
         yield `| Expand<AppClientBareCallParams> & {method?: undefined}`
       } else {
         const uniqueName = methodSignatureToUniqueName[method]
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
         if (uniqueName !== method) {
           const methodName = sanitizer.makeSafeStringTypeLiteral(uniqueName)
-          yield `| Expand<CallParams<'${methodName}'> & {method: '${methodName}'}>`
+          yield `| Expand<CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']> & {method: '${methodName}'}>`
         }
-        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
-        yield `| Expand<CallParams<'${methodSigSafe}'> & {method: '${methodSigSafe}'}>`
+        yield `| Expand<CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']> & {method: '${methodSigSafe}'}>`
       }
     }
     yield DecIndent

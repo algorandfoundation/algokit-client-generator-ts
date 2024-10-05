@@ -34,7 +34,7 @@ const defaultSanitiser: Sanitizer = {
     return escapeQuotes(value)
   },
   getSafeMemberAccessor(value: string): string {
-    return this.isSafeVariableIdentifier(value) ? `.${value}` : `[${value}]`
+    return this.isSafeVariableIdentifier(value) ? `.${value}` : `['${this.makeSafeStringTypeLiteral(value)}']`
   },
 }
 

@@ -4,8 +4,9 @@
  * DO NOT MODIFY IT BY HAND.
  * requires: @algorandfoundation/algokit-utils: ^7
  */
+import { AlgorandClientInterface } from '@algorandfoundation/algokit-utils/types/algorand-client-interface'
 import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import {
   AppClient,
   AppClientMethodCallParams,
@@ -22,7 +23,7 @@ import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerR
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"StateApp","structs":{},"methods":[{"name":"call_abi","args":[{"name":"value","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"call_abi_txn","args":[{"name":"txn","type":"pay"},{"name":"value","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"call_with_references","args":[{"name":"asset","type":"asset"},{"name":"account","type":"account"},{"name":"application","type":"application"}],"returns":{"type":"uint64"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_global","args":[{"name":"int1","type":"uint64"},{"name":"int2","type":"uint64"},{"name":"bytes1","type":"string"},{"name":"bytes2","type":"byte[4]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_local","args":[{"name":"int1","type":"uint64"},{"name":"int2","type":"uint64"},{"name":"bytes1","type":"string"},{"name":"bytes2","type":"byte[4]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_box","args":[{"name":"name","type":"byte[4]"},{"name":"value","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"error","args":[],"returns":{"type":"void"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value","args":[{"name":"arg_with_default","type":"string","defaultValue":{"source":"literal","data":"ZGVmYXVsdCB2YWx1ZQ==","type":"AVMString"}}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_int","args":[{"name":"arg_with_default","type":"uint64","defaultValue":{"source":"literal","data":123,"type":"uint64"}}],"returns":{"type":"uint64"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_abi","args":[{"name":"arg_with_default","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_global_state","args":[{"name":"arg_with_default","type":"uint64","defaultValue":{"source":"global","data":"aW50MQ==","type":"uint64"}}],"returns":{"type":"uint64"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_local_state","args":[{"name":"arg_with_default","type":"string","defaultValue":{"source":"local","data":"bG9jYWxfYnl0ZXMx","type":"AVMString"}}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"create_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"update_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["UpdateApplication"]}},{"name":"delete_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["DeleteApplication"]}},{"name":"opt_in","args":[],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["OptIn"]}}],"state":{"schema":{"global":{"ints":3,"bytes":3},"local":{"ints":2,"bytes":3}},"keys":{"global":{"bytes1":{"key":"Ynl0ZXMx","keyType":"AVMString","valueType":"AVMBytes","desc":""},"bytes2":{"key":"Ynl0ZXMy","keyType":"AVMString","valueType":"AVMBytes","desc":""},"int1":{"key":"aW50MQ==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"int2":{"key":"aW50Mg==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"value":{"key":"dmFsdWU=","keyType":"AVMString","valueType":"AVMUint64","desc":""}},"local":{"local_bytes1":{"key":"bG9jYWxfYnl0ZXMx","keyType":"AVMString","valueType":"AVMBytes","desc":""},"local_bytes2":{"key":"bG9jYWxfYnl0ZXMy","keyType":"AVMString","valueType":"AVMBytes","desc":""},"local_int1":{"key":"bG9jYWxfaW50MQ==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"local_int2":{"key":"bG9jYWxfaW50Mg==","keyType":"AVMString","valueType":"AVMUint64","desc":""}},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMSAxMCA1IFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCmJ5dGVjYmxvY2sgMHgxNTFmN2M3NSAweAp0eG4gTnVtQXBwQXJncwppbnRjXzAgLy8gMAo9PQpibnogbWFpbl9sMzQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhmMTdlODBhNSAvLyAiY2FsbF9hYmkoc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMzCnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4MGE5MmE4MWUgLy8gImNhbGxfYWJpX3R4bihwYXksc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMyCnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4ZmVmZGYxMWUgLy8gImNhbGxfd2l0aF9yZWZlcmVuY2VzKGFzc2V0LGFjY291bnQsYXBwbGljYXRpb24pdWludDY0Igo9PQpibnogbWFpbl9sMzEKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhNGNmOGRlYSAvLyAic2V0X2dsb2JhbCh1aW50NjQsdWludDY0LHN0cmluZyxieXRlWzRdKXZvaWQiCj09CmJueiBtYWluX2wzMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweGNlYzI4MzRhIC8vICJzZXRfbG9jYWwodWludDY0LHVpbnQ2NCxzdHJpbmcsYnl0ZVs0XSl2b2lkIgo9PQpibnogbWFpbl9sMjkKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhNGI0YTIzMCAvLyAic2V0X2JveChieXRlWzRdLHN0cmluZyl2b2lkIgo9PQpibnogbWFpbl9sMjgKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg0NGQwZGEwZCAvLyAiZXJyb3IoKXZvaWQiCj09CmJueiBtYWluX2wyNwp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDU3NGI1NWM4IC8vICJkZWZhdWx0X3ZhbHVlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyNgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDM2MDM2MmU5IC8vICJkZWZhdWx0X3ZhbHVlX2ludCh1aW50NjQpdWludDY0Igo9PQpibnogbWFpbl9sMjUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg0NmQyMTFhMyAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2FiaShzdHJpbmcpc3RyaW5nIgo9PQpibnogbWFpbl9sMjQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgwY2ZjYmIwMCAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2dsb2JhbF9zdGF0ZSh1aW50NjQpdWludDY0Igo9PQpibnogbWFpbl9sMjMKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhkMGYwYmFmOCAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2xvY2FsX3N0YXRlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDlkNTIzMDQwIC8vICJjcmVhdGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDNjYTVjZWI3IC8vICJ1cGRhdGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDI3MWI0ZWU5IC8vICJkZWxldGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wxOQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDMwYzZkNThhIC8vICJvcHRfaW4oKXZvaWQiCj09CmJueiBtYWluX2wxOAplcnIKbWFpbl9sMTg6CnR4biBPbkNvbXBsZXRpb24KaW50Y18xIC8vIE9wdEluCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIG9wdGluXzE5CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxOToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzMgLy8gRGVsZXRlQXBwbGljYXRpb24KPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBkZWxldGVhYmlfMTgKc3RvcmUgMjUKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMjUKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjA6CnR4biBPbkNvbXBsZXRpb24KcHVzaGludCA0IC8vIFVwZGF0ZUFwcGxpY2F0aW9uCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgdXBkYXRlYWJpXzE2CnN0b3JlIDI0CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDI0CmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDIxOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgY3JlYXRlYWJpXzE0CnN0b3JlIDIzCmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDIzCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDIyOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgZGVmYXVsdHZhbHVlZnJvbWxvY2Fsc3RhdGVfMTIKc3RvcmUgMjIKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMjIKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpjYWxsc3ViIGRlZmF1bHR2YWx1ZWZyb21nbG9iYWxzdGF0ZV8xMQpzdG9yZSAyMQpieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAyMQppdG9iCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgZGVmYXVsdHZhbHVlZnJvbWFiaV8xMApzdG9yZSAyMApieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAyMApjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wyNToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpidG9pCmNhbGxzdWIgZGVmYXVsdHZhbHVlaW50XzkKc3RvcmUgMTkKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMTkKaXRvYgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wyNjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpjYWxsc3ViIGRlZmF1bHR2YWx1ZV84CnN0b3JlIDE4CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDE4CmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI3Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIGVycm9yXzcKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI4Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCnN0b3JlIDE2CnR4bmEgQXBwbGljYXRpb25BcmdzIDIKc3RvcmUgMTcKbG9hZCAxNgpsb2FkIDE3CmNhbGxzdWIgc2V0Ym94XzYKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI5Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmJ0b2kKc3RvcmUgMTIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgpidG9pCnN0b3JlIDEzCnR4bmEgQXBwbGljYXRpb25BcmdzIDMKc3RvcmUgMTQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNApzdG9yZSAxNQpsb2FkIDEyCmxvYWQgMTMKbG9hZCAxNApsb2FkIDE1CmNhbGxzdWIgc2V0bG9jYWxfNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMzA6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpzdG9yZSA4CnR4bmEgQXBwbGljYXRpb25BcmdzIDIKYnRvaQpzdG9yZSA5CnR4bmEgQXBwbGljYXRpb25BcmdzIDMKc3RvcmUgMTAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNApzdG9yZSAxMQpsb2FkIDgKbG9hZCA5CmxvYWQgMTAKbG9hZCAxMQpjYWxsc3ViIHNldGdsb2JhbF80CmludGNfMSAvLyAxCnJldHVybgptYWluX2wzMToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDYKbG9hZCA0CmxvYWQgNQpsb2FkIDYKY2FsbHN1YiBjYWxsd2l0aHJlZmVyZW5jZXNfMwpzdG9yZSA3CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDcKaXRvYgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wzMjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpzdG9yZSAyCnR4biBHcm91cEluZGV4CmludGNfMSAvLyAxCi0Kc3RvcmUgMQpsb2FkIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18xIC8vIHBheQo9PQphc3NlcnQKbG9hZCAxCmxvYWQgMgpjYWxsc3ViIGNhbGxhYml0eG5fMgpzdG9yZSAzCmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDMKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMzM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBjYWxsYWJpXzAKc3RvcmUgMApieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAwCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDM0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2w0Mgp0eG4gT25Db21wbGV0aW9uCmludGNfMSAvLyBPcHRJbgo9PQpibnogbWFpbl9sNDEKdHhuIE9uQ29tcGxldGlvbgpwdXNoaW50IDQgLy8gVXBkYXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDQwCnR4biBPbkNvbXBsZXRpb24KaW50Y18zIC8vIERlbGV0ZUFwcGxpY2F0aW9uCj09CmJueiBtYWluX2wzOQplcnIKbWFpbl9sMzk6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIGRlbGV0ZV8xNwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDA6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIHVwZGF0ZV8xNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDE6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydApjYWxsc3ViIGNyZWF0ZV8xMwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDI6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydApjYWxsc3ViIGNyZWF0ZV8xMwppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIGNhbGxfYWJpCmNhbGxhYmlfMDoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKcHVzaGJ5dGVzIDB4NDg2NTZjNmM2ZjJjMjAgLy8gIkhlbGxvLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBpdG9hCml0b2FfMToKcHJvdG8gMSAxCmZyYW1lX2RpZyAtMQppbnRjXzAgLy8gMAo9PQpibnogaXRvYV8xX2w1CmZyYW1lX2RpZyAtMQppbnRjXzIgLy8gMTAKLwppbnRjXzAgLy8gMAo+CmJueiBpdG9hXzFfbDQKYnl0ZWNfMSAvLyAiIgppdG9hXzFfbDM6CnB1c2hieXRlcyAweDMwMzEzMjMzMzQzNTM2MzczODM5IC8vICIwMTIzNDU2Nzg5IgpmcmFtZV9kaWcgLTEKaW50Y18yIC8vIDEwCiUKaW50Y18xIC8vIDEKZXh0cmFjdDMKY29uY2F0CmIgaXRvYV8xX2w2Cml0b2FfMV9sNDoKZnJhbWVfZGlnIC0xCmludGNfMiAvLyAxMAovCmNhbGxzdWIgaXRvYV8xCmIgaXRvYV8xX2wzCml0b2FfMV9sNToKcHVzaGJ5dGVzIDB4MzAgLy8gIjAiCml0b2FfMV9sNjoKcmV0c3ViCgovLyBjYWxsX2FiaV90eG4KY2FsbGFiaXR4bl8yOgpwcm90byAyIDEKYnl0ZWNfMSAvLyAiIgpwdXNoYnl0ZXMgMHg1MzY1NmU3NDIwIC8vICJTZW50ICIKZnJhbWVfZGlnIC0yCmd0eG5zIEFtb3VudApjYWxsc3ViIGl0b2FfMQpjb25jYXQKcHVzaGJ5dGVzIDB4MmUyMCAvLyAiLiAiCmNvbmNhdApmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKY29uY2F0CmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gY2FsbF93aXRoX3JlZmVyZW5jZXMKY2FsbHdpdGhyZWZlcmVuY2VzXzM6CnByb3RvIDMgMQppbnRjXzAgLy8gMApmcmFtZV9kaWcgLTMKdHhuYXMgQXNzZXRzCi8vIGFzc2V0IG5vdCBwcm92aWRlZAphc3NlcnQKZnJhbWVfZGlnIC0yCnR4bmFzIEFjY291bnRzCmxlbgovLyBhY2NvdW50IG5vdCBwcm92aWRlZAphc3NlcnQKZnJhbWVfZGlnIC0xCnR4bmFzIEFwcGxpY2F0aW9ucwovLyBhcHBsaWNhdGlvbiBub3QgcHJvdmlkZWQKYXNzZXJ0CmludGNfMSAvLyAxCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHNldF9nbG9iYWwKc2V0Z2xvYmFsXzQ6CnByb3RvIDQgMApwdXNoYnl0ZXMgMHg2OTZlNzQzMSAvLyAiaW50MSIKZnJhbWVfZGlnIC00CmFwcF9nbG9iYWxfcHV0CnB1c2hieXRlcyAweDY5NmU3NDMyIC8vICJpbnQyIgpmcmFtZV9kaWcgLTMKYXBwX2dsb2JhbF9wdXQKcHVzaGJ5dGVzIDB4NjI3OTc0NjU3MzMxIC8vICJieXRlczEiCmZyYW1lX2RpZyAtMgpleHRyYWN0IDIgMAphcHBfZ2xvYmFsX3B1dApwdXNoYnl0ZXMgMHg2Mjc5NzQ2NTczMzIgLy8gImJ5dGVzMiIKZnJhbWVfZGlnIC0xCmFwcF9nbG9iYWxfcHV0CnJldHN1YgoKLy8gc2V0X2xvY2FsCnNldGxvY2FsXzU6CnByb3RvIDQgMAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjY5NmU3NDMxIC8vICJsb2NhbF9pbnQxIgpmcmFtZV9kaWcgLTQKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjY5NmU3NDMyIC8vICJsb2NhbF9pbnQyIgpmcmFtZV9kaWcgLTMKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjYyNzk3NDY1NzMzMSAvLyAibG9jYWxfYnl0ZXMxIgpmcmFtZV9kaWcgLTIKZXh0cmFjdCAyIDAKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjYyNzk3NDY1NzMzMiAvLyAibG9jYWxfYnl0ZXMyIgpmcmFtZV9kaWcgLTEKYXBwX2xvY2FsX3B1dApyZXRzdWIKCi8vIHNldF9ib3gKc2V0Ym94XzY6CnByb3RvIDIgMApmcmFtZV9kaWcgLTIKYm94X2RlbApwb3AKZnJhbWVfZGlnIC0yCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApib3hfcHV0CnJldHN1YgoKLy8gZXJyb3IKZXJyb3JfNzoKcHJvdG8gMCAwCmludGNfMCAvLyAwCi8vIERlbGliZXJhdGUgZXJyb3IKYXNzZXJ0CnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZQpkZWZhdWx0dmFsdWVfODoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZV9pbnQKZGVmYXVsdHZhbHVlaW50Xzk6CnByb3RvIDEgMQppbnRjXzAgLy8gMApmcmFtZV9kaWcgLTEKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZV9mcm9tX2FiaQpkZWZhdWx0dmFsdWVmcm9tYWJpXzEwOgpwcm90byAxIDEKYnl0ZWNfMSAvLyAiIgpwdXNoYnl0ZXMgMHg0MTQyNDkyYzIwIC8vICJBQkksICIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmNvbmNhdApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlZmF1bHRfdmFsdWVfZnJvbV9nbG9iYWxfc3RhdGUKZGVmYXVsdHZhbHVlZnJvbWdsb2JhbHN0YXRlXzExOgpwcm90byAxIDEKaW50Y18wIC8vIDAKZnJhbWVfZGlnIC0xCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlZmF1bHRfdmFsdWVfZnJvbV9sb2NhbF9zdGF0ZQpkZWZhdWx0dmFsdWVmcm9tbG9jYWxzdGF0ZV8xMjoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKcHVzaGJ5dGVzIDB4NGM2ZjYzNjE2YzIwNzM3NDYxNzQ2NTJjMjAgLy8gIkxvY2FsIHN0YXRlLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBjcmVhdGUKY3JlYXRlXzEzOgpwcm90byAwIDAKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydApwdXNoYnl0ZXMgMHg3NjYxNmM3NTY1IC8vICJ2YWx1ZSIKcHVzaGludCBUTVBMX1ZBTFVFIC8vIFRNUExfVkFMVUUKYXBwX2dsb2JhbF9wdXQKcmV0c3ViCgovLyBjcmVhdGVfYWJpCmNyZWF0ZWFiaV8xNDoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydApmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyB1cGRhdGUKdXBkYXRlXzE1Ogpwcm90byAwIDAKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydAppbnRjIDQgLy8gVE1QTF9VUERBVEFCTEUKLy8gQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZQphc3NlcnQKcmV0c3ViCgovLyB1cGRhdGVfYWJpCnVwZGF0ZWFiaV8xNjoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydAppbnRjIDQgLy8gVE1QTF9VUERBVEFCTEUKLy8gQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZQphc3NlcnQKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVsZXRlCmRlbGV0ZV8xNzoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKaW50YyA1IC8vIFRNUExfREVMRVRBQkxFCi8vIENoZWNrIGFwcCBpcyBkZWxldGFibGUKYXNzZXJ0CnJldHN1YgoKLy8gZGVsZXRlX2FiaQpkZWxldGVhYmlfMTg6CnByb3RvIDEgMQpieXRlY18xIC8vICIiCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKaW50YyA1IC8vIFRNUExfREVMRVRBQkxFCi8vIENoZWNrIGFwcCBpcyBkZWxldGFibGUKYXNzZXJ0CmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIG9wdF9pbgpvcHRpbl8xOToKcHJvdG8gMCAwCmludGNfMSAvLyAxCnJldHVybg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"},"bareActions":{"create":["NoOp","OptIn"],"call":["DeleteApplication","UpdateApplication"]}}
+export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"StateApp","structs":{},"methods":[{"name":"call_abi","args":[{"name":"value","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"call_abi_txn","args":[{"name":"txn","type":"pay"},{"name":"value","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"call_with_references","args":[{"name":"asset","type":"asset"},{"name":"account","type":"account"},{"name":"application","type":"application"}],"returns":{"type":"uint64"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_global","args":[{"name":"int1","type":"uint64"},{"name":"int2","type":"uint64"},{"name":"bytes1","type":"string"},{"name":"bytes2","type":"byte[4]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_local","args":[{"name":"int1","type":"uint64"},{"name":"int2","type":"uint64"},{"name":"bytes1","type":"string"},{"name":"bytes2","type":"byte[4]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"set_box","args":[{"name":"name","type":"byte[4]"},{"name":"value","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"error","args":[],"returns":{"type":"void"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value","args":[{"name":"arg_with_default","type":"string","defaultValue":{"source":"literal","data":"ZGVmYXVsdCB2YWx1ZQ==","type":"AVMString"}}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_int","args":[{"name":"arg_with_default","type":"uint64","defaultValue":{"source":"literal","data":123,"type":"uint64"}}],"returns":{"type":"uint64"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_abi","args":[{"name":"arg_with_default","type":"string"}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_global_state","args":[{"name":"arg_with_default","type":"uint64","defaultValue":{"source":"global","data":"aW50MQ==","type":"uint64"}}],"returns":{"type":"uint64"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"default_value_from_local_state","args":[{"name":"arg_with_default","type":"string","defaultValue":{"source":"local","data":"bG9jYWxfYnl0ZXMx","type":"AVMString"}}],"returns":{"type":"string"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"create_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"update_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["UpdateApplication"]}},{"name":"delete_abi","args":[{"name":"input","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["DeleteApplication"]}},{"name":"opt_in","args":[],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["OptIn"]}}],"state":{"schema":{"global":{"ints":3,"bytes":3},"local":{"ints":2,"bytes":3}},"keys":{"global":{"bytes1":{"key":"Ynl0ZXMx","keyType":"AVMString","valueType":"AVMBytes","desc":""},"bytes2":{"key":"Ynl0ZXMy","keyType":"AVMString","valueType":"AVMBytes","desc":""},"int1":{"key":"aW50MQ==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"int2":{"key":"aW50Mg==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"value":{"key":"dmFsdWU=","keyType":"AVMString","valueType":"AVMUint64","desc":""}},"local":{"local_bytes1":{"key":"bG9jYWxfYnl0ZXMx","keyType":"AVMString","valueType":"AVMBytes","desc":""},"local_bytes2":{"key":"bG9jYWxfYnl0ZXMy","keyType":"AVMString","valueType":"AVMBytes","desc":""},"local_int1":{"key":"bG9jYWxfaW50MQ==","keyType":"AVMString","valueType":"AVMUint64","desc":""},"local_int2":{"key":"bG9jYWxfaW50Mg==","keyType":"AVMString","valueType":"AVMUint64","desc":""}},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMSAxMCA1IFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCmJ5dGVjYmxvY2sgMHgxNTFmN2M3NSAweAp0eG4gTnVtQXBwQXJncwppbnRjXzAgLy8gMAo9PQpibnogbWFpbl9sMzQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhmMTdlODBhNSAvLyAiY2FsbF9hYmkoc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMzCnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4MGE5MmE4MWUgLy8gImNhbGxfYWJpX3R4bihwYXksc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDMyCnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4ZmVmZGYxMWUgLy8gImNhbGxfd2l0aF9yZWZlcmVuY2VzKGFzc2V0LGFjY291bnQsYXBwbGljYXRpb24pdWludDY0Igo9PQpibnogbWFpbl9sMzEKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhNGNmOGRlYSAvLyAic2V0X2dsb2JhbCh1aW50NjQsdWludDY0LHN0cmluZyxieXRlWzRdKXZvaWQiCj09CmJueiBtYWluX2wzMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweGNlYzI4MzRhIC8vICJzZXRfbG9jYWwodWludDY0LHVpbnQ2NCxzdHJpbmcsYnl0ZVs0XSl2b2lkIgo9PQpibnogbWFpbl9sMjkKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhNGI0YTIzMCAvLyAic2V0X2JveChieXRlWzRdLHN0cmluZyl2b2lkIgo9PQpibnogbWFpbl9sMjgKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg0NGQwZGEwZCAvLyAiZXJyb3IoKXZvaWQiCj09CmJueiBtYWluX2wyNwp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDU3NGI1NWM4IC8vICJkZWZhdWx0X3ZhbHVlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyNgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDM2MDM2MmU5IC8vICJkZWZhdWx0X3ZhbHVlX2ludCh1aW50NjQpdWludDY0Igo9PQpibnogbWFpbl9sMjUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg0NmQyMTFhMyAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2FiaShzdHJpbmcpc3RyaW5nIgo9PQpibnogbWFpbl9sMjQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgwY2ZjYmIwMCAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2dsb2JhbF9zdGF0ZSh1aW50NjQpdWludDY0Igo9PQpibnogbWFpbl9sMjMKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhkMGYwYmFmOCAvLyAiZGVmYXVsdF92YWx1ZV9mcm9tX2xvY2FsX3N0YXRlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDlkNTIzMDQwIC8vICJjcmVhdGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDNjYTVjZWI3IC8vICJ1cGRhdGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wyMAp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDI3MWI0ZWU5IC8vICJkZWxldGVfYWJpKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2wxOQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDMwYzZkNThhIC8vICJvcHRfaW4oKXZvaWQiCj09CmJueiBtYWluX2wxOAplcnIKbWFpbl9sMTg6CnR4biBPbkNvbXBsZXRpb24KaW50Y18xIC8vIE9wdEluCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIG9wdGluXzE5CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxOToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzMgLy8gRGVsZXRlQXBwbGljYXRpb24KPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBkZWxldGVhYmlfMTgKc3RvcmUgMjUKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMjUKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjA6CnR4biBPbkNvbXBsZXRpb24KcHVzaGludCA0IC8vIFVwZGF0ZUFwcGxpY2F0aW9uCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgdXBkYXRlYWJpXzE2CnN0b3JlIDI0CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDI0CmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDIxOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgY3JlYXRlYWJpXzE0CnN0b3JlIDIzCmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDIzCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDIyOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgZGVmYXVsdHZhbHVlZnJvbWxvY2Fsc3RhdGVfMTIKc3RvcmUgMjIKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMjIKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpjYWxsc3ViIGRlZmF1bHR2YWx1ZWZyb21nbG9iYWxzdGF0ZV8xMQpzdG9yZSAyMQpieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAyMQppdG9iCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmNhbGxzdWIgZGVmYXVsdHZhbHVlZnJvbWFiaV8xMApzdG9yZSAyMApieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAyMApjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wyNToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpidG9pCmNhbGxzdWIgZGVmYXVsdHZhbHVlaW50XzkKc3RvcmUgMTkKYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CmxvYWQgMTkKaXRvYgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wyNjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpjYWxsc3ViIGRlZmF1bHR2YWx1ZV84CnN0b3JlIDE4CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDE4CmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI3Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIGVycm9yXzcKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI4Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCnN0b3JlIDE2CnR4bmEgQXBwbGljYXRpb25BcmdzIDIKc3RvcmUgMTcKbG9hZCAxNgpsb2FkIDE3CmNhbGxzdWIgc2V0Ym94XzYKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDI5Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmJ0b2kKc3RvcmUgMTIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgpidG9pCnN0b3JlIDEzCnR4bmEgQXBwbGljYXRpb25BcmdzIDMKc3RvcmUgMTQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNApzdG9yZSAxNQpsb2FkIDEyCmxvYWQgMTMKbG9hZCAxNApsb2FkIDE1CmNhbGxzdWIgc2V0bG9jYWxfNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMzA6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpzdG9yZSA4CnR4bmEgQXBwbGljYXRpb25BcmdzIDIKYnRvaQpzdG9yZSA5CnR4bmEgQXBwbGljYXRpb25BcmdzIDMKc3RvcmUgMTAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNApzdG9yZSAxMQpsb2FkIDgKbG9hZCA5CmxvYWQgMTAKbG9hZCAxMQpjYWxsc3ViIHNldGdsb2JhbF80CmludGNfMSAvLyAxCnJldHVybgptYWluX2wzMToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDUKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwppbnRjXzAgLy8gMApnZXRieXRlCnN0b3JlIDYKbG9hZCA0CmxvYWQgNQpsb2FkIDYKY2FsbHN1YiBjYWxsd2l0aHJlZmVyZW5jZXNfMwpzdG9yZSA3CmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDcKaXRvYgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wzMjoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpzdG9yZSAyCnR4biBHcm91cEluZGV4CmludGNfMSAvLyAxCi0Kc3RvcmUgMQpsb2FkIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18xIC8vIHBheQo9PQphc3NlcnQKbG9hZCAxCmxvYWQgMgpjYWxsc3ViIGNhbGxhYml0eG5fMgpzdG9yZSAzCmJ5dGVjXzAgLy8gMHgxNTFmN2M3NQpsb2FkIDMKY29uY2F0CmxvZwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMzM6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBjYWxsYWJpXzAKc3RvcmUgMApieXRlY18wIC8vIDB4MTUxZjdjNzUKbG9hZCAwCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDM0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2w0Mgp0eG4gT25Db21wbGV0aW9uCmludGNfMSAvLyBPcHRJbgo9PQpibnogbWFpbl9sNDEKdHhuIE9uQ29tcGxldGlvbgpwdXNoaW50IDQgLy8gVXBkYXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDQwCnR4biBPbkNvbXBsZXRpb24KaW50Y18zIC8vIERlbGV0ZUFwcGxpY2F0aW9uCj09CmJueiBtYWluX2wzOQplcnIKbWFpbl9sMzk6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIGRlbGV0ZV8xNwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDA6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIHVwZGF0ZV8xNQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDE6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydApjYWxsc3ViIGNyZWF0ZV8xMwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNDI6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydApjYWxsc3ViIGNyZWF0ZV8xMwppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIGNhbGxfYWJpCmNhbGxhYmlfMDoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKcHVzaGJ5dGVzIDB4NDg2NTZjNmM2ZjJjMjAgLy8gIkhlbGxvLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBpdG9hCml0b2FfMToKcHJvdG8gMSAxCmZyYW1lX2RpZyAtMQppbnRjXzAgLy8gMAo9PQpibnogaXRvYV8xX2w1CmZyYW1lX2RpZyAtMQppbnRjXzIgLy8gMTAKLwppbnRjXzAgLy8gMAo+CmJueiBpdG9hXzFfbDQKYnl0ZWNfMSAvLyAiIgppdG9hXzFfbDM6CnB1c2hieXRlcyAweDMwMzEzMjMzMzQzNTM2MzczODM5IC8vICIwMTIzNDU2Nzg5IgpmcmFtZV9kaWcgLTEKaW50Y18yIC8vIDEwCiUKaW50Y18xIC8vIDEKZXh0cmFjdDMKY29uY2F0CmIgaXRvYV8xX2w2Cml0b2FfMV9sNDoKZnJhbWVfZGlnIC0xCmludGNfMiAvLyAxMAovCmNhbGxzdWIgaXRvYV8xCmIgaXRvYV8xX2wzCml0b2FfMV9sNToKcHVzaGJ5dGVzIDB4MzAgLy8gIjAiCml0b2FfMV9sNjoKcmV0c3ViCgovLyBjYWxsX2FiaV90eG4KY2FsbGFiaXR4bl8yOgpwcm90byAyIDEKYnl0ZWNfMSAvLyAiIgpwdXNoYnl0ZXMgMHg1MzY1NmU3NDIwIC8vICJTZW50ICIKZnJhbWVfZGlnIC0yCmd0eG5zIEFtb3VudApjYWxsc3ViIGl0b2FfMQpjb25jYXQKcHVzaGJ5dGVzIDB4MmUyMCAvLyAiLiAiCmNvbmNhdApmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKY29uY2F0CmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gY2FsbF93aXRoX3JlZmVyZW5jZXMKY2FsbHdpdGhyZWZlcmVuY2VzXzM6CnByb3RvIDMgMQppbnRjXzAgLy8gMApmcmFtZV9kaWcgLTMKdHhuYXMgQXNzZXRzCi8vIGFzc2V0IG5vdCBwcm92aWRlZAphc3NlcnQKZnJhbWVfZGlnIC0yCnR4bmFzIEFjY291bnRzCmxlbgovLyBhY2NvdW50IG5vdCBwcm92aWRlZAphc3NlcnQKZnJhbWVfZGlnIC0xCnR4bmFzIEFwcGxpY2F0aW9ucwovLyBhcHBsaWNhdGlvbiBub3QgcHJvdmlkZWQKYXNzZXJ0CmludGNfMSAvLyAxCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHNldF9nbG9iYWwKc2V0Z2xvYmFsXzQ6CnByb3RvIDQgMApwdXNoYnl0ZXMgMHg2OTZlNzQzMSAvLyAiaW50MSIKZnJhbWVfZGlnIC00CmFwcF9nbG9iYWxfcHV0CnB1c2hieXRlcyAweDY5NmU3NDMyIC8vICJpbnQyIgpmcmFtZV9kaWcgLTMKYXBwX2dsb2JhbF9wdXQKcHVzaGJ5dGVzIDB4NjI3OTc0NjU3MzMxIC8vICJieXRlczEiCmZyYW1lX2RpZyAtMgpleHRyYWN0IDIgMAphcHBfZ2xvYmFsX3B1dApwdXNoYnl0ZXMgMHg2Mjc5NzQ2NTczMzIgLy8gImJ5dGVzMiIKZnJhbWVfZGlnIC0xCmFwcF9nbG9iYWxfcHV0CnJldHN1YgoKLy8gc2V0X2xvY2FsCnNldGxvY2FsXzU6CnByb3RvIDQgMAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjY5NmU3NDMxIC8vICJsb2NhbF9pbnQxIgpmcmFtZV9kaWcgLTQKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjY5NmU3NDMyIC8vICJsb2NhbF9pbnQyIgpmcmFtZV9kaWcgLTMKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjYyNzk3NDY1NzMzMSAvLyAibG9jYWxfYnl0ZXMxIgpmcmFtZV9kaWcgLTIKZXh0cmFjdCAyIDAKYXBwX2xvY2FsX3B1dAp0eG4gU2VuZGVyCnB1c2hieXRlcyAweDZjNmY2MzYxNmM1ZjYyNzk3NDY1NzMzMiAvLyAibG9jYWxfYnl0ZXMyIgpmcmFtZV9kaWcgLTEKYXBwX2xvY2FsX3B1dApyZXRzdWIKCi8vIHNldF9ib3gKc2V0Ym94XzY6CnByb3RvIDIgMApmcmFtZV9kaWcgLTIKYm94X2RlbApwb3AKZnJhbWVfZGlnIC0yCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApib3hfcHV0CnJldHN1YgoKLy8gZXJyb3IKZXJyb3JfNzoKcHJvdG8gMCAwCmludGNfMCAvLyAwCi8vIERlbGliZXJhdGUgZXJyb3IKYXNzZXJ0CnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZQpkZWZhdWx0dmFsdWVfODoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZV9pbnQKZGVmYXVsdHZhbHVlaW50Xzk6CnByb3RvIDEgMQppbnRjXzAgLy8gMApmcmFtZV9kaWcgLTEKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVmYXVsdF92YWx1ZV9mcm9tX2FiaQpkZWZhdWx0dmFsdWVmcm9tYWJpXzEwOgpwcm90byAxIDEKYnl0ZWNfMSAvLyAiIgpwdXNoYnl0ZXMgMHg0MTQyNDkyYzIwIC8vICJBQkksICIKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmNvbmNhdApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlZmF1bHRfdmFsdWVfZnJvbV9nbG9iYWxfc3RhdGUKZGVmYXVsdHZhbHVlZnJvbWdsb2JhbHN0YXRlXzExOgpwcm90byAxIDEKaW50Y18wIC8vIDAKZnJhbWVfZGlnIC0xCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlZmF1bHRfdmFsdWVfZnJvbV9sb2NhbF9zdGF0ZQpkZWZhdWx0dmFsdWVmcm9tbG9jYWxzdGF0ZV8xMjoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKcHVzaGJ5dGVzIDB4NGM2ZjYzNjE2YzIwNzM3NDYxNzQ2NTJjMjAgLy8gIkxvY2FsIHN0YXRlLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBjcmVhdGUKY3JlYXRlXzEzOgpwcm90byAwIDAKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydApwdXNoYnl0ZXMgMHg3NjYxNmM3NTY1IC8vICJ2YWx1ZSIKcHVzaGludCBUTVBMX1ZBTFVFIC8vIFRNUExfVkFMVUUKYXBwX2dsb2JhbF9wdXQKcmV0c3ViCgovLyBjcmVhdGVfYWJpCmNyZWF0ZWFiaV8xNDoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydApmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyB1cGRhdGUKdXBkYXRlXzE1Ogpwcm90byAwIDAKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydAppbnRjIDQgLy8gVE1QTF9VUERBVEFCTEUKLy8gQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZQphc3NlcnQKcmV0c3ViCgovLyB1cGRhdGVfYWJpCnVwZGF0ZWFiaV8xNjoKcHJvdG8gMSAxCmJ5dGVjXzEgLy8gIiIKdHhuIFNlbmRlcgpnbG9iYWwgQ3JlYXRvckFkZHJlc3MKPT0KLy8gdW5hdXRob3JpemVkCmFzc2VydAppbnRjIDQgLy8gVE1QTF9VUERBVEFCTEUKLy8gQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZQphc3NlcnQKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gZGVsZXRlCmRlbGV0ZV8xNzoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKaW50YyA1IC8vIFRNUExfREVMRVRBQkxFCi8vIENoZWNrIGFwcCBpcyBkZWxldGFibGUKYXNzZXJ0CnJldHN1YgoKLy8gZGVsZXRlX2FiaQpkZWxldGVhYmlfMTg6CnByb3RvIDEgMQpieXRlY18xIC8vICIiCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKaW50YyA1IC8vIFRNUExfREVMRVRBQkxFCi8vIENoZWNrIGFwcCBpcyBkZWxldGFibGUKYXNzZXJ0CmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIG9wdF9pbgpvcHRpbl8xOToKcHJvdG8gMCAwCmludGNfMSAvLyAxCnJldHVybg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"},"bareActions":{"create":["NoOp","OptIn"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -74,6 +75,114 @@ type AVMBytes = Uint8Array;
 type AVMUint64 = bigint;
 
 /**
+ * The argument types for the StateApp contract
+ */
+export type StateAppArgs = {
+  /**
+   * The object representation of the arguments for each method
+   */
+  obj: {
+    'call_abi(string)string': {
+      value: string
+    }
+    'call_abi_txn(pay,string)string': {
+      txn: AppMethodCallTransactionArgument
+      value: string
+    }
+    'call_with_references(asset,account,application)uint64': {
+      asset: bigint
+      account: string | Uint8Array
+      application: bigint
+    }
+    'set_global(uint64,uint64,string,byte[4])void': {
+      int1: bigint | number
+      int2: bigint | number
+      bytes1: string
+      bytes2: Uint8Array
+    }
+    'set_local(uint64,uint64,string,byte[4])void': {
+      int1: bigint | number
+      int2: bigint | number
+      bytes1: string
+      bytes2: Uint8Array
+    }
+    'set_box(byte[4],string)void': {
+      name: Uint8Array
+      value: string
+    }
+    'error()void': Record<string, never>
+    'default_value(string)string': {
+      argWithDefault?: string
+    }
+    'default_value_int(uint64)uint64': {
+      argWithDefault?: bigint | number
+    }
+    'default_value_from_abi(string)string': {
+      argWithDefault: string
+    }
+    'default_value_from_global_state(uint64)uint64': {
+      argWithDefault?: bigint | number
+    }
+    'default_value_from_local_state(string)string': {
+      argWithDefault?: string
+    }
+    'create_abi(string)string': {
+      input: string
+    }
+    'update_abi(string)string': {
+      input: string
+    }
+    'delete_abi(string)string': {
+      input: string
+    }
+    'opt_in()void': Record<string, never>
+  }
+  /**
+   * The tuple representation of the arguments for each method
+   */
+  tuple: {
+    'call_abi(string)string': [value: string]
+    'call_abi_txn(pay,string)string': [txn: AppMethodCallTransactionArgument, value: string]
+    'call_with_references(asset,account,application)uint64': [asset: bigint, account: string | Uint8Array, application: bigint]
+    'set_global(uint64,uint64,string,byte[4])void': [int1: bigint | number, int2: bigint | number, bytes1: string, bytes2: Uint8Array]
+    'set_local(uint64,uint64,string,byte[4])void': [int1: bigint | number, int2: bigint | number, bytes1: string, bytes2: Uint8Array]
+    'set_box(byte[4],string)void': [name: Uint8Array, value: string]
+    'error()void': []
+    'default_value(string)string': [argWithDefault: string | undefined]
+    'default_value_int(uint64)uint64': [argWithDefault: bigint | number | undefined]
+    'default_value_from_abi(string)string': [argWithDefault: string]
+    'default_value_from_global_state(uint64)uint64': [argWithDefault: bigint | number | undefined]
+    'default_value_from_local_state(string)string': [argWithDefault: string | undefined]
+    'create_abi(string)string': [input: string]
+    'update_abi(string)string': [input: string]
+    'delete_abi(string)string': [input: string]
+    'opt_in()void': []
+  }
+}
+
+/**
+ * The return type for each method
+ */
+export type StateAppReturns = {
+  'call_abi(string)string': string
+  'call_abi_txn(pay,string)string': string
+  'call_with_references(asset,account,application)uint64': bigint
+  'set_global(uint64,uint64,string,byte[4])void': void
+  'set_local(uint64,uint64,string,byte[4])void': void
+  'set_box(byte[4],string)void': void
+  'error()void': void
+  'default_value(string)string': string
+  'default_value_int(uint64)uint64': bigint
+  'default_value_from_abi(string)string': string
+  'default_value_from_global_state(uint64)uint64': bigint
+  'default_value_from_local_state(string)string': string
+  'create_abi(string)string': string
+  'update_abi(string)string': string
+  'delete_abi(string)string': string
+  'opt_in()void': void
+}
+
+/**
  * Defines the types of available calls and state of the StateApp smart contract.
  */
 export type StateAppTypes = {
@@ -82,122 +191,84 @@ export type StateAppTypes = {
    */
   methods:
     & Record<'call_abi(string)string' | 'call_abi', {
-      argsObj: {
-        value: string
-      }
-      argsTuple: [value: string]
-      returns: string
+      argsObj: StateAppArgs['obj']['call_abi(string)string']
+      argsTuple: StateAppArgs['tuple']['call_abi(string)string']
+      returns: StateAppReturns['call_abi(string)string']
     }>
     & Record<'call_abi_txn(pay,string)string' | 'call_abi_txn', {
-      argsObj: {
-        txn: AppMethodCallTransactionArgument
-        value: string
-      }
-      argsTuple: [txn: AppMethodCallTransactionArgument, value: string]
-      returns: string
+      argsObj: StateAppArgs['obj']['call_abi_txn(pay,string)string']
+      argsTuple: StateAppArgs['tuple']['call_abi_txn(pay,string)string']
+      returns: StateAppReturns['call_abi_txn(pay,string)string']
     }>
     & Record<'call_with_references(asset,account,application)uint64' | 'call_with_references', {
-      argsObj: {
-        asset: bigint
-        account: string | Uint8Array
-        application: bigint
-      }
-      argsTuple: [asset: bigint, account: string | Uint8Array, application: bigint]
-      returns: bigint
+      argsObj: StateAppArgs['obj']['call_with_references(asset,account,application)uint64']
+      argsTuple: StateAppArgs['tuple']['call_with_references(asset,account,application)uint64']
+      returns: StateAppReturns['call_with_references(asset,account,application)uint64']
     }>
     & Record<'set_global(uint64,uint64,string,byte[4])void' | 'set_global', {
-      argsObj: {
-        int1: bigint | number
-        int2: bigint | number
-        bytes1: string
-        bytes2: Uint8Array
-      }
-      argsTuple: [int1: bigint | number, int2: bigint | number, bytes1: string, bytes2: Uint8Array]
-      returns: void
+      argsObj: StateAppArgs['obj']['set_global(uint64,uint64,string,byte[4])void']
+      argsTuple: StateAppArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']
+      returns: StateAppReturns['set_global(uint64,uint64,string,byte[4])void']
     }>
     & Record<'set_local(uint64,uint64,string,byte[4])void' | 'set_local', {
-      argsObj: {
-        int1: bigint | number
-        int2: bigint | number
-        bytes1: string
-        bytes2: Uint8Array
-      }
-      argsTuple: [int1: bigint | number, int2: bigint | number, bytes1: string, bytes2: Uint8Array]
-      returns: void
+      argsObj: StateAppArgs['obj']['set_local(uint64,uint64,string,byte[4])void']
+      argsTuple: StateAppArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']
+      returns: StateAppReturns['set_local(uint64,uint64,string,byte[4])void']
     }>
     & Record<'set_box(byte[4],string)void' | 'set_box', {
-      argsObj: {
-        name: Uint8Array
-        value: string
-      }
-      argsTuple: [name: Uint8Array, value: string]
-      returns: void
+      argsObj: StateAppArgs['obj']['set_box(byte[4],string)void']
+      argsTuple: StateAppArgs['tuple']['set_box(byte[4],string)void']
+      returns: StateAppReturns['set_box(byte[4],string)void']
     }>
     & Record<'error()void' | 'error', {
-      argsObj: Record<string, never>
-      argsTuple: []
-      returns: void
+      argsObj: StateAppArgs['obj']['error()void']
+      argsTuple: StateAppArgs['tuple']['error()void']
+      returns: StateAppReturns['error()void']
     }>
     & Record<'default_value(string)string' | 'default_value', {
-      argsObj: {
-        argWithDefault?: string
-      }
-      argsTuple: [argWithDefault: string | undefined]
-      returns: string
+      argsObj: StateAppArgs['obj']['default_value(string)string']
+      argsTuple: StateAppArgs['tuple']['default_value(string)string']
+      returns: StateAppReturns['default_value(string)string']
     }>
     & Record<'default_value_int(uint64)uint64' | 'default_value_int', {
-      argsObj: {
-        argWithDefault?: bigint | number
-      }
-      argsTuple: [argWithDefault: bigint | number | undefined]
-      returns: bigint
+      argsObj: StateAppArgs['obj']['default_value_int(uint64)uint64']
+      argsTuple: StateAppArgs['tuple']['default_value_int(uint64)uint64']
+      returns: StateAppReturns['default_value_int(uint64)uint64']
     }>
     & Record<'default_value_from_abi(string)string' | 'default_value_from_abi', {
-      argsObj: {
-        argWithDefault: string
-      }
-      argsTuple: [argWithDefault: string]
-      returns: string
+      argsObj: StateAppArgs['obj']['default_value_from_abi(string)string']
+      argsTuple: StateAppArgs['tuple']['default_value_from_abi(string)string']
+      returns: StateAppReturns['default_value_from_abi(string)string']
     }>
     & Record<'default_value_from_global_state(uint64)uint64' | 'default_value_from_global_state', {
-      argsObj: {
-        argWithDefault?: bigint | number
-      }
-      argsTuple: [argWithDefault: bigint | number | undefined]
-      returns: bigint
+      argsObj: StateAppArgs['obj']['default_value_from_global_state(uint64)uint64']
+      argsTuple: StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']
+      returns: StateAppReturns['default_value_from_global_state(uint64)uint64']
     }>
     & Record<'default_value_from_local_state(string)string' | 'default_value_from_local_state', {
-      argsObj: {
-        argWithDefault?: string
-      }
-      argsTuple: [argWithDefault: string | undefined]
-      returns: string
+      argsObj: StateAppArgs['obj']['default_value_from_local_state(string)string']
+      argsTuple: StateAppArgs['tuple']['default_value_from_local_state(string)string']
+      returns: StateAppReturns['default_value_from_local_state(string)string']
     }>
     & Record<'create_abi(string)string' | 'create_abi', {
-      argsObj: {
-        input: string
-      }
-      argsTuple: [input: string]
-      returns: string
+      argsObj: StateAppArgs['obj']['create_abi(string)string']
+      argsTuple: StateAppArgs['tuple']['create_abi(string)string']
+      returns: StateAppReturns['create_abi(string)string']
     }>
     & Record<'update_abi(string)string' | 'update_abi', {
-      argsObj: {
-        input: string
-      }
-      argsTuple: [input: string]
-      returns: string
+      argsObj: StateAppArgs['obj']['update_abi(string)string']
+      argsTuple: StateAppArgs['tuple']['update_abi(string)string']
+      returns: StateAppReturns['update_abi(string)string']
     }>
     & Record<'delete_abi(string)string' | 'delete_abi', {
-      argsObj: {
-        input: string
-      }
-      argsTuple: [input: string]
-      returns: string
+      argsObj: StateAppArgs['obj']['delete_abi(string)string']
+      argsTuple: StateAppArgs['tuple']['delete_abi(string)string']
+      returns: StateAppReturns['delete_abi(string)string']
     }>
     & Record<'opt_in()void' | 'opt_in', {
-      argsObj: Record<string, never>
-      argsTuple: []
-      returns: void
+      argsObj: StateAppArgs['obj']['opt_in()void']
+      argsTuple: StateAppArgs['tuple']['opt_in()void']
+      returns: StateAppReturns['opt_in()void']
     }>
   /**
    * Defines the shape of the state of the application.
@@ -234,11 +305,11 @@ export type StateAppNonVoidMethodSignatures = keyof StateAppTypes['methods'] ext
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
-export type CallParams<TSignature extends StateAppSignatures> = Expand<
+export type CallParams<TArgs> = Expand<
   Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
     {
       /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<MethodArgs<TSignature>>
+      args: Expand<TArgs>
     }
 >
 /**
@@ -266,22 +337,22 @@ export type LocalKeysState = StateAppTypes['state']['local']['keys']
  */
 export type StateAppCreateCallParams =
   | Expand<AppClientBareCallParams & {method?: undefined} & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC} & CreateSchema>
-  | Expand<CallParams<'create_abi'> & {method: 'create_abi'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
-  | Expand<CallParams<'create_abi(string)string'> & {method: 'create_abi(string)string'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & {method: 'create_abi'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & {method: 'create_abi(string)string'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
 export type StateAppUpdateCallParams =
   | Expand<AppClientBareCallParams> & {method?: undefined}
-  | Expand<CallParams<'update_abi'> & {method: 'update_abi'}>
-  | Expand<CallParams<'update_abi(string)string'> & {method: 'update_abi(string)string'}>
+  | Expand<CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & {method: 'update_abi'}>
+  | Expand<CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & {method: 'update_abi(string)string'}>
 /**
  * Defines supported delete method params for this smart contract
  */
 export type StateAppDeleteCallParams =
   | Expand<AppClientBareCallParams> & {method?: undefined}
-  | Expand<CallParams<'delete_abi'> & {method: 'delete_abi'}>
-  | Expand<CallParams<'delete_abi(string)string'> & {method: 'delete_abi(string)string'}>
+  | Expand<CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']> & {method: 'delete_abi'}>
+  | Expand<CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']> & {method: 'delete_abi(string)string'}>
 /**
  * Defines arguments required for the deploy method.
  */
@@ -325,7 +396,7 @@ export abstract class StateAppParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      createAbi(params: CallParams<'create_abi(string)string'> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      createAbi(params: CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
         return {
           ...params,
           method: 'create_abi(string)string' as const,
@@ -355,7 +426,7 @@ export abstract class StateAppParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      updateAbi(params: CallParams<'update_abi(string)string'> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams {
+      updateAbi(params: CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams {
         return {
           ...params,
           method: 'update_abi(string)string' as const,
@@ -385,7 +456,7 @@ export abstract class StateAppParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      deleteAbi(params: CallParams<'delete_abi(string)string'>): AppClientMethodCallParams {
+      deleteAbi(params: CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'delete_abi(string)string' as const,
@@ -406,7 +477,7 @@ export abstract class StateAppParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      optIn(params: CallParams<'opt_in()void'>): AppClientMethodCallParams {
+      optIn(params: CallParams<StateAppArgs['obj']['opt_in()void'] | StateAppArgs['tuple']['opt_in()void']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'opt_in()void' as const,
@@ -422,7 +493,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callAbi(params: CallParams<'call_abi(string)string'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static callAbi(params: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_abi(string)string' as const,
@@ -435,7 +506,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callAbiTxn(params: CallParams<'call_abi_txn(pay,string)string'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static callAbiTxn(params: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_abi_txn(pay,string)string' as const,
@@ -448,7 +519,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callWithReferences(params: CallParams<'call_with_references(asset,account,application)uint64'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static callWithReferences(params: CallParams<StateAppArgs['obj']['call_with_references(asset,account,application)uint64'] | StateAppArgs['tuple']['call_with_references(asset,account,application)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_with_references(asset,account,application)uint64' as const,
@@ -461,7 +532,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setGlobal(params: CallParams<'set_global(uint64,uint64,string,byte[4])void'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setGlobal(params: CallParams<StateAppArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_global(uint64,uint64,string,byte[4])void' as const,
@@ -474,7 +545,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setLocal(params: CallParams<'set_local(uint64,uint64,string,byte[4])void'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setLocal(params: CallParams<StateAppArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_local(uint64,uint64,string,byte[4])void' as const,
@@ -487,7 +558,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setBox(params: CallParams<'set_box(byte[4],string)void'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setBox(params: CallParams<StateAppArgs['obj']['set_box(byte[4],string)void'] | StateAppArgs['tuple']['set_box(byte[4],string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_box(byte[4],string)void' as const,
@@ -500,7 +571,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static error(params: CallParams<'error()void'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static error(params: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'error()void' as const,
@@ -513,7 +584,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValue(params: CallParams<'default_value(string)string'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static defaultValue(params: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value(string)string' as const,
@@ -526,7 +597,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValueInt(params: CallParams<'default_value_int(uint64)uint64'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static defaultValueInt(params: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value_int(uint64)uint64' as const,
@@ -539,7 +610,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValueFromAbi(params: CallParams<'default_value_from_abi(string)string'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static defaultValueFromAbi(params: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value_from_abi(string)string' as const,
@@ -552,7 +623,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValueFromGlobalState(params: CallParams<'default_value_from_global_state(uint64)uint64'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static defaultValueFromGlobalState(params: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value_from_global_state(uint64)uint64' as const,
@@ -565,7 +636,7 @@ export abstract class StateAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValueFromLocalState(params: CallParams<'default_value_from_local_state(string)string'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static defaultValueFromLocalState(params: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value_from_local_state(string)string' as const,
@@ -593,6 +664,21 @@ export class StateAppFactory {
       ...params,
       appSpec: APP_SPEC,
     })
+  }
+  
+  /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
+  public get appName() {
+    return this.appFactory.appName
+  }
+  
+  /** The ARC-56 app spec being used */
+  get appSpec() {
+    return APP_SPEC
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app factory is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appFactory.algorand
   }
   
   /**
@@ -661,7 +747,7 @@ export class StateAppFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createAbi: (params: Expand<CallParams<'create_abi(string)string'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createAbi: (params: CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         return this.appFactory.params.create(StateAppParamsFactory.create.createAbi(params))
       },
     },
@@ -685,7 +771,7 @@ export class StateAppFactory {
        * @param params The params for the smart contract call
        * @returns The deployUpdate params
        */
-      updateAbi: (params: Expand<CallParams<'update_abi(string)string'> & AppClientCompilationParams>) => {
+      updateAbi: (params: CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
         return this.appFactory.params.deployUpdate(StateAppParamsFactory.update.updateAbi(params))
       },
     },
@@ -709,7 +795,7 @@ export class StateAppFactory {
        * @param params The params for the smart contract call
        * @returns The deployDelete params
        */
-      deleteAbi: (params: Expand<CallParams<'delete_abi(string)string'>>) => {
+      deleteAbi: (params: CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']>) => {
         return this.appFactory.params.deployDelete(StateAppParamsFactory.delete.deleteAbi(params))
       },
     },
@@ -739,7 +825,7 @@ export class StateAppFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createAbi: (params: Expand<CallParams<'create_abi(string)string'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createAbi: (params: CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         return this.appFactory.params.create(StateAppParamsFactory.create.createAbi(params))
       },
     },
@@ -770,9 +856,9 @@ export class StateAppFactory {
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      createAbi: async (params: Expand<CallParams<'create_abi(string)string'> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createAbi: async (params: CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         const result = await this.appFactory.send.create(StateAppParamsFactory.create.createAbi(params))
-        return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'create_abi(string)string'> }, appClient: new StateAppClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as undefined | StateAppReturns['create_abi(string)string'] }, appClient: new StateAppClient(result.appClient) }
       },
     },
 
@@ -851,6 +937,16 @@ export class StateAppClient {
   public get appName() {
     return this.appClient.appName
   }
+  
+  /** The ARC-56 app spec being used */
+  public get appSpec() {
+    return this.appClient.appSpec
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app client is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appClient.algorand
+  }
 
   /**
    * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
@@ -870,14 +966,15 @@ export class StateAppClient {
         return this.appClient.params.bare.update(params)
       },
       /**
-       * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
+       * Updates an existing instance of the StateApp smart contract using the `update_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The update params
        */
-      updateAbi: (params: Expand<CallParams<'update_abi(string)string'> & AppClientCompilationParams>) => {
+      updateAbi: (params: CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
         return this.appClient.params.update(StateAppParamsFactory.update.updateAbi(params))
       },
+
     },
 
     /**
@@ -894,14 +991,15 @@ export class StateAppClient {
         return this.appClient.params.bare.delete(params)
       },
       /**
-       * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
+       * Deletes an existing instance of the StateApp smart contract using the `delete_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The delete params
        */
-      deleteAbi: (params: Expand<CallParams<'delete_abi(string)string'>>) => {
+      deleteAbi: (params: CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']>) => {
         return this.appClient.params.delete(StateAppParamsFactory.delete.deleteAbi(params))
       },
+
     },
 
     /**
@@ -909,14 +1007,15 @@ export class StateAppClient {
      */
     optIn: {
       /**
-       * Opts the user into an existing instance of the StateApp smart contract using the opt_in()void ABI method.
+       * Opts the user into an existing instance of the StateApp smart contract using the `opt_in()void` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The optIn params
        */
-      optIn: (params: Expand<CallParams<'opt_in()void'>> = {args: []}) => {
+      optIn: (params: CallParams<StateAppArgs['obj']['opt_in()void'] | StateAppArgs['tuple']['opt_in()void']> = {args: []}) => {
         return this.appClient.params.optIn(StateAppParamsFactory.optIn.optIn(params))
       },
+
     },
 
     /**
@@ -930,113 +1029,141 @@ export class StateAppClient {
     },
 
     /**
-     * Makes a call to the StateApp smart contract using the call_abi(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `call_abi(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callAbi: (params: Expand<CallParams<'call_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callAbi: (params: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(StateAppParamsFactory.callAbi(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the call_abi_txn(pay,string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `call_abi_txn(pay,string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callAbiTxn: (params: Expand<CallParams<'call_abi_txn(pay,string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callAbiTxn: (params: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(StateAppParamsFactory.callAbiTxn(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the call_with_references(asset,account,application)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `call_with_references(asset,account,application)uint64` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callWithReferences: (params: Expand<CallParams<'call_with_references(asset,account,application)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callWithReferences: (params: CallParams<StateAppArgs['obj']['call_with_references(asset,account,application)uint64'] | StateAppArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(StateAppParamsFactory.callWithReferences(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_global(uint64,uint64,string,byte[4])void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_global(uint64,uint64,string,byte[4])void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setGlobal: (params: Expand<CallParams<'set_global(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setGlobal: (params: CallParams<StateAppArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(StateAppParamsFactory.setGlobal(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_local(uint64,uint64,string,byte[4])void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_local(uint64,uint64,string,byte[4])void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setLocal: (params: Expand<CallParams<'set_local(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setLocal: (params: CallParams<StateAppArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(StateAppParamsFactory.setLocal(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_box(byte[4],string)void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_box(byte[4],string)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setBox: (params: Expand<CallParams<'set_box(byte[4],string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setBox: (params: CallParams<StateAppArgs['obj']['set_box(byte[4],string)void'] | StateAppArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(StateAppParamsFactory.setBox(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the error()void ABI method.
+     * Makes a call to the StateApp smart contract using the `error()void` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    error: (params: Expand<CallParams<'error()void'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    error: (params: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       return this.appClient.params.call(StateAppParamsFactory.error(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValue: (params: Expand<CallParams<'default_value(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValue: (params: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       return this.appClient.params.call(StateAppParamsFactory.defaultValue(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_int(uint64)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_int(uint64)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValueInt: (params: Expand<CallParams<'default_value_int(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueInt: (params: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       return this.appClient.params.call(StateAppParamsFactory.defaultValueInt(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_abi(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_abi(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValueFromAbi: (params: Expand<CallParams<'default_value_from_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    defaultValueFromAbi: (params: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(StateAppParamsFactory.defaultValueFromAbi(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_global_state(uint64)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_global_state(uint64)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValueFromGlobalState: (params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueFromGlobalState: (params: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       return this.appClient.params.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_local_state(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_local_state(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValueFromLocalState: (params: Expand<CallParams<'default_value_from_local_state(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueFromLocalState: (params: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       return this.appClient.params.call(StateAppParamsFactory.defaultValueFromLocalState(params))
     },
+
   }
 
   /**
@@ -1057,14 +1184,15 @@ export class StateAppClient {
         return this.appClient.createTransaction.bare.update(params)
       },
       /**
-       * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
+       * Updates an existing instance of the StateApp smart contract using the `update_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The update transaction
        */
-      updateAbi: (params: Expand<CallParams<'update_abi(string)string'> & AppClientCompilationParams>) => {
+      updateAbi: (params: CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
         return this.appClient.createTransaction.update(StateAppParamsFactory.update.updateAbi(params))
       },
+
     },
 
     /**
@@ -1081,14 +1209,15 @@ export class StateAppClient {
         return this.appClient.createTransaction.bare.delete(params)
       },
       /**
-       * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
+       * Deletes an existing instance of the StateApp smart contract using the `delete_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The delete transaction
        */
-      deleteAbi: (params: Expand<CallParams<'delete_abi(string)string'>>) => {
+      deleteAbi: (params: CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']>) => {
         return this.appClient.createTransaction.delete(StateAppParamsFactory.delete.deleteAbi(params))
       },
+
     },
 
     /**
@@ -1096,14 +1225,15 @@ export class StateAppClient {
      */
     optIn: {
       /**
-       * Opts the user into an existing instance of the StateApp smart contract using the opt_in()void ABI method.
+       * Opts the user into an existing instance of the StateApp smart contract using the `opt_in()void` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The optIn transaction
        */
-      optIn: (params: Expand<CallParams<'opt_in()void'>> = {args: []}) => {
+      optIn: (params: CallParams<StateAppArgs['obj']['opt_in()void'] | StateAppArgs['tuple']['opt_in()void']> = {args: []}) => {
         return this.appClient.createTransaction.optIn(StateAppParamsFactory.optIn.optIn(params))
       },
+
     },
 
     /**
@@ -1117,113 +1247,141 @@ export class StateAppClient {
     },
 
     /**
-     * Makes a call to the StateApp smart contract using the call_abi(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `call_abi(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callAbi: (params: Expand<CallParams<'call_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callAbi: (params: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.callAbi(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the call_abi_txn(pay,string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `call_abi_txn(pay,string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callAbiTxn: (params: Expand<CallParams<'call_abi_txn(pay,string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callAbiTxn: (params: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.callAbiTxn(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the call_with_references(asset,account,application)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `call_with_references(asset,account,application)uint64` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callWithReferences: (params: Expand<CallParams<'call_with_references(asset,account,application)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callWithReferences: (params: CallParams<StateAppArgs['obj']['call_with_references(asset,account,application)uint64'] | StateAppArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.callWithReferences(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_global(uint64,uint64,string,byte[4])void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_global(uint64,uint64,string,byte[4])void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setGlobal: (params: Expand<CallParams<'set_global(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setGlobal: (params: CallParams<StateAppArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.setGlobal(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_local(uint64,uint64,string,byte[4])void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_local(uint64,uint64,string,byte[4])void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setLocal: (params: Expand<CallParams<'set_local(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setLocal: (params: CallParams<StateAppArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.setLocal(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_box(byte[4],string)void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_box(byte[4],string)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setBox: (params: Expand<CallParams<'set_box(byte[4],string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setBox: (params: CallParams<StateAppArgs['obj']['set_box(byte[4],string)void'] | StateAppArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.setBox(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the error()void ABI method.
+     * Makes a call to the StateApp smart contract using the `error()void` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    error: (params: Expand<CallParams<'error()void'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    error: (params: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.error(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValue: (params: Expand<CallParams<'default_value(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValue: (params: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.defaultValue(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_int(uint64)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_int(uint64)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValueInt: (params: Expand<CallParams<'default_value_int(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueInt: (params: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.defaultValueInt(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_abi(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_abi(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValueFromAbi: (params: Expand<CallParams<'default_value_from_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    defaultValueFromAbi: (params: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.defaultValueFromAbi(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_global_state(uint64)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_global_state(uint64)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValueFromGlobalState: (params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueFromGlobalState: (params: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_local_state(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_local_state(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValueFromLocalState: (params: Expand<CallParams<'default_value_from_local_state(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueFromLocalState: (params: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       return this.appClient.createTransaction.call(StateAppParamsFactory.defaultValueFromLocalState(params))
     },
+
   }
 
   /**
@@ -1244,15 +1402,16 @@ export class StateAppClient {
         return this.appClient.send.bare.update(params)
       },
       /**
-       * Updates an existing instance of the StateApp smart contract using the update_abi(string)string ABI method.
+       * Updates an existing instance of the StateApp smart contract using the `update_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The update result
        */
-      updateAbi: async (params: Expand<CallParams<'update_abi(string)string'> & AppClientCompilationParams & SendParams>) => {
+      updateAbi: async (params: CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams & SendParams) => {
         const result = await this.appClient.send.update(StateAppParamsFactory.update.updateAbi(params))
-        return {...result, return: result.return as undefined | MethodReturn<'update_abi(string)string'>}
+        return {...result, return: result.return as undefined | StateAppReturns['update_abi(string)string']}
       },
+
     },
 
     /**
@@ -1269,15 +1428,16 @@ export class StateAppClient {
         return this.appClient.send.bare.delete(params)
       },
       /**
-       * Deletes an existing instance of the StateApp smart contract using the delete_abi(string)string ABI method.
+       * Deletes an existing instance of the StateApp smart contract using the `delete_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The delete result
        */
-      deleteAbi: async (params: Expand<CallParams<'delete_abi(string)string'> & SendParams>) => {
+      deleteAbi: async (params: CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']> & SendParams) => {
         const result = await this.appClient.send.delete(StateAppParamsFactory.delete.deleteAbi(params))
-        return {...result, return: result.return as undefined | MethodReturn<'delete_abi(string)string'>}
+        return {...result, return: result.return as undefined | StateAppReturns['delete_abi(string)string']}
       },
+
     },
 
     /**
@@ -1285,15 +1445,16 @@ export class StateAppClient {
      */
     optIn: {
       /**
-       * Opts the user into an existing instance of the StateApp smart contract using the opt_in()void ABI method.
+       * Opts the user into an existing instance of the StateApp smart contract using the `opt_in()void` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The optIn result
        */
-      optIn: async (params: Expand<CallParams<'opt_in()void'> & SendParams> = {args: []}) => {
+      optIn: async (params: CallParams<StateAppArgs['obj']['opt_in()void'] | StateAppArgs['tuple']['opt_in()void']> & SendParams = {args: []}) => {
         const result = await this.appClient.send.optIn(StateAppParamsFactory.optIn.optIn(params))
-        return {...result, return: result.return as undefined | MethodReturn<'opt_in()void'>}
+        return {...result, return: result.return as undefined | StateAppReturns['opt_in()void']}
       },
+
     },
 
     /**
@@ -1307,125 +1468,257 @@ export class StateAppClient {
     },
 
     /**
-     * Makes a call to the StateApp smart contract using the call_abi(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `call_abi(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callAbi: async (params: Expand<CallParams<'call_abi(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callAbi: async (params: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callAbi(params))
-      return {...result, return: result.return as undefined | MethodReturn<'call_abi(string)string'>}
+      return {...result, return: result.return as undefined | StateAppReturns['call_abi(string)string']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the call_abi_txn(pay,string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `call_abi_txn(pay,string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callAbiTxn: async (params: Expand<CallParams<'call_abi_txn(pay,string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callAbiTxn: async (params: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callAbiTxn(params))
-      return {...result, return: result.return as undefined | MethodReturn<'call_abi_txn(pay,string)string'>}
+      return {...result, return: result.return as undefined | StateAppReturns['call_abi_txn(pay,string)string']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the call_with_references(asset,account,application)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `call_with_references(asset,account,application)uint64` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callWithReferences: async (params: Expand<CallParams<'call_with_references(asset,account,application)uint64'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    callWithReferences: async (params: CallParams<StateAppArgs['obj']['call_with_references(asset,account,application)uint64'] | StateAppArgs['tuple']['call_with_references(asset,account,application)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callWithReferences(params))
-      return {...result, return: result.return as undefined | MethodReturn<'call_with_references(asset,account,application)uint64'>}
+      return {...result, return: result.return as undefined | StateAppReturns['call_with_references(asset,account,application)uint64']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_global(uint64,uint64,string,byte[4])void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_global(uint64,uint64,string,byte[4])void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setGlobal: async (params: Expand<CallParams<'set_global(uint64,uint64,string,byte[4])void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setGlobal: async (params: CallParams<StateAppArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.setGlobal(params))
-      return {...result, return: result.return as undefined | MethodReturn<'set_global(uint64,uint64,string,byte[4])void'>}
+      return {...result, return: result.return as undefined | StateAppReturns['set_global(uint64,uint64,string,byte[4])void']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_local(uint64,uint64,string,byte[4])void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_local(uint64,uint64,string,byte[4])void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setLocal: async (params: Expand<CallParams<'set_local(uint64,uint64,string,byte[4])void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setLocal: async (params: CallParams<StateAppArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.setLocal(params))
-      return {...result, return: result.return as undefined | MethodReturn<'set_local(uint64,uint64,string,byte[4])void'>}
+      return {...result, return: result.return as undefined | StateAppReturns['set_local(uint64,uint64,string,byte[4])void']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the set_box(byte[4],string)void ABI method.
+     * Makes a call to the StateApp smart contract using the `set_box(byte[4],string)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setBox: async (params: Expand<CallParams<'set_box(byte[4],string)void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    setBox: async (params: CallParams<StateAppArgs['obj']['set_box(byte[4],string)void'] | StateAppArgs['tuple']['set_box(byte[4],string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.setBox(params))
-      return {...result, return: result.return as undefined | MethodReturn<'set_box(byte[4],string)void'>}
+      return {...result, return: result.return as undefined | StateAppReturns['set_box(byte[4],string)void']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the error()void ABI method.
+     * Makes a call to the StateApp smart contract using the `error()void` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    error: async (params: Expand<CallParams<'error()void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    error: async (params: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.error(params))
-      return {...result, return: result.return as undefined | MethodReturn<'error()void'>}
+      return {...result, return: result.return as undefined | StateAppReturns['error()void']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValue: async (params: Expand<CallParams<'default_value(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValue: async (params: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValue(params))
-      return {...result, return: result.return as undefined | MethodReturn<'default_value(string)string'>}
+      return {...result, return: result.return as undefined | StateAppReturns['default_value(string)string']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_int(uint64)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_int(uint64)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValueInt: async (params: Expand<CallParams<'default_value_int(uint64)uint64'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueInt: async (params: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueInt(params))
-      return {...result, return: result.return as undefined | MethodReturn<'default_value_int(uint64)uint64'>}
+      return {...result, return: result.return as undefined | StateAppReturns['default_value_int(uint64)uint64']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_abi(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_abi(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValueFromAbi: async (params: Expand<CallParams<'default_value_from_abi(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    defaultValueFromAbi: async (params: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromAbi(params))
-      return {...result, return: result.return as undefined | MethodReturn<'default_value_from_abi(string)string'>}
+      return {...result, return: result.return as undefined | StateAppReturns['default_value_from_abi(string)string']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_global_state(uint64)uint64 ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_global_state(uint64)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValueFromGlobalState: async (params: Expand<CallParams<'default_value_from_global_state(uint64)uint64'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueFromGlobalState: async (params: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
-      return {...result, return: result.return as undefined | MethodReturn<'default_value_from_global_state(uint64)uint64'>}
+      return {...result, return: result.return as undefined | StateAppReturns['default_value_from_global_state(uint64)uint64']}
     },
+
     /**
-     * Makes a call to the StateApp smart contract using the default_value_from_local_state(string)string ABI method.
+     * Makes a call to the StateApp smart contract using the `default_value_from_local_state(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValueFromLocalState: async (params: Expand<CallParams<'default_value_from_local_state(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: [undefined]}) => {
+    defaultValueFromLocalState: async (params: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromLocalState(params))
-      return {...result, return: result.return as undefined | MethodReturn<'default_value_from_local_state(string)string'>}
+      return {...result, return: result.return as undefined | StateAppReturns['default_value_from_local_state(string)string']}
     },
+
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the StateApp smart contract using the `call_abi(string)string` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result
+   */
+  async callAbi(params: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']>) {
+    const result = await this.appClient.send.call(StateAppParamsFactory.callAbi(params))
+    return result.return as StateAppReturns['call_abi(string)string']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the StateApp smart contract using the `call_abi_txn(pay,string)string` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result
+   */
+  async callAbiTxn(params: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']>) {
+    const result = await this.appClient.send.call(StateAppParamsFactory.callAbiTxn(params))
+    return result.return as StateAppReturns['call_abi_txn(pay,string)string']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the StateApp smart contract using the `error()void` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result
+   */
+  async error(params: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']> = {args: []}) {
+    const result = await this.appClient.send.call(StateAppParamsFactory.error(params))
+    return result.return as StateAppReturns['error()void']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the StateApp smart contract using the `default_value(string)string` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result
+   */
+  async defaultValue(params: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateAppParamsFactory.defaultValue(params))
+    return result.return as StateAppReturns['default_value(string)string']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the StateApp smart contract using the `default_value_int(uint64)uint64` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result
+   */
+  async defaultValueInt(params: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueInt(params))
+    return result.return as StateAppReturns['default_value_int(uint64)uint64']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the StateApp smart contract using the `default_value_from_abi(string)string` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result
+   */
+  async defaultValueFromAbi(params: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']>) {
+    const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromAbi(params))
+    return result.return as StateAppReturns['default_value_from_abi(string)string']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the StateApp smart contract using the `default_value_from_global_state(uint64)uint64` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result
+   */
+  async defaultValueFromGlobalState(params: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
+    return result.return as StateAppReturns['default_value_from_global_state(uint64)uint64']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the StateApp smart contract using the `default_value_from_local_state(string)string` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result
+   */
+  async defaultValueFromLocalState(params: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromLocalState(params))
+    return result.return as StateAppReturns['default_value_from_local_state(string)string']
   }
 
   /**
@@ -1507,14 +1800,14 @@ export class StateAppClient {
 
   public newGroup(): StateAppComposer {
     const client = this
-    const composer = client.appClient.newGroup()
+    const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a call_abi(string)string method call against the StateApp contract
        */
-      callAbi(params: CallParams<'call_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      callAbi(params: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbi(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi(string)string', v))
         return this
@@ -1522,7 +1815,7 @@ export class StateAppClient {
       /**
        * Add a call_abi_txn(pay,string)string method call against the StateApp contract
        */
-      callAbiTxn(params: CallParams<'call_abi_txn(pay,string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      callAbiTxn(params: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbiTxn(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi_txn(pay,string)string', v))
         return this
@@ -1530,7 +1823,7 @@ export class StateAppClient {
       /**
        * Add a call_with_references(asset,account,application)uint64 method call against the StateApp contract
        */
-      callWithReferences(params: CallParams<'call_with_references(asset,account,application)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      callWithReferences(params: CallParams<StateAppArgs['obj']['call_with_references(asset,account,application)uint64'] | StateAppArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callWithReferences(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_with_references(asset,account,application)uint64', v))
         return this
@@ -1538,7 +1831,7 @@ export class StateAppClient {
       /**
        * Add a set_global(uint64,uint64,string,byte[4])void method call against the StateApp contract
        */
-      setGlobal(params: CallParams<'set_global(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      setGlobal(params: CallParams<StateAppArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setGlobal(params)))
         resultMappers.push(undefined)
         return this
@@ -1546,7 +1839,7 @@ export class StateAppClient {
       /**
        * Add a set_local(uint64,uint64,string,byte[4])void method call against the StateApp contract
        */
-      setLocal(params: CallParams<'set_local(uint64,uint64,string,byte[4])void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      setLocal(params: CallParams<StateAppArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setLocal(params)))
         resultMappers.push(undefined)
         return this
@@ -1554,7 +1847,7 @@ export class StateAppClient {
       /**
        * Add a set_box(byte[4],string)void method call against the StateApp contract
        */
-      setBox(params: CallParams<'set_box(byte[4],string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      setBox(params: CallParams<StateAppArgs['obj']['set_box(byte[4],string)void'] | StateAppArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setBox(params)))
         resultMappers.push(undefined)
         return this
@@ -1562,7 +1855,7 @@ export class StateAppClient {
       /**
        * Add a error()void method call against the StateApp contract
        */
-      error(params: CallParams<'error()void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      error(params: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.error(params)))
         resultMappers.push(undefined)
         return this
@@ -1570,7 +1863,7 @@ export class StateAppClient {
       /**
        * Add a default_value(string)string method call against the StateApp contract
        */
-      defaultValue(params: CallParams<'default_value(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      defaultValue(params: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValue(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value(string)string', v))
         return this
@@ -1578,7 +1871,7 @@ export class StateAppClient {
       /**
        * Add a default_value_int(uint64)uint64 method call against the StateApp contract
        */
-      defaultValueInt(params: CallParams<'default_value_int(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      defaultValueInt(params: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueInt(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_int(uint64)uint64', v))
         return this
@@ -1586,7 +1879,7 @@ export class StateAppClient {
       /**
        * Add a default_value_from_abi(string)string method call against the StateApp contract
        */
-      defaultValueFromAbi(params: CallParams<'default_value_from_abi(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      defaultValueFromAbi(params: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromAbi(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_abi(string)string', v))
         return this
@@ -1594,7 +1887,7 @@ export class StateAppClient {
       /**
        * Add a default_value_from_global_state(uint64)uint64 method call against the StateApp contract
        */
-      defaultValueFromGlobalState(params: CallParams<'default_value_from_global_state(uint64)uint64'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      defaultValueFromGlobalState(params: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromGlobalState(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_global_state(uint64)uint64', v))
         return this
@@ -1602,7 +1895,7 @@ export class StateAppClient {
       /**
        * Add a default_value_from_local_state(string)string method call against the StateApp contract
        */
-      defaultValueFromLocalState(params: CallParams<'default_value_from_local_state(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      defaultValueFromLocalState(params: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromLocalState(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_local_state(string)string', v))
         return this
@@ -1613,7 +1906,7 @@ export class StateAppClient {
             promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
             return this
           },
-          updateAbi: (params: CallParams<'update_abi(string)string'> & AppClientCompilationParams) => {
+          updateAbi: (params: CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
             promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.updateAbi(params)))
             resultMappers.push((v) => client.decodeReturnValue('update_abi(string)string', v))
             return this
@@ -1626,7 +1919,7 @@ export class StateAppClient {
             promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
             return this
           },
-          deleteAbi: (params: CallParams<'delete_abi(string)string'>) => {
+          deleteAbi: (params: CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']>) => {
             promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.deleteAbi(params)))
             resultMappers.push((v) => client.decodeReturnValue('delete_abi(string)string', v))
             return this
@@ -1635,7 +1928,7 @@ export class StateAppClient {
       },
       get optIn() {
         return {
-          optIn: (params: CallParams<'opt_in()void'>) => {
+          optIn: (params: CallParams<StateAppArgs['obj']['opt_in()void'] | StateAppArgs['tuple']['opt_in()void']>) => {
             promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.optIn(params)))
             resultMappers.push(undefined)
             return this
@@ -1684,7 +1977,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbi(params?: CallParams<'call_abi(string)string'>): StateAppComposer<[...TReturns, MethodReturn<'call_abi(string)string'> | undefined]>
+  callAbi(params?: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']>): StateAppComposer<[...TReturns, StateAppReturns['call_abi(string)string'] | undefined]>
 
   /**
    * Calls the call_abi_txn(pay,string)string ABI method.
@@ -1693,7 +1986,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbiTxn(params?: CallParams<'call_abi_txn(pay,string)string'>): StateAppComposer<[...TReturns, MethodReturn<'call_abi_txn(pay,string)string'> | undefined]>
+  callAbiTxn(params?: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']>): StateAppComposer<[...TReturns, StateAppReturns['call_abi_txn(pay,string)string'] | undefined]>
 
   /**
    * Calls the call_with_references(asset,account,application)uint64 ABI method.
@@ -1702,7 +1995,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callWithReferences(params?: CallParams<'call_with_references(asset,account,application)uint64'>): StateAppComposer<[...TReturns, MethodReturn<'call_with_references(asset,account,application)uint64'> | undefined]>
+  callWithReferences(params?: CallParams<StateAppArgs['obj']['call_with_references(asset,account,application)uint64'] | StateAppArgs['tuple']['call_with_references(asset,account,application)uint64']>): StateAppComposer<[...TReturns, StateAppReturns['call_with_references(asset,account,application)uint64'] | undefined]>
 
   /**
    * Calls the set_global(uint64,uint64,string,byte[4])void ABI method.
@@ -1711,7 +2004,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setGlobal(params?: CallParams<'set_global(uint64,uint64,string,byte[4])void'>): StateAppComposer<[...TReturns, MethodReturn<'set_global(uint64,uint64,string,byte[4])void'> | undefined]>
+  setGlobal(params?: CallParams<StateAppArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']>): StateAppComposer<[...TReturns, StateAppReturns['set_global(uint64,uint64,string,byte[4])void'] | undefined]>
 
   /**
    * Calls the set_local(uint64,uint64,string,byte[4])void ABI method.
@@ -1720,7 +2013,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setLocal(params?: CallParams<'set_local(uint64,uint64,string,byte[4])void'>): StateAppComposer<[...TReturns, MethodReturn<'set_local(uint64,uint64,string,byte[4])void'> | undefined]>
+  setLocal(params?: CallParams<StateAppArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']>): StateAppComposer<[...TReturns, StateAppReturns['set_local(uint64,uint64,string,byte[4])void'] | undefined]>
 
   /**
    * Calls the set_box(byte[4],string)void ABI method.
@@ -1729,7 +2022,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setBox(params?: CallParams<'set_box(byte[4],string)void'>): StateAppComposer<[...TReturns, MethodReturn<'set_box(byte[4],string)void'> | undefined]>
+  setBox(params?: CallParams<StateAppArgs['obj']['set_box(byte[4],string)void'] | StateAppArgs['tuple']['set_box(byte[4],string)void']>): StateAppComposer<[...TReturns, StateAppReturns['set_box(byte[4],string)void'] | undefined]>
 
   /**
    * Calls the error()void ABI method.
@@ -1738,7 +2031,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  error(params?: CallParams<'error()void'>): StateAppComposer<[...TReturns, MethodReturn<'error()void'> | undefined]>
+  error(params?: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']>): StateAppComposer<[...TReturns, StateAppReturns['error()void'] | undefined]>
 
   /**
    * Calls the default_value(string)string ABI method.
@@ -1747,7 +2040,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValue(params?: CallParams<'default_value(string)string'>): StateAppComposer<[...TReturns, MethodReturn<'default_value(string)string'> | undefined]>
+  defaultValue(params?: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']>): StateAppComposer<[...TReturns, StateAppReturns['default_value(string)string'] | undefined]>
 
   /**
    * Calls the default_value_int(uint64)uint64 ABI method.
@@ -1756,7 +2049,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueInt(params?: CallParams<'default_value_int(uint64)uint64'>): StateAppComposer<[...TReturns, MethodReturn<'default_value_int(uint64)uint64'> | undefined]>
+  defaultValueInt(params?: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']>): StateAppComposer<[...TReturns, StateAppReturns['default_value_int(uint64)uint64'] | undefined]>
 
   /**
    * Calls the default_value_from_abi(string)string ABI method.
@@ -1765,7 +2058,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromAbi(params?: CallParams<'default_value_from_abi(string)string'>): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_abi(string)string'> | undefined]>
+  defaultValueFromAbi(params?: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']>): StateAppComposer<[...TReturns, StateAppReturns['default_value_from_abi(string)string'] | undefined]>
 
   /**
    * Calls the default_value_from_global_state(uint64)uint64 ABI method.
@@ -1774,7 +2067,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromGlobalState(params?: CallParams<'default_value_from_global_state(uint64)uint64'>): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_global_state(uint64)uint64'> | undefined]>
+  defaultValueFromGlobalState(params?: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']>): StateAppComposer<[...TReturns, StateAppReturns['default_value_from_global_state(uint64)uint64'] | undefined]>
 
   /**
    * Calls the default_value_from_local_state(string)string ABI method.
@@ -1783,7 +2076,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromLocalState(params?: CallParams<'default_value_from_local_state(string)string'>): StateAppComposer<[...TReturns, MethodReturn<'default_value_from_local_state(string)string'> | undefined]>
+  defaultValueFromLocalState(params?: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']>): StateAppComposer<[...TReturns, StateAppReturns['default_value_from_local_state(string)string'] | undefined]>
 
   /**
    * Gets available delete methods
@@ -1803,7 +2096,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    deleteAbi(params?: CallParams<'delete_abi(string)string'>): StateAppComposer<[...TReturns, MethodReturn<'delete_abi(string)string'> | undefined]>
+    deleteAbi(params?: CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']>): StateAppComposer<[...TReturns, StateAppReturns['delete_abi(string)string'] | undefined]>
   }
 
   /**
@@ -1817,7 +2110,7 @@ export type StateAppComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    optIn(params?: CallParams<'opt_in()void'>): StateAppComposer<[...TReturns, MethodReturn<'opt_in()void'> | undefined]>
+    optIn(params?: CallParams<StateAppArgs['obj']['opt_in()void'] | StateAppArgs['tuple']['opt_in()void']>): StateAppComposer<[...TReturns, StateAppReturns['opt_in()void'] | undefined]>
   }
 
   /**

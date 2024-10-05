@@ -4,8 +4,9 @@
  * DO NOT MODIFY IT BY HAND.
  * requires: @algorandfoundation/algokit-utils: ^7
  */
+import { AlgorandClientInterface } from '@algorandfoundation/algokit-utils/types/algorand-client-interface'
 import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import {
   AppClient,
   AppClientMethodCallParams,
@@ -22,7 +23,7 @@ import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerR
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"HelloWorldApp","structs":{},"methods":[{"name":"hello","desc":"Returns Hello, {name}","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello_world_check","desc":"Asserts {name} is \"World\"","args":[{"name":"name","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMQp0eG4gTnVtQXBwQXJncwppbnRjXzAgLy8gMAo9PQpibnogbWFpbl9sNgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDAyYmVjZTExIC8vICJoZWxsbyhzdHJpbmcpc3RyaW5nIgo9PQpibnogbWFpbl9sNQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweGJmOWMxZWRmIC8vICJoZWxsb193b3JsZF9jaGVjayhzdHJpbmcpdm9pZCIKPT0KYm56IG1haW5fbDQKZXJyCm1haW5fbDQ6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBoZWxsb3dvcmxkY2hlY2tfMwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpjYWxsc3ViIGhlbGxvXzIKc3RvcmUgMApwdXNoYnl0ZXMgMHgxNTFmN2M3NSAvLyAweDE1MWY3Yzc1CmxvYWQgMApjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2w2Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2wxMgp0eG4gT25Db21wbGV0aW9uCnB1c2hpbnQgNCAvLyBVcGRhdGVBcHBsaWNhdGlvbgo9PQpibnogbWFpbl9sMTEKdHhuIE9uQ29tcGxldGlvbgpwdXNoaW50IDUgLy8gRGVsZXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDEwCmVycgptYWluX2wxMDoKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KYXNzZXJ0CmNhbGxzdWIgZGVsZXRlXzEKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDExOgp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQphc3NlcnQKY2FsbHN1YiB1cGRhdGVfMAppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMTI6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydAppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIHVwZGF0ZQp1cGRhdGVfMDoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX1VQREFUQUJMRSAvLyBUTVBMX1VQREFUQUJMRQovLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGRlbGV0ZQpkZWxldGVfMToKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX0RFTEVUQUJMRSAvLyBUTVBMX0RFTEVUQUJMRQovLyBDaGVjayBhcHAgaXMgZGVsZXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGhlbGxvCmhlbGxvXzI6CnByb3RvIDEgMQpwdXNoYnl0ZXMgMHggLy8gIiIKcHVzaGJ5dGVzIDB4NDg2NTZjNmM2ZjJjMjAgLy8gIkhlbGxvLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBoZWxsb193b3JsZF9jaGVjawpoZWxsb3dvcmxkY2hlY2tfMzoKcHJvdG8gMSAwCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApwdXNoYnl0ZXMgMHg1NzZmNzI2YzY0IC8vICJXb3JsZCIKPT0KYXNzZXJ0CnJldHN1Yg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}}
+export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"HelloWorldApp","structs":{},"methods":[{"name":"hello","desc":"Returns Hello, {name}","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello_world_check","desc":"Asserts {name} is \"World\"","args":[{"name":"name","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMQp0eG4gTnVtQXBwQXJncwppbnRjXzAgLy8gMAo9PQpibnogbWFpbl9sNgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDAyYmVjZTExIC8vICJoZWxsbyhzdHJpbmcpc3RyaW5nIgo9PQpibnogbWFpbl9sNQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweGJmOWMxZWRmIC8vICJoZWxsb193b3JsZF9jaGVjayhzdHJpbmcpdm9pZCIKPT0KYm56IG1haW5fbDQKZXJyCm1haW5fbDQ6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBoZWxsb3dvcmxkY2hlY2tfMwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpjYWxsc3ViIGhlbGxvXzIKc3RvcmUgMApwdXNoYnl0ZXMgMHgxNTFmN2M3NSAvLyAweDE1MWY3Yzc1CmxvYWQgMApjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2w2Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2wxMgp0eG4gT25Db21wbGV0aW9uCnB1c2hpbnQgNCAvLyBVcGRhdGVBcHBsaWNhdGlvbgo9PQpibnogbWFpbl9sMTEKdHhuIE9uQ29tcGxldGlvbgpwdXNoaW50IDUgLy8gRGVsZXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDEwCmVycgptYWluX2wxMDoKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KYXNzZXJ0CmNhbGxzdWIgZGVsZXRlXzEKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDExOgp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQphc3NlcnQKY2FsbHN1YiB1cGRhdGVfMAppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMTI6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydAppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIHVwZGF0ZQp1cGRhdGVfMDoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX1VQREFUQUJMRSAvLyBUTVBMX1VQREFUQUJMRQovLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGRlbGV0ZQpkZWxldGVfMToKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX0RFTEVUQUJMRSAvLyBUTVBMX0RFTEVUQUJMRQovLyBDaGVjayBhcHAgaXMgZGVsZXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGhlbGxvCmhlbGxvXzI6CnByb3RvIDEgMQpwdXNoYnl0ZXMgMHggLy8gIiIKcHVzaGJ5dGVzIDB4NDg2NTZjNmM2ZjJjMjAgLy8gIkhlbGxvLCAiCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBoZWxsb193b3JsZF9jaGVjawpoZWxsb3dvcmxkY2hlY2tfMzoKcHJvdG8gMSAwCmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApwdXNoYnl0ZXMgMHg1NzZmNzI2YzY0IC8vICJXb3JsZCIKPT0KYXNzZXJ0CnJldHN1Yg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -65,6 +66,38 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 
 /**
+ * The argument types for the HelloWorldApp contract
+ */
+export type HelloWorldAppArgs = {
+  /**
+   * The object representation of the arguments for each method
+   */
+  obj: {
+    'hello(string)string': {
+      name: string
+    }
+    'hello_world_check(string)void': {
+      name: string
+    }
+  }
+  /**
+   * The tuple representation of the arguments for each method
+   */
+  tuple: {
+    'hello(string)string': [name: string]
+    'hello_world_check(string)void': [name: string]
+  }
+}
+
+/**
+ * The return type for each method
+ */
+export type HelloWorldAppReturns = {
+  'hello(string)string': string
+  'hello_world_check(string)void': void
+}
+
+/**
  * Defines the types of available calls and state of the HelloWorldApp smart contract.
  */
 export type HelloWorldAppTypes = {
@@ -73,18 +106,14 @@ export type HelloWorldAppTypes = {
    */
   methods:
     & Record<'hello(string)string' | 'hello', {
-      argsObj: {
-        name: string
-      }
-      argsTuple: [name: string]
-      returns: string
+      argsObj: HelloWorldAppArgs['obj']['hello(string)string']
+      argsTuple: HelloWorldAppArgs['tuple']['hello(string)string']
+      returns: HelloWorldAppReturns['hello(string)string']
     }>
     & Record<'hello_world_check(string)void' | 'hello_world_check', {
-      argsObj: {
-        name: string
-      }
-      argsTuple: [name: string]
-      returns: void
+      argsObj: HelloWorldAppArgs['obj']['hello_world_check(string)void']
+      argsTuple: HelloWorldAppArgs['tuple']['hello_world_check(string)void']
+      returns: HelloWorldAppReturns['hello_world_check(string)void']
     }>
 }
 
@@ -99,11 +128,11 @@ export type HelloWorldAppNonVoidMethodSignatures = keyof HelloWorldAppTypes['met
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
-export type CallParams<TSignature extends HelloWorldAppSignatures> = Expand<
+export type CallParams<TArgs> = Expand<
   Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
     {
       /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<MethodArgs<TSignature>>
+      args: Expand<TArgs>
     }
 >
 /**
@@ -162,7 +191,7 @@ export abstract class HelloWorldAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static hello(params: CallParams<'hello(string)string'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static hello(params: CallParams<HelloWorldAppArgs['obj']['hello(string)string'] | HelloWorldAppArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello(string)string' as const,
@@ -177,7 +206,7 @@ export abstract class HelloWorldAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloWorldCheck(params: CallParams<'hello_world_check(string)void'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static helloWorldCheck(params: CallParams<HelloWorldAppArgs['obj']['hello_world_check(string)void'] | HelloWorldAppArgs['tuple']['hello_world_check(string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello_world_check(string)void' as const,
@@ -205,6 +234,21 @@ export class HelloWorldAppFactory {
       ...params,
       appSpec: APP_SPEC,
     })
+  }
+  
+  /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
+  public get appName() {
+    return this.appFactory.appName
+  }
+  
+  /** The ARC-56 app spec being used */
+  get appSpec() {
+    return APP_SPEC
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app factory is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appFactory.algorand
   }
   
   /**
@@ -414,6 +458,16 @@ export class HelloWorldAppClient {
   public get appName() {
     return this.appClient.appName
   }
+  
+  /** The ARC-56 app spec being used */
+  public get appSpec() {
+    return this.appClient.appSpec
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app client is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appClient.algorand
+  }
 
   /**
    * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
@@ -460,27 +514,29 @@ export class HelloWorldAppClient {
     },
 
     /**
-     * Makes a call to the HelloWorldApp smart contract using the hello(string)string ABI method.
+     * Makes a call to the HelloWorldApp smart contract using the `hello(string)string` ABI method.
      *
      * Returns Hello, {name}
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    hello: (params: Expand<CallParams<'hello(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    hello: (params: CallParams<HelloWorldAppArgs['obj']['hello(string)string'] | HelloWorldAppArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(HelloWorldAppParamsFactory.hello(params))
     },
+
     /**
-     * Makes a call to the HelloWorldApp smart contract using the hello_world_check(string)void ABI method.
+     * Makes a call to the HelloWorldApp smart contract using the `hello_world_check(string)void` ABI method.
      *
      * Asserts {name} is "World"
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloWorldCheck: (params: Expand<CallParams<'hello_world_check(string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    helloWorldCheck: (params: CallParams<HelloWorldAppArgs['obj']['hello_world_check(string)void'] | HelloWorldAppArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(HelloWorldAppParamsFactory.helloWorldCheck(params))
     },
+
   }
 
   /**
@@ -528,27 +584,29 @@ export class HelloWorldAppClient {
     },
 
     /**
-     * Makes a call to the HelloWorldApp smart contract using the hello(string)string ABI method.
+     * Makes a call to the HelloWorldApp smart contract using the `hello(string)string` ABI method.
      *
      * Returns Hello, {name}
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    hello: (params: Expand<CallParams<'hello(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    hello: (params: CallParams<HelloWorldAppArgs['obj']['hello(string)string'] | HelloWorldAppArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(HelloWorldAppParamsFactory.hello(params))
     },
+
     /**
-     * Makes a call to the HelloWorldApp smart contract using the hello_world_check(string)void ABI method.
+     * Makes a call to the HelloWorldApp smart contract using the `hello_world_check(string)void` ABI method.
      *
      * Asserts {name} is "World"
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloWorldCheck: (params: Expand<CallParams<'hello_world_check(string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    helloWorldCheck: (params: CallParams<HelloWorldAppArgs['obj']['hello_world_check(string)void'] | HelloWorldAppArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(HelloWorldAppParamsFactory.helloWorldCheck(params))
     },
+
   }
 
   /**
@@ -596,29 +654,31 @@ export class HelloWorldAppClient {
     },
 
     /**
-     * Makes a call to the HelloWorldApp smart contract using the hello(string)string ABI method.
+     * Makes a call to the HelloWorldApp smart contract using the `hello(string)string` ABI method.
      *
      * Returns Hello, {name}
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    hello: async (params: Expand<CallParams<'hello(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    hello: async (params: CallParams<HelloWorldAppArgs['obj']['hello(string)string'] | HelloWorldAppArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(HelloWorldAppParamsFactory.hello(params))
-      return {...result, return: result.return as undefined | MethodReturn<'hello(string)string'>}
+      return {...result, return: result.return as undefined | HelloWorldAppReturns['hello(string)string']}
     },
+
     /**
-     * Makes a call to the HelloWorldApp smart contract using the hello_world_check(string)void ABI method.
+     * Makes a call to the HelloWorldApp smart contract using the `hello_world_check(string)void` ABI method.
      *
      * Asserts {name} is "World"
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloWorldCheck: async (params: Expand<CallParams<'hello_world_check(string)void'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    helloWorldCheck: async (params: CallParams<HelloWorldAppArgs['obj']['hello_world_check(string)void'] | HelloWorldAppArgs['tuple']['hello_world_check(string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(HelloWorldAppParamsFactory.helloWorldCheck(params))
-      return {...result, return: result.return as undefined | MethodReturn<'hello_world_check(string)void'>}
+      return {...result, return: result.return as undefined | HelloWorldAppReturns['hello_world_check(string)void']}
     },
+
   }
 
   /**
@@ -629,14 +689,14 @@ export class HelloWorldAppClient {
 
   public newGroup(): HelloWorldAppComposer {
     const client = this
-    const composer = client.appClient.newGroup()
+    const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a hello(string)string method call against the HelloWorldApp contract
        */
-      hello(params: CallParams<'hello(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      hello(params: CallParams<HelloWorldAppArgs['obj']['hello(string)string'] | HelloWorldAppArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.hello(params)))
         resultMappers.push((v) => client.decodeReturnValue('hello(string)string', v))
         return this
@@ -644,7 +704,7 @@ export class HelloWorldAppClient {
       /**
        * Add a hello_world_check(string)void method call against the HelloWorldApp contract
        */
-      helloWorldCheck(params: CallParams<'hello_world_check(string)void'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      helloWorldCheck(params: CallParams<HelloWorldAppArgs['obj']['hello_world_check(string)void'] | HelloWorldAppArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloWorldCheck(params)))
         resultMappers.push(undefined)
         return this
@@ -709,7 +769,7 @@ export type HelloWorldAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  hello(params?: CallParams<'hello(string)string'>): HelloWorldAppComposer<[...TReturns, MethodReturn<'hello(string)string'> | undefined]>
+  hello(params?: CallParams<HelloWorldAppArgs['obj']['hello(string)string'] | HelloWorldAppArgs['tuple']['hello(string)string']>): HelloWorldAppComposer<[...TReturns, HelloWorldAppReturns['hello(string)string'] | undefined]>
 
   /**
    * Calls the hello_world_check(string)void ABI method.
@@ -720,7 +780,7 @@ export type HelloWorldAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloWorldCheck(params?: CallParams<'hello_world_check(string)void'>): HelloWorldAppComposer<[...TReturns, MethodReturn<'hello_world_check(string)void'> | undefined]>
+  helloWorldCheck(params?: CallParams<HelloWorldAppArgs['obj']['hello_world_check(string)void'] | HelloWorldAppArgs['tuple']['hello_world_check(string)void']>): HelloWorldAppComposer<[...TReturns, HelloWorldAppReturns['hello_world_check(string)void'] | undefined]>
 
   /**
    * Gets available delete methods
