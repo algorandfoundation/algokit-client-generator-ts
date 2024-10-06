@@ -82,11 +82,22 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
       return this.appClient.appName
     }
 
+    /** The ARC-56 app spec being used */
+    public get appSpec() {
+      return this.appClient.appSpec
+    }
+
+    /** A reference to the underlying \`AlgorandClient\` this app client is using. */
+    public get algorand(): AlgorandClientInterface {
+      return this.appClient.algorand
+    }
+
   `
 
   yield* params(ctx)
   yield* createTransaction(ctx)
   yield* send(ctx)
+  yield* readonlyMethods(ctx)
 
   yield* getStateMethods(ctx)
   yield* composeMethod(ctx)
@@ -197,6 +208,7 @@ function* abiMethodCall({
   verb,
   type,
   includeCompilation,
+  readonly,
 }: {
   generator: GeneratorContext
   method: Method
@@ -204,13 +216,25 @@ function* abiMethodCall({
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete' | 'call'
   type: 'params' | 'createTransaction' | 'send'
   includeCompilation?: boolean
+  readonly?: boolean
 }) {
   const methodSig = new ABIMethod(method).getSignature()
   const uniqueName = methodSignatureToUniqueName[methodSig]
   const onComplete =
-    verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : verb === 'call' ? getCallOnCompleteOptions(methodSig, app) : undefined
+    verb === 'create'
+      ? getCreateOnCompleteOptions(methodSig, app)
+      : verb === 'call' && !readonly
+        ? getCallOnCompleteOptions(methodSig, app)
+        : undefined
   yield* jsDoc({
-    description: `${description} using the ${methodSig} ABI method.`,
+    description:
+      verb === 'call' && method.readonly
+        ? [
+            `${description} using the \`${methodSig}\` ABI method.`,
+            '',
+            'This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.',
+          ]
+        : `${description} using the \`${methodSig}\` ABI method.`,
     abiDescription: method?.desc,
     params: {
       params: `The params for the smart contract call`,
@@ -220,22 +244,25 @@ function* abiMethodCall({
   const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
   const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
   const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-  yield `${methodName}: ${type === 'send' ? 'async ' : ''}(params: Expand<CallParams<'${methodSigSafe}'>${
+  yield `${!readonly ? `${methodName}: ` : ''}${type === 'send' ? 'async ' : ''}${readonly ? `${methodName}` : ''}(params: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']>${
     includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
   }${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) => {`
+  }${type === 'send' && !readonly ? ' & SendParams' : ''}${onComplete?.type && !readonly ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''})${!readonly ? ' =>' : ''} {`
   if (type === 'send') {
     yield* indent(
       `const result = await this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
-      `return {...result, return: result.return as undefined | MethodReturn<'${methodSigSafe}'>}`,
+      readonly
+        ? `return result.return as ${name}Returns['${methodSigSafe}']`
+        : `return {...result, return: result.return as undefined | ${name}Returns['${methodSigSafe}']}`,
     )
   } else {
     yield* indent(
       `return this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
     )
   }
-  yield '},'
+  yield `}${!readonly ? ',' : ''}`
+  yield NewLine
 }
 
 function* operationMethods(
@@ -299,6 +326,25 @@ function* call(generator: GeneratorContext, type: 'params' | 'createTransaction'
       type,
     })
     yield NewLine
+  }
+}
+
+function* readonlyMethods(generator: GeneratorContext): DocumentParts {
+  const { app, callConfig } = generator
+  for (const method of app.methods) {
+    const methodSignature = new ABIMethod(method).getSignature()
+    // Skip non readonly methods
+    if (!callConfig.callMethods.includes(methodSignature) || !method.readonly) continue
+
+    yield* abiMethodCall({
+      generator,
+      description: `Makes a readonly (simulated) call to the ${generator.app.name} smart contract`,
+      method,
+      verb: 'call',
+      type: 'send',
+      includeCompilation: false,
+      readonly: true,
+    })
   }
 }
 

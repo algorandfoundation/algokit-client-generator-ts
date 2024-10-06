@@ -4,8 +4,9 @@
  * DO NOT MODIFY IT BY HAND.
  * requires: @algorandfoundation/algokit-utils: ^7
  */
+import { AlgorandClientInterface } from '@algorandfoundation/algokit-utils/types/algorand-client-interface'
 import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import {
   AppClient,
   AppClientMethodCallParams,
@@ -22,7 +23,7 @@ import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerR
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"name":"ARC56Test","desc":"","methods":[{"name":"foo","args":[{"name":"inputs","type":"((uint64,uint64),(uint64,uint64))","struct":"Inputs"}],"returns":{"type":"(uint64,uint64)","struct":"Outputs"},"actions":{"create":[],"call":["NoOp"]}},{"name":"optInToApplication","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["OptIn"]}},{"name":"createApplication","args":[],"returns":{"type":"void"},"actions":{"create":["NoOp"],"call":[]}}],"arcs":[4,56],"structs":{"{ foo: uint16; bar: uint16 }":[{"name":"foo","type":"uint16"},{"name":"bar","type":"uint16"}],"Outputs":[{"name":"sum","type":"uint64"},{"name":"difference","type":"uint64"}],"Inputs":[{"name":"add","type":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]},{"name":"subtract","type":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]}]},"state":{"schema":{"global":{"bytes":37,"ints":1},"local":{"bytes":13,"ints":1}},"keys":{"global":{"globalKey":{"key":"Z2xvYmFsS2V5","keyType":"AVMBytes","valueType":"uint64"}},"local":{"localKey":{"key":"bG9jYWxLZXk=","keyType":"AVMBytes","valueType":"uint64"}},"box":{"boxKey":{"key":"Ym94S2V5","keyType":"AVMBytes","valueType":"string"}}},"maps":{"global":{"globalMap":{"keyType":"string","valueType":"{ foo: uint16; bar: uint16 }","prefix":"cA=="}},"local":{"localMap":{"keyType":"AVMBytes","valueType":"string","prefix":"cA=="}},"box":{"boxMap":{"keyType":"Inputs","valueType":"Outputs","prefix":"cA=="}}}},"bareActions":{"create":[],"call":[]},"sourceInfo":{"approval":[{"teal":1,"source":6,"pc":[0,1,2,3]},{"teal":13,"source":6,"pc":[4,5]},{"teal":14,"source":6,"pc":[6]},{"teal":15,"source":6,"pc":[7,8]},{"teal":16,"source":6,"pc":[9]},{"teal":17,"source":6,"pc":[10,11]},{"teal":18,"source":6,"pc":[12]},{"teal":19,"source":6,"pc":[13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]},{"teal":23,"source":6,"errorMessage":"The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?","pc":[39]},{"teal":28,"source":23,"pc":[40,41,42,43,44,45]},{"teal":31,"source":23,"pc":[46,47,48]},{"teal":32,"source":23,"pc":[49]},{"teal":33,"source":23,"pc":[50]},{"teal":34,"source":23,"pc":[51,52]},{"teal":35,"source":23,"pc":[53]},{"teal":38,"source":23,"errorMessage":"argument 0 (inputs) for foo must be a ((uint64,uint64),(uint64,uint64))","pc":[54]},{"teal":41,"source":23,"pc":[55,56,57]},{"teal":42,"source":23,"pc":[58]},{"teal":43,"source":23,"pc":[59]},{"teal":44,"source":23,"pc":[60]},{"teal":45,"source":23,"pc":[61]},{"teal":49,"source":23,"pc":[62,63,64]},{"teal":54,"source":24,"pc":[65,66]},{"teal":55,"source":24,"pc":[67,68,69]},{"teal":56,"source":24,"pc":[70]},{"teal":57,"source":24,"pc":[71,72]},{"teal":58,"source":24,"pc":[73,74,75]},{"teal":59,"source":24,"pc":[76]},{"teal":60,"source":24,"pc":[77]},{"teal":61,"source":24,"pc":[78,79,80]},{"teal":65,"source":24,"errorMessage":"subtract.a must be greater than subtract.b","pc":[81]},{"teal":70,"source":26,"pc":[82,83,84,85,86,87,88,89,90,91,92]},{"teal":71,"source":26,"pc":[93,94]},{"teal":72,"source":26,"pc":[95]},{"teal":76,"source":27,"pc":[96,97,98,99,100,101,102,103]},{"teal":77,"source":27,"pc":[104,105,106,107,108,109]},{"teal":78,"source":27,"pc":[110]},{"teal":85,"source":30,"pc":[111,112]},{"teal":86,"source":30,"pc":[113,114,115]},{"teal":87,"source":30,"pc":[116]},{"teal":88,"source":30,"pc":[117,118]},{"teal":89,"source":30,"pc":[119,120,121]},{"teal":90,"source":30,"pc":[122]},{"teal":91,"source":30,"pc":[123]},{"teal":92,"source":30,"pc":[124]},{"teal":93,"source":31,"pc":[125,126]},{"teal":94,"source":31,"pc":[127,128,129]},{"teal":95,"source":31,"pc":[130]},{"teal":96,"source":31,"pc":[131,132]},{"teal":97,"source":31,"pc":[133,134,135]},{"teal":98,"source":31,"pc":[136]},{"teal":99,"source":31,"pc":[137]},{"teal":100,"source":31,"pc":[138]},{"teal":101,"source":31,"pc":[139]},{"teal":102,"source":23,"pc":[140]},{"teal":107,"source":35,"pc":[141,142,143]},{"teal":108,"source":35,"pc":[144]},{"teal":109,"source":35,"pc":[145]},{"teal":113,"source":35,"pc":[146,147,148]},{"teal":117,"source":36,"pc":[149,150]},{"teal":118,"source":36,"pc":[151,152,153,154,155,156,157,158,159,160]},{"teal":119,"source":36,"pc":[161,162]},{"teal":120,"source":36,"pc":[163]},{"teal":124,"source":37,"pc":[164,165]},{"teal":125,"source":37,"pc":[166,167,168,169,170,171]},{"teal":126,"source":37,"pc":[172,173,174,175,176,177,178]},{"teal":127,"source":37,"pc":[179]},{"teal":131,"source":38,"pc":[180,181,182,183,184,185,186,187]},{"teal":132,"source":38,"pc":[188]},{"teal":133,"source":38,"pc":[189]},{"teal":134,"source":38,"pc":[190]},{"teal":135,"source":38,"pc":[191,192,193,194,195,196,197]},{"teal":136,"source":38,"pc":[198]},{"teal":140,"source":39,"pc":[199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233]},{"teal":141,"source":39,"pc":[234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251]},{"teal":142,"source":39,"pc":[252]},{"teal":143,"source":35,"pc":[253]},{"teal":146,"source":6,"pc":[254]},{"teal":147,"source":6,"pc":[255]},{"teal":150,"source":6,"pc":[256,257,258,259,260,261]},{"teal":151,"source":6,"pc":[262,263,264]},{"teal":152,"source":6,"pc":[265,266,267,268]},{"teal":155,"source":6,"errorMessage":"this contract does not implement the given ABI method for create NoOp","pc":[269]},{"teal":158,"source":6,"pc":[270,271,272,273,274,275]},{"teal":159,"source":6,"pc":[276,277,278]},{"teal":160,"source":6,"pc":[279,280,281,282]},{"teal":163,"source":6,"errorMessage":"this contract does not implement the given ABI method for call NoOp","pc":[283]},{"teal":166,"source":6,"pc":[284,285,286,287,288,289]},{"teal":167,"source":6,"pc":[290,291,292]},{"teal":168,"source":6,"pc":[293,294,295,296]},{"teal":171,"source":6,"errorMessage":"this contract does not implement the given ABI method for call OptIn","pc":[297]}],"clear":[]},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCgovLyBUaGlzIFRFQUwgd2FzIGdlbmVyYXRlZCBieSBURUFMU2NyaXB0IHYwLjkyLjAKLy8gaHR0cHM6Ly9naXRodWIuY29tL2FsZ29yYW5kZm91bmRhdGlvbi9URUFMU2NyaXB0CgovLyBUaGlzIGNvbnRyYWN0IGlzIGNvbXBsaWFudCB3aXRoIGFuZC9vciBpbXBsZW1lbnRzIHRoZSBmb2xsb3dpbmcgQVJDczogWyBBUkM0IF0KCi8vIFRoZSBmb2xsb3dpbmcgdGVuIGxpbmVzIG9mIFRFQUwgaGFuZGxlIGluaXRpYWwgcHJvZ3JhbSBmbG93Ci8vIFRoaXMgcGF0dGVybiBpcyB1c2VkIHRvIG1ha2UgaXQgZWFzeSBmb3IgYW55b25lIHRvIHBhcnNlIHRoZSBzdGFydCBvZiB0aGUgcHJvZ3JhbSBhbmQgZGV0ZXJtaW5lIGlmIGEgc3BlY2lmaWMgYWN0aW9uIGlzIGFsbG93ZWQKLy8gSGVyZSwgYWN0aW9uIHJlZmVycyB0byB0aGUgT25Db21wbGV0ZSBpbiBjb21iaW5hdGlvbiB3aXRoIHdoZXRoZXIgdGhlIGFwcCBpcyBiZWluZyBjcmVhdGVkIG9yIGNhbGxlZAovLyBFdmVyeSBwb3NzaWJsZSBhY3Rpb24gZm9yIHRoaXMgY29udHJhY3QgaXMgcmVwcmVzZW50ZWQgaW4gdGhlIHN3aXRjaCBzdGF0ZW1lbnQKLy8gSWYgdGhlIGFjdGlvbiBpcyBub3QgaW1wbGVtZW50ZWQgaW4gdGhlIGNvbnRyYWN0LCBpdHMgcmVzcGVjdGl2ZSBicmFuY2ggd2lsbCBiZSAiKk5PVF9JTVBMRU1FTlRFRCIgd2hpY2gganVzdCBjb250YWlucyAiZXJyIgp0eG4gQXBwbGljYXRpb25JRAohCmludCA2CioKdHhuIE9uQ29tcGxldGlvbgorCnN3aXRjaCAqY2FsbF9Ob09wICpjYWxsX09wdEluICpOT1RfSU1QTEVNRU5URUQgKk5PVF9JTVBMRU1FTlRFRCAqTk9UX0lNUExFTUVOVEVEICpOT1RfSU1QTEVNRU5URUQgKmNyZWF0ZV9Ob09wICpOT1RfSU1QTEVNRU5URUQgKk5PVF9JTVBMRU1FTlRFRCAqTk9UX0lNUExFTUVOVEVEICpOT1RfSU1QTEVNRU5URUQgKk5PVF9JTVBMRU1FTlRFRAoKKk5PVF9JTVBMRU1FTlRFRDoKCS8vIFRoZSByZXF1ZXN0ZWQgYWN0aW9uIGlzIG5vdCBpbXBsZW1lbnRlZCBpbiB0aGlzIGNvbnRyYWN0LiBBcmUgeW91IHVzaW5nIHRoZSBjb3JyZWN0IE9uQ29tcGxldGU/IERpZCB5b3Ugc2V0IHlvdXIgYXBwIElEPwoJZXJyCgovLyBmb28oKCh1aW50NjQsdWludDY0KSwodWludDY0LHVpbnQ2NCkpKSh1aW50NjQsdWludDY0KQoqYWJpX3JvdXRlX2ZvbzoKCS8vIFRoZSBBQkkgcmV0dXJuIHByZWZpeAoJYnl0ZSAweDE1MWY3Yzc1CgoJLy8gaW5wdXRzOiAoKHVpbnQ2NCx1aW50NjQpLCh1aW50NjQsdWludDY0KSkKCXR4bmEgQXBwbGljYXRpb25BcmdzIDEKCWR1cAoJbGVuCglpbnQgMzIKCT09CgoJLy8gYXJndW1lbnQgMCAoaW5wdXRzKSBmb3IgZm9vIG11c3QgYmUgYSAoKHVpbnQ2NCx1aW50NjQpLCh1aW50NjQsdWludDY0KSkKCWFzc2VydAoKCS8vIGV4ZWN1dGUgZm9vKCgodWludDY0LHVpbnQ2NCksKHVpbnQ2NCx1aW50NjQpKSkodWludDY0LHVpbnQ2NCkKCWNhbGxzdWIgZm9vCgljb25jYXQKCWxvZwoJaW50IDEKCXJldHVybgoKLy8gZm9vKGlucHV0czogSW5wdXRzKTogT3V0cHV0cwpmb286Cglwcm90byAxIDEKCgkvLyAqaWYwX2NvbmRpdGlvbgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MjQKCS8vIGlucHV0cy5zdWJ0cmFjdC5hIDwgaW5wdXRzLnN1YnRyYWN0LmIKCWZyYW1lX2RpZyAtMSAvLyBpbnB1dHM6IElucHV0cwoJZXh0cmFjdCAxNiA4CglidG9pCglmcmFtZV9kaWcgLTEgLy8gaW5wdXRzOiBJbnB1dHMKCWV4dHJhY3QgMjQgOAoJYnRvaQoJPAoJYnogKmlmMF9lbmQKCgkvLyAqaWYwX2NvbnNlcXVlbnQKCS8vIHN1YnRyYWN0LmEgbXVzdCBiZSBncmVhdGVyIHRoYW4gc3VidHJhY3QuYgoJZXJyCgoqaWYwX2VuZDoKCS8vIHRlc3RzL2NvbnRyYWN0cy9hcmM1Ni5hbGdvLnRzOjI2CgkvLyB0aGlzLmdsb2JhbEtleS52YWx1ZSA9IHRoaXMuc29tZU51bWJlcgoJYnl0ZSAweDY3NmM2ZjYyNjE2YzRiNjU3OSAvLyAiZ2xvYmFsS2V5IgoJcHVzaGludCBUTVBMX3NvbWVOdW1iZXIKCWFwcF9nbG9iYWxfcHV0CgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MjcKCS8vIHRoaXMuZ2xvYmFsTWFwKCdmb28nKS52YWx1ZSA9IHsgZm9vOiAxMywgYmFyOiAzNyB9CglieXRlIDB4NzAwMDAzNjY2ZjZmCglieXRlIDB4MDAwZDAwMjUKCWFwcF9nbG9iYWxfcHV0CgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MjkKCS8vIHJldHVybiB7CgkvLyAgICAgICBzdW06IGlucHV0cy5hZGQuYSArIGlucHV0cy5hZGQuYiwKCS8vICAgICAgIGRpZmZlcmVuY2U6IGlucHV0cy5zdWJ0cmFjdC5hIC0gaW5wdXRzLnN1YnRyYWN0LmIsCgkvLyAgICAgfTsKCWZyYW1lX2RpZyAtMSAvLyBpbnB1dHM6IElucHV0cwoJZXh0cmFjdCAwIDgKCWJ0b2kKCWZyYW1lX2RpZyAtMSAvLyBpbnB1dHM6IElucHV0cwoJZXh0cmFjdCA4IDgKCWJ0b2kKCSsKCWl0b2IKCWZyYW1lX2RpZyAtMSAvLyBpbnB1dHM6IElucHV0cwoJZXh0cmFjdCAxNiA4CglidG9pCglmcmFtZV9kaWcgLTEgLy8gaW5wdXRzOiBJbnB1dHMKCWV4dHJhY3QgMjQgOAoJYnRvaQoJLQoJaXRvYgoJY29uY2F0CglyZXRzdWIKCi8vIG9wdEluVG9BcHBsaWNhdGlvbigpdm9pZAoqYWJpX3JvdXRlX29wdEluVG9BcHBsaWNhdGlvbjoKCS8vIGV4ZWN1dGUgb3B0SW5Ub0FwcGxpY2F0aW9uKCl2b2lkCgljYWxsc3ViIG9wdEluVG9BcHBsaWNhdGlvbgoJaW50IDEKCXJldHVybgoKLy8gb3B0SW5Ub0FwcGxpY2F0aW9uKCk6IHZvaWQKb3B0SW5Ub0FwcGxpY2F0aW9uOgoJcHJvdG8gMCAwCgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MzYKCS8vIHRoaXMubG9jYWxLZXkodGhpcy50eG4uc2VuZGVyKS52YWx1ZSA9IHRoaXMuc29tZU51bWJlcgoJdHhuIFNlbmRlcgoJYnl0ZSAweDZjNmY2MzYxNmM0YjY1NzkgLy8gImxvY2FsS2V5IgoJcHVzaGludCBUTVBMX3NvbWVOdW1iZXIKCWFwcF9sb2NhbF9wdXQKCgkvLyB0ZXN0cy9jb250cmFjdHMvYXJjNTYuYWxnby50czozNwoJLy8gdGhpcy5sb2NhbE1hcCh0aGlzLnR4bi5zZW5kZXIsICdmb28nKS52YWx1ZSA9ICdiYXInCgl0eG4gU2VuZGVyCglieXRlIDB4NzA2NjZmNmYKCWJ5dGUgMHgwMDAzNjI2MTcyCglhcHBfbG9jYWxfcHV0CgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MzgKCS8vIHRoaXMuYm94S2V5LnZhbHVlID0gJ2JheicKCWJ5dGUgMHg2MjZmNzg0YjY1NzkgLy8gImJveEtleSIKCWR1cAoJYm94X2RlbAoJcG9wCglieXRlIDB4MDAwMzYyNjE3YQoJYm94X3B1dAoKCS8vIHRlc3RzL2NvbnRyYWN0cy9hcmM1Ni5hbGdvLnRzOjM5CgkvLyB0aGlzLmJveE1hcCh7IGFkZDogeyBhOiAxLCBiOiAyIH0sIHN1YnRyYWN0OiB7IGE6IDQsIGI6IDMgfSB9KS52YWx1ZSA9IHsgc3VtOiAzLCBkaWZmZXJlbmNlOiAxIH0KCWJ5dGUgMHg3MDAwMDAwMDAwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAyMDAwMDAwMDAwMDAwMDAwNDAwMDAwMDAwMDAwMDAwMDMKCWJ5dGUgMHgwMDAwMDAwMDAwMDAwMDAzMDAwMDAwMDAwMDAwMDAwMQoJYm94X3B1dAoJcmV0c3ViCgoqYWJpX3JvdXRlX2NyZWF0ZUFwcGxpY2F0aW9uOgoJaW50IDEKCXJldHVybgoKKmNyZWF0ZV9Ob09wOgoJbWV0aG9kICJjcmVhdGVBcHBsaWNhdGlvbigpdm9pZCIKCXR4bmEgQXBwbGljYXRpb25BcmdzIDAKCW1hdGNoICphYmlfcm91dGVfY3JlYXRlQXBwbGljYXRpb24KCgkvLyB0aGlzIGNvbnRyYWN0IGRvZXMgbm90IGltcGxlbWVudCB0aGUgZ2l2ZW4gQUJJIG1ldGhvZCBmb3IgY3JlYXRlIE5vT3AKCWVycgoKKmNhbGxfTm9PcDoKCW1ldGhvZCAiZm9vKCgodWludDY0LHVpbnQ2NCksKHVpbnQ2NCx1aW50NjQpKSkodWludDY0LHVpbnQ2NCkiCgl0eG5hIEFwcGxpY2F0aW9uQXJncyAwCgltYXRjaCAqYWJpX3JvdXRlX2ZvbwoKCS8vIHRoaXMgY29udHJhY3QgZG9lcyBub3QgaW1wbGVtZW50IHRoZSBnaXZlbiBBQkkgbWV0aG9kIGZvciBjYWxsIE5vT3AKCWVycgoKKmNhbGxfT3B0SW46CgltZXRob2QgIm9wdEluVG9BcHBsaWNhdGlvbigpdm9pZCIKCXR4bmEgQXBwbGljYXRpb25BcmdzIDAKCW1hdGNoICphYmlfcm91dGVfb3B0SW5Ub0FwcGxpY2F0aW9uCgoJLy8gdGhpcyBjb250cmFjdCBkb2VzIG5vdCBpbXBsZW1lbnQgdGhlIGdpdmVuIEFCSSBtZXRob2QgZm9yIGNhbGwgT3B0SW4KCWVycg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEw"},"templateVariables":{"someNumber":{"type":"uint64"}},"scratchVariables":{"someScratch":{"type":"string","slot":77}}}
+export const APP_SPEC: Arc56Contract = {"name":"ARC56Test","desc":"","methods":[{"name":"foo","args":[{"name":"inputs","type":"((uint64,uint64),(uint64,uint64))","struct":"Inputs"}],"returns":{"type":"(uint64,uint64)","struct":"Outputs"},"actions":{"create":[],"call":["NoOp"]}},{"name":"optInToApplication","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["OptIn"]}},{"name":"createApplication","args":[],"returns":{"type":"void"},"actions":{"create":["NoOp"],"call":[]}}],"arcs":[4,56],"structs":{"{ foo: uint16; bar: uint16 }":[{"name":"foo","type":"uint16"},{"name":"bar","type":"uint16"}],"Outputs":[{"name":"sum","type":"uint64"},{"name":"difference","type":"uint64"}],"Inputs":[{"name":"add","type":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]},{"name":"subtract","type":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]}]},"state":{"schema":{"global":{"bytes":37,"ints":1},"local":{"bytes":13,"ints":1}},"keys":{"global":{"globalKey":{"key":"Z2xvYmFsS2V5","keyType":"AVMBytes","valueType":"uint64"}},"local":{"localKey":{"key":"bG9jYWxLZXk=","keyType":"AVMBytes","valueType":"uint64"}},"box":{"boxKey":{"key":"Ym94S2V5","keyType":"AVMBytes","valueType":"string"}}},"maps":{"global":{"globalMap":{"keyType":"string","valueType":"{ foo: uint16; bar: uint16 }","prefix":"cA=="}},"local":{"localMap":{"keyType":"AVMBytes","valueType":"string","prefix":"cA=="}},"box":{"boxMap":{"keyType":"Inputs","valueType":"Outputs","prefix":"cA=="}}}},"bareActions":{"create":[],"call":[]},"sourceInfo":{"approval":[{"teal":1,"source":6,"pc":[0,1,2,3]},{"teal":13,"source":6,"pc":[4,5]},{"teal":14,"source":6,"pc":[6]},{"teal":15,"source":6,"pc":[7,8]},{"teal":16,"source":6,"pc":[9]},{"teal":17,"source":6,"pc":[10,11]},{"teal":18,"source":6,"pc":[12]},{"teal":19,"source":6,"pc":[13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]},{"teal":23,"source":6,"errorMessage":"The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?","pc":[39]},{"teal":28,"source":23,"pc":[40,41,42,43,44,45]},{"teal":31,"source":23,"pc":[46,47,48]},{"teal":32,"source":23,"pc":[49]},{"teal":33,"source":23,"pc":[50]},{"teal":34,"source":23,"pc":[51,52]},{"teal":35,"source":23,"pc":[53]},{"teal":38,"source":23,"errorMessage":"argument 0 (inputs) for foo must be a ((uint64,uint64),(uint64,uint64))","pc":[54]},{"teal":41,"source":23,"pc":[55,56,57]},{"teal":42,"source":23,"pc":[58]},{"teal":43,"source":23,"pc":[59]},{"teal":44,"source":23,"pc":[60]},{"teal":45,"source":23,"pc":[61]},{"teal":49,"source":23,"pc":[62,63,64]},{"teal":54,"source":24,"pc":[65,66]},{"teal":55,"source":24,"pc":[67,68,69]},{"teal":56,"source":24,"pc":[70]},{"teal":57,"source":24,"pc":[71,72]},{"teal":58,"source":24,"pc":[73,74,75]},{"teal":59,"source":24,"pc":[76]},{"teal":60,"source":24,"pc":[77]},{"teal":61,"source":24,"pc":[78,79,80]},{"teal":65,"source":24,"errorMessage":"subtract.a must be greater than subtract.b","pc":[81]},{"teal":70,"source":26,"pc":[82,83,84,85,86,87,88,89,90,91,92]},{"teal":71,"source":26,"pc":[93,94]},{"teal":72,"source":26,"pc":[95]},{"teal":76,"source":27,"pc":[96,97,98,99,100,101,102,103]},{"teal":77,"source":27,"pc":[104,105,106,107,108,109]},{"teal":78,"source":27,"pc":[110]},{"teal":85,"source":30,"pc":[111,112]},{"teal":86,"source":30,"pc":[113,114,115]},{"teal":87,"source":30,"pc":[116]},{"teal":88,"source":30,"pc":[117,118]},{"teal":89,"source":30,"pc":[119,120,121]},{"teal":90,"source":30,"pc":[122]},{"teal":91,"source":30,"pc":[123]},{"teal":92,"source":30,"pc":[124]},{"teal":93,"source":31,"pc":[125,126]},{"teal":94,"source":31,"pc":[127,128,129]},{"teal":95,"source":31,"pc":[130]},{"teal":96,"source":31,"pc":[131,132]},{"teal":97,"source":31,"pc":[133,134,135]},{"teal":98,"source":31,"pc":[136]},{"teal":99,"source":31,"pc":[137]},{"teal":100,"source":31,"pc":[138]},{"teal":101,"source":31,"pc":[139]},{"teal":102,"source":23,"pc":[140]},{"teal":107,"source":35,"pc":[141,142,143]},{"teal":108,"source":35,"pc":[144]},{"teal":109,"source":35,"pc":[145]},{"teal":113,"source":35,"pc":[146,147,148]},{"teal":117,"source":36,"pc":[149,150]},{"teal":118,"source":36,"pc":[151,152,153,154,155,156,157,158,159,160]},{"teal":119,"source":36,"pc":[161,162]},{"teal":120,"source":36,"pc":[163]},{"teal":124,"source":37,"pc":[164,165]},{"teal":125,"source":37,"pc":[166,167,168,169,170,171]},{"teal":126,"source":37,"pc":[172,173,174,175,176,177,178]},{"teal":127,"source":37,"pc":[179]},{"teal":131,"source":38,"pc":[180,181,182,183,184,185,186,187]},{"teal":132,"source":38,"pc":[188]},{"teal":133,"source":38,"pc":[189]},{"teal":134,"source":38,"pc":[190]},{"teal":135,"source":38,"pc":[191,192,193,194,195,196,197]},{"teal":136,"source":38,"pc":[198]},{"teal":140,"source":39,"pc":[199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233]},{"teal":141,"source":39,"pc":[234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251]},{"teal":142,"source":39,"pc":[252]},{"teal":143,"source":35,"pc":[253]},{"teal":146,"source":6,"pc":[254]},{"teal":147,"source":6,"pc":[255]},{"teal":150,"source":6,"pc":[256,257,258,259,260,261]},{"teal":151,"source":6,"pc":[262,263,264]},{"teal":152,"source":6,"pc":[265,266,267,268]},{"teal":155,"source":6,"errorMessage":"this contract does not implement the given ABI method for create NoOp","pc":[269]},{"teal":158,"source":6,"pc":[270,271,272,273,274,275]},{"teal":159,"source":6,"pc":[276,277,278]},{"teal":160,"source":6,"pc":[279,280,281,282]},{"teal":163,"source":6,"errorMessage":"this contract does not implement the given ABI method for call NoOp","pc":[283]},{"teal":166,"source":6,"pc":[284,285,286,287,288,289]},{"teal":167,"source":6,"pc":[290,291,292]},{"teal":168,"source":6,"pc":[293,294,295,296]},{"teal":171,"source":6,"errorMessage":"this contract does not implement the given ABI method for call OptIn","pc":[297]}],"clear":[]},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCgovLyBUaGlzIFRFQUwgd2FzIGdlbmVyYXRlZCBieSBURUFMU2NyaXB0IHYwLjkyLjAKLy8gaHR0cHM6Ly9naXRodWIuY29tL2FsZ29yYW5kZm91bmRhdGlvbi9URUFMU2NyaXB0CgovLyBUaGlzIGNvbnRyYWN0IGlzIGNvbXBsaWFudCB3aXRoIGFuZC9vciBpbXBsZW1lbnRzIHRoZSBmb2xsb3dpbmcgQVJDczogWyBBUkM0IF0KCi8vIFRoZSBmb2xsb3dpbmcgdGVuIGxpbmVzIG9mIFRFQUwgaGFuZGxlIGluaXRpYWwgcHJvZ3JhbSBmbG93Ci8vIFRoaXMgcGF0dGVybiBpcyB1c2VkIHRvIG1ha2UgaXQgZWFzeSBmb3IgYW55b25lIHRvIHBhcnNlIHRoZSBzdGFydCBvZiB0aGUgcHJvZ3JhbSBhbmQgZGV0ZXJtaW5lIGlmIGEgc3BlY2lmaWMgYWN0aW9uIGlzIGFsbG93ZWQKLy8gSGVyZSwgYWN0aW9uIHJlZmVycyB0byB0aGUgT25Db21wbGV0ZSBpbiBjb21iaW5hdGlvbiB3aXRoIHdoZXRoZXIgdGhlIGFwcCBpcyBiZWluZyBjcmVhdGVkIG9yIGNhbGxlZAovLyBFdmVyeSBwb3NzaWJsZSBhY3Rpb24gZm9yIHRoaXMgY29udHJhY3QgaXMgcmVwcmVzZW50ZWQgaW4gdGhlIHN3aXRjaCBzdGF0ZW1lbnQKLy8gSWYgdGhlIGFjdGlvbiBpcyBub3QgaW1wbGVtZW50ZWQgaW4gdGhlIGNvbnRyYWN0LCBpdHMgcmVzcGVjdGl2ZSBicmFuY2ggd2lsbCBiZSAiKk5PVF9JTVBMRU1FTlRFRCIgd2hpY2gganVzdCBjb250YWlucyAiZXJyIgp0eG4gQXBwbGljYXRpb25JRAohCmludCA2CioKdHhuIE9uQ29tcGxldGlvbgorCnN3aXRjaCAqY2FsbF9Ob09wICpjYWxsX09wdEluICpOT1RfSU1QTEVNRU5URUQgKk5PVF9JTVBMRU1FTlRFRCAqTk9UX0lNUExFTUVOVEVEICpOT1RfSU1QTEVNRU5URUQgKmNyZWF0ZV9Ob09wICpOT1RfSU1QTEVNRU5URUQgKk5PVF9JTVBMRU1FTlRFRCAqTk9UX0lNUExFTUVOVEVEICpOT1RfSU1QTEVNRU5URUQgKk5PVF9JTVBMRU1FTlRFRAoKKk5PVF9JTVBMRU1FTlRFRDoKCS8vIFRoZSByZXF1ZXN0ZWQgYWN0aW9uIGlzIG5vdCBpbXBsZW1lbnRlZCBpbiB0aGlzIGNvbnRyYWN0LiBBcmUgeW91IHVzaW5nIHRoZSBjb3JyZWN0IE9uQ29tcGxldGU/IERpZCB5b3Ugc2V0IHlvdXIgYXBwIElEPwoJZXJyCgovLyBmb28oKCh1aW50NjQsdWludDY0KSwodWludDY0LHVpbnQ2NCkpKSh1aW50NjQsdWludDY0KQoqYWJpX3JvdXRlX2ZvbzoKCS8vIFRoZSBBQkkgcmV0dXJuIHByZWZpeAoJYnl0ZSAweDE1MWY3Yzc1CgoJLy8gaW5wdXRzOiAoKHVpbnQ2NCx1aW50NjQpLCh1aW50NjQsdWludDY0KSkKCXR4bmEgQXBwbGljYXRpb25BcmdzIDEKCWR1cAoJbGVuCglpbnQgMzIKCT09CgoJLy8gYXJndW1lbnQgMCAoaW5wdXRzKSBmb3IgZm9vIG11c3QgYmUgYSAoKHVpbnQ2NCx1aW50NjQpLCh1aW50NjQsdWludDY0KSkKCWFzc2VydAoKCS8vIGV4ZWN1dGUgZm9vKCgodWludDY0LHVpbnQ2NCksKHVpbnQ2NCx1aW50NjQpKSkodWludDY0LHVpbnQ2NCkKCWNhbGxzdWIgZm9vCgljb25jYXQKCWxvZwoJaW50IDEKCXJldHVybgoKLy8gZm9vKGlucHV0czogSW5wdXRzKTogT3V0cHV0cwpmb286Cglwcm90byAxIDEKCgkvLyAqaWYwX2NvbmRpdGlvbgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MjQKCS8vIGlucHV0cy5zdWJ0cmFjdC5hIDwgaW5wdXRzLnN1YnRyYWN0LmIKCWZyYW1lX2RpZyAtMSAvLyBpbnB1dHM6IElucHV0cwoJZXh0cmFjdCAxNiA4CglidG9pCglmcmFtZV9kaWcgLTEgLy8gaW5wdXRzOiBJbnB1dHMKCWV4dHJhY3QgMjQgOAoJYnRvaQoJPAoJYnogKmlmMF9lbmQKCgkvLyAqaWYwX2NvbnNlcXVlbnQKCS8vIHN1YnRyYWN0LmEgbXVzdCBiZSBncmVhdGVyIHRoYW4gc3VidHJhY3QuYgoJZXJyCgoqaWYwX2VuZDoKCS8vIHRlc3RzL2NvbnRyYWN0cy9hcmM1Ni5hbGdvLnRzOjI2CgkvLyB0aGlzLmdsb2JhbEtleS52YWx1ZSA9IHRoaXMuc29tZU51bWJlcgoJYnl0ZSAweDY3NmM2ZjYyNjE2YzRiNjU3OSAvLyAiZ2xvYmFsS2V5IgoJcHVzaGludCBUTVBMX3NvbWVOdW1iZXIKCWFwcF9nbG9iYWxfcHV0CgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MjcKCS8vIHRoaXMuZ2xvYmFsTWFwKCdmb28nKS52YWx1ZSA9IHsgZm9vOiAxMywgYmFyOiAzNyB9CglieXRlIDB4NzAwMDAzNjY2ZjZmCglieXRlIDB4MDAwZDAwMjUKCWFwcF9nbG9iYWxfcHV0CgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MjkKCS8vIHJldHVybiB7CgkvLyAgICAgICBzdW06IGlucHV0cy5hZGQuYSArIGlucHV0cy5hZGQuYiwKCS8vICAgICAgIGRpZmZlcmVuY2U6IGlucHV0cy5zdWJ0cmFjdC5hIC0gaW5wdXRzLnN1YnRyYWN0LmIsCgkvLyAgICAgfTsKCWZyYW1lX2RpZyAtMSAvLyBpbnB1dHM6IElucHV0cwoJZXh0cmFjdCAwIDgKCWJ0b2kKCWZyYW1lX2RpZyAtMSAvLyBpbnB1dHM6IElucHV0cwoJZXh0cmFjdCA4IDgKCWJ0b2kKCSsKCWl0b2IKCWZyYW1lX2RpZyAtMSAvLyBpbnB1dHM6IElucHV0cwoJZXh0cmFjdCAxNiA4CglidG9pCglmcmFtZV9kaWcgLTEgLy8gaW5wdXRzOiBJbnB1dHMKCWV4dHJhY3QgMjQgOAoJYnRvaQoJLQoJaXRvYgoJY29uY2F0CglyZXRzdWIKCi8vIG9wdEluVG9BcHBsaWNhdGlvbigpdm9pZAoqYWJpX3JvdXRlX29wdEluVG9BcHBsaWNhdGlvbjoKCS8vIGV4ZWN1dGUgb3B0SW5Ub0FwcGxpY2F0aW9uKCl2b2lkCgljYWxsc3ViIG9wdEluVG9BcHBsaWNhdGlvbgoJaW50IDEKCXJldHVybgoKLy8gb3B0SW5Ub0FwcGxpY2F0aW9uKCk6IHZvaWQKb3B0SW5Ub0FwcGxpY2F0aW9uOgoJcHJvdG8gMCAwCgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MzYKCS8vIHRoaXMubG9jYWxLZXkodGhpcy50eG4uc2VuZGVyKS52YWx1ZSA9IHRoaXMuc29tZU51bWJlcgoJdHhuIFNlbmRlcgoJYnl0ZSAweDZjNmY2MzYxNmM0YjY1NzkgLy8gImxvY2FsS2V5IgoJcHVzaGludCBUTVBMX3NvbWVOdW1iZXIKCWFwcF9sb2NhbF9wdXQKCgkvLyB0ZXN0cy9jb250cmFjdHMvYXJjNTYuYWxnby50czozNwoJLy8gdGhpcy5sb2NhbE1hcCh0aGlzLnR4bi5zZW5kZXIsICdmb28nKS52YWx1ZSA9ICdiYXInCgl0eG4gU2VuZGVyCglieXRlIDB4NzA2NjZmNmYKCWJ5dGUgMHgwMDAzNjI2MTcyCglhcHBfbG9jYWxfcHV0CgoJLy8gdGVzdHMvY29udHJhY3RzL2FyYzU2LmFsZ28udHM6MzgKCS8vIHRoaXMuYm94S2V5LnZhbHVlID0gJ2JheicKCWJ5dGUgMHg2MjZmNzg0YjY1NzkgLy8gImJveEtleSIKCWR1cAoJYm94X2RlbAoJcG9wCglieXRlIDB4MDAwMzYyNjE3YQoJYm94X3B1dAoKCS8vIHRlc3RzL2NvbnRyYWN0cy9hcmM1Ni5hbGdvLnRzOjM5CgkvLyB0aGlzLmJveE1hcCh7IGFkZDogeyBhOiAxLCBiOiAyIH0sIHN1YnRyYWN0OiB7IGE6IDQsIGI6IDMgfSB9KS52YWx1ZSA9IHsgc3VtOiAzLCBkaWZmZXJlbmNlOiAxIH0KCWJ5dGUgMHg3MDAwMDAwMDAwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAyMDAwMDAwMDAwMDAwMDAwNDAwMDAwMDAwMDAwMDAwMDMKCWJ5dGUgMHgwMDAwMDAwMDAwMDAwMDAzMDAwMDAwMDAwMDAwMDAwMQoJYm94X3B1dAoJcmV0c3ViCgoqYWJpX3JvdXRlX2NyZWF0ZUFwcGxpY2F0aW9uOgoJaW50IDEKCXJldHVybgoKKmNyZWF0ZV9Ob09wOgoJbWV0aG9kICJjcmVhdGVBcHBsaWNhdGlvbigpdm9pZCIKCXR4bmEgQXBwbGljYXRpb25BcmdzIDAKCW1hdGNoICphYmlfcm91dGVfY3JlYXRlQXBwbGljYXRpb24KCgkvLyB0aGlzIGNvbnRyYWN0IGRvZXMgbm90IGltcGxlbWVudCB0aGUgZ2l2ZW4gQUJJIG1ldGhvZCBmb3IgY3JlYXRlIE5vT3AKCWVycgoKKmNhbGxfTm9PcDoKCW1ldGhvZCAiZm9vKCgodWludDY0LHVpbnQ2NCksKHVpbnQ2NCx1aW50NjQpKSkodWludDY0LHVpbnQ2NCkiCgl0eG5hIEFwcGxpY2F0aW9uQXJncyAwCgltYXRjaCAqYWJpX3JvdXRlX2ZvbwoKCS8vIHRoaXMgY29udHJhY3QgZG9lcyBub3QgaW1wbGVtZW50IHRoZSBnaXZlbiBBQkkgbWV0aG9kIGZvciBjYWxsIE5vT3AKCWVycgoKKmNhbGxfT3B0SW46CgltZXRob2QgIm9wdEluVG9BcHBsaWNhdGlvbigpdm9pZCIKCXR4bmEgQXBwbGljYXRpb25BcmdzIDAKCW1hdGNoICphYmlfcm91dGVfb3B0SW5Ub0FwcGxpY2F0aW9uCgoJLy8gdGhpcyBjb250cmFjdCBkb2VzIG5vdCBpbXBsZW1lbnQgdGhlIGdpdmVuIEFCSSBtZXRob2QgZm9yIGNhbGwgT3B0SW4KCWVycg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEw"},"templateVariables":{"someNumber":{"type":"uint64"}},"scratchVariables":{"someScratch":{"type":"string","slot":77}}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -65,7 +66,7 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 type uint64 = bigint;
 type AVMBytes = Uint8Array;
-type uint16 = bigint;
+type uint16 = number;
 
 // Type definitions for ARC-56 structs
 
@@ -74,9 +75,25 @@ export type FooUint16BarUint16 = {
   bar: uint16
 }
 
+
+/**
+ * Converts the ABI tuple representation of a { foo: uint16; bar: uint16 } to the struct representation
+ */
+export function FooUint16BarUint16FromTuple(abiTuple: [number, number]) {
+  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs['{ foo: uint16; bar: uint16 }'], APP_SPEC.structs) as FooUint16BarUint16
+}
+
 export type Outputs = {
   sum: uint64,
   difference: uint64
+}
+
+
+/**
+ * Converts the ABI tuple representation of a Outputs to the struct representation
+ */
+export function OutputsFromTuple(abiTuple: [bigint, bigint]) {
+  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.Outputs, APP_SPEC.structs) as Outputs
 }
 
 export type Inputs = {
@@ -92,11 +109,52 @@ export type Inputs = {
 
 
 /**
+ * Converts the ABI tuple representation of a Inputs to the struct representation
+ */
+export function InputsFromTuple(abiTuple: [[bigint, bigint], [bigint, bigint]]) {
+  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.Inputs, APP_SPEC.structs) as Inputs
+}
+
+/**
  * Deploy-time template variables
  */
 export type TemplateVariables = {
   someNumber: uint64,
 }
+
+/**
+ * The argument types for the Arc56Test contract
+ */
+export type Arc56TestArgs = {
+  /**
+   * The object representation of the arguments for each method
+   */
+  obj: {
+    'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)': {
+      inputs: Inputs
+    }
+    'optInToApplication()void': Record<string, never>
+    'createApplication()void': Record<string, never>
+  }
+  /**
+   * The tuple representation of the arguments for each method
+   */
+  tuple: {
+    'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)': [inputs: Inputs]
+    'optInToApplication()void': []
+    'createApplication()void': []
+  }
+}
+
+/**
+ * The return type for each method
+ */
+export type Arc56TestReturns = {
+  'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)': Outputs
+  'optInToApplication()void': void
+  'createApplication()void': void
+}
+
 /**
  * Defines the types of available calls and state of the Arc56Test smart contract.
  */
@@ -106,21 +164,19 @@ export type Arc56TestTypes = {
    */
   methods:
     & Record<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)' | 'foo', {
-      argsObj: {
-        inputs: Inputs
-      }
-      argsTuple: [inputs: Inputs]
-      returns: Outputs
+      argsObj: Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
+      argsTuple: Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
+      returns: Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
     }>
     & Record<'optInToApplication()void' | 'optInToApplication', {
-      argsObj: Record<string, never>
-      argsTuple: []
-      returns: void
+      argsObj: Arc56TestArgs['obj']['optInToApplication()void']
+      argsTuple: Arc56TestArgs['tuple']['optInToApplication()void']
+      returns: Arc56TestReturns['optInToApplication()void']
     }>
     & Record<'createApplication()void' | 'createApplication', {
-      argsObj: Record<string, never>
-      argsTuple: []
-      returns: void
+      argsObj: Arc56TestArgs['obj']['createApplication()void']
+      argsTuple: Arc56TestArgs['tuple']['createApplication()void']
+      returns: Arc56TestReturns['createApplication()void']
     }>
   /**
    * Defines the shape of the state of the application.
@@ -164,11 +220,11 @@ export type Arc56TestNonVoidMethodSignatures = keyof Arc56TestTypes['methods'] e
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
-export type CallParams<TSignature extends Arc56TestSignatures> = Expand<
+export type CallParams<TArgs> = Expand<
   Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
     {
       /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<MethodArgs<TSignature>>
+      args: Expand<TArgs>
     }
 >
 /**
@@ -200,8 +256,8 @@ export type BoxKeysState = Arc56TestTypes['state']['box']['keys']
  * Defines supported create method params for this smart contract
  */
 export type Arc56TestCreateCallParams =
-  | Expand<CallParams<'createApplication'> & {method: 'createApplication'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
-  | Expand<CallParams<'createApplication()void'> & {method: 'createApplication()void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & {method: 'createApplication'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & {method: 'createApplication()void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines arguments required for the deploy method.
  */
@@ -237,7 +293,7 @@ export abstract class Arc56TestParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      createApplication(params: CallParams<'createApplication()void'> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      createApplication(params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
         return {
           ...params,
           method: 'createApplication()void' as const,
@@ -258,7 +314,7 @@ export abstract class Arc56TestParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      optInToApplication(params: CallParams<'optInToApplication()void'>): AppClientMethodCallParams {
+      optInToApplication(params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'optInToApplication()void' as const,
@@ -274,7 +330,7 @@ export abstract class Arc56TestParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static foo(params: CallParams<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static foo(params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)' as const,
@@ -302,6 +358,21 @@ export class Arc56TestFactory {
       ...params,
       appSpec: APP_SPEC,
     })
+  }
+  
+  /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
+  public get appName() {
+    return this.appFactory.appName
+  }
+  
+  /** The ARC-56 app spec being used */
+  get appSpec() {
+    return APP_SPEC
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app factory is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appFactory.algorand
   }
   
   /**
@@ -359,7 +430,7 @@ export class Arc56TestFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createApplication: (params: Expand<CallParams<'createApplication()void'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+      createApplication: (params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
         return this.appFactory.params.create(Arc56TestParamsFactory.create.createApplication(params))
       },
     },
@@ -380,7 +451,7 @@ export class Arc56TestFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createApplication: (params: Expand<CallParams<'createApplication()void'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+      createApplication: (params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
         return this.appFactory.params.create(Arc56TestParamsFactory.create.createApplication(params))
       },
     },
@@ -401,9 +472,9 @@ export class Arc56TestFactory {
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      createApplication: async (params: Expand<CallParams<'createApplication()void'> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+      createApplication: async (params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
         const result = await this.appFactory.send.create(Arc56TestParamsFactory.create.createApplication(params))
-        return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'createApplication()void'> }, appClient: new Arc56TestClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as undefined | Arc56TestReturns['createApplication()void'] }, appClient: new Arc56TestClient(result.appClient) }
       },
     },
 
@@ -482,6 +553,16 @@ export class Arc56TestClient {
   public get appName() {
     return this.appClient.appName
   }
+  
+  /** The ARC-56 app spec being used */
+  public get appSpec() {
+    return this.appClient.appSpec
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app client is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appClient.algorand
+  }
 
   /**
    * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
@@ -492,14 +573,15 @@ export class Arc56TestClient {
      */
     optIn: {
       /**
-       * Opts the user into an existing instance of the ARC56Test smart contract using the optInToApplication()void ABI method.
+       * Opts the user into an existing instance of the ARC56Test smart contract using the `optInToApplication()void` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The optIn params
        */
-      optInToApplication: (params: Expand<CallParams<'optInToApplication()void'>> = {args: []}) => {
+      optInToApplication: (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']> = {args: []}) => {
         return this.appClient.params.optIn(Arc56TestParamsFactory.optIn.optInToApplication(params))
       },
+
     },
 
     /**
@@ -513,14 +595,15 @@ export class Arc56TestClient {
     },
 
     /**
-     * Makes a call to the ARC56Test smart contract using the foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64) ABI method.
+     * Makes a call to the ARC56Test smart contract using the `foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    foo: (params: Expand<CallParams<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    foo: (params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(Arc56TestParamsFactory.foo(params))
     },
+
   }
 
   /**
@@ -532,14 +615,15 @@ export class Arc56TestClient {
      */
     optIn: {
       /**
-       * Opts the user into an existing instance of the ARC56Test smart contract using the optInToApplication()void ABI method.
+       * Opts the user into an existing instance of the ARC56Test smart contract using the `optInToApplication()void` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The optIn transaction
        */
-      optInToApplication: (params: Expand<CallParams<'optInToApplication()void'>> = {args: []}) => {
+      optInToApplication: (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']> = {args: []}) => {
         return this.appClient.createTransaction.optIn(Arc56TestParamsFactory.optIn.optInToApplication(params))
       },
+
     },
 
     /**
@@ -553,14 +637,15 @@ export class Arc56TestClient {
     },
 
     /**
-     * Makes a call to the ARC56Test smart contract using the foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64) ABI method.
+     * Makes a call to the ARC56Test smart contract using the `foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    foo: (params: Expand<CallParams<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    foo: (params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(Arc56TestParamsFactory.foo(params))
     },
+
   }
 
   /**
@@ -572,15 +657,16 @@ export class Arc56TestClient {
      */
     optIn: {
       /**
-       * Opts the user into an existing instance of the ARC56Test smart contract using the optInToApplication()void ABI method.
+       * Opts the user into an existing instance of the ARC56Test smart contract using the `optInToApplication()void` ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The optIn result
        */
-      optInToApplication: async (params: Expand<CallParams<'optInToApplication()void'> & SendParams> = {args: []}) => {
+      optInToApplication: async (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']> & SendParams = {args: []}) => {
         const result = await this.appClient.send.optIn(Arc56TestParamsFactory.optIn.optInToApplication(params))
-        return {...result, return: result.return as undefined | MethodReturn<'optInToApplication()void'>}
+        return {...result, return: result.return as undefined | Arc56TestReturns['optInToApplication()void']}
       },
+
     },
 
     /**
@@ -594,15 +680,16 @@ export class Arc56TestClient {
     },
 
     /**
-     * Makes a call to the ARC56Test smart contract using the foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64) ABI method.
+     * Makes a call to the ARC56Test smart contract using the `foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    foo: async (params: Expand<CallParams<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    foo: async (params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(Arc56TestParamsFactory.foo(params))
-      return {...result, return: result.return as undefined | MethodReturn<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'>}
+      return {...result, return: result.return as undefined | Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']}
     },
+
   }
 
   /**
@@ -706,21 +793,21 @@ export class Arc56TestClient {
 
   public newGroup(): Arc56TestComposer {
     const client = this
-    const composer = client.appClient.newGroup()
+    const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64) method call against the ARC56Test contract
        */
-      foo(params: CallParams<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      foo(params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.foo(params)))
         resultMappers.push((v) => client.decodeReturnValue('foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)', v))
         return this
       },
       get optIn() {
         return {
-          optInToApplication: (params: CallParams<'optInToApplication()void'>) => {
+          optInToApplication: (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']>) => {
             promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.optInToApplication(params)))
             resultMappers.push(undefined)
             return this
@@ -769,7 +856,7 @@ export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  foo(params?: CallParams<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'>): Arc56TestComposer<[...TReturns, MethodReturn<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'> | undefined]>
+  foo(params?: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']>): Arc56TestComposer<[...TReturns, Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | undefined]>
 
   /**
    * Gets available optIn methods
@@ -782,7 +869,7 @@ export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    optInToApplication(params?: CallParams<'optInToApplication()void'>): Arc56TestComposer<[...TReturns, MethodReturn<'optInToApplication()void'> | undefined]>
+    optInToApplication(params?: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']>): Arc56TestComposer<[...TReturns, Arc56TestReturns['optInToApplication()void'] | undefined]>
   }
 
   /**

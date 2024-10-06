@@ -4,8 +4,9 @@
  * DO NOT MODIFY IT BY HAND.
  * requires: @algorandfoundation/algokit-utils: ^7
  */
+import { AlgorandClientInterface } from '@algorandfoundation/algokit-utils/types/algorand-client-interface'
 import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import {
   AppClient,
   AppClientMethodCallParams,
@@ -22,7 +23,7 @@ import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerR
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"DuplicateStructsContract","desc":"\n        This contract is to be used as a test artifact to verify behavior around struct generation to ensure that \n        the scenarios similar to whats outlined in this contract can not result in a typed client with duplicate struct \n        definitions.\n    ","structs":{"SomeStruct":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]},"methods":[{"name":"method_a_that_uses_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"method_b_that_uses_same_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5hcHByb3ZhbF9wcm9ncmFtOgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fYmFyZV9yb3V0aW5nQDYKICAgIG1ldGhvZCAibWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdCgpKHVpbnQ2NCx1aW50NjQpIgogICAgbWV0aG9kICJtZXRob2RfYl90aGF0X3VzZXNfc2FtZV9zdHJ1Y3QoKSh1aW50NjQsdWludDY0KSIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdF9yb3V0ZUAyIG1haW5fbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0X3JvdXRlQDMKICAgIGVyciAvLyByZWplY3QgdHJhbnNhY3Rpb24KCm1haW5fbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdF9yb3V0ZUAyOgogICAgLy8gY29udHJhY3QucHk6MTkKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gaXMgbm90IGNyZWF0aW5nCiAgICBjYWxsc3ViIG1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3QKICAgIGJ5dGUgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludCAxCiAgICByZXR1cm4KCm1haW5fbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0X3JvdXRlQDM6CiAgICAvLyBjb250cmFjdC5weToyNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBpcyBub3QgY3JlYXRpbmcKICAgIGNhbGxzdWIgbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0CiAgICBieXRlIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnQgMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A2OgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIHJlamVjdCB0cmFuc2FjdGlvbgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBpcyBjcmVhdGluZwogICAgaW50IDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5kZWxlZ2F0b3JfY29udHJhY3QuY29udHJhY3QuRHVwbGljYXRlU3RydWN0c0NvbnRyYWN0Lm1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3QoKSAtPiBieXRlczoKbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdDoKICAgIC8vIGNvbnRyYWN0LnB5OjE5LTIwCiAgICAvLyBAYXJjNC5hYmltZXRob2QoKQogICAgLy8gZGVmIG1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3Qoc2VsZikgLT4gU29tZVN0cnVjdDoKICAgIHByb3RvIDAgMQogICAgLy8gY29udHJhY3QucHk6MjEtMjQKICAgIC8vIHJldHVybiBTb21lU3RydWN0KAogICAgLy8gICAgIGFyYzQuVUludDY0KDEpLAogICAgLy8gICAgIGFyYzQuVUludDY0KDIpLAogICAgLy8gKQogICAgYnl0ZSAweDAwMDAwMDAwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAyCiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5tZXRob2RfYl90aGF0X3VzZXNfc2FtZV9zdHJ1Y3QoKSAtPiBieXRlczoKbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0OgogICAgLy8gY29udHJhY3QucHk6MjYtMjcKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICAvLyBkZWYgbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0KHNlbGYpIC0+IFNvbWVTdHJ1Y3Q6CiAgICBwcm90byAwIDEKICAgIC8vIGNvbnRyYWN0LnB5OjI4LTMxCiAgICAvLyByZXR1cm4gU29tZVN0cnVjdCgKICAgIC8vICAgICBhcmM0LlVJbnQ2NCgzKSwKICAgIC8vICAgICBhcmM0LlVJbnQ2NCg0KSwKICAgIC8vICkKICAgIGJ5dGUgMHgwMDAwMDAwMDAwMDAwMDAzMDAwMDAwMDAwMDAwMDAwNAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5jbGVhcl9zdGF0ZV9wcm9ncmFtOgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgaW50IDEKICAgIHJldHVybgo="},"bareActions":{"create":["NoOp"],"call":[]}}
+export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"DuplicateStructsContract","desc":"\n        This contract is to be used as a test artifact to verify behavior around struct generation to ensure that \n        the scenarios similar to whats outlined in this contract can not result in a typed client with duplicate struct \n        definitions.\n    ","structs":{"SomeStruct":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]},"methods":[{"name":"method_a_that_uses_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"method_b_that_uses_same_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5hcHByb3ZhbF9wcm9ncmFtOgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fYmFyZV9yb3V0aW5nQDYKICAgIG1ldGhvZCAibWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdCgpKHVpbnQ2NCx1aW50NjQpIgogICAgbWV0aG9kICJtZXRob2RfYl90aGF0X3VzZXNfc2FtZV9zdHJ1Y3QoKSh1aW50NjQsdWludDY0KSIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdF9yb3V0ZUAyIG1haW5fbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0X3JvdXRlQDMKICAgIGVyciAvLyByZWplY3QgdHJhbnNhY3Rpb24KCm1haW5fbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdF9yb3V0ZUAyOgogICAgLy8gY29udHJhY3QucHk6MTkKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gaXMgbm90IGNyZWF0aW5nCiAgICBjYWxsc3ViIG1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3QKICAgIGJ5dGUgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludCAxCiAgICByZXR1cm4KCm1haW5fbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0X3JvdXRlQDM6CiAgICAvLyBjb250cmFjdC5weToyNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBpcyBub3QgY3JlYXRpbmcKICAgIGNhbGxzdWIgbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0CiAgICBieXRlIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnQgMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A2OgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIHJlamVjdCB0cmFuc2FjdGlvbgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBpcyBjcmVhdGluZwogICAgaW50IDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5kZWxlZ2F0b3JfY29udHJhY3QuY29udHJhY3QuRHVwbGljYXRlU3RydWN0c0NvbnRyYWN0Lm1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3QoKSAtPiBieXRlczoKbWV0aG9kX2FfdGhhdF91c2VzX3N0cnVjdDoKICAgIC8vIGNvbnRyYWN0LnB5OjE5LTIwCiAgICAvLyBAYXJjNC5hYmltZXRob2QoKQogICAgLy8gZGVmIG1ldGhvZF9hX3RoYXRfdXNlc19zdHJ1Y3Qoc2VsZikgLT4gU29tZVN0cnVjdDoKICAgIHByb3RvIDAgMQogICAgLy8gY29udHJhY3QucHk6MjEtMjQKICAgIC8vIHJldHVybiBTb21lU3RydWN0KAogICAgLy8gICAgIGFyYzQuVUludDY0KDEpLAogICAgLy8gICAgIGFyYzQuVUludDY0KDIpLAogICAgLy8gKQogICAgYnl0ZSAweDAwMDAwMDAwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAyCiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5tZXRob2RfYl90aGF0X3VzZXNfc2FtZV9zdHJ1Y3QoKSAtPiBieXRlczoKbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0OgogICAgLy8gY29udHJhY3QucHk6MjYtMjcKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICAvLyBkZWYgbWV0aG9kX2JfdGhhdF91c2VzX3NhbWVfc3RydWN0KHNlbGYpIC0+IFNvbWVTdHJ1Y3Q6CiAgICBwcm90byAwIDEKICAgIC8vIGNvbnRyYWN0LnB5OjI4LTMxCiAgICAvLyByZXR1cm4gU29tZVN0cnVjdCgKICAgIC8vICAgICBhcmM0LlVJbnQ2NCgzKSwKICAgIC8vICAgICBhcmM0LlVJbnQ2NCg0KSwKICAgIC8vICkKICAgIGJ5dGUgMHgwMDAwMDAwMDAwMDAwMDAzMDAwMDAwMDAwMDAwMDAwNAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuZGVsZWdhdG9yX2NvbnRyYWN0LmNvbnRyYWN0LkR1cGxpY2F0ZVN0cnVjdHNDb250cmFjdC5jbGVhcl9zdGF0ZV9wcm9ncmFtOgogICAgLy8gY29udHJhY3QucHk6MTIKICAgIC8vIGNsYXNzIER1cGxpY2F0ZVN0cnVjdHNDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgaW50IDEKICAgIHJldHVybgo="},"bareActions":{"create":["NoOp"],"call":[]}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -74,6 +75,41 @@ export type SomeStruct = {
 
 
 /**
+ * Converts the ABI tuple representation of a SomeStruct to the struct representation
+ */
+export function SomeStructFromTuple(abiTuple: [bigint, bigint]) {
+  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.SomeStruct, APP_SPEC.structs) as SomeStruct
+}
+
+/**
+ * The argument types for the DuplicateStructsContract contract
+ */
+export type DuplicateStructsContractArgs = {
+  /**
+   * The object representation of the arguments for each method
+   */
+  obj: {
+    'method_a_that_uses_struct()(uint64,uint64)': Record<string, never>
+    'method_b_that_uses_same_struct()(uint64,uint64)': Record<string, never>
+  }
+  /**
+   * The tuple representation of the arguments for each method
+   */
+  tuple: {
+    'method_a_that_uses_struct()(uint64,uint64)': []
+    'method_b_that_uses_same_struct()(uint64,uint64)': []
+  }
+}
+
+/**
+ * The return type for each method
+ */
+export type DuplicateStructsContractReturns = {
+  'method_a_that_uses_struct()(uint64,uint64)': SomeStruct
+  'method_b_that_uses_same_struct()(uint64,uint64)': SomeStruct
+}
+
+/**
  * Defines the types of available calls and state of the DuplicateStructsContract smart contract.
  */
 export type DuplicateStructsContractTypes = {
@@ -82,14 +118,14 @@ export type DuplicateStructsContractTypes = {
    */
   methods:
     & Record<'method_a_that_uses_struct()(uint64,uint64)' | 'method_a_that_uses_struct', {
-      argsObj: Record<string, never>
-      argsTuple: []
-      returns: SomeStruct
+      argsObj: DuplicateStructsContractArgs['obj']['method_a_that_uses_struct()(uint64,uint64)']
+      argsTuple: DuplicateStructsContractArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']
+      returns: DuplicateStructsContractReturns['method_a_that_uses_struct()(uint64,uint64)']
     }>
     & Record<'method_b_that_uses_same_struct()(uint64,uint64)' | 'method_b_that_uses_same_struct', {
-      argsObj: Record<string, never>
-      argsTuple: []
-      returns: SomeStruct
+      argsObj: DuplicateStructsContractArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)']
+      argsTuple: DuplicateStructsContractArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']
+      returns: DuplicateStructsContractReturns['method_b_that_uses_same_struct()(uint64,uint64)']
     }>
 }
 
@@ -104,11 +140,11 @@ export type DuplicateStructsContractNonVoidMethodSignatures = keyof DuplicateStr
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
-export type CallParams<TSignature extends DuplicateStructsContractSignatures> = Expand<
+export type CallParams<TArgs> = Expand<
   Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
     {
       /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<MethodArgs<TSignature>>
+      args: Expand<TArgs>
     }
 >
 /**
@@ -147,7 +183,7 @@ export abstract class DuplicateStructsContractParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static methodAThatUsesStruct(params: CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static methodAThatUsesStruct(params: CallParams<DuplicateStructsContractArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'method_a_that_uses_struct()(uint64,uint64)' as const,
@@ -160,7 +196,7 @@ export abstract class DuplicateStructsContractParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static methodBThatUsesSameStruct(params: CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static methodBThatUsesSameStruct(params: CallParams<DuplicateStructsContractArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'method_b_that_uses_same_struct()(uint64,uint64)' as const,
@@ -188,6 +224,21 @@ export class DuplicateStructsContractFactory {
       ...params,
       appSpec: APP_SPEC,
     })
+  }
+  
+  /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
+  public get appName() {
+    return this.appFactory.appName
+  }
+  
+  /** The ARC-56 app spec being used */
+  get appSpec() {
+    return APP_SPEC
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app factory is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appFactory.algorand
   }
   
   /**
@@ -367,6 +418,16 @@ export class DuplicateStructsContractClient {
   public get appName() {
     return this.appClient.appName
   }
+  
+  /** The ARC-56 app spec being used */
+  public get appSpec() {
+    return this.appClient.appSpec
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app client is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appClient.algorand
+  }
 
   /**
    * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
@@ -383,23 +444,25 @@ export class DuplicateStructsContractClient {
     },
 
     /**
-     * Makes a call to the DuplicateStructsContract smart contract using the method_a_that_uses_struct()(uint64,uint64) ABI method.
+     * Makes a call to the DuplicateStructsContract smart contract using the `method_a_that_uses_struct()(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    methodAThatUsesStruct: (params: Expand<CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    methodAThatUsesStruct: (params: CallParams<DuplicateStructsContractArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       return this.appClient.params.call(DuplicateStructsContractParamsFactory.methodAThatUsesStruct(params))
     },
+
     /**
-     * Makes a call to the DuplicateStructsContract smart contract using the method_b_that_uses_same_struct()(uint64,uint64) ABI method.
+     * Makes a call to the DuplicateStructsContract smart contract using the `method_b_that_uses_same_struct()(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    methodBThatUsesSameStruct: (params: Expand<CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    methodBThatUsesSameStruct: (params: CallParams<DuplicateStructsContractArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       return this.appClient.params.call(DuplicateStructsContractParamsFactory.methodBThatUsesSameStruct(params))
     },
+
   }
 
   /**
@@ -417,23 +480,25 @@ export class DuplicateStructsContractClient {
     },
 
     /**
-     * Makes a call to the DuplicateStructsContract smart contract using the method_a_that_uses_struct()(uint64,uint64) ABI method.
+     * Makes a call to the DuplicateStructsContract smart contract using the `method_a_that_uses_struct()(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    methodAThatUsesStruct: (params: Expand<CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    methodAThatUsesStruct: (params: CallParams<DuplicateStructsContractArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       return this.appClient.createTransaction.call(DuplicateStructsContractParamsFactory.methodAThatUsesStruct(params))
     },
+
     /**
-     * Makes a call to the DuplicateStructsContract smart contract using the method_b_that_uses_same_struct()(uint64,uint64) ABI method.
+     * Makes a call to the DuplicateStructsContract smart contract using the `method_b_that_uses_same_struct()(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    methodBThatUsesSameStruct: (params: Expand<CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    methodBThatUsesSameStruct: (params: CallParams<DuplicateStructsContractArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       return this.appClient.createTransaction.call(DuplicateStructsContractParamsFactory.methodBThatUsesSameStruct(params))
     },
+
   }
 
   /**
@@ -451,25 +516,27 @@ export class DuplicateStructsContractClient {
     },
 
     /**
-     * Makes a call to the DuplicateStructsContract smart contract using the method_a_that_uses_struct()(uint64,uint64) ABI method.
+     * Makes a call to the DuplicateStructsContract smart contract using the `method_a_that_uses_struct()(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    methodAThatUsesStruct: async (params: Expand<CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    methodAThatUsesStruct: async (params: CallParams<DuplicateStructsContractArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(DuplicateStructsContractParamsFactory.methodAThatUsesStruct(params))
-      return {...result, return: result.return as undefined | MethodReturn<'method_a_that_uses_struct()(uint64,uint64)'>}
+      return {...result, return: result.return as undefined | DuplicateStructsContractReturns['method_a_that_uses_struct()(uint64,uint64)']}
     },
+
     /**
-     * Makes a call to the DuplicateStructsContract smart contract using the method_b_that_uses_same_struct()(uint64,uint64) ABI method.
+     * Makes a call to the DuplicateStructsContract smart contract using the `method_b_that_uses_same_struct()(uint64,uint64)` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    methodBThatUsesSameStruct: async (params: Expand<CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    methodBThatUsesSameStruct: async (params: CallParams<DuplicateStructsContractArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(DuplicateStructsContractParamsFactory.methodBThatUsesSameStruct(params))
-      return {...result, return: result.return as undefined | MethodReturn<'method_b_that_uses_same_struct()(uint64,uint64)'>}
+      return {...result, return: result.return as undefined | DuplicateStructsContractReturns['method_b_that_uses_same_struct()(uint64,uint64)']}
     },
+
   }
 
   /**
@@ -480,14 +547,14 @@ export class DuplicateStructsContractClient {
 
   public newGroup(): DuplicateStructsContractComposer {
     const client = this
-    const composer = client.appClient.newGroup()
+    const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a method_a_that_uses_struct()(uint64,uint64) method call against the DuplicateStructsContract contract
        */
-      methodAThatUsesStruct(params: CallParams<'method_a_that_uses_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      methodAThatUsesStruct(params: CallParams<DuplicateStructsContractArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.methodAThatUsesStruct(params)))
         resultMappers.push((v) => client.decodeReturnValue('method_a_that_uses_struct()(uint64,uint64)', v))
         return this
@@ -495,7 +562,7 @@ export class DuplicateStructsContractClient {
       /**
        * Add a method_b_that_uses_same_struct()(uint64,uint64) method call against the DuplicateStructsContract contract
        */
-      methodBThatUsesSameStruct(params: CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      methodBThatUsesSameStruct(params: CallParams<DuplicateStructsContractArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.methodBThatUsesSameStruct(params)))
         resultMappers.push((v) => client.decodeReturnValue('method_b_that_uses_same_struct()(uint64,uint64)', v))
         return this
@@ -542,7 +609,7 @@ export type DuplicateStructsContractComposer<TReturns extends [...any[]] = []> =
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  methodAThatUsesStruct(params?: CallParams<'method_a_that_uses_struct()(uint64,uint64)'>): DuplicateStructsContractComposer<[...TReturns, MethodReturn<'method_a_that_uses_struct()(uint64,uint64)'> | undefined]>
+  methodAThatUsesStruct(params?: CallParams<DuplicateStructsContractArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']>): DuplicateStructsContractComposer<[...TReturns, DuplicateStructsContractReturns['method_a_that_uses_struct()(uint64,uint64)'] | undefined]>
 
   /**
    * Calls the method_b_that_uses_same_struct()(uint64,uint64) ABI method.
@@ -551,7 +618,7 @@ export type DuplicateStructsContractComposer<TReturns extends [...any[]] = []> =
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  methodBThatUsesSameStruct(params?: CallParams<'method_b_that_uses_same_struct()(uint64,uint64)'>): DuplicateStructsContractComposer<[...TReturns, MethodReturn<'method_b_that_uses_same_struct()(uint64,uint64)'> | undefined]>
+  methodBThatUsesSameStruct(params?: CallParams<DuplicateStructsContractArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']>): DuplicateStructsContractComposer<[...TReturns, DuplicateStructsContractReturns['method_b_that_uses_same_struct()(uint64,uint64)'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the DuplicateStructsContract smart contract.

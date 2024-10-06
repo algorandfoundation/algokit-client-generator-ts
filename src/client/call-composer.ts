@@ -6,11 +6,12 @@ import { ABIMethod, ABIMethodParams } from 'algosdk'
 
 export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   const { name, callConfig } = ctx
+  // todo: Patrick feedback - allow common params to be passed in here so they propagate to all params calls e.g. firstValid
   yield `public newGroup(): ${name}Composer {`
   yield IncIndent
 
   yield `const client = this`
-  yield `const composer = client.appClient.newGroup()`
+  yield `const composer = this.algorand.newGroup()`
   yield `let promiseChain:Promise<unknown> = Promise.resolve()`
   yield `const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []`
   yield `return {`
@@ -65,7 +66,7 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield DecIndentAndCloseBlock
 }
 
-function* callComposerNoops({ app, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
+function* callComposerNoops({ app, name, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
   if (callConfig.callMethods.includes(BARE_CALL)) {
     yield* jsDoc(`Add a bare method call to the ${app.name} contract`)
     yield `bare(params: AppClientBareCallParams & ${getCallOnCompleteOptions(BARE_CALL, app).type}) {`
@@ -78,16 +79,16 @@ function* callComposerNoops({ app, callConfig, methodSignatureToUniqueName, sani
 
   for (const methodSignature of callConfig.callMethods.filter((m) => m !== BARE_CALL).map((m) => m as string)) {
     const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
-    const methodSignatureSafe = sanitizer.makeSafeStringTypeLiteral(methodSignature)
+    const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSignature)
     const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
     // Skip methods which don't support a no_op call config
     if (!callConfig.callMethods.includes(methodSignature)) continue
     yield* jsDoc(`Add a ${methodSignature} method call against the ${app.name} contract`)
-    yield `${methodName}(params: CallParams<'${methodSignatureSafe}'> & ${getCallOnCompleteOptions(methodSignature, app).type}) {`
+    yield `${methodName}(params: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']> & ${getCallOnCompleteOptions(methodSignature, app).type}) {`
     yield IncIndent
     yield `promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params${methodNameAccessor}(params)))`
     const outputTypeName = app.methods.find((m: ABIMethodParams) => new ABIMethod(m).getSignature() === methodSignature)?.returns.type
-    yield `resultMappers.push(${outputTypeName && outputTypeName !== 'void' ? `(v) => client.decodeReturnValue('${methodSignatureSafe}', v)` : 'undefined'})`
+    yield `resultMappers.push(${outputTypeName && outputTypeName !== 'void' ? `(v) => client.decodeReturnValue('${methodSigSafe}', v)` : 'undefined'})`
     yield `return this`
     yield DecIndent
     yield '},'
@@ -105,7 +106,7 @@ function* callComposerClearState({ app }: GeneratorContext): DocumentParts {
 }
 
 function* callComposerOperationMethods(
-  { app, methodSignatureToUniqueName, sanitizer }: GeneratorContext,
+  { app, name, methodSignatureToUniqueName, sanitizer }: GeneratorContext,
   methods: MethodList,
   verb: 'update' | 'optIn' | 'closeOut' | 'delete',
   includeCompilation?: boolean,
@@ -129,7 +130,7 @@ function* callComposerOperationMethods(
         const methodName = sanitizer.makeSafeMethodIdentifier(uniqueName)
         const methodNameAccessor = sanitizer.getSafeMemberAccessor(methodName)
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-        yield `${methodName}: (params: CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}) => {`
+        yield `${methodName}: (params: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']>${includeCompilation ? ' & AppClientCompilationParams' : ''}) => {`
         yield IncIndent
         yield `promiseChain = promiseChain.then(async () => composer.addApp${callType}MethodCall(await client.params.${verb}${methodNameAccessor}(params)))`
         const outputTypeName = app.methods.find((m: ABIMethodParams) => new ABIMethod(m).getSignature() === methodSig)?.returns.type

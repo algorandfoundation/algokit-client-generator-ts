@@ -81,12 +81,20 @@ export function* indent(...parts: Array<Part | DocumentParts>) {
   yield DecIndent
 }
 
-export function* jsDoc(docs: string | { description: string; abiDescription?: string; params?: Record<string, string>; returns?: string }) {
+export function* jsDoc(
+  docs: string | string[] | { description: string | string[]; abiDescription?: string; params?: Record<string, string>; returns?: string },
+) {
   yield `/**`
-  if (typeof docs === 'string') {
-    yield ` * ${docs}`
+  if (typeof docs === 'string' || Array.isArray(docs)) {
+    const description = typeof docs === 'string' ? [docs] : docs
+    for (const line of description) {
+      yield ` * ${line}`
+    }
   } else {
-    yield ` * ${docs.description}`
+    const description = typeof docs.description === 'string' ? [docs.description] : docs.description
+    for (const line of description) {
+      yield ` * ${line}`
+    }
     if (docs.abiDescription) {
       yield ' *'
       yield ` * ${docs.abiDescription}`

@@ -56,7 +56,7 @@ function* operationMethod(
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
   includeCompilation?: boolean,
 ): DocumentParts {
-  const { app, methodSignatureToUniqueName, sanitizer } = ctx
+  const { app, methodSignatureToUniqueName, sanitizer, name } = ctx
   if (methods.length > 0 && methods.some((m) => m !== BARE_CALL)) {
     yield* jsDoc(`Gets available ${verb} ABI call param factories`)
     yield `static get ${verb}() {`
@@ -110,6 +110,7 @@ function* operationMethod(
           additionalParamTypes: `${includeCompilation ? ' & AppClientCompilationParams' : ''}${
             onComplete?.type ? ` & ${onComplete.type}` : ''
           }`,
+          contractName: name,
         })
       }
     }
@@ -119,7 +120,7 @@ function* operationMethod(
   }
 }
 
-function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer }: GeneratorContext, method: Method) {
+function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer, name }: GeneratorContext, method: Method) {
   const methodSignature = new ABIMethod(method).getSignature()
   if (!callConfig.callMethods.includes(methodSignature)) return
 
@@ -138,6 +139,7 @@ function* callFactoryMethod({ methodSignatureToUniqueName, callConfig, sanitizer
     signature: methodSignature,
     args: method.args,
     additionalParamTypes: ' & CallOnComplete',
+    contractName: name,
   })
 }
 
@@ -148,20 +150,19 @@ function* factoryMethod(m: {
   args: Array<{ name?: string }>
   additionalParamTypes?: string
   sanitizer: Sanitizer
+  contractName: string
 }) {
-  const { isNested, name, signature, args, additionalParamTypes, sanitizer } = m
-  const signatureSafe = signature && sanitizer.makeSafeStringTypeLiteral(signature)
-  yield `${isNested ? '' : 'static '}${name}(params: CallParams<'${signatureSafe}'>${additionalParamTypes}): AppClientMethodCallParams${additionalParamTypes} {`
+  const { isNested, name, signature, args, additionalParamTypes, sanitizer, contractName } = m
+  const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(signature)
+  yield `${isNested ? '' : 'static '}${name}(params: CallParams<${contractName}Args['obj']['${methodSigSafe}'] | ${contractName}Args['tuple']['${methodSigSafe}']>${additionalParamTypes}): AppClientMethodCallParams${additionalParamTypes} {`
   yield IncIndent
   yield `return {`
   yield IncIndent
   yield '...params,'
-  if (signature) {
-    yield `method: '${signatureSafe}' as const,`
-    yield `args: Array.isArray(params.args) ? params.args : [${args
-      .map((a, i) => `params.args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name ?? `arg${i + 1}`))}`)
-      .join(', ')}],`
-  }
+  yield `method: '${methodSigSafe}' as const,`
+  yield `args: Array.isArray(params.args) ? params.args : [${args
+    .map((a, i) => `params.args${sanitizer.getSafeMemberAccessor(sanitizer.makeSafePropertyIdentifier(a.name ?? `arg${i + 1}`))}`)
+    .join(', ')}],`
   yield DecIndent
   yield '}'
   yield DecIndent

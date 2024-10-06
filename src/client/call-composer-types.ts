@@ -79,11 +79,11 @@ function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentP
 
 function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
   for (const method of app.methods) {
-    const methodSignature = new ABIMethod(method).getSignature()
-    const methodSignatureSafe = sanitizer.makeSafeStringTypeLiteral(methodSignature)
-    const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSignature])
+    const methodSig = new ABIMethod(method).getSignature()
+    const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
+    const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSig])
     // Skip methods which don't support a no_op call config
-    if (!callConfig.callMethods.includes(methodSignature)) continue
+    if (!callConfig.callMethods.includes(methodSig)) continue
 
     yield* jsDoc({
       description: `Calls the ${new ABIMethod(method).getSignature()} ABI method.`,
@@ -94,7 +94,7 @@ function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUnique
       },
       returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
     })
-    yield `${methodName}(params?: CallParams<'${methodSignatureSafe}'>): ${name}Composer<[...TReturns, MethodReturn<'${methodSignatureSafe}'> | undefined]>`
+    yield `${methodName}(params?: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']>): ${name}Composer<[...TReturns, ${name}Returns['${methodSigSafe}'] | undefined]>`
     yield NewLine
   }
 }
@@ -136,9 +136,9 @@ function* callComposerOperationMethodType(
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
         yield `${sanitizer.makeSafeMethodIdentifier(uniqueName)}(params${
           onComplete?.isOptional !== false ? '?' : ''
-        }: CallParams<'${methodSigSafe}'>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
+        }: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
           onComplete?.type ? ` & ${onComplete.type}` : ''
-        }): ${name}Composer<[...TReturns, MethodReturn<'${methodSigSafe}'> | undefined]>`
+        }): ${name}Composer<[...TReturns, ${name}Returns['${methodSigSafe}'] | undefined]>`
       }
     }
     yield DecIndentAndCloseBlock

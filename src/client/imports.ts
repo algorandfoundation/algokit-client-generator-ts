@@ -2,8 +2,9 @@ import { DocumentParts } from '../output/writer'
 
 export function* imports(): DocumentParts {
   yield `
+    import { AlgorandClientInterface } from '@algorandfoundation/algokit-utils/types/algorand-client-interface'
     import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-    import { Arc56Contract, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
+    import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
     import {
       AppClient,
       AppClientMethodCallParams,

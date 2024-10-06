@@ -26,6 +26,21 @@ class BareCallAppState:
 
 app = beaker.Application("StateApp", state=BareCallAppState)
 
+@app.external
+def call_abi_uint32(input: pt.abi.Uint32, *, output: pt.abi.Uint32) -> pt.Expr:
+    return output.set(input.get())
+
+@app.external(read_only=True)
+def call_abi_uint32_readonly(input: pt.abi.Uint32, *, output: pt.abi.Uint32) -> pt.Expr:
+    return output.set(input.get())
+
+@app.external
+def call_abi_uint64(input: pt.abi.Uint64, *, output: pt.abi.Uint64) -> pt.Expr:
+    return output.set(input.get())
+
+@app.external(read_only=True)
+def call_abi_uint64_readonly(input: pt.abi.Uint64, *, output: pt.abi.Uint64) -> pt.Expr:
+    return output.set(input.get())
 
 @app.external(read_only=True)
 def call_abi(value: pt.abi.String, *, output: pt.abi.String) -> pt.Expr:

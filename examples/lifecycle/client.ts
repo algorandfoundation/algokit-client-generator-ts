@@ -4,8 +4,9 @@
  * DO NOT MODIFY IT BY HAND.
  * requires: @algorandfoundation/algokit-utils: ^7
  */
+import { AlgorandClientInterface } from '@algorandfoundation/algokit-utils/types/algorand-client-interface'
 import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import {
   AppClient,
   AppClientMethodCallParams,
@@ -22,7 +23,7 @@ import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerR
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"LifeCycleApp","structs":{},"methods":[{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"create","desc":"ABI create method with 1 argument","args":[{"name":"greeting","type":"string","desc":"The greeting"}],"returns":{"type":"string","desc":"The formatted greeting"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"create","desc":"ABI create method with 2 arguments","args":[{"name":"greeting","type":"string"},{"name":"times","type":"uint32"}],"returns":{"type":"void"},"events":[],"actions":{"create":["NoOp"],"call":[]}}],"state":{"schema":{"global":{"ints":1,"bytes":1},"local":{"ints":0,"bytes":0}},"keys":{"global":{"greeting":{"key":"Z3JlZXRpbmc=","keyType":"AVMString","valueType":"AVMBytes","desc":""},"times":{"key":"dGltZXM=","keyType":"AVMString","valueType":"AVMUint64","desc":""}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMSAxMApieXRlY2Jsb2NrIDB4IDB4NzQ2OTZkNjU3MyAweDY3NzI2NTY1NzQ2OTZlNjcgMHgxNTFmN2M3NQp0eG4gTnVtQXBwQXJncwppbnRjXzAgLy8gMAo9PQpibnogbWFpbl9sMTAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgwMmJlY2UxMSAvLyAiaGVsbG8oc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDkKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhYjA2YzFhOCAvLyAiaGVsbG8oKXN0cmluZyIKPT0KYm56IG1haW5fbDgKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg5N2YxZmMxMSAvLyAiY3JlYXRlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2w3CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4NjAxOTMyNjQgLy8gImNyZWF0ZShzdHJpbmcsdWludDMyKXZvaWQiCj09CmJueiBtYWluX2w2CmVycgptYWluX2w2Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CiYmCmFzc2VydAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCnN0b3JlIDMKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgppbnRjXzAgLy8gMApleHRyYWN0X3VpbnQzMgpzdG9yZSA0CmxvYWQgMwpsb2FkIDQKY2FsbHN1YiBjcmVhdGVfNwppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNzoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAo9PQomJgphc3NlcnQKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpjYWxsc3ViIGNyZWF0ZV82CnN0b3JlIDIKYnl0ZWNfMyAvLyAweDE1MWY3Yzc1CmxvYWQgMgpjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2w4Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIGhlbGxvXzQKc3RvcmUgMQpieXRlY18zIC8vIDB4MTUxZjdjNzUKbG9hZCAxCmNvbmNhdApsb2cKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDk6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKY2FsbHN1YiBoZWxsb18zCnN0b3JlIDAKYnl0ZWNfMyAvLyAweDE1MWY3Yzc1CmxvYWQgMApjb25jYXQKbG9nCmludGNfMSAvLyAxCnJldHVybgptYWluX2wxMDoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQpibnogbWFpbl9sMTYKdHhuIE9uQ29tcGxldGlvbgppbnRjXzEgLy8gT3B0SW4KPT0KYm56IG1haW5fbDE1CnR4biBPbkNvbXBsZXRpb24KcHVzaGludCA0IC8vIFVwZGF0ZUFwcGxpY2F0aW9uCj09CmJueiBtYWluX2wxNAplcnIKbWFpbl9sMTQ6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIHVwZGF0ZV8yCmludGNfMSAvLyAxCnJldHVybgptYWluX2wxNToKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKPT0KYXNzZXJ0CmNhbGxzdWIgYmFyZWNyZWF0ZV81CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxNjoKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKPT0KYXNzZXJ0CmNhbGxzdWIgYmFyZWNyZWF0ZV81CmludGNfMSAvLyAxCnJldHVybgoKLy8gaW50X3RvX2FzY2lpCmludHRvYXNjaWlfMDoKcHJvdG8gMSAxCnB1c2hieXRlcyAweDMwMzEzMjMzMzQzNTM2MzczODM5IC8vICIwMTIzNDU2Nzg5IgpmcmFtZV9kaWcgLTEKaW50Y18xIC8vIDEKZXh0cmFjdDMKcmV0c3ViCgovLyBpdG9hCml0b2FfMToKcHJvdG8gMSAxCmZyYW1lX2RpZyAtMQppbnRjXzAgLy8gMAo9PQpibnogaXRvYV8xX2w1CmZyYW1lX2RpZyAtMQppbnRjXzIgLy8gMTAKLwppbnRjXzAgLy8gMAo+CmJueiBpdG9hXzFfbDQKYnl0ZWNfMCAvLyAiIgppdG9hXzFfbDM6CmZyYW1lX2RpZyAtMQppbnRjXzIgLy8gMTAKJQpjYWxsc3ViIGludHRvYXNjaWlfMApjb25jYXQKYiBpdG9hXzFfbDYKaXRvYV8xX2w0OgpmcmFtZV9kaWcgLTEKaW50Y18yIC8vIDEwCi8KY2FsbHN1YiBpdG9hXzEKYiBpdG9hXzFfbDMKaXRvYV8xX2w1OgpwdXNoYnl0ZXMgMHgzMCAvLyAiMCIKaXRvYV8xX2w2OgpyZXRzdWIKCi8vIHVwZGF0ZQp1cGRhdGVfMjoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX1VQREFUQUJMRSAvLyBUTVBMX1VQREFUQUJMRQovLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGhlbGxvCmhlbGxvXzM6CnByb3RvIDEgMQpieXRlY18wIC8vICIiCmJ5dGVjXzAgLy8gIiIKc3RvcmUgNQppbnRjXzAgLy8gMApzdG9yZSA2CmhlbGxvXzNfbDE6CmxvYWQgNgpieXRlY18xIC8vICJ0aW1lcyIKYXBwX2dsb2JhbF9nZXQKPApieiBoZWxsb18zX2wzCmxvYWQgNQpieXRlY18yIC8vICJncmVldGluZyIKYXBwX2dsb2JhbF9nZXQKY29uY2F0CnB1c2hieXRlcyAweDJjMjAgLy8gIiwgIgpjb25jYXQKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmNvbmNhdApwdXNoYnl0ZXMgMHgwYSAvLyAiXG4iCmNvbmNhdApzdG9yZSA1CmxvYWQgNgppbnRjXzEgLy8gMQorCnN0b3JlIDYKYiBoZWxsb18zX2wxCmhlbGxvXzNfbDM6CmxvYWQgNQpmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGhlbGxvCmhlbGxvXzQ6CnByb3RvIDAgMQpieXRlY18wIC8vICIiCmJ5dGVjXzAgLy8gIiIKc3RvcmUgNwppbnRjXzAgLy8gMApzdG9yZSA4CmhlbGxvXzRfbDE6CmxvYWQgOApieXRlY18xIC8vICJ0aW1lcyIKYXBwX2dsb2JhbF9nZXQKPApieiBoZWxsb180X2wzCmxvYWQgNwpieXRlY18yIC8vICJncmVldGluZyIKYXBwX2dsb2JhbF9nZXQKY29uY2F0CnB1c2hieXRlcyAweDJjMjA2ZDc5NzM3NDY1NzI3OTIwNzA2NTcyNzM2ZjZlMGEgLy8gIiwgbXlzdGVyeSBwZXJzb25cbiIKY29uY2F0CnN0b3JlIDcKbG9hZCA4CmludGNfMSAvLyAxCisKc3RvcmUgOApiIGhlbGxvXzRfbDEKaGVsbG9fNF9sMzoKbG9hZCA3CmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gYmFyZV9jcmVhdGUKYmFyZWNyZWF0ZV81Ogpwcm90byAwIDAKYnl0ZWNfMiAvLyAiZ3JlZXRpbmciCnB1c2hieXRlcyAweDQ4NjU2YzZjNmYgLy8gIkhlbGxvIgphcHBfZ2xvYmFsX3B1dApieXRlY18xIC8vICJ0aW1lcyIKaW50Y18xIC8vIDEKYXBwX2dsb2JhbF9wdXQKaW50Y18xIC8vIDEKcmV0dXJuCgovLyBjcmVhdGUKY3JlYXRlXzY6CnByb3RvIDEgMQpieXRlY18wIC8vICIiCmJ5dGVjXzIgLy8gImdyZWV0aW5nIgpmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKYXBwX2dsb2JhbF9wdXQKYnl0ZWNfMSAvLyAidGltZXMiCmludGNfMSAvLyAxCmFwcF9nbG9iYWxfcHV0CmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApwdXNoYnl0ZXMgMHg1ZiAvLyAiXyIKY29uY2F0CmJ5dGVjXzEgLy8gInRpbWVzIgphcHBfZ2xvYmFsX2dldApjYWxsc3ViIGl0b2FfMQpjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBjcmVhdGUKY3JlYXRlXzc6CnByb3RvIDIgMApieXRlY18yIC8vICJncmVldGluZyIKZnJhbWVfZGlnIC0yCmV4dHJhY3QgMiAwCmFwcF9nbG9iYWxfcHV0CmJ5dGVjXzEgLy8gInRpbWVzIgpmcmFtZV9kaWcgLTEKYXBwX2dsb2JhbF9wdXQKaW50Y18xIC8vIDEKcmV0dXJu","clear":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDEKY2FsbHN1YiBjbGVhcl8wCmludGNfMCAvLyAxCnJldHVybgoKLy8gY2xlYXIKY2xlYXJfMDoKcHJvdG8gMCAwCmludGNfMCAvLyAxCnJldHVybg=="},"bareActions":{"create":["NoOp","OptIn"],"call":["UpdateApplication"]}}
+export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"LifeCycleApp","structs":{},"methods":[{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"create","desc":"ABI create method with 1 argument","args":[{"name":"greeting","type":"string","desc":"The greeting"}],"returns":{"type":"string","desc":"The formatted greeting"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"create","desc":"ABI create method with 2 arguments","args":[{"name":"greeting","type":"string"},{"name":"times","type":"uint32"}],"returns":{"type":"void"},"events":[],"actions":{"create":["NoOp"],"call":[]}}],"state":{"schema":{"global":{"ints":1,"bytes":1},"local":{"ints":0,"bytes":0}},"keys":{"global":{"greeting":{"key":"Z3JlZXRpbmc=","keyType":"AVMString","valueType":"AVMBytes","desc":""},"times":{"key":"dGltZXM=","keyType":"AVMString","valueType":"AVMUint64","desc":""}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMSAxMApieXRlY2Jsb2NrIDB4IDB4NzQ2OTZkNjU3MyAweDY3NzI2NTY1NzQ2OTZlNjcgMHgxNTFmN2M3NQp0eG4gTnVtQXBwQXJncwppbnRjXzAgLy8gMAo9PQpibnogbWFpbl9sMTAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgwMmJlY2UxMSAvLyAiaGVsbG8oc3RyaW5nKXN0cmluZyIKPT0KYm56IG1haW5fbDkKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHhhYjA2YzFhOCAvLyAiaGVsbG8oKXN0cmluZyIKPT0KYm56IG1haW5fbDgKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg5N2YxZmMxMSAvLyAiY3JlYXRlKHN0cmluZylzdHJpbmciCj09CmJueiBtYWluX2w3CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4NjAxOTMyNjQgLy8gImNyZWF0ZShzdHJpbmcsdWludDMyKXZvaWQiCj09CmJueiBtYWluX2w2CmVycgptYWluX2w2Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CiYmCmFzc2VydApjYWxsc3ViIGNyZWF0ZWNhc3Rlcl8xMQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sNzoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAo9PQomJgphc3NlcnQKY2FsbHN1YiBjcmVhdGVjYXN0ZXJfMTAKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDg6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CmNhbGxzdWIgaGVsbG9jYXN0ZXJfOQppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sOToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiBoZWxsb2Nhc3Rlcl84CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxMDoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQpibnogbWFpbl9sMTYKdHhuIE9uQ29tcGxldGlvbgppbnRjXzEgLy8gT3B0SW4KPT0KYm56IG1haW5fbDE1CnR4biBPbkNvbXBsZXRpb24KcHVzaGludCA0IC8vIFVwZGF0ZUFwcGxpY2F0aW9uCj09CmJueiBtYWluX2wxNAplcnIKbWFpbl9sMTQ6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CmFzc2VydApjYWxsc3ViIHVwZGF0ZV8yCmludGNfMSAvLyAxCnJldHVybgptYWluX2wxNToKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKPT0KYXNzZXJ0CmNhbGxzdWIgYmFyZWNyZWF0ZV81CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxNjoKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKPT0KYXNzZXJ0CmNhbGxzdWIgYmFyZWNyZWF0ZV81CmludGNfMSAvLyAxCnJldHVybgoKLy8gaW50X3RvX2FzY2lpCmludHRvYXNjaWlfMDoKcHJvdG8gMSAxCnB1c2hieXRlcyAweDMwMzEzMjMzMzQzNTM2MzczODM5IC8vICIwMTIzNDU2Nzg5IgpmcmFtZV9kaWcgLTEKaW50Y18xIC8vIDEKZXh0cmFjdDMKcmV0c3ViCgovLyBpdG9hCml0b2FfMToKcHJvdG8gMSAxCmZyYW1lX2RpZyAtMQppbnRjXzAgLy8gMAo9PQpibnogaXRvYV8xX2w1CmZyYW1lX2RpZyAtMQppbnRjXzIgLy8gMTAKLwppbnRjXzAgLy8gMAo+CmJueiBpdG9hXzFfbDQKYnl0ZWNfMCAvLyAiIgppdG9hXzFfbDM6CmZyYW1lX2RpZyAtMQppbnRjXzIgLy8gMTAKJQpjYWxsc3ViIGludHRvYXNjaWlfMApjb25jYXQKYiBpdG9hXzFfbDYKaXRvYV8xX2w0OgpmcmFtZV9kaWcgLTEKaW50Y18yIC8vIDEwCi8KY2FsbHN1YiBpdG9hXzEKYiBpdG9hXzFfbDMKaXRvYV8xX2w1OgpwdXNoYnl0ZXMgMHgzMCAvLyAiMCIKaXRvYV8xX2w2OgpyZXRzdWIKCi8vIHVwZGF0ZQp1cGRhdGVfMjoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX1VQREFUQUJMRSAvLyBUTVBMX1VQREFUQUJMRQovLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGhlbGxvCmhlbGxvXzM6CnByb3RvIDEgMQpieXRlY18wIC8vICIiCmJ5dGVjXzAgLy8gIiIKc3RvcmUgMAppbnRjXzAgLy8gMApzdG9yZSAxCmhlbGxvXzNfbDE6CmxvYWQgMQpieXRlY18xIC8vICJ0aW1lcyIKYXBwX2dsb2JhbF9nZXQKPApieiBoZWxsb18zX2wzCmxvYWQgMApieXRlY18yIC8vICJncmVldGluZyIKYXBwX2dsb2JhbF9nZXQKY29uY2F0CnB1c2hieXRlcyAweDJjMjAgLy8gIiwgIgpjb25jYXQKZnJhbWVfZGlnIC0xCmV4dHJhY3QgMiAwCmNvbmNhdApwdXNoYnl0ZXMgMHgwYSAvLyAiXG4iCmNvbmNhdApzdG9yZSAwCmxvYWQgMQppbnRjXzEgLy8gMQorCnN0b3JlIDEKYiBoZWxsb18zX2wxCmhlbGxvXzNfbDM6CmxvYWQgMApmcmFtZV9idXJ5IDAKZnJhbWVfZGlnIDAKbGVuCml0b2IKZXh0cmFjdCA2IDAKZnJhbWVfZGlnIDAKY29uY2F0CmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGhlbGxvCmhlbGxvXzQ6CnByb3RvIDAgMQpieXRlY18wIC8vICIiCmJ5dGVjXzAgLy8gIiIKc3RvcmUgMgppbnRjXzAgLy8gMApzdG9yZSAzCmhlbGxvXzRfbDE6CmxvYWQgMwpieXRlY18xIC8vICJ0aW1lcyIKYXBwX2dsb2JhbF9nZXQKPApieiBoZWxsb180X2wzCmxvYWQgMgpieXRlY18yIC8vICJncmVldGluZyIKYXBwX2dsb2JhbF9nZXQKY29uY2F0CnB1c2hieXRlcyAweDJjMjA2ZDc5NzM3NDY1NzI3OTIwNzA2NTcyNzM2ZjZlMGEgLy8gIiwgbXlzdGVyeSBwZXJzb25cbiIKY29uY2F0CnN0b3JlIDIKbG9hZCAzCmludGNfMSAvLyAxCisKc3RvcmUgMwpiIGhlbGxvXzRfbDEKaGVsbG9fNF9sMzoKbG9hZCAyCmZyYW1lX2J1cnkgMApmcmFtZV9kaWcgMApsZW4KaXRvYgpleHRyYWN0IDYgMApmcmFtZV9kaWcgMApjb25jYXQKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gYmFyZV9jcmVhdGUKYmFyZWNyZWF0ZV81Ogpwcm90byAwIDAKYnl0ZWNfMiAvLyAiZ3JlZXRpbmciCnB1c2hieXRlcyAweDQ4NjU2YzZjNmYgLy8gIkhlbGxvIgphcHBfZ2xvYmFsX3B1dApieXRlY18xIC8vICJ0aW1lcyIKaW50Y18xIC8vIDEKYXBwX2dsb2JhbF9wdXQKaW50Y18xIC8vIDEKcmV0dXJuCgovLyBjcmVhdGUKY3JlYXRlXzY6CnByb3RvIDEgMQpieXRlY18wIC8vICIiCmJ5dGVjXzIgLy8gImdyZWV0aW5nIgpmcmFtZV9kaWcgLTEKZXh0cmFjdCAyIDAKYXBwX2dsb2JhbF9wdXQKYnl0ZWNfMSAvLyAidGltZXMiCmludGNfMSAvLyAxCmFwcF9nbG9iYWxfcHV0CmZyYW1lX2RpZyAtMQpleHRyYWN0IDIgMApwdXNoYnl0ZXMgMHg1ZiAvLyAiXyIKY29uY2F0CmJ5dGVjXzEgLy8gInRpbWVzIgphcHBfZ2xvYmFsX2dldApjYWxsc3ViIGl0b2FfMQpjb25jYXQKZnJhbWVfYnVyeSAwCmZyYW1lX2RpZyAwCmxlbgppdG9iCmV4dHJhY3QgNiAwCmZyYW1lX2RpZyAwCmNvbmNhdApmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBjcmVhdGUKY3JlYXRlXzc6CnByb3RvIDIgMApieXRlY18yIC8vICJncmVldGluZyIKZnJhbWVfZGlnIC0yCmV4dHJhY3QgMiAwCmFwcF9nbG9iYWxfcHV0CmJ5dGVjXzEgLy8gInRpbWVzIgpmcmFtZV9kaWcgLTEKYXBwX2dsb2JhbF9wdXQKaW50Y18xIC8vIDEKcmV0dXJuCgovLyBoZWxsb19jYXN0ZXIKaGVsbG9jYXN0ZXJfODoKcHJvdG8gMCAwCmJ5dGVjXzAgLy8gIiIKZHVwCnR4bmEgQXBwbGljYXRpb25BcmdzIDEKZnJhbWVfYnVyeSAxCmZyYW1lX2RpZyAxCmNhbGxzdWIgaGVsbG9fMwpmcmFtZV9idXJ5IDAKYnl0ZWNfMyAvLyAweDE1MWY3Yzc1CmZyYW1lX2RpZyAwCmNvbmNhdApsb2cKcmV0c3ViCgovLyBoZWxsb19jYXN0ZXIKaGVsbG9jYXN0ZXJfOToKcHJvdG8gMCAwCmJ5dGVjXzAgLy8gIiIKY2FsbHN1YiBoZWxsb180CmZyYW1lX2J1cnkgMApieXRlY18zIC8vIDB4MTUxZjdjNzUKZnJhbWVfZGlnIDAKY29uY2F0CmxvZwpyZXRzdWIKCi8vIGNyZWF0ZV9jYXN0ZXIKY3JlYXRlY2FzdGVyXzEwOgpwcm90byAwIDAKYnl0ZWNfMCAvLyAiIgpkdXAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKY2FsbHN1YiBjcmVhdGVfNgpmcmFtZV9idXJ5IDAKYnl0ZWNfMyAvLyAweDE1MWY3Yzc1CmZyYW1lX2RpZyAwCmNvbmNhdApsb2cKcmV0c3ViCgovLyBjcmVhdGVfY2FzdGVyCmNyZWF0ZWNhc3Rlcl8xMToKcHJvdG8gMCAwCmJ5dGVjXzAgLy8gIiIKaW50Y18wIC8vIDAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQpmcmFtZV9idXJ5IDAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgppbnRjXzAgLy8gMApleHRyYWN0X3VpbnQzMgpmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDAKZnJhbWVfZGlnIDEKY2FsbHN1YiBjcmVhdGVfNwpyZXRzdWI=","clear":"I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDEKY2FsbHN1YiBjbGVhcl8wCmludGNfMCAvLyAxCnJldHVybgoKLy8gY2xlYXIKY2xlYXJfMDoKcHJvdG8gMCAwCmludGNfMCAvLyAxCnJldHVybg=="},"bareActions":{"create":["NoOp","OptIn"],"call":["UpdateApplication"]}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -63,10 +64,54 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Aliases for non-encoded ABI values
 
-type uint32 = bigint;
+type uint32 = number;
 type AVMString = string;
 type AVMBytes = Uint8Array;
 type AVMUint64 = bigint;
+
+/**
+ * The argument types for the LifeCycleApp contract
+ */
+export type LifeCycleAppArgs = {
+  /**
+   * The object representation of the arguments for each method
+   */
+  obj: {
+    'hello(string)string': {
+      name: string
+    }
+    'hello()string': Record<string, never>
+    'create(string)string': {
+      /**
+       * The greeting
+       */
+      greeting: string
+    }
+    'create(string,uint32)void': {
+      greeting: string
+      times: bigint | number
+    }
+  }
+  /**
+   * The tuple representation of the arguments for each method
+   */
+  tuple: {
+    'hello(string)string': [name: string]
+    'hello()string': []
+    'create(string)string': [greeting: string]
+    'create(string,uint32)void': [greeting: string, times: bigint | number]
+  }
+}
+
+/**
+ * The return type for each method
+ */
+export type LifeCycleAppReturns = {
+  'hello(string)string': string
+  'hello()string': string
+  'create(string)string': string
+  'create(string,uint32)void': void
+}
 
 /**
  * Defines the types of available calls and state of the LifeCycleApp smart contract.
@@ -77,37 +122,27 @@ export type LifeCycleAppTypes = {
    */
   methods:
     & Record<'hello(string)string', {
-      argsObj: {
-        name: string
-      }
-      argsTuple: [name: string]
-      returns: string
+      argsObj: LifeCycleAppArgs['obj']['hello(string)string']
+      argsTuple: LifeCycleAppArgs['tuple']['hello(string)string']
+      returns: LifeCycleAppReturns['hello(string)string']
     }>
     & Record<'hello()string', {
-      argsObj: Record<string, never>
-      argsTuple: []
-      returns: string
+      argsObj: LifeCycleAppArgs['obj']['hello()string']
+      argsTuple: LifeCycleAppArgs['tuple']['hello()string']
+      returns: LifeCycleAppReturns['hello()string']
     }>
     & Record<'create(string)string', {
-      argsObj: {
-        /**
-         * The greeting
-         */
-        greeting: string
-      }
-      argsTuple: [greeting: string]
+      argsObj: LifeCycleAppArgs['obj']['create(string)string']
+      argsTuple: LifeCycleAppArgs['tuple']['create(string)string']
       /**
        * The formatted greeting
        */
-      returns: string
+      returns: LifeCycleAppReturns['create(string)string']
     }>
     & Record<'create(string,uint32)void', {
-      argsObj: {
-        greeting: string
-        times: bigint | number
-      }
-      argsTuple: [greeting: string, times: bigint | number]
-      returns: void
+      argsObj: LifeCycleAppArgs['obj']['create(string,uint32)void']
+      argsTuple: LifeCycleAppArgs['tuple']['create(string,uint32)void']
+      returns: LifeCycleAppReturns['create(string,uint32)void']
     }>
   /**
    * Defines the shape of the state of the application.
@@ -133,11 +168,11 @@ export type LifeCycleAppNonVoidMethodSignatures = keyof LifeCycleAppTypes['metho
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
-export type CallParams<TSignature extends LifeCycleAppSignatures> = Expand<
+export type CallParams<TArgs> = Expand<
   Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
     {
       /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<MethodArgs<TSignature>>
+      args: Expand<TArgs>
     }
 >
 /**
@@ -160,8 +195,8 @@ export type GlobalKeysState = LifeCycleAppTypes['state']['global']['keys']
  */
 export type LifeCycleAppCreateCallParams =
   | Expand<AppClientBareCallParams & {method?: undefined} & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC} & CreateSchema>
-  | Expand<CallParams<'create(string)string'> & {method: 'create(string)string'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
-  | Expand<CallParams<'create(string,uint32)void'> & {method: 'create(string,uint32)void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<LifeCycleAppArgs['obj']['create(string)string'] | LifeCycleAppArgs['tuple']['create(string)string']> & {method: 'create(string)string'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<LifeCycleAppArgs['obj']['create(string,uint32)void'] | LifeCycleAppArgs['tuple']['create(string,uint32)void']> & {method: 'create(string,uint32)void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
@@ -207,7 +242,7 @@ export abstract class LifeCycleAppParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      createStringString(params: CallParams<'create(string)string'> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      createStringString(params: CallParams<LifeCycleAppArgs['obj']['create(string)string'] | LifeCycleAppArgs['tuple']['create(string)string']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
         return {
           ...params,
           method: 'create(string)string' as const,
@@ -220,7 +255,7 @@ export abstract class LifeCycleAppParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      createStringUint32Void(params: CallParams<'create(string,uint32)void'> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      createStringUint32Void(params: CallParams<LifeCycleAppArgs['obj']['create(string,uint32)void'] | LifeCycleAppArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
         return {
           ...params,
           method: 'create(string,uint32)void' as const,
@@ -236,7 +271,7 @@ export abstract class LifeCycleAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloStringString(params: CallParams<'hello(string)string'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static helloStringString(params: CallParams<LifeCycleAppArgs['obj']['hello(string)string'] | LifeCycleAppArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello(string)string' as const,
@@ -249,7 +284,7 @@ export abstract class LifeCycleAppParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloString(params: CallParams<'hello()string'> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static helloString(params: CallParams<LifeCycleAppArgs['obj']['hello()string'] | LifeCycleAppArgs['tuple']['hello()string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello()string' as const,
@@ -277,6 +312,21 @@ export class LifeCycleAppFactory {
       ...params,
       appSpec: APP_SPEC,
     })
+  }
+  
+  /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
+  public get appName() {
+    return this.appFactory.appName
+  }
+  
+  /** The ARC-56 app spec being used */
+  get appSpec() {
+    return APP_SPEC
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app factory is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appFactory.algorand
   }
   
   /**
@@ -345,7 +395,7 @@ export class LifeCycleAppFactory {
        * @param params The params for the smart contract call
        * @returns The create params: The formatted greeting
        */
-      createStringString: (params: Expand<CallParams<'create(string)string'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createStringString: (params: CallParams<LifeCycleAppArgs['obj']['create(string)string'] | LifeCycleAppArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         return this.appFactory.params.create(LifeCycleAppParamsFactory.create.createStringString(params))
       },
       /**
@@ -356,7 +406,7 @@ export class LifeCycleAppFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createStringUint32Void: (params: Expand<CallParams<'create(string,uint32)void'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createStringUint32Void: (params: CallParams<LifeCycleAppArgs['obj']['create(string,uint32)void'] | LifeCycleAppArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         return this.appFactory.params.create(LifeCycleAppParamsFactory.create.createStringUint32Void(params))
       },
     },
@@ -403,7 +453,7 @@ export class LifeCycleAppFactory {
        * @param params The params for the smart contract call
        * @returns The create params: The formatted greeting
        */
-      createStringString: (params: Expand<CallParams<'create(string)string'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createStringString: (params: CallParams<LifeCycleAppArgs['obj']['create(string)string'] | LifeCycleAppArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         return this.appFactory.params.create(LifeCycleAppParamsFactory.create.createStringString(params))
       },
       /**
@@ -414,7 +464,7 @@ export class LifeCycleAppFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createStringUint32Void: (params: Expand<CallParams<'create(string,uint32)void'> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createStringUint32Void: (params: CallParams<LifeCycleAppArgs['obj']['create(string,uint32)void'] | LifeCycleAppArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         return this.appFactory.params.create(LifeCycleAppParamsFactory.create.createStringUint32Void(params))
       },
     },
@@ -447,9 +497,9 @@ export class LifeCycleAppFactory {
        * @param params The params for the smart contract call
        * @returns The create result: The formatted greeting
        */
-      createStringString: async (params: Expand<CallParams<'create(string)string'> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createStringString: async (params: CallParams<LifeCycleAppArgs['obj']['create(string)string'] | LifeCycleAppArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         const result = await this.appFactory.send.create(LifeCycleAppParamsFactory.create.createStringString(params))
-        return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'create(string)string'> }, appClient: new LifeCycleAppClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as undefined | LifeCycleAppReturns['create(string)string'] }, appClient: new LifeCycleAppClient(result.appClient) }
       },
       /**
        * Creates a new instance of the LifeCycleApp smart contract using an ABI method call using the create(string,uint32)void ABI method.
@@ -459,9 +509,9 @@ export class LifeCycleAppFactory {
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      createStringUint32Void: async (params: Expand<CallParams<'create(string,uint32)void'> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      createStringUint32Void: async (params: CallParams<LifeCycleAppArgs['obj']['create(string,uint32)void'] | LifeCycleAppArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         const result = await this.appFactory.send.create(LifeCycleAppParamsFactory.create.createStringUint32Void(params))
-        return { result: { ...result.result, return: result.result.return as undefined | MethodReturn<'create(string,uint32)void'> }, appClient: new LifeCycleAppClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as undefined | LifeCycleAppReturns['create(string,uint32)void'] }, appClient: new LifeCycleAppClient(result.appClient) }
       },
     },
 
@@ -540,6 +590,16 @@ export class LifeCycleAppClient {
   public get appName() {
     return this.appClient.appName
   }
+  
+  /** The ARC-56 app spec being used */
+  public get appSpec() {
+    return this.appClient.appSpec
+  }
+  
+  /** A reference to the underlying `AlgorandClient` this app client is using. */
+  public get algorand(): AlgorandClientInterface {
+    return this.appClient.algorand
+  }
 
   /**
    * Get parameters to create transactions for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
@@ -571,23 +631,25 @@ export class LifeCycleAppClient {
     },
 
     /**
-     * Makes a call to the LifeCycleApp smart contract using the hello(string)string ABI method.
+     * Makes a call to the LifeCycleApp smart contract using the `hello(string)string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloStringString: (params: Expand<CallParams<'hello(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    helloStringString: (params: CallParams<LifeCycleAppArgs['obj']['hello(string)string'] | LifeCycleAppArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(LifeCycleAppParamsFactory.helloStringString(params))
     },
+
     /**
-     * Makes a call to the LifeCycleApp smart contract using the hello()string ABI method.
+     * Makes a call to the LifeCycleApp smart contract using the `hello()string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloString: (params: Expand<CallParams<'hello()string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    helloString: (params: CallParams<LifeCycleAppArgs['obj']['hello()string'] | LifeCycleAppArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       return this.appClient.params.call(LifeCycleAppParamsFactory.helloString(params))
     },
+
   }
 
   /**
@@ -620,23 +682,25 @@ export class LifeCycleAppClient {
     },
 
     /**
-     * Makes a call to the LifeCycleApp smart contract using the hello(string)string ABI method.
+     * Makes a call to the LifeCycleApp smart contract using the `hello(string)string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloStringString: (params: Expand<CallParams<'hello(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    helloStringString: (params: CallParams<LifeCycleAppArgs['obj']['hello(string)string'] | LifeCycleAppArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(LifeCycleAppParamsFactory.helloStringString(params))
     },
+
     /**
-     * Makes a call to the LifeCycleApp smart contract using the hello()string ABI method.
+     * Makes a call to the LifeCycleApp smart contract using the `hello()string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloString: (params: Expand<CallParams<'hello()string'> & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    helloString: (params: CallParams<LifeCycleAppArgs['obj']['hello()string'] | LifeCycleAppArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       return this.appClient.createTransaction.call(LifeCycleAppParamsFactory.helloString(params))
     },
+
   }
 
   /**
@@ -669,25 +733,27 @@ export class LifeCycleAppClient {
     },
 
     /**
-     * Makes a call to the LifeCycleApp smart contract using the hello(string)string ABI method.
+     * Makes a call to the LifeCycleApp smart contract using the `hello(string)string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloStringString: async (params: Expand<CallParams<'hello(string)string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+    helloStringString: async (params: CallParams<LifeCycleAppArgs['obj']['hello(string)string'] | LifeCycleAppArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(LifeCycleAppParamsFactory.helloStringString(params))
-      return {...result, return: result.return as undefined | MethodReturn<'hello(string)string'>}
+      return {...result, return: result.return as undefined | LifeCycleAppReturns['hello(string)string']}
     },
+
     /**
-     * Makes a call to the LifeCycleApp smart contract using the hello()string ABI method.
+     * Makes a call to the LifeCycleApp smart contract using the `hello()string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloString: async (params: Expand<CallParams<'hello()string'> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}> = {args: []}) => {
+    helloString: async (params: CallParams<LifeCycleAppArgs['obj']['hello()string'] | LifeCycleAppArgs['tuple']['hello()string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(LifeCycleAppParamsFactory.helloString(params))
-      return {...result, return: result.return as undefined | MethodReturn<'hello()string'>}
+      return {...result, return: result.return as undefined | LifeCycleAppReturns['hello()string']}
     },
+
   }
 
   /**
@@ -721,14 +787,14 @@ export class LifeCycleAppClient {
 
   public newGroup(): LifeCycleAppComposer {
     const client = this
-    const composer = client.appClient.newGroup()
+    const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a hello(string)string method call against the LifeCycleApp contract
        */
-      helloStringString(params: CallParams<'hello(string)string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      helloStringString(params: CallParams<LifeCycleAppArgs['obj']['hello(string)string'] | LifeCycleAppArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloStringString(params)))
         resultMappers.push((v) => client.decodeReturnValue('hello(string)string', v))
         return this
@@ -736,7 +802,7 @@ export class LifeCycleAppClient {
       /**
        * Add a hello()string method call against the LifeCycleApp contract
        */
-      helloString(params: CallParams<'hello()string'> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      helloString(params: CallParams<LifeCycleAppArgs['obj']['hello()string'] | LifeCycleAppArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloString(params)))
         resultMappers.push((v) => client.decodeReturnValue('hello()string', v))
         return this
@@ -791,7 +857,7 @@ export type LifeCycleAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloStringString(params?: CallParams<'hello(string)string'>): LifeCycleAppComposer<[...TReturns, MethodReturn<'hello(string)string'> | undefined]>
+  helloStringString(params?: CallParams<LifeCycleAppArgs['obj']['hello(string)string'] | LifeCycleAppArgs['tuple']['hello(string)string']>): LifeCycleAppComposer<[...TReturns, LifeCycleAppReturns['hello(string)string'] | undefined]>
 
   /**
    * Calls the hello()string ABI method.
@@ -800,7 +866,7 @@ export type LifeCycleAppComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloString(params?: CallParams<'hello()string'>): LifeCycleAppComposer<[...TReturns, MethodReturn<'hello()string'> | undefined]>
+  helloString(params?: CallParams<LifeCycleAppArgs['obj']['hello()string'] | LifeCycleAppArgs['tuple']['hello()string']>): LifeCycleAppComposer<[...TReturns, LifeCycleAppReturns['hello()string'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the LifeCycleApp smart contract.
