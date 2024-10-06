@@ -6,7 +6,7 @@ import { Arc56Contract, Method, StorageKey, StorageMap, StructField } from '@alg
 import { Sanitizer } from '../util/sanitization'
 
 function getMethodMetadata(method: Method, ctx: GeneratorContext) {
-  const { app, methodSignatureToUniqueName, name, sanitizer } = ctx
+  const { methodSignatureToUniqueName } = ctx
   const methodSig = new ABIMethod(method).getSignature()
   const uniqueName = methodSignatureToUniqueName[methodSig]
   const argsMeta = method.args.map((arg, i) => ({
@@ -70,7 +70,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield `export type ${name}Returns = {`
   yield IncIndent
   for (const method of app.methods) {
-    const { methodSig, argsMeta } = getMethodMetadata(method, ctx)
+    const { methodSig } = getMethodMetadata(method, ctx)
     yield* inline(
       `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx)}`,
     )
@@ -89,7 +89,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   }
   yield IncIndent
   for (const method of app.methods) {
-    const { methodSig, uniqueName, argsMeta } = getMethodMetadata(method, ctx)
+    const { methodSig, uniqueName } = getMethodMetadata(method, ctx)
     yield `& Record<'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}'${methodSig !== uniqueName ? ` | '${ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)}'` : ''}, {`
     yield IncIndent
     yield `argsObj: ${name}Args['obj']['${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}']`

@@ -19,6 +19,22 @@ describe('state typed client', () => {
     })
   }, 10_000)
 
+  test('Handles uint conversion correctly', async () => {
+    const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
+
+    const uint32 = await client.callAbiUint32Readonly({ args: { input: 123n } })
+    expect(uint32).toBe(123)
+
+    const uint64 = await client.callAbiUint64Readonly({ args: { input: 123 } })
+    expect(uint64).toBe(123n)
+
+    const uint32Result = await client.send.callAbiUint32({ args: { input: 123n } })
+    expect(uint32Result.return).toBe(123)
+
+    const uint64Result = await client.send.callAbiUint64({ args: { input: 123 } })
+    expect(uint64Result.return).toBe(123n)
+  })
+
   test('Exposes state correctly', async () => {
     const { testAccount } = localnet.context
 

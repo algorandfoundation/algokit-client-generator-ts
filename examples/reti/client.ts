@@ -67,9 +67,9 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 type uint64 = bigint;
 type byte = number;
 type address = string;
-type uint8 = bigint;
-type uint32 = bigint;
-type uint16 = bigint;
+type uint8 = number;
+type uint32 = number;
+type uint16 = number;
 type bool = boolean;
 type pay = AppMethodCallTransactionArgument;
 type AVMBytes = Uint8Array;
@@ -117,7 +117,7 @@ export type ValidatorInfo = {
 /**
  * Converts the ABI tuple representation of a ValidatorInfo to the struct representation
  */
-export function ValidatorInfoFromTuple(abiTuple: [[bigint, string, string, bigint, bigint, string, [bigint, bigint, bigint, bigint], bigint, bigint, bigint, bigint, bigint, string, bigint, bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint], [[bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint]], [[bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint], bigint], [[[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]]]) {
+export function ValidatorInfoFromTuple(abiTuple: [[bigint, string, string, bigint, number, string, [bigint, bigint, bigint, bigint], bigint, bigint, bigint, number, number, string, bigint, bigint, number, bigint, bigint], [number, bigint, bigint, bigint], [[bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint]], [[bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint], bigint], [[[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]]]) {
   return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.ValidatorInfo, APP_SPEC.structs) as ValidatorInfo
 }
 
@@ -183,7 +183,7 @@ export type ValidatorConfig = {
 /**
  * Converts the ABI tuple representation of a ValidatorConfig to the struct representation
  */
-export function ValidatorConfigFromTuple(abiTuple: [bigint, string, string, bigint, bigint, string, [bigint, bigint, bigint, bigint], bigint, bigint, bigint, bigint, bigint, string, bigint, bigint, bigint, bigint, bigint]) {
+export function ValidatorConfigFromTuple(abiTuple: [bigint, string, string, bigint, number, string, [bigint, bigint, bigint, bigint], bigint, bigint, bigint, number, number, string, bigint, bigint, number, bigint, bigint]) {
   return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.ValidatorConfig, APP_SPEC.structs) as ValidatorConfig
 }
 
@@ -198,7 +198,7 @@ export type ValidatorCurState = {
 /**
  * Converts the ABI tuple representation of a ValidatorCurState to the struct representation
  */
-export function ValidatorCurStateFromTuple(abiTuple: [bigint, bigint, bigint, bigint]) {
+export function ValidatorCurStateFromTuple(abiTuple: [number, bigint, bigint, bigint]) {
   return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.ValidatorCurState, APP_SPEC.structs) as ValidatorCurState
 }
 
@@ -212,7 +212,7 @@ export type PoolInfo = {
 /**
  * Converts the ABI tuple representation of a PoolInfo to the struct representation
  */
-export function PoolInfoFromTuple(abiTuple: [bigint, bigint, bigint]) {
+export function PoolInfoFromTuple(abiTuple: [bigint, number, bigint]) {
   return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.PoolInfo, APP_SPEC.structs) as PoolInfo
 }
 
@@ -566,7 +566,7 @@ export type ValidatorRegistryReturns = {
   'getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)': ValidatorConfig
   'getValidatorState(uint64)(uint16,uint64,uint64,uint64)': ValidatorCurState
   'getValidatorOwnerAndManager(uint64)(address,address)': [string, string]
-  'getPools(uint64)(uint64,uint16,uint64)[]': [bigint, bigint, bigint][]
+  'getPools(uint64)(uint64,uint16,uint64)[]': [bigint, number, bigint][]
   'getPoolAppId(uint64,uint64)uint64': bigint
   'getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)': PoolInfo
   'getCurMaxStakePerPool(uint64)uint64': bigint

@@ -66,7 +66,7 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 type uint64 = bigint;
 type AVMBytes = Uint8Array;
-type uint16 = bigint;
+type uint16 = number;
 
 // Type definitions for ARC-56 structs
 
@@ -79,7 +79,7 @@ export type FooUint16BarUint16 = {
 /**
  * Converts the ABI tuple representation of a { foo: uint16; bar: uint16 } to the struct representation
  */
-export function FooUint16BarUint16FromTuple(abiTuple: [bigint, bigint]) {
+export function FooUint16BarUint16FromTuple(abiTuple: [number, number]) {
   return getABIStructFromABITuple(abiTuple, APP_SPEC.structs['{ foo: uint16; bar: uint16 }'], APP_SPEC.structs) as FooUint16BarUint16
 }
 

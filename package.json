@@ -58,7 +58,7 @@
     "rollup": "^4.22.5"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-utils": "^7.0.0-beta.8",
+    "@algorandfoundation/algokit-utils": "^7.0.0-beta.10",
     "algosdk": "^2.7.0",
     "chalk": "^4.1.2",
     "change-case": "^4.1.2",

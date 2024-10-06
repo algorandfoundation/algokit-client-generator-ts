@@ -4,7 +4,7 @@ if (!globalThis.crypto) globalThis.crypto = webcrypto
 import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { VotingPreconditions, VotingRoundAppClient, VotingRoundAppFactory } from './client'
+import { VotingPreconditions, VotingRoundAppFactory } from './client'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
@@ -101,6 +101,7 @@ describe('voting typed client', () => {
       boxReferences: [testAccount],
     })
     expectType<VotingPreconditions>(preconditionsResult)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (preconditionsResult as any).currentTime
     expect(preconditionsResult).toMatchInlineSnapshot(`
       {
