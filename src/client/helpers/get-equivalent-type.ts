@@ -37,7 +37,7 @@ export function getEquivalentType(
     return 'AppMethodCallTransactionArgument'
   }
   if (abiTypeStr == ABIReferenceType.account) {
-    return 'string | Uint8Array'
+    return 'string | Address | Uint8Array'
   }
   if (abiTypeStr == ABIReferenceType.application || abiTypeStr == ABIReferenceType.asset) {
     return 'bigint'
@@ -66,7 +66,7 @@ export function getEquivalentType(
       return `[${new Array(abiType.staticLength).fill(abiTypeToTs(abiType.childType, ioType)).join(', ')}]`
     }
     if (abiType instanceof ABIAddressType) {
-      return 'string'
+      return 'string | Address'
     }
     if (abiType instanceof ABIBoolType) {
       return 'boolean'

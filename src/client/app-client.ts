@@ -381,7 +381,7 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
     if (!hasKeys && !hasMaps) continue
 
     yield* jsDoc(`Methods to access ${storageType} state for the current ${app.name} app`)
-    yield `${storageType}${storageType === 'local' ? ': (address: string) => ({' : ': {'}`
+    yield `${storageType}${storageType === 'local' ? ': (address: string | Address) => ({' : ': {'}`
     yield IncIndent
 
     yield* jsDoc(`Get all current keyed values from ${storageType} state`)

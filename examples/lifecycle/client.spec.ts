@@ -24,7 +24,7 @@ describe('lifecycle typed client', () => {
 
   test('create_bare', async () => {
     const { result, appClient: client } = await factory.send.create.bare({ updatable: true })
-    expect(result.transaction.appOnComplete).toBe(OnApplicationComplete.NoOpOC)
+    expect(result.transaction.applicationCall?.onComplete).toBe(OnApplicationComplete.NoOpOC)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
     expectType<string | undefined>(response.return)
@@ -33,7 +33,7 @@ describe('lifecycle typed client', () => {
 
   test('create_bare_optin', async () => {
     const { result, appClient: client } = await factory.send.create.bare({ updatable: true, onComplete: OnApplicationComplete.OptInOC })
-    expect(result.transaction.appOnComplete).toBe(OnApplicationComplete.OptInOC)
+    expect(result.transaction.applicationCall?.onComplete).toBe(OnApplicationComplete.OptInOC)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
     expectType<string | undefined>(response.return)
@@ -44,7 +44,7 @@ describe('lifecycle typed client', () => {
     const { result: createResult, appClient: client } = await factory.deploy()
     invariant(createResult.operationPerformed === 'create')
     expect(createResult.return).toBe(undefined)
-    expect(createResult.transaction.appOnComplete).toBe(OnApplicationComplete.NoOpOC)
+    expect(createResult.transaction.applicationCall?.onComplete).toBe(OnApplicationComplete.NoOpOC)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
     expectType<string | undefined>(response.return)
@@ -57,7 +57,7 @@ describe('lifecycle typed client', () => {
     })
     invariant(createResult.operationPerformed === 'create')
     expect(createResult.return).toBe(undefined)
-    expect(createResult.transaction.appOnComplete).toBe(OnApplicationComplete.OptInOC)
+    expect(createResult.transaction.applicationCall?.onComplete).toBe(OnApplicationComplete.OptInOC)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
     expectType<string | undefined>(response.return)
