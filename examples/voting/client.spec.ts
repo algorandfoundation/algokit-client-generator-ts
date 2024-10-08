@@ -29,9 +29,9 @@ describe('voting typed client', () => {
   async function createRandomVotingRoundApp() {
     const { algorand, algod, testAccount } = localnet.context
     const status = await algod.status().do()
-    const lastRound = BigInt(status['last-round'])
+    const lastRound = status.lastRound
     const round = await algod.block(Number(lastRound)).do()
-    const currentTime = BigInt(round.block.ts)
+    const currentTime = round.block.header.timestamp
 
     const quorum = rndInt(1, 1000)
     const questionCount = rndInt(1, 10)
@@ -59,8 +59,7 @@ describe('voting typed client', () => {
 
     const randomAnswerIds = questionCounts.map((c) => rndInt(0, c - 1))
 
-    const decoded = algosdk.decodeAddress(testAccount.addr)
-    const signature = await ed.signAsync(decoded.publicKey, privateKey)
+    const signature = await ed.signAsync(testAccount.publicKey, privateKey)
     return {
       algorand,
       algod,
@@ -91,8 +90,7 @@ describe('voting typed client', () => {
       staticFee: (1_000 + 1_000 * 4).microAlgo(),
     })
 
-    const decoded = algosdk.decodeAddress(testAccount.addr)
-    const signature = await ed.signAsync(decoded.publicKey, privateKey)
+    const signature = await ed.signAsync(testAccount.publicKey, privateKey)
     const preconditionsResult = await client.getPreconditions({
       args: {
         signature,

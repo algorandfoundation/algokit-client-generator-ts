@@ -18,7 +18,7 @@ export function* imports(): DocumentParts {
     import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
     import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
     import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
-    import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+    import { Address, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
     import SimulateResponse = modelsv2.SimulateResponse
   `
 }
