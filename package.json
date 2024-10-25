@@ -15,8 +15,8 @@
     "dev:helloworld": "tsx src/dev.ts generate -a ./examples/helloworld/application.json -o ./examples/helloworld/client.generated.ts",
     "dev:reti": "tsx src/dev.ts generate -a ./examples/reti/application.json -o ./examples/reti/client.generated.ts",
     "dev:reti-pn": "tsx src/dev.ts generate -a ./examples/reti/application.json -o ./examples/reti/client.pn.generated.ts -pn",
-    "dev:arc56_test": "tsx src/dev.ts generate -a ./examples/arc56_test/application.json -o ./examples/arc56_test/client.generated.ts",
-    "dev:arc56_test-pn": "tsx src/dev.ts generate -a ./examples/arc56_test/application.json -o ./examples/arc56_test/client.pn.generated.ts -pn",
+    "dev:arc56_test": "tsx src/dev.ts generate -a ./examples/arc56_test/artifacts/ARC56Test.arc56_draft.json -o ./examples/arc56_test/client.generated.ts",
+    "dev:arc56_test-pn": "tsx src/dev.ts generate -a ./examples/arc56_test/artifacts/ARC56Test.arc56_draft.json -o ./examples/arc56_test/client.pn.generated.ts -pn",
     "dev:helloworld-pn": "tsx src/dev.ts generate -a ./examples/helloworld/application.json -o ./examples/helloworld/client.pn.generated.ts -pn",
     "dev:lifecycle": "tsx src/dev.ts generate -a ./examples/lifecycle/application.json -o ./examples/lifecycle/client.generated.ts",
     "dev:lifecycle-pn": "tsx src/dev.ts generate -a ./examples/lifecycle/application.json -o ./examples/lifecycle/client.pn.generated.ts -pn",
@@ -58,7 +58,7 @@
     "rollup": "^4.22.5"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-utils": "^7.0.0-beta.10",
+    "@algorandfoundation/algokit-utils": "^7.0.0-beta.18",
     "algosdk": "^2.7.0",
     "chalk": "^4.1.2",
     "change-case": "^4.1.2",
@@ -66,6 +66,7 @@
     "jsonschema": "^1.4.1"
   },
   "devDependencies": {
+    "@algorandfoundation/tealscript": "^0.105.3",
     "@commitlint/cli": "^18.6.0",
     "@commitlint/config-conventional": "^18.6.0",
     "@makerx/eslint-config": "^3.1.0",
