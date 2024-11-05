@@ -4,7 +4,7 @@ const replaceInvalidWithUnderscore = (value: string) => value.replace(/[^a-z0-9_
 
 const escapeQuotes = (value: string) => value.replace(/['"]/g, (val) => `\\${val}`)
 
-const replaceEnclosingQuotes = (value: string) => value.replace(/^"|"$/g, '')
+const removeEnclosingQuotes = (value: string) => value.replace(/^"|"$/g, '')
 
 export interface Sanitizer {
   makeSafeTypeIdentifier(value: string): string
@@ -64,7 +64,7 @@ const preservingSanitiser: Sanitizer = {
     return escapeQuotes(value)
   },
   getSafeMemberAccessor(value: string): string {
-    return this.isSafeVariableIdentifier(value) ? `.${value}` : `['${replaceEnclosingQuotes(value)}']`
+    return this.isSafeVariableIdentifier(value) ? `.${value}` : `['${removeEnclosingQuotes(value)}']`
   },
 }
 

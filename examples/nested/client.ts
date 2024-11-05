@@ -23,7 +23,7 @@ import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerR
 import { modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"name":"NestedContract","structs":{},"methods":[{"name":"add","args":[{"type":"uint64","name":"a"},{"type":"uint64","name":"b"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"get_pay_txn_amount","args":[{"type":"pay","name":"pay_txn"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"nested_method_call","args":[{"type":"pay","name":"_"},{"type":"appl","name":"method_call"}],"returns":{"type":"byte[]"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[57,79,105],"errorMessage":"OnCompletion is not NoOp"},{"pc":[148],"errorMessage":"can only call when creating"},{"pc":[60,82,108],"errorMessage":"can only call when not creating"},{"pc":[130],"errorMessage":"transaction type is appl"},{"pc":[92,119],"errorMessage":"transaction type is pay"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpleGFtcGxlcy5uZXN0ZWQubmVzdGVkLk5lc3RlZENvbnRyYWN0LmFwcHJvdmFsX3Byb2dyYW06CiAgICBpbnRjYmxvY2sgMSAwCiAgICBieXRlY2Jsb2NrIDB4MTUxZjdjNzUKICAgIGNhbGxzdWIgX19wdXlhX2FyYzRfcm91dGVyX18KICAgIHJldHVybgoKCi8vIGV4YW1wbGVzLm5lc3RlZC5uZXN0ZWQuTmVzdGVkQ29udHJhY3QuX19wdXlhX2FyYzRfcm91dGVyX18oKSAtPiB1aW50NjQ6Cl9fcHV5YV9hcmM0X3JvdXRlcl9fOgogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo0CiAgICAvLyBjbGFzcyBOZXN0ZWRDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgcHJvdG8gMCAxCiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogX19wdXlhX2FyYzRfcm91dGVyX19fYmFyZV9yb3V0aW5nQDcKICAgIHB1c2hieXRlc3MgMHhmZTZiZGY2OSAweDlmZDgzNWY4IDB4ZDdhMzE2ODYgLy8gbWV0aG9kICJhZGQodWludDY0LHVpbnQ2NCl1aW50NjQiLCBtZXRob2QgImdldF9wYXlfdHhuX2Ftb3VudChwYXkpdWludDY0IiwgbWV0aG9kICJuZXN0ZWRfbWV0aG9kX2NhbGwocGF5LGFwcGwpYnl0ZVtdIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggX19wdXlhX2FyYzRfcm91dGVyX19fYWRkX3JvdXRlQDIgX19wdXlhX2FyYzRfcm91dGVyX19fZ2V0X3BheV90eG5fYW1vdW50X3JvdXRlQDMgX19wdXlhX2FyYzRfcm91dGVyX19fbmVzdGVkX21ldGhvZF9jYWxsX3JvdXRlQDQKICAgIGludGNfMSAvLyAwCiAgICByZXRzdWIKCl9fcHV5YV9hcmM0X3JvdXRlcl9fX2FkZF9yb3V0ZUAyOgogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo1CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo0CiAgICAvLyBjbGFzcyBOZXN0ZWRDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo1CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgYWRkCiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0c3ViCgpfX3B1eWFfYXJjNF9yb3V0ZXJfX19nZXRfcGF5X3R4bl9hbW91bnRfcm91dGVAMzoKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6OQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6NAogICAgLy8gY2xhc3MgTmVzdGVkQ29udHJhY3QoQVJDNENvbnRyYWN0KToKICAgIHR4biBHcm91cEluZGV4CiAgICBpbnRjXzAgLy8gMQogICAgLQogICAgZHVwCiAgICBndHhucyBUeXBlRW51bQogICAgaW50Y18wIC8vIHBheQogICAgPT0KICAgIGFzc2VydCAvLyB0cmFuc2FjdGlvbiB0eXBlIGlzIHBheQogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo5CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgZ2V0X3BheV90eG5fYW1vdW50CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0c3ViCgpfX3B1eWFfYXJjNF9yb3V0ZXJfX19uZXN0ZWRfbWV0aG9kX2NhbGxfcm91dGVANDoKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6MTMKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjQKICAgIC8vIGNsYXNzIE5lc3RlZENvbnRyYWN0KEFSQzRDb250cmFjdCk6CiAgICB0eG4gR3JvdXBJbmRleAogICAgcHVzaGludCAyIC8vIDIKICAgIC0KICAgIGR1cAogICAgZ3R4bnMgVHlwZUVudW0KICAgIGludGNfMCAvLyBwYXkKICAgID09CiAgICBhc3NlcnQgLy8gdHJhbnNhY3Rpb24gdHlwZSBpcyBwYXkKICAgIHR4biBHcm91cEluZGV4CiAgICBpbnRjXzAgLy8gMQogICAgLQogICAgZHVwCiAgICBndHhucyBUeXBlRW51bQogICAgcHVzaGludCA2IC8vIGFwcGwKICAgID09CiAgICBhc3NlcnQgLy8gdHJhbnNhY3Rpb24gdHlwZSBpcyBhcHBsCiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjEzCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgbmVzdGVkX21ldGhvZF9jYWxsCiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0c3ViCgpfX3B1eWFfYXJjNF9yb3V0ZXJfX19iYXJlX3JvdXRpbmdANzoKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6NAogICAgLy8gY2xhc3MgTmVzdGVkQ29udHJhY3QoQVJDNENvbnRyYWN0KToKICAgIHR4biBPbkNvbXBsZXRpb24KICAgIGJueiBfX3B1eWFfYXJjNF9yb3V0ZXJfX19hZnRlcl9pZl9lbHNlQDExCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHN1YgoKX19wdXlhX2FyYzRfcm91dGVyX19fYWZ0ZXJfaWZfZWxzZUAxMToKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6NAogICAgLy8gY2xhc3MgTmVzdGVkQ29udHJhY3QoQVJDNENvbnRyYWN0KToKICAgIGludGNfMSAvLyAwCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5uZXN0ZWQubmVzdGVkLk5lc3RlZENvbnRyYWN0LmFkZChhOiBieXRlcywgYjogYnl0ZXMpIC0+IGJ5dGVzOgphZGQ6CiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjUtNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgYWRkKHNlbGYsIGE6IGFyYzQuVUludDY0LCBiOiBhcmM0LlVJbnQ2NCkgLT4gYXJjNC5VSW50NjQ6CiAgICBwcm90byAyIDEKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6NwogICAgLy8gcmV0dXJuIGFyYzQuVUludDY0KGEubmF0aXZlICsgYi5uYXRpdmUpCiAgICBmcmFtZV9kaWcgLTIKICAgIGJ0b2kKICAgIGZyYW1lX2RpZyAtMQogICAgYnRvaQogICAgKwogICAgaXRvYgogICAgcmV0c3ViCgoKLy8gZXhhbXBsZXMubmVzdGVkLm5lc3RlZC5OZXN0ZWRDb250cmFjdC5nZXRfcGF5X3R4bl9hbW91bnQocGF5X3R4bjogdWludDY0KSAtPiBieXRlczoKZ2V0X3BheV90eG5fYW1vdW50OgogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo5LTEwCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIC8vIGRlZiBnZXRfcGF5X3R4bl9hbW91bnQoc2VsZiwgcGF5X3R4bjogZ3R4bi5QYXltZW50VHJhbnNhY3Rpb24pIC0+IGFyYzQuVUludDY0OgogICAgcHJvdG8gMSAxCiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjExCiAgICAvLyByZXR1cm4gYXJjNC5VSW50NjQocGF5X3R4bi5hbW91bnQpCiAgICBmcmFtZV9kaWcgLTEKICAgIGd0eG5zIEFtb3VudAogICAgaXRvYgogICAgcmV0c3ViCgoKLy8gZXhhbXBsZXMubmVzdGVkLm5lc3RlZC5OZXN0ZWRDb250cmFjdC5uZXN0ZWRfbWV0aG9kX2NhbGwoXzogdWludDY0LCBtZXRob2RfY2FsbDogdWludDY0KSAtPiBieXRlczoKbmVzdGVkX21ldGhvZF9jYWxsOgogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weToxMy0xNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgbmVzdGVkX21ldGhvZF9jYWxsKAogICAgLy8gICAgIHNlbGYsIF86IGd0eG4uUGF5bWVudFRyYW5zYWN0aW9uLCBtZXRob2RfY2FsbDogZ3R4bi5BcHBsaWNhdGlvbkNhbGxUcmFuc2FjdGlvbgogICAgLy8gKSAtPiBhcmM0LkR5bmFtaWNCeXRlczoKICAgIHByb3RvIDIgMQogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weToxNwogICAgLy8gcmV0dXJuIGFyYzQuRHluYW1pY0J5dGVzKG1ldGhvZF9jYWxsLnR4bl9pZCkKICAgIGZyYW1lX2RpZyAtMQogICAgZ3R4bnMgVHhJRAogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIHJldHN1Ygo=","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpleGFtcGxlcy5uZXN0ZWQubmVzdGVkLk5lc3RlZENvbnRyYWN0LmNsZWFyX3N0YXRlX3Byb2dyYW06CiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"NestedContract","structs":{},"methods":[{"name":"add","args":[{"type":"uint64","name":"a"},{"type":"uint64","name":"b"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"get_pay_txn_amount","args":[{"type":"pay","name":"pay_txn"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"nested_method_call","args":[{"type":"string","name":"_"},{"type":"pay","name":"_pay_txn"},{"type":"appl","name":"method_call"}],"returns":{"type":"byte[]"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[57,79,105],"errorMessage":"OnCompletion is not NoOp"},{"pc":[151],"errorMessage":"can only call when creating"},{"pc":[60,82,108],"errorMessage":"can only call when not creating"},{"pc":[133],"errorMessage":"transaction type is appl"},{"pc":[92,122],"errorMessage":"transaction type is pay"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpleGFtcGxlcy5uZXN0ZWQubmVzdGVkLk5lc3RlZENvbnRyYWN0LmFwcHJvdmFsX3Byb2dyYW06CiAgICBpbnRjYmxvY2sgMSAwCiAgICBieXRlY2Jsb2NrIDB4MTUxZjdjNzUKICAgIGNhbGxzdWIgX19wdXlhX2FyYzRfcm91dGVyX18KICAgIHJldHVybgoKCi8vIGV4YW1wbGVzLm5lc3RlZC5uZXN0ZWQuTmVzdGVkQ29udHJhY3QuX19wdXlhX2FyYzRfcm91dGVyX18oKSAtPiB1aW50NjQ6Cl9fcHV5YV9hcmM0X3JvdXRlcl9fOgogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo0CiAgICAvLyBjbGFzcyBOZXN0ZWRDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgcHJvdG8gMCAxCiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogX19wdXlhX2FyYzRfcm91dGVyX19fYmFyZV9yb3V0aW5nQDcKICAgIHB1c2hieXRlc3MgMHhmZTZiZGY2OSAweDlmZDgzNWY4IDB4MzRhZjM5NDIgLy8gbWV0aG9kICJhZGQodWludDY0LHVpbnQ2NCl1aW50NjQiLCBtZXRob2QgImdldF9wYXlfdHhuX2Ftb3VudChwYXkpdWludDY0IiwgbWV0aG9kICJuZXN0ZWRfbWV0aG9kX2NhbGwoc3RyaW5nLHBheSxhcHBsKWJ5dGVbXSIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIF9fcHV5YV9hcmM0X3JvdXRlcl9fX2FkZF9yb3V0ZUAyIF9fcHV5YV9hcmM0X3JvdXRlcl9fX2dldF9wYXlfdHhuX2Ftb3VudF9yb3V0ZUAzIF9fcHV5YV9hcmM0X3JvdXRlcl9fX25lc3RlZF9tZXRob2RfY2FsbF9yb3V0ZUA0CiAgICBpbnRjXzEgLy8gMAogICAgcmV0c3ViCgpfX3B1eWFfYXJjNF9yb3V0ZXJfX19hZGRfcm91dGVAMjoKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6NQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6NAogICAgLy8gY2xhc3MgTmVzdGVkQ29udHJhY3QoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6NQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIGFkZAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHN1YgoKX19wdXlhX2FyYzRfcm91dGVyX19fZ2V0X3BheV90eG5fYW1vdW50X3JvdXRlQDM6CiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjkKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjQKICAgIC8vIGNsYXNzIE5lc3RlZENvbnRyYWN0KEFSQzRDb250cmFjdCk6CiAgICB0eG4gR3JvdXBJbmRleAogICAgaW50Y18wIC8vIDEKICAgIC0KICAgIGR1cAogICAgZ3R4bnMgVHlwZUVudW0KICAgIGludGNfMCAvLyBwYXkKICAgID09CiAgICBhc3NlcnQgLy8gdHJhbnNhY3Rpb24gdHlwZSBpcyBwYXkKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6OQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIGdldF9wYXlfdHhuX2Ftb3VudAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHN1YgoKX19wdXlhX2FyYzRfcm91dGVyX19fbmVzdGVkX21ldGhvZF9jYWxsX3JvdXRlQDQ6CiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjEzCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo0CiAgICAvLyBjbGFzcyBOZXN0ZWRDb250cmFjdChBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgdHhuIEdyb3VwSW5kZXgKICAgIHB1c2hpbnQgMiAvLyAyCiAgICAtCiAgICBkdXAKICAgIGd0eG5zIFR5cGVFbnVtCiAgICBpbnRjXzAgLy8gcGF5CiAgICA9PQogICAgYXNzZXJ0IC8vIHRyYW5zYWN0aW9uIHR5cGUgaXMgcGF5CiAgICB0eG4gR3JvdXBJbmRleAogICAgaW50Y18wIC8vIDEKICAgIC0KICAgIGR1cAogICAgZ3R4bnMgVHlwZUVudW0KICAgIHB1c2hpbnQgNiAvLyBhcHBsCiAgICA9PQogICAgYXNzZXJ0IC8vIHRyYW5zYWN0aW9uIHR5cGUgaXMgYXBwbAogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weToxMwogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIG5lc3RlZF9tZXRob2RfY2FsbAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHN1YgoKX19wdXlhX2FyYzRfcm91dGVyX19fYmFyZV9yb3V0aW5nQDc6CiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjQKICAgIC8vIGNsYXNzIE5lc3RlZENvbnRyYWN0KEFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBibnogX19wdXlhX2FyYzRfcm91dGVyX19fYWZ0ZXJfaWZfZWxzZUAxMQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKICAgIGludGNfMCAvLyAxCiAgICByZXRzdWIKCl9fcHV5YV9hcmM0X3JvdXRlcl9fX2FmdGVyX2lmX2Vsc2VAMTE6CiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjQKICAgIC8vIGNsYXNzIE5lc3RlZENvbnRyYWN0KEFSQzRDb250cmFjdCk6CiAgICBpbnRjXzEgLy8gMAogICAgcmV0c3ViCgoKLy8gZXhhbXBsZXMubmVzdGVkLm5lc3RlZC5OZXN0ZWRDb250cmFjdC5hZGQoYTogYnl0ZXMsIGI6IGJ5dGVzKSAtPiBieXRlczoKYWRkOgogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weTo1LTYKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGFkZChzZWxmLCBhOiBhcmM0LlVJbnQ2NCwgYjogYXJjNC5VSW50NjQpIC0+IGFyYzQuVUludDY0OgogICAgcHJvdG8gMiAxCiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjcKICAgIC8vIHJldHVybiBhcmM0LlVJbnQ2NChhLm5hdGl2ZSArIGIubmF0aXZlKQogICAgZnJhbWVfZGlnIC0yCiAgICBidG9pCiAgICBmcmFtZV9kaWcgLTEKICAgIGJ0b2kKICAgICsKICAgIGl0b2IKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLm5lc3RlZC5uZXN0ZWQuTmVzdGVkQ29udHJhY3QuZ2V0X3BheV90eG5fYW1vdW50KHBheV90eG46IHVpbnQ2NCkgLT4gYnl0ZXM6CmdldF9wYXlfdHhuX2Ftb3VudDoKICAgIC8vIGV4YW1wbGVzL25lc3RlZC9uZXN0ZWQucHk6OS0xMAogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgZ2V0X3BheV90eG5fYW1vdW50KHNlbGYsIHBheV90eG46IGd0eG4uUGF5bWVudFRyYW5zYWN0aW9uKSAtPiBhcmM0LlVJbnQ2NDoKICAgIHByb3RvIDEgMQogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weToxMQogICAgLy8gcmV0dXJuIGFyYzQuVUludDY0KHBheV90eG4uYW1vdW50KQogICAgZnJhbWVfZGlnIC0xCiAgICBndHhucyBBbW91bnQKICAgIGl0b2IKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLm5lc3RlZC5uZXN0ZWQuTmVzdGVkQ29udHJhY3QubmVzdGVkX21ldGhvZF9jYWxsKF86IGJ5dGVzLCBfcGF5X3R4bjogdWludDY0LCBtZXRob2RfY2FsbDogdWludDY0KSAtPiBieXRlczoKbmVzdGVkX21ldGhvZF9jYWxsOgogICAgLy8gZXhhbXBsZXMvbmVzdGVkL25lc3RlZC5weToxMy0xNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgbmVzdGVkX21ldGhvZF9jYWxsKAogICAgLy8gICAgIHNlbGYsIF86IGFyYzQuU3RyaW5nLCBfcGF5X3R4bjogZ3R4bi5QYXltZW50VHJhbnNhY3Rpb24sIG1ldGhvZF9jYWxsOiBndHhuLkFwcGxpY2F0aW9uQ2FsbFRyYW5zYWN0aW9uCiAgICAvLyApIC0+IGFyYzQuRHluYW1pY0J5dGVzOgogICAgcHJvdG8gMyAxCiAgICAvLyBleGFtcGxlcy9uZXN0ZWQvbmVzdGVkLnB5OjE3CiAgICAvLyByZXR1cm4gYXJjNC5EeW5hbWljQnl0ZXMobWV0aG9kX2NhbGwudHhuX2lkKQogICAgZnJhbWVfZGlnIC0xCiAgICBndHhucyBUeElECiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCgpleGFtcGxlcy5uZXN0ZWQubmVzdGVkLk5lc3RlZENvbnRyYWN0LmNsZWFyX3N0YXRlX3Byb2dyYW06CiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -77,8 +77,9 @@ export type NestedContractArgs = {
     'get_pay_txn_amount(pay)uint64': {
       payTxn: AppMethodCallTransactionArgument
     }
-    'nested_method_call(pay,appl)byte[]': {
-      _?: AppMethodCallTransactionArgument
+    'nested_method_call(string,pay,appl)byte[]': {
+      _: string
+      _payTxn?: AppMethodCallTransactionArgument
       methodCall: AppMethodCallTransactionArgument
     }
   }
@@ -88,7 +89,7 @@ export type NestedContractArgs = {
   tuple: {
     'add(uint64,uint64)uint64': [a: bigint | number, b: bigint | number]
     'get_pay_txn_amount(pay)uint64': [payTxn: AppMethodCallTransactionArgument]
-    'nested_method_call(pay,appl)byte[]': [_: AppMethodCallTransactionArgument | undefined, methodCall: AppMethodCallTransactionArgument]
+    'nested_method_call(string,pay,appl)byte[]': [_: string, _payTxn: AppMethodCallTransactionArgument | undefined, methodCall: AppMethodCallTransactionArgument]
   }
 }
 
@@ -98,7 +99,7 @@ export type NestedContractArgs = {
 export type NestedContractReturns = {
   'add(uint64,uint64)uint64': bigint
   'get_pay_txn_amount(pay)uint64': bigint
-  'nested_method_call(pay,appl)byte[]': Uint8Array
+  'nested_method_call(string,pay,appl)byte[]': Uint8Array
 }
 
 /**
@@ -119,10 +120,10 @@ export type NestedContractTypes = {
       argsTuple: NestedContractArgs['tuple']['get_pay_txn_amount(pay)uint64']
       returns: NestedContractReturns['get_pay_txn_amount(pay)uint64']
     }>
-    & Record<'nested_method_call(pay,appl)byte[]' | 'nested_method_call', {
-      argsObj: NestedContractArgs['obj']['nested_method_call(pay,appl)byte[]']
-      argsTuple: NestedContractArgs['tuple']['nested_method_call(pay,appl)byte[]']
-      returns: NestedContractReturns['nested_method_call(pay,appl)byte[]']
+    & Record<'nested_method_call(string,pay,appl)byte[]' | 'nested_method_call', {
+      argsObj: NestedContractArgs['obj']['nested_method_call(string,pay,appl)byte[]']
+      argsTuple: NestedContractArgs['tuple']['nested_method_call(string,pay,appl)byte[]']
+      returns: NestedContractReturns['nested_method_call(string,pay,appl)byte[]']
     }>
 }
 
@@ -201,16 +202,16 @@ export abstract class NestedContractParamsFactory {
     }
   }
   /**
-   * Constructs a no op call for the nested_method_call(pay,appl)byte[] ABI method
+   * Constructs a no op call for the nested_method_call(string,pay,appl)byte[] ABI method
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static nestedMethodCall(params: CallParams<NestedContractArgs['obj']['nested_method_call(pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(pay,appl)byte[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static nestedMethodCall(params: CallParams<NestedContractArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'nested_method_call(pay,appl)byte[]' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args._, params.args.methodCall],
+      method: 'nested_method_call(string,pay,appl)byte[]' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args._, params.args._payTxn, params.args.methodCall],
     }
   }
 }
@@ -474,12 +475,12 @@ export class NestedContractClient {
     },
 
     /**
-     * Makes a call to the NestedContract smart contract using the `nested_method_call(pay,appl)byte[]` ABI method.
+     * Makes a call to the NestedContract smart contract using the `nested_method_call(string,pay,appl)byte[]` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    nestedMethodCall: (params: CallParams<NestedContractArgs['obj']['nested_method_call(pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    nestedMethodCall: (params: CallParams<NestedContractArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(NestedContractParamsFactory.nestedMethodCall(params))
     },
 
@@ -520,12 +521,12 @@ export class NestedContractClient {
     },
 
     /**
-     * Makes a call to the NestedContract smart contract using the `nested_method_call(pay,appl)byte[]` ABI method.
+     * Makes a call to the NestedContract smart contract using the `nested_method_call(string,pay,appl)byte[]` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    nestedMethodCall: (params: CallParams<NestedContractArgs['obj']['nested_method_call(pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    nestedMethodCall: (params: CallParams<NestedContractArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(NestedContractParamsFactory.nestedMethodCall(params))
     },
 
@@ -568,14 +569,14 @@ export class NestedContractClient {
     },
 
     /**
-     * Makes a call to the NestedContract smart contract using the `nested_method_call(pay,appl)byte[]` ABI method.
+     * Makes a call to the NestedContract smart contract using the `nested_method_call(string,pay,appl)byte[]` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    nestedMethodCall: async (params: CallParams<NestedContractArgs['obj']['nested_method_call(pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(pay,appl)byte[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    nestedMethodCall: async (params: CallParams<NestedContractArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NestedContractParamsFactory.nestedMethodCall(params))
-      return {...result, return: result.return as undefined | NestedContractReturns['nested_method_call(pay,appl)byte[]']}
+      return {...result, return: result.return as undefined | NestedContractReturns['nested_method_call(string,pay,appl)byte[]']}
     },
 
   }
@@ -609,11 +610,11 @@ export class NestedContractClient {
         return this
       },
       /**
-       * Add a nested_method_call(pay,appl)byte[] method call against the NestedContract contract
+       * Add a nested_method_call(string,pay,appl)byte[] method call against the NestedContract contract
        */
-      nestedMethodCall(params: CallParams<NestedContractArgs['obj']['nested_method_call(pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      nestedMethodCall(params: CallParams<NestedContractArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.nestedMethodCall(params)))
-        resultMappers.push((v) => client.decodeReturnValue('nested_method_call(pay,appl)byte[]', v))
+        resultMappers.push((v) => client.decodeReturnValue('nested_method_call(string,pay,appl)byte[]', v))
         return this
       },
       /**
@@ -670,13 +671,13 @@ export type NestedContractComposer<TReturns extends [...any[]] = []> = {
   getPayTxnAmount(params?: CallParams<NestedContractArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedContractArgs['tuple']['get_pay_txn_amount(pay)uint64']>): NestedContractComposer<[...TReturns, NestedContractReturns['get_pay_txn_amount(pay)uint64'] | undefined]>
 
   /**
-   * Calls the nested_method_call(pay,appl)byte[] ABI method.
+   * Calls the nested_method_call(string,pay,appl)byte[] ABI method.
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  nestedMethodCall(params?: CallParams<NestedContractArgs['obj']['nested_method_call(pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(pay,appl)byte[]']>): NestedContractComposer<[...TReturns, NestedContractReturns['nested_method_call(pay,appl)byte[]'] | undefined]>
+  nestedMethodCall(params?: CallParams<NestedContractArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(string,pay,appl)byte[]']>): NestedContractComposer<[...TReturns, NestedContractReturns['nested_method_call(string,pay,appl)byte[]'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the NestedContract smart contract.

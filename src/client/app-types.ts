@@ -20,7 +20,7 @@ function getMethodMetadata(method: Method, ctx: GeneratorContext) {
     argsMeta.push({
       ...arg,
       name: arg.name ?? `arg${i + 1}`,
-      isOptional: !!arg.defaultValue || hasAppCallArgToTheRight,
+      isOptional: !!arg.defaultValue || (hasAppCallArgToTheRight && algosdk.abiTypeIsTransaction(arg.type)),
       tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx),
     })
 
