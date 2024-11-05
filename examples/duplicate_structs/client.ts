@@ -62,15 +62,11 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
-// Aliases for non-encoded ABI values
-
-type uint64 = bigint;
-
 // Type definitions for ARC-56 structs
 
 export type SomeStruct = {
-  a: uint64,
-  b: uint64
+  a: bigint,
+  b: bigint
 }
 
 

@@ -1,7 +1,7 @@
 import { GeneratorContext } from './generator-context'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
 import { getEquivalentType } from './helpers/get-equivalent-type'
-import { ABIMethod, ABITupleType } from 'algosdk'
+import { ABIMethod } from 'algosdk'
 import { Arc56Contract, Method, StorageKey, StorageMap, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { Sanitizer } from '../util/sanitization'
 
@@ -20,7 +20,6 @@ function getMethodMetadata(method: Method, ctx: GeneratorContext) {
 }
 
 export function* appTypes(ctx: GeneratorContext): DocumentParts {
-  yield* abiTypes(ctx)
   yield* structTypes(ctx)
   yield* templateVariableTypes(ctx)
 
@@ -175,84 +174,11 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-function* abiTypes(ctx: GeneratorContext): DocumentParts {
-  const { app } = ctx
-  const abiTypes: string[] = []
-
-  const pushType = (type: string) => {
-    // If we already have this type, skip
-    if (abiTypes.includes(type)) return
-
-    // void and string are the same types in TS
-    if (['void', 'string'].includes(type)) return
-
-    // Skip structs
-    if (app.structs[type]) return
-
-    // If this is an array type, push the base type
-    if (type.match(/\[\d*\]$/)) {
-      pushType(type.replace(/\[\d*\]$/, ''))
-      return
-    }
-
-    if (type.startsWith('(')) {
-      const tupleType = ABITupleType.from(type) as ABITupleType
-
-      tupleType.childTypes.forEach((t) => {
-        pushType(t.toString())
-      })
-
-      return
-    }
-
-    abiTypes.push(type)
-  }
-
-  Object.values(app.templateVariables ?? {}).forEach((t) => {
-    pushType(t.type)
-  })
-
-  app.methods.forEach((m) => {
-    m.args.forEach((a) => {
-      pushType(a.type)
-    })
-
-    pushType(m.returns.type)
-  })
-  ;(['global', 'local', 'box'] as ['global', 'local', 'box']).forEach((storageType) => {
-    Object.values(app.state.keys[storageType]).forEach((k) => {
-      pushType(k.keyType)
-      pushType(k.valueType)
-    })
-
-    Object.values(app.state.maps[storageType]).forEach((m) => {
-      pushType(m.keyType)
-      pushType(m.valueType)
-    })
-  })
-
-  const pushStructFields = (fields: StructField[]) => {
-    fields.forEach((sf) => {
-      if (typeof sf.type === 'string' && !app.structs[sf.type]) pushType(sf.type)
-      else if (typeof sf.type !== 'string') pushStructFields(sf.type)
-    })
-  }
-
-  Object.values(app.structs).forEach((sf) => {
-    pushStructFields(sf)
-  })
-
-  yield '// Aliases for non-encoded ABI values'
-  yield NewLine
-  for (const t of abiTypes) {
-    yield `type ${t} = ${getEquivalentType(t, 'output', ctx)};`
-  }
-  yield NewLine
-}
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
-function getStructAsObject(struct: StructField[]): Record<string, any> {
-  return Object.fromEntries(struct.map((s) => [s.name, typeof s.type === 'string' ? s.type : getStructAsObject(s.type)]))
+function getStructAsObject(struct: StructField[], ctx: GeneratorContext): Record<string, any> {
+  return Object.fromEntries(
+    struct.map((s) => [s.name, typeof s.type === 'string' ? getEquivalentType(s.type, 'output', ctx) : getStructAsObject(s.type, ctx)]),
+  )
 }
 
 function getStructAsTupleTypes(struct: StructField[], ctx: GeneratorContext): string {
@@ -268,15 +194,8 @@ function* structTypes(ctx: GeneratorContext): DocumentParts {
 
   for (const structName of Object.keys(app.structs)) {
     // Emit the struct type
-    yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(
-      getStructAsObject(app.structs[structName]),
-      null,
-      2,
-    )
-      .replace(/"/g, '')
-      .replaceAll('(', '[')
-      .replaceAll(')', ']')
-      .replace(/\[\d+\]/g, '[]')}`
+
+    yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(getStructAsObject(app.structs[structName], ctx), null, 2).replace(/"/g, '')}`
     yield NewLine
 
     // Emit method that converts ABI tuple to the struct object
@@ -294,8 +213,8 @@ function* structTypes(ctx: GeneratorContext): DocumentParts {
   }
 }
 
-function* templateVariableTypes({ app }: GeneratorContext): DocumentParts {
-  if (Object.keys(app.templateVariables ?? {}).length === 0) {
+function* templateVariableTypes(ctx: GeneratorContext): DocumentParts {
+  if (Object.keys(ctx.app.templateVariables ?? {}).length === 0) {
     return
   }
 
@@ -303,8 +222,8 @@ function* templateVariableTypes({ app }: GeneratorContext): DocumentParts {
   yield 'export type TemplateVariables = {'
   yield IncIndent
 
-  for (const name of Object.keys(app.templateVariables ?? {})) {
-    yield `${name}: ${app.templateVariables![name].type},`
+  for (const name of Object.keys(ctx.app.templateVariables ?? {})) {
+    yield `${name}: ${getEquivalentType(ctx.app.templateVariables![name].type, 'output', ctx)},`
   }
 
   yield DecIndentAndCloseBlock

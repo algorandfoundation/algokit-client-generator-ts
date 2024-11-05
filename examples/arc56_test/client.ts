@@ -62,17 +62,11 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
-// Aliases for non-encoded ABI values
-
-type uint64 = bigint;
-type AVMBytes = Uint8Array;
-type uint16 = number;
-
 // Type definitions for ARC-56 structs
 
 export type FooUint16BarUint16 = {
-  foo: uint16,
-  bar: uint16
+  foo: number,
+  bar: number
 }
 
 
@@ -84,8 +78,8 @@ export function FooUint16BarUint16FromTuple(abiTuple: [number, number]) {
 }
 
 export type Outputs = {
-  sum: uint64,
-  difference: uint64
+  sum: bigint,
+  difference: bigint
 }
 
 
@@ -98,12 +92,12 @@ export function OutputsFromTuple(abiTuple: [bigint, bigint]) {
 
 export type Inputs = {
   add: {
-    a: uint64,
-    b: uint64
+    a: bigint,
+    b: bigint
   },
   subtract: {
-    a: uint64,
-    b: uint64
+    a: bigint,
+    b: bigint
   }
 }
 
@@ -119,7 +113,7 @@ export function InputsFromTuple(abiTuple: [[bigint, bigint], [bigint, bigint]]) 
  * Deploy-time template variables
  */
 export type TemplateVariables = {
-  someNumber: uint64,
+  someNumber: bigint,
 }
 
 /**

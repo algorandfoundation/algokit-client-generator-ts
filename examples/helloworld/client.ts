@@ -62,9 +62,6 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
-// Aliases for non-encoded ABI values
-
-
 /**
  * The argument types for the HelloWorldApp contract
  */

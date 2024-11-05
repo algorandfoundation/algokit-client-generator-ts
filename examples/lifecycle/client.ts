@@ -62,13 +62,6 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
-// Aliases for non-encoded ABI values
-
-type uint32 = number;
-type AVMString = string;
-type AVMBytes = Uint8Array;
-type AVMUint64 = bigint;
-
 /**
  * The argument types for the LifeCycleApp contract
  */
