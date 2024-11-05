@@ -3,8 +3,9 @@ import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { setUpLocalnet } from '../../src/tests/util'
 import { algo } from '@algorandfoundation/algokit-utils'
+import base32 from 'hi-base32'
 
-describe('hello world typed client', () => {
+describe('nested contract typed client', () => {
   let localnet: AlgorandFixture
 
   beforeAll(async () => {
@@ -14,18 +15,63 @@ describe('hello world typed client', () => {
     await localnet.beforeEach()
   }, 10_000)
 
-  test('Calls nestedMethodCall', async () => {
+  test('can call obj nestedMethodCall with shared payment transaction', async () => {
     const { algorand, testAccount } = localnet.context
 
     const factory = algorand.client.getTypedAppFactory(NestedContractFactory, {
       defaultSender: testAccount.addr,
     })
     const { appClient: client } = await factory.deploy()
-
     const payTxn = algorand.createTransaction.payment({ sender: testAccount.addr, receiver: testAccount.addr, amount: algo(0) })
     const nestedAppCall = await client.params.getPayTxnAmount({ args: { payTxn } })
 
+    const response = await client.send.nestedMethodCall({ args: { methodCall: nestedAppCall } })
+
+    expect(base32.encode(response.return!).slice(0, 52)).toBe(response.txIds[1])
+  })
+
+  test('can call tuple nestedMethodCall with shared payment transaction', async () => {
+    const { algorand, testAccount } = localnet.context
+
+    const factory = algorand.client.getTypedAppFactory(NestedContractFactory, {
+      defaultSender: testAccount.addr,
+    })
+    const { appClient: client } = await factory.deploy()
+    const payTxn = algorand.createTransaction.payment({ sender: testAccount.addr, receiver: testAccount.addr, amount: algo(0) })
+    const nestedAppCall = await client.params.getPayTxnAmount({ args: [payTxn] })
+
+    const response = await client.send.nestedMethodCall({ args: [undefined, nestedAppCall] })
+
+    expect(base32.encode(response.return!).slice(0, 52)).toBe(response.txIds[1])
+  })
+
+  test('can call obj nestedMethodCall without shared transactions', async () => {
+    const { algorand, testAccount } = localnet.context
+
+    const factory = algorand.client.getTypedAppFactory(NestedContractFactory, {
+      defaultSender: testAccount.addr,
+    })
+    const { appClient: client } = await factory.deploy()
+    const payTxn = algorand.createTransaction.payment({ sender: testAccount.addr, receiver: testAccount.addr, amount: algo(0) })
+    const nestedAppCall = await client.params.add({ args: { a: 1, b: 2 } })
+
     const response = await client.send.nestedMethodCall({ args: { _: payTxn, methodCall: nestedAppCall } })
-    expect(response.return).toBe('Hello, World')
+
+    expect(base32.encode(response.return!).slice(0, 52)).toBe(response.txIds[1])
+  })
+
+  test('can call tuple nestedMethodCall without shared transactions', async () => {
+    const { algorand, testAccount } = localnet.context
+
+    const factory = algorand.client.getTypedAppFactory(NestedContractFactory, {
+      defaultSender: testAccount.addr,
+    })
+    const { appClient: client } = await factory.deploy()
+    const payTxn = algorand.createTransaction.payment({ sender: testAccount.addr, receiver: testAccount.addr, amount: algo(0) })
+    const nestedAppCall = await client.params.add({ args: [1, 2] })
+
+    const response = await client.send.nestedMethodCall({ args: [payTxn, nestedAppCall] })
+
+    expect(base32.encode(response.return!).slice(0, 52)).toBe(response.txIds[1])
   })
 })

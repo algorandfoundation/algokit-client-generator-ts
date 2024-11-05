@@ -1,20 +1,38 @@
 import { GeneratorContext } from './generator-context'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
 import { getEquivalentType } from './helpers/get-equivalent-type'
-import { ABIMethod } from 'algosdk'
+import algosdk, { ABIMethod } from 'algosdk'
 import { Arc56Contract, Method, StorageKey, StorageMap, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { Sanitizer } from '../util/sanitization'
+import { Expand } from '@algorandfoundation/algokit-utils/types/expand'
 
 function getMethodMetadata(method: Method, ctx: GeneratorContext) {
   const { methodSignatureToUniqueName } = ctx
   const methodSig = new ABIMethod(method).getSignature()
   const uniqueName = methodSignatureToUniqueName[methodSig]
-  const argsMeta = method.args.map((arg, i) => ({
-    ...arg,
-    name: arg.name ?? `arg${i + 1}`,
-    hasDefault: !!arg.defaultValue,
-    tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx),
-  }))
+
+  let hasAppCallArgToTheRight = false
+  const argsMeta = new Array<Expand<Omit<(typeof method.args)[0], 'name'> & { name: string; isOptional: boolean; tsType: string }>>()
+
+  for (let i = (method.args ?? []).length - 1; i >= 0; i--) {
+    const arg = method.args[i]
+
+    argsMeta.push({
+      ...arg,
+      name: arg.name ?? `arg${i + 1}`,
+      isOptional: !!arg.defaultValue || hasAppCallArgToTheRight,
+      tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx),
+    })
+
+    if (
+      !hasAppCallArgToTheRight &&
+      algosdk.abiTypeIsTransaction(arg.type) &&
+      [algosdk.ABITransactionType.appl, algosdk.ABITransactionType.any].includes(arg.type)
+    ) {
+      hasAppCallArgToTheRight = true
+    }
+  }
+  argsMeta.reverse()
 
   return { methodSig, uniqueName, argsMeta }
 }
@@ -38,7 +56,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
       yield IncIndent
       for (const arg of argsMeta) {
         if (arg.desc) yield* jsDoc(arg.desc)
-        yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.hasDefault ? '?' : ''}: ${arg.tsType}`
+        yield `${ctx.sanitizer.makeSafePropertyIdentifier(arg.name)}${arg.isOptional ? '?' : ''}: ${arg.tsType}`
       }
       yield DecIndentAndCloseBlock
     } else {
@@ -55,7 +73,7 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
     yield* inline(
       `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': [`,
       argsMeta
-        .map((arg) => `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${arg.tsType}${arg.hasDefault ? ' | undefined' : ''}`)
+        .map((arg) => `${ctx.sanitizer.makeSafeVariableIdentifier(arg.name)}: ${arg.tsType}${arg.isOptional ? ' | undefined' : ''}`)
         .join(', '),
       ']',
     )
