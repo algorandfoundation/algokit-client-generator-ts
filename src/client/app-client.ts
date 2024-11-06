@@ -429,7 +429,14 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
 }
 
 function* cloneMethod({ name }: GeneratorContext): DocumentParts {
-  yield* jsDoc(`Clone this app client with different params`)
+  yield* jsDoc({
+    description: 'Clone this app client with different params',
+    params: {
+      params:
+        'The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.',
+    },
+    returns: 'A new app client with the altered params',
+  })
   yield `public clone(params: CloneAppClientParams) {`
   yield IncIndent
   yield `return new ${name}Client(this.appClient.clone(params))`

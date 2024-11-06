@@ -538,6 +538,9 @@ export class DuplicateStructsContractClient {
 
   /**
    * Clone this app client with different params
+   *
+   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
     return new DuplicateStructsContractClient(this.appClient.clone(params))
