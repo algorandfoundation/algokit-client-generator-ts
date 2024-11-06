@@ -78,7 +78,9 @@ function* operationMethod(
           yield `case '${sanitizer.makeSafeStringTypeLiteral(uniqueName)}':`
         }
         yield `case '${sanitizer.makeSafeStringTypeLiteral(methodSig)}':`
-        yield* indent(`return ${ctx.name}ParamsFactory.${verb}.${sanitizer.makeSafeMethodIdentifier(uniqueName)}(params)`)
+        yield* indent(
+          `return ${ctx.name}ParamsFactory.${verb}${sanitizer.getSafeMemberAccessor(sanitizer.makeSafeMethodIdentifier(uniqueName))}(params)`,
+        )
       }
       yield DecIndentAndCloseBlock
 

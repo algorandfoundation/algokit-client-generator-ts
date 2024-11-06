@@ -16,6 +16,7 @@ import {
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
   ResolveAppClientByNetwork,
+  CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
@@ -62,17 +63,11 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
-// Aliases for non-encoded ABI values
-
-type uint64 = bigint;
-type AVMBytes = Uint8Array;
-type uint16 = number;
-
 // Type definitions for ARC-56 structs
 
 export type FooUint16BarUint16 = {
-  foo: uint16,
-  bar: uint16
+  foo: number,
+  bar: number
 }
 
 
@@ -84,8 +79,8 @@ export function FooUint16BarUint16FromTuple(abiTuple: [number, number]) {
 }
 
 export type Outputs = {
-  sum: uint64,
-  difference: uint64
+  sum: bigint,
+  difference: bigint
 }
 
 
@@ -98,12 +93,12 @@ export function OutputsFromTuple(abiTuple: [bigint, bigint]) {
 
 export type Inputs = {
   add: {
-    a: uint64,
-    b: uint64
+    a: bigint,
+    b: bigint
   },
   subtract: {
-    a: uint64,
-    b: uint64
+    a: bigint,
+    b: bigint
   }
 }
 
@@ -119,7 +114,7 @@ export function InputsFromTuple(abiTuple: [[bigint, bigint], [bigint, bigint]]) 
  * Deploy-time template variables
  */
 export type TemplateVariables = {
-  someNumber: uint64,
+  someNumber: bigint,
 }
 
 /**
@@ -690,6 +685,16 @@ export class Arc56TestClient {
       return {...result, return: result.return as undefined | Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']}
     },
 
+  }
+
+  /**
+   * Clone this app client with different params
+   *
+   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @returns A new app client with the altered params
+   */
+  public clone(params: CloneAppClientParams) {
+    return new Arc56TestClient(this.appClient.clone(params))
   }
 
   /**

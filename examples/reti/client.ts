@@ -16,6 +16,7 @@ import {
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
   ResolveAppClientByNetwork,
+  CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
@@ -62,54 +63,42 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
-// Aliases for non-encoded ABI values
-
-type uint64 = bigint;
-type byte = number;
-type address = string;
-type uint8 = number;
-type uint32 = number;
-type uint16 = number;
-type bool = boolean;
-type pay = AppMethodCallTransactionArgument;
-type AVMBytes = Uint8Array;
-
 // Type definitions for ARC-56 structs
 
 export type ValidatorInfo = {
   config: {
-    id: uint64,
-    owner: address,
-    manager: address,
-    nfdForInfo: uint64,
-    entryGatingType: uint8,
-    entryGatingAddress: address,
-    entryGatingAssets: uint64[],
-    gatingAssetMinBalance: uint64,
-    rewardTokenId: uint64,
-    rewardPerPayout: uint64,
-    epochRoundLength: uint32,
-    percentToValidator: uint32,
-    validatorCommissionAddress: address,
-    minEntryStake: uint64,
-    maxAlgoPerPool: uint64,
-    poolsPerNode: uint8,
-    sunsettingOn: uint64,
-    sunsettingTo: uint64
+    id: bigint,
+    owner: string,
+    manager: string,
+    nfdForInfo: bigint,
+    entryGatingType: number,
+    entryGatingAddress: string,
+    entryGatingAssets: [bigint, bigint, bigint, bigint],
+    gatingAssetMinBalance: bigint,
+    rewardTokenId: bigint,
+    rewardPerPayout: bigint,
+    epochRoundLength: number,
+    percentToValidator: number,
+    validatorCommissionAddress: string,
+    minEntryStake: bigint,
+    maxAlgoPerPool: bigint,
+    poolsPerNode: number,
+    sunsettingOn: bigint,
+    sunsettingTo: bigint
   },
   state: {
-    numPools: uint16,
-    totalStakers: uint64,
-    totalAlgoStaked: uint64,
-    rewardTokenHeldBack: uint64
+    numPools: number,
+    totalStakers: bigint,
+    totalAlgoStaked: bigint,
+    rewardTokenHeldBack: bigint
   },
-  pools: [uint64,uint16,uint64][],
+  pools: [[bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint]],
   tokenPayoutRatio: {
-    poolPctOfWhole: uint64[],
-    updatedForPayout: uint64
+    poolPctOfWhole: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint],
+    updatedForPayout: bigint
   },
   nodePoolAssignments: {
-    nodes: [uint64[]][]
+    nodes: [[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]
   }
 }
 
@@ -122,10 +111,10 @@ export function ValidatorInfoFromTuple(abiTuple: [[bigint, string, string, bigin
 }
 
 export type MbrAmounts = {
-  addValidatorMbr: uint64,
-  addPoolMbr: uint64,
-  poolInitMbr: uint64,
-  addStakerMbr: uint64
+  addValidatorMbr: bigint,
+  addPoolMbr: bigint,
+  poolInitMbr: bigint,
+  addStakerMbr: bigint
 }
 
 
@@ -137,17 +126,17 @@ export function MbrAmountsFromTuple(abiTuple: [bigint, bigint, bigint, bigint]) 
 }
 
 export type Constraints = {
-  epochPayoutRoundsMin: uint64,
-  epochPayoutRoundsMax: uint64,
-  minPctToValidatorWFourDecimals: uint64,
-  maxPctToValidatorWFourDecimals: uint64,
-  minEntryStake: uint64,
-  maxAlgoPerPool: uint64,
-  maxAlgoPerValidator: uint64,
-  amtConsideredSaturated: uint64,
-  maxNodes: uint64,
-  maxPoolsPerNode: uint64,
-  maxStakersPerPool: uint64
+  epochPayoutRoundsMin: bigint,
+  epochPayoutRoundsMax: bigint,
+  minPctToValidatorWFourDecimals: bigint,
+  maxPctToValidatorWFourDecimals: bigint,
+  minEntryStake: bigint,
+  maxAlgoPerPool: bigint,
+  maxAlgoPerValidator: bigint,
+  amtConsideredSaturated: bigint,
+  maxNodes: bigint,
+  maxPoolsPerNode: bigint,
+  maxStakersPerPool: bigint
 }
 
 
@@ -159,24 +148,24 @@ export function ConstraintsFromTuple(abiTuple: [bigint, bigint, bigint, bigint, 
 }
 
 export type ValidatorConfig = {
-  id: uint64,
-  owner: address,
-  manager: address,
-  nfdForInfo: uint64,
-  entryGatingType: uint8,
-  entryGatingAddress: address,
-  entryGatingAssets: uint64[],
-  gatingAssetMinBalance: uint64,
-  rewardTokenId: uint64,
-  rewardPerPayout: uint64,
-  epochRoundLength: uint32,
-  percentToValidator: uint32,
-  validatorCommissionAddress: address,
-  minEntryStake: uint64,
-  maxAlgoPerPool: uint64,
-  poolsPerNode: uint8,
-  sunsettingOn: uint64,
-  sunsettingTo: uint64
+  id: bigint,
+  owner: string,
+  manager: string,
+  nfdForInfo: bigint,
+  entryGatingType: number,
+  entryGatingAddress: string,
+  entryGatingAssets: [bigint, bigint, bigint, bigint],
+  gatingAssetMinBalance: bigint,
+  rewardTokenId: bigint,
+  rewardPerPayout: bigint,
+  epochRoundLength: number,
+  percentToValidator: number,
+  validatorCommissionAddress: string,
+  minEntryStake: bigint,
+  maxAlgoPerPool: bigint,
+  poolsPerNode: number,
+  sunsettingOn: bigint,
+  sunsettingTo: bigint
 }
 
 
@@ -188,10 +177,10 @@ export function ValidatorConfigFromTuple(abiTuple: [bigint, string, string, bigi
 }
 
 export type ValidatorCurState = {
-  numPools: uint16,
-  totalStakers: uint64,
-  totalAlgoStaked: uint64,
-  rewardTokenHeldBack: uint64
+  numPools: number,
+  totalStakers: bigint,
+  totalAlgoStaked: bigint,
+  rewardTokenHeldBack: bigint
 }
 
 
@@ -203,9 +192,9 @@ export function ValidatorCurStateFromTuple(abiTuple: [number, bigint, bigint, bi
 }
 
 export type PoolInfo = {
-  poolAppId: uint64,
-  totalStakers: uint16,
-  totalAlgoStaked: uint64
+  poolAppId: bigint,
+  totalStakers: number,
+  totalAlgoStaked: bigint
 }
 
 
@@ -217,9 +206,9 @@ export function PoolInfoFromTuple(abiTuple: [bigint, number, bigint]) {
 }
 
 export type ValidatorPoolKey = {
-  id: uint64,
-  poolId: uint64,
-  poolAppId: uint64
+  id: bigint,
+  poolId: bigint,
+  poolAppId: bigint
 }
 
 
@@ -231,8 +220,8 @@ export function ValidatorPoolKeyFromTuple(abiTuple: [bigint, bigint, bigint]) {
 }
 
 export type PoolTokenPayoutRatio = {
-  poolPctOfWhole: uint64[],
-  updatedForPayout: uint64
+  poolPctOfWhole: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint],
+  updatedForPayout: bigint
 }
 
 
@@ -244,7 +233,7 @@ export function PoolTokenPayoutRatioFromTuple(abiTuple: [[bigint, bigint, bigint
 }
 
 export type NodePoolAssignmentConfig = {
-  nodes: [uint64[]][]
+  nodes: [[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]
 }
 
 
@@ -259,7 +248,7 @@ export function NodePoolAssignmentConfigFromTuple(abiTuple: [[[[bigint, bigint, 
  * Deploy-time template variables
  */
 export type TemplateVariables = {
-  nfdRegistryAppId: uint64,
+  nfdRegistryAppId: bigint,
 }
 
 /**
@@ -3173,6 +3162,16 @@ export class ValidatorRegistryClient {
       return {...result, return: result.return as undefined | ValidatorRegistryReturns['emptyTokenRewards(uint64,address)uint64']}
     },
 
+  }
+
+  /**
+   * Clone this app client with different params
+   *
+   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @returns A new app client with the altered params
+   */
+  public clone(params: CloneAppClientParams) {
+    return new ValidatorRegistryClient(this.appClient.clone(params))
   }
 
   /**

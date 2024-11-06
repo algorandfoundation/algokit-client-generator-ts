@@ -97,8 +97,8 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
   yield* params(ctx)
   yield* createTransaction(ctx)
   yield* send(ctx)
+  yield* cloneMethod(ctx)
   yield* readonlyMethods(ctx)
-
   yield* getStateMethods(ctx)
   yield* composeMethod(ctx)
   yield DecIndentAndCloseBlock
@@ -424,6 +424,22 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
     yield `}${storageType === 'local' ? ')' : ''},`
   }
 
+  yield DecIndentAndCloseBlock
+  yield NewLine
+}
+
+function* cloneMethod({ name }: GeneratorContext): DocumentParts {
+  yield* jsDoc({
+    description: 'Clone this app client with different params',
+    params: {
+      params:
+        'The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.',
+    },
+    returns: 'A new app client with the altered params',
+  })
+  yield `public clone(params: CloneAppClientParams) {`
+  yield IncIndent
+  yield `return new ${name}Client(this.appClient.clone(params))`
   yield DecIndentAndCloseBlock
   yield NewLine
 }

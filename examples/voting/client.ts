@@ -16,6 +16,7 @@ import {
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
   ResolveAppClientByNetwork,
+  CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
@@ -62,23 +63,13 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
-// Aliases for non-encoded ABI values
-
-type byte = number;
-type uint64 = bigint;
-type uint8 = number;
-type pay = AppMethodCallTransactionArgument;
-type AVMString = string;
-type AVMUint64 = bigint;
-type AVMBytes = Uint8Array;
-
 // Type definitions for ARC-56 structs
 
 export type VotingPreconditions = {
-  isVotingOpen: uint64,
-  isAllowedToVote: uint64,
-  hasAlreadyVoted: uint64,
-  currentTime: uint64
+  isVotingOpen: bigint,
+  isAllowedToVote: bigint,
+  hasAlreadyVoted: bigint,
+  currentTime: bigint
 }
 
 
@@ -861,6 +852,16 @@ export class VotingRoundAppClient {
       return {...result, return: result.return as undefined | VotingRoundAppReturns['vote(pay,byte[],uint8[])void']}
     },
 
+  }
+
+  /**
+   * Clone this app client with different params
+   *
+   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @returns A new app client with the altered params
+   */
+  public clone(params: CloneAppClientParams) {
+    return new VotingRoundAppClient(this.appClient.clone(params))
   }
 
   /**

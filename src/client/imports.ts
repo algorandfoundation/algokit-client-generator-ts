@@ -14,6 +14,7 @@ export function* imports(): DocumentParts {
       AppClientCompilationParams,
       ResolveAppClientByCreatorAndName,
       ResolveAppClientByNetwork,
+      CloneAppClientParams,
     } from '@algorandfoundation/algokit-utils/types/app-client'
     import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
     import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'

@@ -16,6 +16,7 @@ import {
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
   ResolveAppClientByNetwork,
+  CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
@@ -62,15 +63,11 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
-// Aliases for non-encoded ABI values
-
-type uint64 = bigint;
-
 // Type definitions for ARC-56 structs
 
 export type SomeStruct = {
-  a: uint64,
-  b: uint64
+  a: bigint,
+  b: bigint
 }
 
 
@@ -537,6 +534,16 @@ export class DuplicateStructsContractClient {
       return {...result, return: result.return as undefined | DuplicateStructsContractReturns['method_b_that_uses_same_struct()(uint64,uint64)']}
     },
 
+  }
+
+  /**
+   * Clone this app client with different params
+   *
+   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @returns A new app client with the altered params
+   */
+  public clone(params: CloneAppClientParams) {
+    return new DuplicateStructsContractClient(this.appClient.clone(params))
   }
 
   /**
