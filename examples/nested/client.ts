@@ -16,6 +16,7 @@ import {
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
   ResolveAppClientByNetwork,
+  CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
@@ -579,6 +580,13 @@ export class NestedContractClient {
       return {...result, return: result.return as undefined | NestedContractReturns['nested_method_call(string,pay,appl)byte[]']}
     },
 
+  }
+
+  /**
+   * Clone this app client with different params
+   */
+  public clone(params: CloneAppClientParams) {
+    return new NestedContractClient(this.appClient.clone(params))
   }
 
   /**

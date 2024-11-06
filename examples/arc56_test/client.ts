@@ -16,6 +16,7 @@ import {
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
   ResolveAppClientByNetwork,
+  CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
@@ -684,6 +685,13 @@ export class Arc56TestClient {
       return {...result, return: result.return as undefined | Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']}
     },
 
+  }
+
+  /**
+   * Clone this app client with different params
+   */
+  public clone(params: CloneAppClientParams) {
+    return new Arc56TestClient(this.appClient.clone(params))
   }
 
   /**

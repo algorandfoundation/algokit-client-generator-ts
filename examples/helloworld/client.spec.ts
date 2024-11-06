@@ -83,4 +83,17 @@ describe('hello world typed client', () => {
     expect(response.returns[0]).toBe('Hello, mate')
     expect(response.simulateResponse.txnGroups[0].appBudgetConsumed).toBeLessThan(50)
   })
+
+  test('Can be cloned', async () => {
+    const { algorand, testAccount } = localnet.context
+
+    const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
+      defaultSender: testAccount.addr,
+    })
+    const { appClient: client } = await factory.deploy()
+    const clonedClient = client.clone({ appName: 'overridden' })
+
+    expect(client.appName).toBe('HelloWorldApp')
+    expect(clonedClient.appName).toBe('overridden')
+  })
 })

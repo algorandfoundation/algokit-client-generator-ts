@@ -16,6 +16,7 @@ import {
   AppClientCompilationParams,
   ResolveAppClientByCreatorAndName,
   ResolveAppClientByNetwork,
+  CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import AlgoKitComposer, { AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
@@ -851,6 +852,13 @@ export class VotingRoundAppClient {
       return {...result, return: result.return as undefined | VotingRoundAppReturns['vote(pay,byte[],uint8[])void']}
     },
 
+  }
+
+  /**
+   * Clone this app client with different params
+   */
+  public clone(params: CloneAppClientParams) {
+    return new VotingRoundAppClient(this.appClient.clone(params))
   }
 
   /**
