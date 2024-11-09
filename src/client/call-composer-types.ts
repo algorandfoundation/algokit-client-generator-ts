@@ -44,7 +44,7 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Returns the underlying AtomicTransactionComposer instance',
   })
-  yield `composer(): AlgoKitComposer`
+  yield `composer(): TransactionComposer`
 
   yield* jsDoc({
     description: 'Simulates the transaction group and returns the result',

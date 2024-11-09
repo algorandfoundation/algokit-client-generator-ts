@@ -79,6 +79,7 @@ describe('state typed client', () => {
   })
 
   test('Arguments with defaults defined are not required, and use their default value strategies when set to undefined', async () => {
+    const { testAccount } = localnet.context
     const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
 
     await client.send.setGlobal({ args: { int1: 50, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
@@ -94,9 +95,8 @@ describe('state typed client', () => {
     const abiDefined = await client.send.defaultValueFromAbi({ args: { argWithDefault: 'defined value' } })
     expect(abiDefined.return).toBe('ABI, defined value')
 
-    // todo: uncomment when ARC-56 supports this
-    // const abiDefault = await client.send.defaultValueFromAbi()
-    // expect(abiDefault.return).toBe('ABI, default value')
+    const abiDefault = await client.send.defaultValueFromAbi()
+    expect(abiDefault.return).toBe('ABI, default value')
 
     const intDefined = await client.send.defaultValueInt({ args: { argWithDefault: 42 } })
     expect(intDefined.return).toBe(42n)
@@ -107,18 +107,16 @@ describe('state typed client', () => {
     const globalDefined = await client.send.defaultValueFromGlobalState({ args: { argWithDefault: 123 } })
     expect(globalDefined.return).toBe(123n)
 
-    // todo: uncomment when ARC-56 supports this
-    // const globalState = await client.state.global.getAll()
-    // const globalDefault = await client.send.defaultValueFromGlobalState()
-    // expect(globalDefault.return).toBe(globalState.int1)
+    const globalState = await client.state.global.getAll()
+    const globalDefault = await client.send.defaultValueFromGlobalState()
+    expect(globalDefault.return).toBe(globalState.int1)
 
     const localDefined = await client.send.defaultValueFromLocalState({ args: { argWithDefault: 'defined value' } })
     expect(localDefined.return).toBe('Local state, defined value')
 
-    // todo: uncomment when ARC-56 supports this
-    // const localState = await client.state.local(testAccount.addr).getAll()
-    // const localDefault = await client.send.defaultValueFromLocalState()
-    // expect(localDefault.return).toBe(`Local state, ${localState.localBytes1?.asString()}`)
+    const localState = await client.state.local(testAccount.addr).getAll()
+    const localDefault = await client.send.defaultValueFromLocalState()
+    expect(localDefault.return).toBe(`Local state, ${localState.localBytes1?.asString()}`)
   })
 
   test('Methods can be composed', async () => {

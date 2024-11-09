@@ -178,7 +178,7 @@ describe('voting typed client', () => {
       expect(preconditionsResultAfter.return?.hasAlreadyVoted).toBe(1n)
     })
 
-    test('it works with manual use of the AlgoKitComposer', async () => {
+    test('it works with manual use of the TransactionComposer', async () => {
       const { algorand, signature, testAccount, totalQuestionOptions, randomAnswerIds, client } = await createRandomVotingRoundApp()
 
       const result = await algorand

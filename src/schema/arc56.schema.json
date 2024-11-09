@@ -1,416 +1,7 @@
 {
-  "$ref": "#/definitions/Arc56Contract",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "ABIType": {
-      "description": "An ABI-encoded type",
-      "type": "string"
-    },
-    "AVMBytes": {
-      "const": "AVMBytes",
-      "description": "Raw byteslice without the length prefixed that is specified in ARC-4",
-      "type": "string"
-    },
-    "AVMString": {
-      "const": "AVMString",
-      "description": "A utf-8 string without the length prefix that is specified in ARC-4",
-      "type": "string"
-    },
-    "AVMType": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/AVMBytes"
-        },
-        {
-          "$ref": "#/definitions/AVMString"
-        },
-        {
-          "$ref": "#/definitions/AVMUint64"
-        }
-      ],
-      "description": "A native AVM type"
-    },
-    "AVMUint64": {
-      "const": "AVMUint64",
-      "description": "A 64-bit unsigned integer",
-      "type": "string"
-    },
-    "Arc56Contract": {
-      "description": "Describes the entire contract. This interface is an extension of the interface described in ARC-4",
-      "properties": {
-        "arcs": {
-          "description": "The ARCs used and/or supported by this contract. All contracts implicity support ARC4 and ARC56",
-          "items": {
-            "type": "number"
-          },
-          "type": "array"
-        },
-        "bareActions": {
-          "description": "Supported bare actions for the contract. An action is a combination of call/create and an OnComplete",
-          "properties": {
-            "call": {
-              "description": "OnCompletes this method allows when appID !== 0",
-              "items": {
-                "enum": [
-                  "NoOp",
-                  "OptIn",
-                  "CloseOut",
-                  "ClearState",
-                  "UpdateApplication",
-                  "DeleteApplication"
-                ],
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "create": {
-              "description": "OnCompletes this method allows when appID === 0",
-              "items": {
-                "enum": [
-                  "NoOp",
-                  "OptIn",
-                  "DeleteApplication"
-                ],
-                "type": "string"
-              },
-              "type": "array"
-            }
-          },
-          "required": [
-            "create",
-            "call"
-          ],
-          "type": "object"
-        },
-        "byteCode": {
-          "description": "The compiled bytecode for the application. MUST be omitted if included as part of ARC23",
-          "properties": {
-            "approval": {
-              "description": "The approval program",
-              "type": "string"
-            },
-            "clear": {
-              "description": "The clear program",
-              "type": "string"
-            }
-          },
-          "required": [
-            "approval",
-            "clear"
-          ],
-          "type": "object"
-        },
-        "compilerInfo": {
-          "description": "Information used to get the given byteCode and/or PC values in sourceInfo. MUST be given if byteCode or PC values are present",
-          "properties": {
-            "compiler": {
-              "description": "The name of the compiler",
-              "enum": [
-                "algod",
-                "puya"
-              ],
-              "type": "string"
-            },
-            "compilerVersion": {
-              "description": "Compiler version information",
-              "properties": {
-                "commitHash": {
-                  "type": "string"
-                },
-                "major": {
-                  "type": "number"
-                },
-                "minor": {
-                  "type": "number"
-                },
-                "patch": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "major",
-                "minor",
-                "patch"
-              ],
-              "type": "object"
-            }
-          },
-          "required": [
-            "compiler",
-            "compilerVersion"
-          ],
-          "type": "object"
-        },
-        "desc": {
-          "description": "Optional, user-friendly description for the interface",
-          "type": "string"
-        },
-        "events": {
-          "description": "ARC-28 events that MAY be emitted by this contract",
-          "items": {
-            "$ref": "#/definitions/Event"
-          },
-          "type": "array"
-        },
-        "methods": {
-          "description": "All of the methods that the contract implements",
-          "items": {
-            "$ref": "#/definitions/Method"
-          },
-          "type": "array"
-        },
-        "name": {
-          "description": "A user-friendly name for the contract",
-          "type": "string"
-        },
-        "networks": {
-          "additionalProperties": {
-            "properties": {
-              "appID": {
-                "description": "The app ID of the deployed contract in this network",
-                "type": "number"
-              }
-            },
-            "required": [
-              "appID"
-            ],
-            "type": "object"
-          },
-          "description": "Optional object listing the contract instances across different networks. The key is the base64 genesis hash of the network, and the value contains information about the deployed contract in the network indicated by the key. A key containing the human-readable name of the network MAY be included, but the corresponding genesis hash key MUST also be define",
-          "type": "object"
-        },
-        "scratchVariables": {
-          "additionalProperties": {
-            "properties": {
-              "slot": {
-                "type": "number"
-              },
-              "type": {
-                "anyOf": [
-                  {
-                    "$ref": "#/definitions/ABIType"
-                  },
-                  {
-                    "$ref": "#/definitions/AVMType"
-                  },
-                  {
-                    "$ref": "#/definitions/StructName"
-                  }
-                ]
-              }
-            },
-            "required": [
-              "slot",
-              "type"
-            ],
-            "type": "object"
-          },
-          "description": "The scratch variables used during runtime",
-          "type": "object"
-        },
-        "source": {
-          "description": "The pre-compiled TEAL that may contain template variables. MUST be omitted if included as part of ARC23",
-          "properties": {
-            "approval": {
-              "description": "The approval program",
-              "type": "string"
-            },
-            "clear": {
-              "description": "The clear program",
-              "type": "string"
-            }
-          },
-          "required": [
-            "approval",
-            "clear"
-          ],
-          "type": "object"
-        },
-        "sourceInfo": {
-          "description": "Information about the TEAL programs",
-          "properties": {
-            "approval": {
-              "description": "Approval program information",
-              "items": {
-                "$ref": "#/definitions/SourceInfo"
-              },
-              "type": "array"
-            },
-            "clear": {
-              "description": "Clear program information",
-              "items": {
-                "$ref": "#/definitions/SourceInfo"
-              },
-              "type": "array"
-            }
-          },
-          "required": [
-            "approval",
-            "clear"
-          ],
-          "type": "object"
-        },
-        "state": {
-          "properties": {
-            "keys": {
-              "description": "Mapping of human-readable names to StorageKey objects",
-              "properties": {
-                "box": {
-                  "additionalProperties": {
-                    "$ref": "#/definitions/StorageKey"
-                  },
-                  "type": "object"
-                },
-                "global": {
-                  "additionalProperties": {
-                    "$ref": "#/definitions/StorageKey"
-                  },
-                  "type": "object"
-                },
-                "local": {
-                  "additionalProperties": {
-                    "$ref": "#/definitions/StorageKey"
-                  },
-                  "type": "object"
-                }
-              },
-              "required": [
-                "global",
-                "local",
-                "box"
-              ],
-              "type": "object"
-            },
-            "maps": {
-              "description": "Mapping of human-readable names to StorageMap objects",
-              "properties": {
-                "box": {
-                  "additionalProperties": {
-                    "$ref": "#/definitions/StorageMap"
-                  },
-                  "type": "object"
-                },
-                "global": {
-                  "additionalProperties": {
-                    "$ref": "#/definitions/StorageMap"
-                  },
-                  "type": "object"
-                },
-                "local": {
-                  "additionalProperties": {
-                    "$ref": "#/definitions/StorageMap"
-                  },
-                  "type": "object"
-                }
-              },
-              "required": [
-                "global",
-                "local",
-                "box"
-              ],
-              "type": "object"
-            },
-            "schema": {
-              "description": "Defines the values that should be used for GlobalNumUint, GlobalNumByteSlice, LocalNumUint, and LocalNumByteSlice when creating the application",
-              "properties": {
-                "global": {
-                  "properties": {
-                    "bytes": {
-                      "type": "number"
-                    },
-                    "ints": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "ints",
-                    "bytes"
-                  ],
-                  "type": "object"
-                },
-                "local": {
-                  "properties": {
-                    "bytes": {
-                      "type": "number"
-                    },
-                    "ints": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "ints",
-                    "bytes"
-                  ],
-                  "type": "object"
-                }
-              },
-              "required": [
-                "global",
-                "local"
-              ],
-              "type": "object"
-            }
-          },
-          "required": [
-            "schema",
-            "keys",
-            "maps"
-          ],
-          "type": "object"
-        },
-        "structs": {
-          "additionalProperties": {
-            "items": {
-              "$ref": "#/definitions/StructField"
-            },
-            "type": "array"
-          },
-          "description": "Named structs use by the application. Each struct field appears in the same order as ABI encoding.",
-          "type": "object"
-        },
-        "templateVariables": {
-          "additionalProperties": {
-            "properties": {
-              "type": {
-                "anyOf": [
-                  {
-                    "$ref": "#/definitions/ABIType"
-                  },
-                  {
-                    "$ref": "#/definitions/AVMType"
-                  },
-                  {
-                    "$ref": "#/definitions/StructName"
-                  }
-                ],
-                "description": "The type of the template variable"
-              },
-              "value": {
-                "description": "If given, the the base64 encoded value used for the given app/program",
-                "type": "string"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "type": "object"
-          },
-          "description": "A mapping of template variable names as they appear in the teal (not including TMPL_ prefix) to their respecive types and values (if applicable)",
-          "type": "object"
-        }
-      },
-      "required": [
-        "arcs",
-        "name",
-        "structs",
-        "methods",
-        "state",
-        "bareActions"
-      ],
-      "type": "object"
-    },
     "Event": {
-      "description": "ARC-28 event",
       "properties": {
         "args": {
           "description": "The arguments of the event, in order",
@@ -425,12 +16,12 @@
                 "type": "string"
               },
               "struct": {
-                "$ref": "#/definitions/StructName",
-                "description": "If the type is a struct, the name of the struct"
+                "description": "If the type is a struct, the name of the struct",
+                "type": "string"
               },
               "type": {
-                "$ref": "#/definitions/ABIType",
-                "description": "The type of the argument. The `struct` field should also be checked to determine if this return value is a struct."
+                "description": "The type of the argument. The `struct` field should also be checked to determine if this arg is a struct.",
+                "type": "string"
               }
             },
             "required": [
@@ -465,12 +56,12 @@
               "description": "OnCompletes this method allows when appID !== 0",
               "items": {
                 "enum": [
+                  "ClearState",
+                  "CloseOut",
+                  "DeleteApplication",
                   "NoOp",
                   "OptIn",
-                  "CloseOut",
-                  "ClearState",
-                  "UpdateApplication",
-                  "DeleteApplication"
+                  "UpdateApplication"
                 ],
                 "type": "string"
               },
@@ -480,19 +71,15 @@
               "description": "OnCompletes this method allows when appID === 0",
               "items": {
                 "enum": [
+                  "DeleteApplication",
                   "NoOp",
-                  "OptIn",
-                  "DeleteApplication"
+                  "OptIn"
                 ],
                 "type": "string"
               },
               "type": "array"
             }
           },
-          "required": [
-            "create",
-            "call"
-          ],
           "type": "object"
         },
         "args": {
@@ -503,38 +90,36 @@
                 "description": "The default value that clients should use.",
                 "properties": {
                   "data": {
-                    "description": "Base64 encoded bytes or uint64",
-                    "type": [
-                      "string",
-                      "number"
-                    ]
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {},
+                        "type": "number"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "Base64 encoded bytes or uint64"
                   },
                   "source": {
                     "description": "Where the default value is coming from\n- box: The data key signifies the box key to read the value from\n- global: The data key signifies the global state key to read the value from\n- local: The data key signifies the local state key to read the value from (for the sender)\n- literal: the value is a literal and should be passed directly as the argument",
                     "enum": [
                       "box",
                       "global",
-                      "local",
-                      "literal"
+                      "literal",
+                      "local"
                     ],
                     "type": "string"
                   },
                   "type": {
-                    "anyOf": [
-                      {
-                        "$ref": "#/definitions/ABIType"
-                      },
-                      {
-                        "$ref": "#/definitions/AVMType"
-                      }
-                    ],
-                    "description": "How the data is encoded. This is the encoding for the data provided here, not the arg type"
+                    "description": "How the data is encoded. This is the encoding for the data provided here, not the arg type",
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "data",
-                  "type",
-                  "source"
+                  "source",
+                  "data"
                 ],
                 "type": "object"
               },
@@ -547,12 +132,12 @@
                 "type": "string"
               },
               "struct": {
-                "$ref": "#/definitions/StructName",
-                "description": "If the type is a struct, the name of the struct"
+                "description": "If the type is a struct, the name of the struct",
+                "type": "string"
               },
               "type": {
-                "$ref": "#/definitions/ABIType",
-                "description": "The type of the argument. The `struct` field should also be checked to determine if this arg is a struct."
+                "description": "The type of the argument. The `struct` field should also be checked to determine if this arg is a struct.",
+                "type": "string"
               }
             },
             "required": [
@@ -647,12 +232,12 @@
               "type": "string"
             },
             "struct": {
-              "$ref": "#/definitions/StructName",
-              "description": "If the type is a struct, the name of the struct"
+              "description": "If the type is a struct, the name of the struct",
+              "type": "string"
             },
             "type": {
-              "$ref": "#/definitions/ABIType",
-              "description": "The type of the return value, or \"void\" to indicate no return value. The `struct` field should also be checked to determine if this return value is a struct."
+              "description": "The type of the return value, or \"void\" to indicate no return value. The `struct` field should also be checked to determine if this return value is a struct.",
+              "type": "string"
             }
           },
           "required": [
@@ -669,28 +254,55 @@
       ],
       "type": "object"
     },
+    "ProgramSourceInfo": {
+      "properties": {
+        "pcOffsetMethod": {
+          "description": "How the program counter offset is calculated\n- none: The pc values in sourceInfo are not offset\n- cblocks: The pc values in sourceInfo are offset by the PC of the first op following the last cblock at the top of the program",
+          "enum": [
+            "cblocks",
+            "none"
+          ],
+          "type": "string"
+        },
+        "sourceInfo": {
+          "description": "The source information for the program",
+          "items": {
+            "$ref": "#/definitions/SourceInfo"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "pcOffsetMethod",
+        "sourceInfo"
+      ],
+      "type": "object"
+    },
     "SourceInfo": {
       "properties": {
-        "disassembledTeal": {
-          "description": "The line of the dissasembled TEAL this line of pre-compiled TEAL corresponds to",
-          "type": "number"
-        },
         "errorMessage": {
-          "description": "A human-readable string that describes the error when the program fails at this given line of TEAL",
+          "description": "A human-readable string that describes the error when the program fails at the given PC",
           "type": "string"
         },
         "pc": {
-          "description": "The program counter offset(s) that correspond to this line of TEAL",
+          "description": "The program counter value(s). Could be offset if pcOffsetMethod is not \"none\"",
           "items": {
             "type": "number"
           },
           "type": "array"
         },
+        "source": {
+          "description": "The original source file and line number that corresponds to the given PC. RECOMMENDED to be used for development purposes, but not required for clients",
+          "type": "string"
+        },
         "teal": {
-          "description": "The line of pre-compiled TEAL",
+          "description": "The TEAL line number that corresponds to the given PC. RECOMMENDED to be used for development purposes, but not required for clients",
           "type": "number"
         }
       },
+      "required": [
+        "pc"
+      ],
       "type": "object"
     },
     "StorageKey": {
@@ -705,38 +317,18 @@
           "type": "string"
         },
         "keyType": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/ABIType"
-            },
-            {
-              "$ref": "#/definitions/AVMType"
-            },
-            {
-              "$ref": "#/definitions/StructName"
-            }
-          ],
-          "description": "The type of the key"
+          "description": "The type of the key",
+          "type": "string"
         },
         "valueType": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/ABIType"
-            },
-            {
-              "$ref": "#/definitions/AVMType"
-            },
-            {
-              "$ref": "#/definitions/StructName"
-            }
-          ],
-          "description": "The type of the value"
+          "description": "The type of the value",
+          "type": "string"
         }
       },
       "required": [
+        "key",
         "keyType",
-        "valueType",
-        "key"
+        "valueType"
       ],
       "type": "object"
     },
@@ -748,36 +340,16 @@
           "type": "string"
         },
         "keyType": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/ABIType"
-            },
-            {
-              "$ref": "#/definitions/AVMType"
-            },
-            {
-              "$ref": "#/definitions/StructName"
-            }
-          ],
-          "description": "The type of the keys in the map"
+          "description": "The type of the keys in the map",
+          "type": "string"
         },
         "prefix": {
           "description": "The base64-encoded prefix of the map keys",
           "type": "string"
         },
         "valueType": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/ABIType"
-            },
-            {
-              "$ref": "#/definitions/AVMType"
-            },
-            {
-              "$ref": "#/definitions/StructName"
-            }
-          ],
-          "description": "The type of the values in the map"
+          "description": "The type of the values in the map",
+          "type": "string"
         }
       },
       "required": [
@@ -796,16 +368,13 @@
         "type": {
           "anyOf": [
             {
-              "$ref": "#/definitions/ABIType"
-            },
-            {
-              "$ref": "#/definitions/StructName"
-            },
-            {
               "items": {
                 "$ref": "#/definitions/StructField"
               },
               "type": "array"
+            },
+            {
+              "type": "string"
             }
           ],
           "description": "The type of the struct field's value"
@@ -816,10 +385,347 @@
         "type"
       ],
       "type": "object"
-    },
-    "StructName": {
-      "description": "The name of a defined struct",
-      "type": "string"
     }
-  }
+  },
+  "description": "Describes the entire contract. This interface is an extension of the interface described in ARC-4",
+  "properties": {
+    "arcs": {
+      "description": "The ARCs used and/or supported by this contract. All contracts implicitly support ARC4 and ARC56",
+      "items": {
+        "type": "number"
+      },
+      "type": "array"
+    },
+    "bareActions": {
+      "description": "Supported bare actions for the contract. An action is a combination of call/create and an OnComplete",
+      "properties": {
+        "call": {
+          "description": "OnCompletes this method allows when appID !== 0",
+          "items": {
+            "enum": [
+              "ClearState",
+              "CloseOut",
+              "DeleteApplication",
+              "NoOp",
+              "OptIn",
+              "UpdateApplication"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "create": {
+          "description": "OnCompletes this method allows when appID === 0",
+          "items": {
+            "enum": [
+              "DeleteApplication",
+              "NoOp",
+              "OptIn"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "create",
+        "call"
+      ],
+      "type": "object"
+    },
+    "byteCode": {
+      "description": "The compiled bytecode for the application. MUST be omitted if included as part of ARC23",
+      "properties": {
+        "approval": {
+          "description": "The approval program",
+          "type": "string"
+        },
+        "clear": {
+          "description": "The clear program",
+          "type": "string"
+        }
+      },
+      "required": [
+        "approval",
+        "clear"
+      ],
+      "type": "object"
+    },
+    "compilerInfo": {
+      "description": "Information used to get the given byteCode and/or PC values in sourceInfo. MUST be given if byteCode or PC values are present",
+      "properties": {
+        "compiler": {
+          "description": "The name of the compiler",
+          "enum": [
+            "algod",
+            "puya"
+          ],
+          "type": "string"
+        },
+        "compilerVersion": {
+          "description": "Compiler version information",
+          "properties": {
+            "commitHash": {
+              "type": "string"
+            },
+            "major": {
+              "type": "number"
+            },
+            "minor": {
+              "type": "number"
+            },
+            "patch": {
+              "type": "number"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "compiler",
+        "compilerVersion"
+      ],
+      "type": "object"
+    },
+    "desc": {
+      "description": "Optional, user-friendly description for the interface",
+      "type": "string"
+    },
+    "events": {
+      "description": "ARC-28 events that MAY be emitted by this contract",
+      "items": {
+        "$ref": "#/definitions/Event"
+      },
+      "type": "array"
+    },
+    "methods": {
+      "description": "All of the methods that the contract implements",
+      "items": {
+        "$ref": "#/definitions/Method"
+      },
+      "type": "array"
+    },
+    "name": {
+      "description": "A user-friendly name for the contract",
+      "type": "string"
+    },
+    "networks": {
+      "additionalProperties": {
+        "properties": {
+          "appID": {
+            "description": "The app ID of the deployed contract in this network",
+            "type": "number"
+          }
+        },
+        "required": [
+          "appID"
+        ],
+        "type": "object"
+      },
+      "description": "Optional object listing the contract instances across different networks.\nThe key is the base64 genesis hash of the network, and the value contains\ninformation about the deployed contract in the network indicated by the\nkey. A key containing the human-readable name of the network MAY be\nincluded, but the corresponding genesis hash key MUST also be defined",
+      "type": "object"
+    },
+    "scratchVariables": {
+      "additionalProperties": {
+        "properties": {
+          "slot": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slot",
+          "type"
+        ],
+        "type": "object"
+      },
+      "description": "The scratch variables used during runtime",
+      "type": "object"
+    },
+    "source": {
+      "description": "The pre-compiled TEAL that may contain template variables. MUST be omitted if included as part of ARC23",
+      "properties": {
+        "approval": {
+          "description": "The approval program",
+          "type": "string"
+        },
+        "clear": {
+          "description": "The clear program",
+          "type": "string"
+        }
+      },
+      "required": [
+        "approval",
+        "clear"
+      ],
+      "type": "object"
+    },
+    "sourceInfo": {
+      "description": "Information about the TEAL programs",
+      "properties": {
+        "approval": {
+          "$ref": "#/definitions/ProgramSourceInfo",
+          "description": "Approval program information"
+        },
+        "clear": {
+          "$ref": "#/definitions/ProgramSourceInfo",
+          "description": "Clear program information"
+        }
+      },
+      "required": [
+        "approval",
+        "clear"
+      ],
+      "type": "object"
+    },
+    "state": {
+      "properties": {
+        "keys": {
+          "description": "Mapping of human-readable names to StorageKey objects",
+          "properties": {
+            "box": {
+              "additionalProperties": {
+                "$ref": "#/definitions/StorageKey"
+              },
+              "type": "object"
+            },
+            "global": {
+              "additionalProperties": {
+                "$ref": "#/definitions/StorageKey"
+              },
+              "type": "object"
+            },
+            "local": {
+              "additionalProperties": {
+                "$ref": "#/definitions/StorageKey"
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "box",
+            "global",
+            "local"
+          ],
+          "type": "object"
+        },
+        "maps": {
+          "description": "Mapping of human-readable names to StorageMap objects",
+          "properties": {
+            "box": {
+              "additionalProperties": {
+                "$ref": "#/definitions/StorageMap"
+              },
+              "type": "object"
+            },
+            "global": {
+              "additionalProperties": {
+                "$ref": "#/definitions/StorageMap"
+              },
+              "type": "object"
+            },
+            "local": {
+              "additionalProperties": {
+                "$ref": "#/definitions/StorageMap"
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "box",
+            "global",
+            "local"
+          ],
+          "type": "object"
+        },
+        "schema": {
+          "description": "Defines the values that should be used for GlobalNumUint, GlobalNumByteSlice, LocalNumUint, and LocalNumByteSlice when creating the application",
+          "properties": {
+            "global": {
+              "properties": {
+                "bytes": {
+                  "type": "number"
+                },
+                "ints": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "bytes",
+                "ints"
+              ],
+              "type": "object"
+            },
+            "local": {
+              "properties": {
+                "bytes": {
+                  "type": "number"
+                },
+                "ints": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "bytes",
+                "ints"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "global",
+            "local"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "keys",
+        "maps",
+        "schema"
+      ],
+      "type": "object"
+    },
+    "structs": {
+      "additionalProperties": {
+        "items": {
+          "$ref": "#/definitions/StructField"
+        },
+        "type": "array"
+      },
+      "description": "Named structs used by the application. Each struct field appears in the same order as ABI encoding.",
+      "type": "object"
+    },
+    "templateVariables": {
+      "additionalProperties": {
+        "properties": {
+          "type": {
+            "description": "The type of the template variable",
+            "type": "string"
+          },
+          "value": {
+            "description": "If given, the base64 encoded value used for the given app/program",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "description": "A mapping of template variable names as they appear in the TEAL (not including TMPL_ prefix) to their respecive types and values (if applicable)",
+      "type": "object"
+    }
+  },
+  "required": [
+    "arcs",
+    "name",
+    "structs",
+    "methods",
+    "state",
+    "bareActions"
+  ],
+  "type": "object"
 }
