@@ -212,7 +212,7 @@ factory.send.create.namedCreate({
 })
 ```
 
-If you want to get a built transaction without sending it you can use `factory.createTransaction.create...` rather than `factory.send.create...`. If you want to receive transaction parameters ready to pass in as an ABI argument or to an `AlgoKitComposer` call then you can use `factory.params.create...`.
+If you want to get a built transaction without sending it you can use `factory.createTransaction.create...` rather than `factory.send.create...`. If you want to receive transaction parameters ready to pass in as an ABI argument or to an `TransactionComposer` call then you can use `factory.params.create...`.
 
 ### Update and Delete calls
 
@@ -257,7 +257,7 @@ client.send.delete.bare()
 client.send.delete.namedDelete()
 ```
 
-If you want to get a built transaction without sending it you can use `client.createTransaction.update...` / `client.createTransaction.delete...` rather than `client.send.update...` / `client.send.delete...`. If you want to receive transaction parameters ready to pass in as an ABI argument or to an `AlgoKitComposer` call then you can use `client.params.update...` / `client.params.delete...`.
+If you want to get a built transaction without sending it you can use `client.createTransaction.update...` / `client.createTransaction.delete...` rather than `client.send.update...` / `client.send.delete...`. If you want to receive transaction parameters ready to pass in as an ABI argument or to an `TransactionComposer` call then you can use `client.params.update...` / `client.params.delete...`.
 
 ### Deploy call
 
@@ -400,9 +400,9 @@ const resultOfMethodOne = result.returns[0]
 const resultOfMethodTwo = result.returns[1]
 ```
 
-### Manually with the AlgoKitComposer
+### Manually with the TransactionComposer
 
-Multiple transactions can also be composed using the `AlgoKitComposer` class.
+Multiple transactions can also be composed using the `TransactionComposer` class.
 
 ```ts
 const result = algorand
