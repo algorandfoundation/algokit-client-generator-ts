@@ -16,7 +16,7 @@ Note: you need at least version 7 of AlgoKit Utils to work with the latest versi
 
 ### Use
 
-The cli can be used to generate a client via the following command.
+The AlgoKit cli can be used to generate a client via the following command.
 
 ```
 npx --yes  @algorandfoundation/algokit-client-generator generate -a ./application.json -o ./client.generated.ts
