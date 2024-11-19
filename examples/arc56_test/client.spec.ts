@@ -113,8 +113,8 @@ describe('state typed client', () => {
 
     await appClient.send.optIn.optInToApplication({ args: [], populateAppCallResources: true })
 
-    expect(await appClient.state.local(defaultSender).localKey()).toBe(1337n)
-    expect(await appClient.state.local(defaultSender).localMap.value('foo')).toBe('bar')
+    expect(await appClient.state.local(defaultSender.toString()).localKey()).toBe(1337n)
+    expect(await appClient.state.local(defaultSender.toString()).localMap.value('foo')).toBe('bar')
     expect(await appClient.state.box.boxKey()).toBe('baz')
     expect(
       await appClient.state.box.boxMap.value({
