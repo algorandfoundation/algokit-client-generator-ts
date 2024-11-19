@@ -48,8 +48,7 @@
     "update-approvals": "tsx scripts/update-approvals.ts",
     "pyteal-build": "poetry run python -m examples",
     "postinstall": "npx --yes patch-package",
-    "pre-commit": "npm run lint:fix && npm run test && npm run audit && npm run build",
-    "go": "tealscript ./examples/arc56_test/arc56_test.algo.ts ."
+    "pre-commit": "npm run lint:fix && npm run test && npm run audit && npm run build"
   },
   "bin": {
     "@algorandfoundation/algokit-client-generator": "bin/cli.mjs",
