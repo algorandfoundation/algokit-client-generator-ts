@@ -381,13 +381,18 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
     if (!hasKeys && !hasMaps) continue
 
     yield* jsDoc(`Methods to access ${storageType} state for the current ${app.name} app`)
-    yield `${storageType}${storageType === 'local' ? ': (address: string) => ({' : ': {'}`
+    yield `${storageType}${storageType === 'local' ? ': (address: string | Address) => {' : ': {'}`
     yield IncIndent
+    if (storageType === 'local') {
+      yield "const encodedAddress = typeof address === 'string' ? address : encodeAddress(address.publicKey)"
+      yield 'return {'
+      yield IncIndent
+    }
 
     yield* jsDoc(`Get all current keyed values from ${storageType} state`)
     yield `getAll: async (): Promise<Partial<Expand<${storageType[0].toUpperCase()}${storageType.substring(1)}KeysState>>> => {`
     yield* indent(
-      `const result = await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getAll()`,
+      `const result = await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getAll()`,
       `return {`,
       ...Object.keys(app.state.keys[storageType]).map((n) => {
         return `  ${sanitizer.makeSafePropertyIdentifier(n)}: ${app.state.keys[storageType][n].valueType === 'AVMBytes' ? `new BinaryStateValue(result${sanitizer.getSafeMemberAccessor(n)})` : `result${sanitizer.getSafeMemberAccessor(n)}`},`
@@ -400,7 +405,7 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
       const name = sanitizer.makeSafePropertyIdentifier(n)
       const k = app.state.keys[storageType][n]
       yield* jsDoc(`Get the current value of the ${n} key in ${storageType} state`)
-      yield `${name}: async (): Promise<${k.valueType === 'AVMBytes' ? 'BinaryState' : `${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`}> => { return ${k.valueType === 'AVMBytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getValue("${name}"))${k.valueType === 'AVMBytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
+      yield `${name}: async (): Promise<${k.valueType === 'AVMBytes' ? 'BinaryState' : `${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`}> => { return ${k.valueType === 'AVMBytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getValue("${name}"))${k.valueType === 'AVMBytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
     }
 
     for (const n of Object.keys(app.state.maps[storageType])) {
@@ -411,17 +416,21 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
       yield IncIndent
 
       yield* jsDoc(`Get all current values of the ${n} map in ${storageType} state`)
-      yield `getMap: async (): Promise<Map<${getEquivalentType(m.keyType, 'output', { app, sanitizer })}, ${getEquivalentType(m.valueType, 'output', { app, sanitizer })}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${getEquivalentType(m.keyType, 'output', { app, sanitizer })}, ${getEquivalentType(m.valueType, 'output', { app, sanitizer })}> },`
+      yield `getMap: async (): Promise<Map<${getEquivalentType(m.keyType, 'output', { app, sanitizer })}, ${getEquivalentType(m.valueType, 'output', { app, sanitizer })}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${getEquivalentType(m.keyType, 'output', { app, sanitizer })}, ${getEquivalentType(m.valueType, 'output', { app, sanitizer })}> },`
 
       yield* jsDoc(`Get a current value of the ${n} map by key from ${storageType} state`)
-      yield `value: async (key: ${getEquivalentType(m.keyType, 'input', { app, sanitizer })}): Promise<${getEquivalentType(m.valueType, 'output', { app, sanitizer })} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(address)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${getEquivalentType(m.valueType, 'output', { app, sanitizer })} | undefined },`
+      yield `value: async (key: ${getEquivalentType(m.keyType, 'input', { app, sanitizer })}): Promise<${getEquivalentType(m.valueType, 'output', { app, sanitizer })} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${getEquivalentType(m.valueType, 'output', { app, sanitizer })} | undefined },`
 
       yield DecIndent
       yield `},`
     }
 
     yield DecIndent
-    yield `}${storageType === 'local' ? ')' : ''},`
+    if (storageType === 'local') {
+      yield '}'
+      yield DecIndent
+    }
+    yield '},'
   }
 
   yield DecIndentAndCloseBlock

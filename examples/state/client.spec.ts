@@ -52,7 +52,7 @@ describe('state typed client', () => {
     await client.send.optIn.optIn()
     await client.send.setLocal({ args: { int1: 1, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
 
-    const localState = await client.state.local(testAccount.addr.toString()).getAll()
+    const localState = await client.state.local(testAccount.addr).getAll()
 
     expect(localState.localInt1).toBe(1n)
     expect(localState.localInt2).toBe(2n)
@@ -114,7 +114,7 @@ describe('state typed client', () => {
     const localDefined = await client.send.defaultValueFromLocalState({ args: { argWithDefault: 'defined value' } })
     expect(localDefined.return).toBe('Local state, defined value')
 
-    const localState = await client.state.local(testAccount.addr.toString()).getAll()
+    const localState = await client.state.local(testAccount.addr).getAll()
     const localDefault = await client.send.defaultValueFromLocalState()
     expect(localDefault.return).toBe(`Local state, ${localState.localBytes1?.asString()}`)
   })
@@ -129,7 +129,7 @@ describe('state typed client', () => {
       .setLocal({ args: { bytes1: 'default value', int2: 0, int1: 0, bytes2: new Uint8Array([1, 2, 3, 4]) } })
       .send()
 
-    const localState = await client.state.local(testAccount.addr.toString()).getAll()
+    const localState = await client.state.local(testAccount.addr).getAll()
 
     expect(localState.localBytes1?.asString()).toBe('default value')
   })
