@@ -69,11 +69,11 @@
     "jsonschema": "^1.4.1"
   },
   "peerDependencies": {
-    "@algorandfoundation/algokit-utils": "^7.0.0-beta.23 || ^7.0.0-alpha.3",
+    "@algorandfoundation/algokit-utils": "^7.0.0 || ^8.0.0",
     "algosdk": "^2.9.0 || ^3.0.0"
   },
   "devDependencies": {
-    "@algorandfoundation/algokit-utils": "7.0.0-alpha.3",
+    "@algorandfoundation/algokit-utils": "^8.0.0",
     "@algorandfoundation/tealscript": "^0.105.4",
     "@commitlint/cli": "^18.6.0",
     "@commitlint/config-conventional": "^18.6.0",
