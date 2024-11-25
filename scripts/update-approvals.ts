@@ -1,26 +1,28 @@
-import * as fs from 'fs'
 import * as path from 'path'
 import { colorConsole } from '../src/util/color-console'
+import { generateClientCommand } from '../src/cli'
 
-function updateApprovals() {
-  const dirs = ['helloworld', 'lifecycle', 'minimal', 'state', 'voting', 'duplicate_structs'].map((app) =>
-    path.join(process.cwd(), 'examples', app),
-  )
+async function updateApprovals() {
+  const examples = ['helloworld', 'lifecycle', 'minimal', 'state', 'voting', 'duplicate_structs', 'minimal', 'reti', 'arc56_test']
+
+  const dirs = examples.map((app) => path.join(process.cwd(), 'examples', app))
 
   for (const exampleDir of dirs) {
-    const generatedPath = path.join(exampleDir, 'client.generated.ts')
+    const applicationJsonPath = path.join(exampleDir, 'application.json')
     const approvedPath = path.join(exampleDir, 'client.ts')
 
-    if (!fs.existsSync(generatedPath)) {
-      colorConsole.error`Need to run ${'npm run dev'} task first to generate latest clients. Could not find file ${generatedPath}`
-      process.exit(-1)
-    }
-    colorConsole.info`Overwriting ${approvedPath} with contents of ${generatedPath}`
-    fs.rmSync(approvedPath)
-    const generated = fs.readFileSync(generatedPath, 'utf-8')
-    fs.writeFileSync(approvedPath, generated, 'utf-8')
+    await generateClientCommand({
+      workingDirectory: process.cwd(),
+      application: applicationJsonPath,
+      output: approvedPath,
+      preserveNames: false,
+    })
+    colorConsole.info`----------------------`
   }
   colorConsole.success`Operation completed successfully`
 }
 
-updateApprovals()
+updateApprovals().catch((err) => {
+  colorConsole.error`${err}`
+  process.exit(-1)
+})

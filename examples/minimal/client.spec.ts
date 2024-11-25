@@ -1,4 +1,4 @@
-import { MinimalAppClient } from './client'
+import { MinimalAppFactory } from './client'
 import { test, describe, beforeEach, beforeAll } from 'vitest'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { setUpLocalnet } from '../../src/tests/util'
@@ -14,18 +14,13 @@ describe('minimal typed client', () => {
   }, 10_000)
 
   test('Can be deployed and deleted', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new MinimalAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy()
+    const { algorand, testAccount } = localnet.context
 
-    await client.delete.bare()
+    const factory = algorand.client.getTypedAppFactory(MinimalAppFactory, {
+      defaultSender: testAccount.addr,
+    })
+
+    const { appClient } = await factory.deploy()
+    await appClient.send.delete.bare()
   })
 })

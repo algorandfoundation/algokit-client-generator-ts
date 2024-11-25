@@ -1,11 +1,19 @@
 import { pascalCase } from 'change-case'
-import { AlgoAppSpec, CallConfig, CallConfigValue } from '../../schema/application.js'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { ABIMethod } from 'algosdk'
 
 export const BARE_CALL = Symbol('bare')
 
 export type MethodIdentifier = string | typeof BARE_CALL
 
 export type MethodList = Array<MethodIdentifier>
+
+export type OnComplete = 'NoOp' | 'OptIn' | 'CloseOut' | 'ClearState' | 'UpdateApplication' | 'DeleteApplication'
+
+export type Actions = {
+  create: ('NoOp' | 'OptIn' | 'DeleteApplication')[]
+  call: OnComplete[]
+}
 
 export type CallConfigSummary = {
   createMethods: MethodList
@@ -15,7 +23,7 @@ export type CallConfigSummary = {
   optInMethods: MethodList
   closeOutMethods: MethodList
 }
-export const getCallConfigSummary = (app: AlgoAppSpec) => {
+export const getCallConfigSummary = (app: Arc56Contract) => {
   const result: CallConfigSummary = {
     createMethods: [],
     callMethods: [],
@@ -24,66 +32,62 @@ export const getCallConfigSummary = (app: AlgoAppSpec) => {
     optInMethods: [],
     closeOutMethods: [],
   }
-  if (app.bare_call_config) {
-    addToConfig(result, BARE_CALL, app.bare_call_config)
+  if (app.bareActions) {
+    addToConfig(result, BARE_CALL, app.bareActions)
   }
-  if (app.hints) {
-    for (const [method, hints] of Object.entries(app.hints)) {
-      if (hints.call_config) {
-        addToConfig(result, method, hints.call_config)
+  if (app.methods) {
+    for (const m of app.methods) {
+      if (m.actions) {
+        addToConfig(result, new ABIMethod(m).getSignature(), m.actions)
       }
     }
   }
   return result
 }
 
-export const getCreateOnComplete = (app: AlgoAppSpec, method: MethodIdentifier) => {
-  const callConfig = method === BARE_CALL ? app.bare_call_config : app.hints?.[method]?.call_config
-  if (!callConfig) {
+export const getCreateOnComplete = (app: Arc56Contract, method: MethodIdentifier) => {
+  const actions = method === BARE_CALL ? app.bareActions : app.methods?.find((m) => m.name === method)?.actions
+  if (!actions) {
     return ''
   }
-  const hasNoOp = callConfig.no_op === 'ALL' || callConfig.no_op === 'CREATE'
-  return `{ onCompleteAction${hasNoOp ? '?' : ''}: ${getCreateOnCompleteTypes(callConfig)} }`
+  const hasNoOp = actions.create.includes('NoOp')
+  return `{ onCompleteAction${hasNoOp ? '?' : ''}: ${getCreateOnCompleteTypes(actions)} }`
 }
 
-const getCreateOnCompleteTypes = (config: CallConfig) => {
-  return Object.keys(config)
-    .map((oc) => oc as keyof CallConfig)
-    .filter((oc) => config[oc] === 'ALL' || config[oc] === 'CREATE')
-    .map((oc) => `'${oc}' | OnApplicationComplete.${pascalCase(oc)}OC`)
-    .join(' | ')
+const getCreateOnCompleteTypes = (config: Actions) => {
+  return config.create.map((oc) => `'${oc}' | OnApplicationComplete.${pascalCase(oc)}OC`).join(' | ')
 }
 
-const addToConfig = (result: CallConfigSummary, method: MethodIdentifier, config: CallConfig) => {
-  if (hasCall(config.no_op)) {
+const addToConfig = (result: CallConfigSummary, method: MethodIdentifier, config: Actions) => {
+  if (hasCall(config, 'NoOp')) {
     result.callMethods.push(method)
   }
   if (
-    hasCreate(config.no_op) ||
-    hasCreate(config.opt_in) ||
-    hasCreate(config.close_out) ||
-    hasCreate(config.update_application) ||
-    hasCreate(config.delete_application)
+    hasCreate(config, 'NoOp') ||
+    hasCreate(config, 'OptIn') ||
+    hasCreate(config, 'CloseOut') ||
+    hasCreate(config, 'UpdateApplication') ||
+    hasCreate(config, 'DeleteApplication')
   ) {
     result.createMethods.push(method)
   }
-  if (hasCall(config.delete_application)) {
+  if (hasCall(config, 'DeleteApplication')) {
     result.deleteMethods.push(method)
   }
-  if (hasCall(config.update_application)) {
+  if (hasCall(config, 'UpdateApplication')) {
     result.updateMethods.push(method)
   }
-  if (hasCall(config.opt_in)) {
+  if (hasCall(config, 'OptIn')) {
     result.optInMethods.push(method)
   }
-  if (hasCall(config.close_out)) {
+  if (hasCall(config, 'CloseOut')) {
     result.closeOutMethods.push(method)
   }
 }
 
-const hasCall = (config: CallConfigValue | undefined) => {
-  return config === 'CALL' || config === 'ALL'
+const hasCall = (config: Actions | undefined, action: OnComplete) => {
+  return config?.call.includes(action)
 }
-const hasCreate = (config: CallConfigValue | undefined) => {
-  return config === 'CREATE' || config === 'ALL'
+const hasCreate = (config: Actions | undefined, action: OnComplete) => {
+  return (config?.create as OnComplete[]).includes(action)
 }

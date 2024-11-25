@@ -1,7 +1,5 @@
-import { HelloWorldAppClient } from './client'
+import { HelloWorldAppClient, HelloWorldAppFactory } from './client'
 import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
-import { AtomicTransactionComposer } from 'algosdk'
-import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { setUpLocalnet } from '../../src/tests/util'
 
@@ -16,61 +14,53 @@ describe('hello world typed client', () => {
   }, 10_000)
 
   test('Calls hello', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new HelloWorldAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy()
+    const { algorand, testAccount } = localnet.context
 
-    const response = await client.hello({ name: 'World' })
+    const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
+      defaultSender: testAccount.addr,
+    })
+    const { appClient: client } = await factory.deploy()
+
+    const response = await client.send.hello({ args: { name: 'World' } })
     expect(response.return).toBe('Hello, World')
 
-    const response2 = await client.hello(['World!'])
+    const response2 = await client.send.hello({ args: ['World!'] })
     expect(response2.return).toBe('Hello, World!')
 
-    const response3 = await client.helloWorldCheck({ name: 'World' })
+    const response3 = await client.send.helloWorldCheck({ args: { name: 'World' } })
     expect(response3.return).toBe(undefined)
   })
 
   test('Composer works with manually added transaction', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new HelloWorldAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy()
+    const { algorand, testAccount } = localnet.context
 
-    const atc = new AtomicTransactionComposer()
-    await client.helloWorldCheck({ name: 'World' }, { sendParams: { atc, skipSending: true } })
-    const [transactionWithSigner] = atc.buildGroup()
+    const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
+      defaultSender: testAccount.addr,
+    })
+    const { appClient: client } = await factory.deploy()
 
-    const { transaction: rawTransaction } = await client.hello({ name: 'Bananas' }, { sendParams: { skipSending: true } })
+    const transactions = await client.createTransaction.helloWorldCheck({ args: { name: 'World' } })
+
+    // Test out getting the app client from algorandclient
+    const client2 = await algorand.client.getTypedAppClientByCreatorAndName(HelloWorldAppClient, {
+      creatorAddress: testAccount.addr,
+    })
+
+    const transactions2 = await client2.createTransaction.hello({ args: { name: 'Bananas' }, sender: testAccount.addr })
 
     // Add a transactions in the middle of the method calls and check that it doesn't mess up the return values
     const result = await client
-      .compose()
-      .hello(['World'])
-      .addTransaction(transactionWithSigner)
-      .addTransaction(rawTransaction)
+      .newGroup()
+      .hello({ args: ['World'] })
+      .addTransaction(transactions.transactions[0], transactions.signers.get(0))
+      .addTransaction(transactions2.transactions[0])
       .addTransaction(
-        client.appClient.fundAppAccount({
-          amount: microAlgos(100_000),
-          sendParams: { skipSending: true },
+        await client.appClient.createTransaction.fundAppAccount({
+          amount: (100_000).microAlgo(),
         }),
       )
-      .hello({ name: 'World!' })
-      .execute()
+      .hello({ args: { name: 'World!' } })
+      .send()
 
     expect(result.returns[0]).toBe('Hello, World')
     expect(result.returns[1]).toBe('Hello, World!')
@@ -78,21 +68,32 @@ describe('hello world typed client', () => {
   })
 
   test('Simulates hello', async () => {
-    const { algod, indexer, testAccount } = localnet.context
-    const client = new HelloWorldAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
-    await client.deploy()
+    const { algorand, testAccount } = localnet.context
 
-    const response = await client.compose().hello({ name: 'mate' }).simulate()
+    const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
+      defaultSender: testAccount.addr,
+    })
+    const { appClient: client } = await factory.deploy()
 
-    expect(response.methodResults[0].returnValue).toBe('Hello, mate')
+    const response = await client
+      .newGroup()
+      .hello({ args: { name: 'mate' } })
+      .simulate()
+
+    expect(response.returns[0]).toBe('Hello, mate')
     expect(response.simulateResponse.txnGroups[0].appBudgetConsumed).toBeLessThan(50)
+  })
+
+  test('Can be cloned', async () => {
+    const { algorand, testAccount } = localnet.context
+
+    const factory = algorand.client.getTypedAppFactory(HelloWorldAppFactory, {
+      defaultSender: testAccount.addr,
+    })
+    const { appClient: client } = await factory.deploy()
+    const clonedClient = client.clone({ appName: 'overridden' })
+
+    expect(client.appName).toBe('HelloWorldApp')
+    expect(clonedClient.appName).toBe('overridden')
   })
 })

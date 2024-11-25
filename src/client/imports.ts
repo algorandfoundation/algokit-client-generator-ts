@@ -1,28 +1,25 @@
 import { DocumentParts } from '../output/writer'
 
 export function* imports(): DocumentParts {
-  yield `import * as algokit from '@algorandfoundation/algokit-utils'
-import type {
-  ABIAppCallArg,
-  AppCallTransactionResult,
-  AppCallTransactionResultOfType,
-  AppCompilationResult,
-  AppReference,
-  AppState,
-  AppStorageSchema,
-  CoreAppCallArgs,
-  RawAppCallArgs,
-  TealTemplateParams,
-} from '@algorandfoundation/algokit-utils/types/app'
-import type {
-  AppClientCallCoreParams,
-  AppClientCompilationParams,
-  AppClientDeployCoreParams,
-  AppDetails,
-  ApplicationClient,
-} from '@algorandfoundation/algokit-utils/types/app-client'
-import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import type { SendTransactionResult, TransactionToSign, SendTransactionFrom, SendTransactionParams } from '@algorandfoundation/algokit-utils/types/transaction'
-import type { ABIResult, TransactionWithSigner } from 'algosdk'
-import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer, modelsv2 } from 'algosdk'`
+  yield `
+    import { AlgorandClientInterface } from '@algorandfoundation/algokit-utils/types/algorand-client-interface'
+    import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
+    import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
+    import {
+      AppClient,
+      AppClientMethodCallParams,
+      AppClientParams,
+      AppClientBareCallParams,
+      CallOnComplete,
+      AppClientCompilationParams,
+      ResolveAppClientByCreatorAndName,
+      ResolveAppClientByNetwork,
+      CloneAppClientParams,
+    } from '@algorandfoundation/algokit-utils/types/app-client'
+    import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+    import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
+    import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+    import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+    import SimulateResponse = modelsv2.SimulateResponse
+  `
 }

@@ -1,8 +1,10 @@
 import * as ed from '@noble/ed25519'
-import algosdk, { AtomicTransactionComposer } from 'algosdk'
+import { webcrypto } from 'node:crypto'
+if (!globalThis.crypto) globalThis.crypto = webcrypto
+import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { VotingPreconditions, VotingRoundAppClient } from './client'
+import { VotingPreconditions, VotingRoundAppFactory } from './client'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
@@ -11,7 +13,7 @@ import { setUpLocalnet } from '../../src/tests/util'
 const rndInt = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min
 
 describe('voting typed client', () => {
-  let client: VotingRoundAppClient
+  let factory: VotingRoundAppFactory
   let localnet: AlgorandFixture
 
   beforeAll(async () => {
@@ -20,54 +22,48 @@ describe('voting typed client', () => {
 
   beforeEach(async () => {
     await localnet.beforeEach()
-    const { algod, indexer, testAccount } = localnet.context
-    client = new VotingRoundAppClient(
-      {
-        resolveBy: 'creatorAndName',
-        sender: testAccount,
-        creatorAddress: testAccount.addr,
-        findExistingUsing: indexer,
-      },
-      algod,
-    )
+    const { algorand, testAccount } = localnet.context
+    factory = algorand.client.getTypedAppFactory(VotingRoundAppFactory, { defaultSender: testAccount.addr })
   }, 10_000)
 
   async function createRandomVotingRoundApp() {
-    const { algod, testAccount } = localnet.context
+    const { algorand, algod, testAccount } = localnet.context
     const status = await algod.status().do()
-    const lastRound = Number(status['last-round'])
-    const round = await algod.block(lastRound).do()
-    const currentTime = Number(round.block.ts)
+    const lastRound = status.lastRound
+    const round = await algod.block(Number(lastRound)).do()
+    const currentTime = round.block.header.timestamp
 
     const quorum = rndInt(1, 1000)
     const questionCount = rndInt(1, 10)
     const questionCounts = new Array(questionCount).fill(0).map((_) => rndInt(1, 10))
     const totalQuestionOptions = questionCounts.reduce((a, b) => a + b, 0)
 
-    const privateKey = Buffer.from(ed.utils.randomPrivateKey())
+    const privateKey = Uint8Array.from(Buffer.from(ed.utils.randomPrivateKey()))
     const publicKey = await ed.getPublicKeyAsync(privateKey)
 
-    const createResult = await client.create.create(
-      {
+    const { result: createResult, appClient: client } = await factory.send.create.create({
+      args: {
         voteId: `V${new Date().getTime().toString(32).toUpperCase()}`,
         metadataIpfsCid: 'cid',
-        startTime: BigInt(currentTime), // todo: allow number and convert
-        endTime: BigInt(currentTime + 1000),
+        startTime: BigInt(currentTime),
+        endTime: BigInt(currentTime + 1000n),
         quorum: BigInt(quorum),
         snapshotPublicKey: publicKey,
         nftImageUrl: 'ipfs://cid',
         optionCounts: questionCounts,
       },
-      { deletable: true, sendParams: { fee: (1_000 + 1_000 * 4).microAlgos() } },
-    )
+      deletable: true,
+      staticFee: (1_000 + 1_000 * 4).microAlgo(),
+    })
     expectType<void>(createResult.return)
 
     const randomAnswerIds = questionCounts.map((c) => rndInt(0, c - 1))
 
-    const decoded = algosdk.decodeAddress(testAccount.addr)
-    const signature = await ed.signAsync(decoded.publicKey, privateKey)
+    const signature = await ed.signAsync(testAccount.publicKey, privateKey)
     return {
+      algorand,
       algod,
+      client,
       totalQuestionOptions,
       testAccount,
       privateKey,
@@ -82,225 +78,201 @@ describe('voting typed client', () => {
   }
 
   test('struct_mapping', async () => {
-    const { testAccount, totalQuestionOptions, privateKey } = await createRandomVotingRoundApp()
+    const { testAccount, totalQuestionOptions, privateKey, client } = await createRandomVotingRoundApp()
 
-    await client.bootstrap(
-      {
-        fundMinBalReq: client.appClient.fundAppAccount({
+    await client.createTransaction.bootstrap({
+      args: {
+        fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
           amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
-          sendParams: { skipSending: true },
         }),
       },
-      {
-        boxes: ['V'],
-        sendParams: { fee: microAlgos(1_000 + 1_000 * 4) },
-      },
-    )
+      boxReferences: ['V'],
+      staticFee: (1_000 + 1_000 * 4).microAlgo(),
+    })
 
-    const decoded = algosdk.decodeAddress(testAccount.addr)
-    const signature = await ed.signAsync(decoded.publicKey, privateKey)
-    const preconditionsResult = await client.getPreconditions(
-      {
+    const signature = await ed.signAsync(testAccount.publicKey, privateKey)
+    const preconditionsResult = await client.getPreconditions({
+      args: {
         signature,
       },
+      staticFee: microAlgos(1_000 + 3 * 1_000),
+      boxReferences: [testAccount],
+    })
+    expectType<VotingPreconditions>(preconditionsResult)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (preconditionsResult as any).currentTime
+    expect(preconditionsResult).toMatchInlineSnapshot(`
       {
-        sendParams: { fee: microAlgos(1_000 + 3 * 1_000) },
-        boxes: [testAccount],
-      },
-    )
-    expect(preconditionsResult.return).toBeDefined()
-    expectType<VotingPreconditions | undefined>(preconditionsResult.return)
+        "hasAlreadyVoted": 0n,
+        "isAllowedToVote": 1n,
+        "isVotingOpen": 0n,
+      }
+    `)
   })
 
   test('global_state', async () => {
-    const { questionCounts, currentTime, quorum, publicKey, totalQuestionOptions } = await createRandomVotingRoundApp()
-
-    const state = await client.getGlobalState()
+    const { questionCounts, currentTime, quorum, publicKey, totalQuestionOptions, client } = await createRandomVotingRoundApp()
+    const state = await client.state.global.getAll()
 
     invariant(state.snapshotPublicKey !== undefined)
     expect(state.snapshotPublicKey.asByteArray()).toEqual(publicKey)
 
-    expect(state.metadataIpfsCid!.asString()).toBe('cid')
-    expect(state.startTime!.asNumber()).toBe(currentTime)
-    expect(state.endTime!.asNumber()).toBe(currentTime + 1000)
-    expect(state.closeTime!.asNumber()).toBe(0)
-    expect(state.quorum!.asNumber()).toBe(quorum)
-    expect(state.isBootstrapped!.asNumber()).toBe(0)
-    expect(state.voterCount!.asNumber()).toBe(0)
-    expect(state.nftImageUrl!.asString()).toBe('ipfs://cid')
-    expect(state.nftAssetId!.asNumber()).toBe(0)
-    expect(state.totalOptions!.asNumber()).toBe(totalQuestionOptions)
+    expect(state.metadataIpfsCid?.asString()).toBe('cid')
+    expect(state.startTime).toBe(currentTime)
+    expect(state.endTime).toBe(currentTime + 1000n)
+    expect(state.closeTime).toBe(0n)
+    expect(state.quorum).toBe(BigInt(quorum))
+    expect(state.isBootstrapped).toBe(0n)
+    expect(state.voterCount).toBe(0n)
+    expect(state.nftImageUrl?.asString()).toBe('ipfs://cid')
+    expect(state.nftAssetId).toBe(0n)
+    expect(state.totalOptions).toBe(BigInt(totalQuestionOptions))
     const optionCountsType = new algosdk.ABIArrayDynamicType(new algosdk.ABIUintType(8))
-    expect(optionCountsType.decode(state.optionCounts!.asByteArray()).map(Number)).toEqual(questionCounts)
+    expect(optionCountsType.decode(state.optionCounts!.asByteArray()!).map(Number)).toEqual(questionCounts)
   })
 
   describe('given a usage scenario', () => {
     test('it works with separate transactions', async () => {
-      const { signature, testAccount, totalQuestionOptions, randomAnswerIds } = await createRandomVotingRoundApp()
+      const { signature, testAccount, totalQuestionOptions, randomAnswerIds, client } = await createRandomVotingRoundApp()
 
-      const preconditionsResultBefore = await client.getPreconditions(
-        {
+      const preconditionsResultBefore = await client.send.getPreconditions({
+        args: {
           signature,
         },
-        {
-          sendParams: { fee: microAlgos(1_000 + 3 * 1_000) },
-          boxes: [testAccount],
-        },
-      )
+        staticFee: microAlgos(1_000 + 3 * 1_000),
+        boxReferences: [testAccount],
+      })
 
       expect(preconditionsResultBefore.return?.isAllowedToVote).toBe(1n)
       expect(preconditionsResultBefore.return?.hasAlreadyVoted).toBe(0n)
 
-      await client.bootstrap(
-        {
-          fundMinBalReq: client.appClient.fundAppAccount({
+      await client.send.bootstrap({
+        args: {
+          fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
             amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
-            sendParams: { skipSending: true },
           }),
         },
-        {
-          boxes: ['V'],
-          sendParams: { fee: microAlgos(1_000 + 1_000 * 4) },
-        },
-      )
+        boxReferences: ['V'],
+        staticFee: microAlgos(1_000 + 1_000 * 4),
+      })
 
-      await client.vote(
-        {
+      await client.send.vote({
+        args: {
           answerIds: randomAnswerIds,
-          fundMinBalReq: client.appClient.fundAppAccount({
+          fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
             amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
-            sendParams: { skipSending: true },
           }),
           signature,
         },
-        {
-          boxes: ['V', testAccount],
-          sendParams: { fee: microAlgos(1_000 + 1_000 * 16) },
-        },
-      )
-      const preconditionsResultAfter = await client.getPreconditions(
-        {
+        boxReferences: ['V', testAccount],
+        staticFee: microAlgos(1_000 + 1_000 * 16),
+      })
+      const preconditionsResultAfter = await client.send.getPreconditions({
+        args: {
           signature,
         },
-        {
-          sendParams: { fee: microAlgos(1_000 + 3 * 1_000) },
-          boxes: [testAccount],
-        },
-      )
+        staticFee: microAlgos(1_000 + 3 * 1_000),
+        boxReferences: [testAccount],
+      })
 
       expect(preconditionsResultAfter.return?.hasAlreadyVoted).toBe(1n)
     })
 
-    test('it works with manual use of the AtomicTransactionComposer', async () => {
-      const { algod, signature, testAccount, totalQuestionOptions, randomAnswerIds } = await createRandomVotingRoundApp()
+    test('it works with manual use of the TransactionComposer', async () => {
+      const { algorand, signature, testAccount, totalQuestionOptions, randomAnswerIds, client } = await createRandomVotingRoundApp()
 
-      const atc = new AtomicTransactionComposer()
-      await client.getPreconditions(
-        {
-          signature,
-        },
-        {
-          sendParams: { fee: microAlgos(1_000 + 3 * 1_000), atc, skipSending: true },
-          boxes: [testAccount],
-        },
-      )
-      await client.bootstrap(
-        {
-          fundMinBalReq: client.appClient.fundAppAccount({
-            amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
-            sendParams: { skipSending: true },
+      const result = await algorand
+        .newGroup()
+        .addAppCallMethodCall(
+          await client.params.getPreconditions({
+            args: { signature },
+            staticFee: microAlgos(1_000 + 3 * 1_000),
+            boxReferences: [testAccount],
           }),
-        },
-        {
-          boxes: ['V'],
-          sendParams: { fee: microAlgos(1_000 + 1_000 * 4), atc, skipSending: true },
-        },
-      )
-      await client.vote(
-        {
-          answerIds: randomAnswerIds,
-          fundMinBalReq: client.appClient.fundAppAccount({
-            amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
-            sendParams: { skipSending: true },
+        )
+        .addAppCallMethodCall(
+          await client.params.bootstrap({
+            args: {
+              fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
+                amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
+              }),
+            },
+            boxReferences: ['V'],
+            staticFee: microAlgos(1_000 + 1_000 * 4),
           }),
-          signature,
-        },
-        {
-          boxes: ['V', testAccount],
-          sendParams: { fee: microAlgos(1_000 + 1_000 * 16), atc, skipSending: true },
-        },
-      )
-      await client.getPreconditions(
-        {
-          signature,
-        },
-        {
-          sendParams: { fee: microAlgos(1_000 + 3 * 1_000), atc, skipSending: true },
-          boxes: [testAccount],
-          note: 'hmmm',
-        },
-      )
-      atc.buildGroup()
-
-      const result = await atc.execute(algod, 5)
-
-      expect(result.methodResults).toBeDefined()
-    })
-
-    test('it works using the fluent composer', async () => {
-      const { signature, testAccount, totalQuestionOptions, randomAnswerIds } = await createRandomVotingRoundApp()
-
-      const result = await client
-        .compose()
-        .getPreconditions(
-          {
-            signature,
-          },
-          {
-            sendParams: { fee: microAlgos(1_000 + 3 * 1_000) },
-            boxes: [testAccount],
-          },
         )
-        .bootstrap(
-          {
-            fundMinBalReq: client.appClient.fundAppAccount({
-              amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
-              sendParams: { skipSending: true },
-            }),
-          },
-          {
-            boxes: ['V'],
-            sendParams: { fee: microAlgos(1_000 + 1_000 * 4) },
-          },
+        .addAppCallMethodCall(
+          await client.params.vote({
+            args: {
+              answerIds: randomAnswerIds,
+              fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
+                amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
+              }),
+              signature,
+            },
+            boxReferences: ['V', testAccount],
+            staticFee: microAlgos(1_000 + 1_000 * 16),
+          }),
         )
-        .vote(
-          {
-            answerIds: randomAnswerIds,
-            fundMinBalReq: client.appClient.fundAppAccount({
-              amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
-              sendParams: { skipSending: true },
-            }),
-            signature,
-          },
-          {
-            boxes: ['V', testAccount],
-            sendParams: { fee: microAlgos(1_000 + 1_000 * 16) },
-          },
-        )
-        .getPreconditions(
-          {
-            signature,
-          },
-          {
-            sendParams: { fee: microAlgos(1_000 + 3 * 1_000) },
-            boxes: [testAccount],
+        .addAppCallMethodCall(
+          await client.params.getPreconditions({
+            args: {
+              signature,
+            },
+            staticFee: microAlgos(1_000 + 3 * 1_000),
+            boxReferences: [testAccount],
             note: 'hmmm',
-          },
+          }),
         )
         .execute()
 
-      expect(result.returns[0].hasAlreadyVoted).toBe(0n)
-      expect(result.returns[3].hasAlreadyVoted).toBe(1n)
+      expect(result.returns).toBeDefined()
+    })
+
+    test('it works using the fluent composer', async () => {
+      const { signature, testAccount, totalQuestionOptions, randomAnswerIds, client } = await createRandomVotingRoundApp()
+
+      const result = await client
+        .newGroup()
+        .getPreconditions({
+          args: {
+            signature,
+          },
+          staticFee: microAlgos(1_000 + 3 * 1_000),
+          boxReferences: [testAccount],
+        })
+        .bootstrap({
+          args: {
+            fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
+              amount: microAlgos(200_000 + 1_000 + 2_500 + 400 * (1 + 8 * totalQuestionOptions)),
+            }),
+          },
+          boxReferences: ['V'],
+          staticFee: microAlgos(1_000 + 1_000 * 4),
+        })
+        .vote({
+          args: {
+            answerIds: randomAnswerIds,
+            fundMinBalReq: client.appClient.createTransaction.fundAppAccount({
+              amount: microAlgos(400 * (32 + 2 + randomAnswerIds.length) + 2_500),
+            }),
+            signature,
+          },
+          boxReferences: ['V', testAccount],
+          staticFee: microAlgos(1_000 + 1_000 * 16),
+        })
+        .getPreconditions({
+          args: {
+            signature,
+          },
+          staticFee: microAlgos(1_000 + 3 * 1_000),
+          boxReferences: [testAccount],
+          note: 'hmmm',
+        })
+        .send()
+
+      expect(result.returns[0]?.hasAlreadyVoted).toBe(0n)
+      expect(result.returns[3]?.hasAlreadyVoted).toBe(1n)
     })
   })
 })

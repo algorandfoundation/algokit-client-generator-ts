@@ -15,23 +15,12 @@ export function cli(workingDirectory: string, args: string[]) {
     .option('-pn --preserve-names', 'Preserve names from application.json spec instead of sanitizing them')
     .action(
       async ({ application, output, preserveNames }: { application: string; output: string; preserveNames?: boolean }): Promise<void> => {
-        const fs = await import('fs')
-        const resolvedAppJsonPath = path.resolve(workingDirectory, application)
-        const resolvedOutPath = path.resolve(workingDirectory, output)
-        const resolvedOutDir = path.dirname(resolvedOutPath)
-        colorConsole.info`Reading application.json file from path ${resolvedAppJsonPath}`
-        const spec = await loadApplicationJson(resolvedAppJsonPath)
-        colorConsole.info`Generating TS client for ${spec.contract.name}`
-        const parts = generate(spec, { preserveNames: Boolean(preserveNames) })
-        if (!fs.existsSync(resolvedOutDir)) {
-          colorConsole.warn`Output directory ${resolvedOutDir} does not exist and will be created.`
-          fs.mkdirSync(resolvedOutDir, { recursive: true })
-        }
-        colorConsole.info`Writing TS client to ${resolvedOutPath}`
-        const file = fs.createWriteStream(resolvedOutPath, {
-          flags: 'w',
+        await generateClientCommand({
+          application,
+          output,
+          preserveNames: Boolean(preserveNames),
+          workingDirectory,
         })
-        writeDocumentPartsToStream(parts, file)
         colorConsole.success`Operation completed successfully`
       },
     )
@@ -49,5 +38,59 @@ export function cli(workingDirectory: string, args: string[]) {
       colorConsole.error`Unhandled error: \n\n${err}`
     }
     process.exit(-1)
+  }
+}
+
+export async function generateClientCommand({
+  application,
+  output,
+  preserveNames,
+  workingDirectory,
+}: {
+  application: string
+  output: string
+  preserveNames: boolean
+  workingDirectory: string
+}) {
+  const fs = await import('fs')
+
+  const resolvedAppJsonPath = path.resolve(workingDirectory, application)
+  const resolvedOutPath = path.resolve(workingDirectory, output)
+  const resolvedOutDir = path.dirname(resolvedOutPath)
+  colorConsole.info`Reading application.json file from path ${resolvedAppJsonPath}`
+  const spec = await loadApplicationJson(resolvedAppJsonPath)
+  colorConsole.info`Generating TS client for ${spec.name}`
+  const parts = generate(spec, { preserveNames })
+  if (!fs.existsSync(resolvedOutDir)) {
+    colorConsole.warn`Output directory ${resolvedOutDir} does not exist and will be created.`
+    fs.mkdirSync(resolvedOutDir, { recursive: true })
+  }
+  colorConsole.info`Writing TS client to ${resolvedOutPath}`
+  const file = await createAwaitableWriteStream(resolvedOutPath)
+  writeDocumentPartsToStream(parts, file)
+  await file.finish()
+}
+
+async function createAwaitableWriteStream(path: string) {
+  const fs = await import('fs')
+  const stream = fs.createWriteStream(path, {
+    flags: 'w',
+  })
+  const finish = new Promise<void>((resolve, reject) => {
+    stream.on('error', (err) => {
+      reject(err)
+    })
+    stream.on('finish', () => {
+      resolve()
+    })
+  })
+  return {
+    write(chunk: string): void {
+      stream.write(chunk)
+    },
+    finish() {
+      stream.end()
+      return finish
+    },
   }
 }
