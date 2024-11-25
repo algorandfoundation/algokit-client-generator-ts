@@ -142,7 +142,7 @@ describe('state typed client', () => {
     await client.send.callWithReferences({
       args: {
         asset: 1234n,
-        account: testAccount.addr,
+        account: testAccount.addr.toString(),
         application: client.appClient.appId,
       },
     })
