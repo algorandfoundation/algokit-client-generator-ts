@@ -14,7 +14,7 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
   yield `export class ${name}Factory {`
   yield IncIndent
   yield* jsDoc(`The underlying \`AppFactory\` for when you want to have more flexibility`)
-  yield 'public readonly appFactory: AppFactory'
+  yield 'public readonly appFactory: _AppFactory'
   yield NewLine
 
   yield* jsDoc({
@@ -26,7 +26,7 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
 
   yield `
     constructor(params: Omit<AppFactoryParams, 'appSpec'>) {
-      this.appFactory = new AppFactory({
+      this.appFactory = new _AppFactory({
         ...params,
         appSpec: APP_SPEC,
       })
