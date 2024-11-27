@@ -8,7 +8,7 @@ import { AlgorandClientInterface } from '@algorandfoundation/algokit-utils/types
 import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
 import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import {
-  AppClient,
+  AppClient as _AppClient,
   AppClientMethodCallParams,
   AppClientParams,
   AppClientBareCallParams,
@@ -18,7 +18,7 @@ import {
   ResolveAppClientByNetwork,
   CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppFactory as _AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
@@ -220,7 +220,7 @@ export class HelloWorldAppFactory {
   /**
    * The underlying `AppFactory` for when you want to have more flexibility
    */
-  public readonly appFactory: AppFactory
+  public readonly appFactory: _AppFactory
 
   /**
    * Creates a new instance of `HelloWorldAppFactory`
@@ -228,7 +228,7 @@ export class HelloWorldAppFactory {
    * @param params The parameters to initialise the app factory with
    */
   constructor(params: Omit<AppFactoryParams, 'appSpec'>) {
-    this.appFactory = new AppFactory({
+    this.appFactory = new _AppFactory({
       ...params,
       appSpec: APP_SPEC,
     })
@@ -391,22 +391,22 @@ export class HelloWorldAppClient {
   /**
    * The underlying `AppClient` for when you want to have more flexibility
    */
-  public readonly appClient: AppClient
+  public readonly appClient: _AppClient
 
   /**
    * Creates a new instance of `HelloWorldAppClient`
    *
    * @param appClient An `AppClient` instance which has been created with the HelloWorldApp app spec
    */
-  constructor(appClient: AppClient)
+  constructor(appClient: _AppClient)
   /**
    * Creates a new instance of `HelloWorldAppClient`
    *
    * @param params The parameters to initialise the app client with
    */
   constructor(params: Omit<AppClientParams, 'appSpec'>)
-  constructor(appClientOrParams: AppClient | Omit<AppClientParams, 'appSpec'>) {
-    this.appClient = appClientOrParams instanceof AppClient ? appClientOrParams : new AppClient({
+  constructor(appClientOrParams: _AppClient | Omit<AppClientParams, 'appSpec'>) {
+    this.appClient = appClientOrParams instanceof _AppClient ? appClientOrParams : new _AppClient({
       ...appClientOrParams,
       appSpec: APP_SPEC,
     })
@@ -426,7 +426,7 @@ export class HelloWorldAppClient {
    * @param params The parameters to create the app client
    */
   public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<HelloWorldAppClient> {
-    return new HelloWorldAppClient(await AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+    return new HelloWorldAppClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
   /**
@@ -439,7 +439,7 @@ export class HelloWorldAppClient {
   static async fromNetwork(
     params: Omit<ResolveAppClientByNetwork, 'appSpec'>
   ): Promise<HelloWorldAppClient> {
-    return new HelloWorldAppClient(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+    return new HelloWorldAppClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
   
   /** The ID of the app instance this client is linked to. */

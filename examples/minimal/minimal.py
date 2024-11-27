@@ -6,7 +6,7 @@ from examples.deployment_standard import (
 )
 
 app = (
-    beaker.Application("MinimalApp", descr="An app that has no abi methods")
+    beaker.Application("App", descr="An app that has no abi methods")
     .apply(deploy_time_immutability_control)
     .apply(deploy_time_permanence_control)
 )
