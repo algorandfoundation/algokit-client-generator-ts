@@ -6,7 +6,7 @@
   "module": "index.mjs",
   "private": false,
   "engines": {
-    "node": ">=18.0"
+    "node": ">=20.0"
   },
   "type": "commonjs",
   "scripts": {

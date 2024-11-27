@@ -14,7 +14,7 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
   yield `export class ${name}Client {`
   yield IncIndent
   yield* jsDoc(`The underlying \`AppClient\` for when you want to have more flexibility`)
-  yield 'public readonly appClient: AppClient'
+  yield 'public readonly appClient: _AppClient'
   yield NewLine
 
   yield `
@@ -23,15 +23,15 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
      *
      * @param appClient An \`AppClient\` instance which has been created with the ${name} app spec
      */
-    constructor(appClient: AppClient)
+    constructor(appClient: _AppClient)
     /**
      * Creates a new instance of \`${name}Client\`
      *
      * @param params The parameters to initialise the app client with
      */
     constructor(params: Omit<AppClientParams, 'appSpec'>)
-    constructor(appClientOrParams: AppClient | Omit<AppClientParams, 'appSpec'>) {
-      this.appClient = appClientOrParams instanceof AppClient ? appClientOrParams : new AppClient({
+    constructor(appClientOrParams: _AppClient | Omit<AppClientParams, 'appSpec'>) {
+      this.appClient = appClientOrParams instanceof _AppClient ? appClientOrParams : new _AppClient({
         ...appClientOrParams,
         appSpec: APP_SPEC,
       })
@@ -51,7 +51,7 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
      * @param params The parameters to create the app client
      */
     public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<${name}Client> {
-      return new ${name}Client(await AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+      return new ${name}Client(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
     }
 
     /**
@@ -64,7 +64,7 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
     static async fromNetwork(
       params: Omit<ResolveAppClientByNetwork, 'appSpec'>
     ): Promise<${name}Client> {
-      return new ${name}Client(await AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+      return new ${name}Client(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
     }
 
     /** The ID of the app instance this client is linked to. */
