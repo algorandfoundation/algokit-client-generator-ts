@@ -311,10 +311,10 @@ export class DuplicateStructsContractFactory {
        * Creates a new instance of the DuplicateStructsContract smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
-       * @returns The params for a create call
+       * @returns The transaction for a create call
        */
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
-        return this.appFactory.params.bare.create(params)
+        return this.appFactory.createTransaction.bare.create(params)
       },
     },
 

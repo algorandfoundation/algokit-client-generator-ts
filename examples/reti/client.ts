@@ -1543,10 +1543,10 @@ export class ValidatorRegistryFactory {
        * Creates a new instance of the ValidatorRegistry smart contract using the createApplication()void ABI method.
        *
        * @param params The params for the smart contract call
-       * @returns The create params
+       * @returns The create transaction
        */
       createApplication: (params: CallParams<ValidatorRegistryArgs['obj']['createApplication()void'] | ValidatorRegistryArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-        return this.appFactory.params.create(ValidatorRegistryParamsFactory.create.createApplication(params))
+        return this.appFactory.createTransaction.create(ValidatorRegistryParamsFactory.create.createApplication(params))
       },
     },
 

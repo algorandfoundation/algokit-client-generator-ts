@@ -895,19 +895,19 @@ export class StateAppFactory {
        * Creates a new instance of the StateApp smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
-       * @returns The params for a create call
+       * @returns The transaction for a create call
        */
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) => {
-        return this.appFactory.params.bare.create(params)
+        return this.appFactory.createTransaction.bare.create(params)
       },
       /**
        * Creates a new instance of the StateApp smart contract using the create_abi(string)string ABI method.
        *
        * @param params The params for the smart contract call
-       * @returns The create params
+       * @returns The create transaction
        */
       createAbi: (params: CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.params.create(StateAppParamsFactory.create.createAbi(params))
+        return this.appFactory.createTransaction.create(StateAppParamsFactory.create.createAbi(params))
       },
     },
 

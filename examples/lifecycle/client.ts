@@ -434,10 +434,10 @@ export class LifeCycleAppFactory {
        * Creates a new instance of the LifeCycleApp smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
-       * @returns The params for a create call
+       * @returns The transaction for a create call
        */
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) => {
-        return this.appFactory.params.bare.create(params)
+        return this.appFactory.createTransaction.bare.create(params)
       },
       /**
        * Creates a new instance of the LifeCycleApp smart contract using the create(string)string ABI method.
@@ -445,10 +445,10 @@ export class LifeCycleAppFactory {
        * ABI create method with 1 argument
        *
        * @param params The params for the smart contract call
-       * @returns The create params: The formatted greeting
+       * @returns The create transaction: The formatted greeting
        */
       createStringString: (params: CallParams<LifeCycleAppArgs['obj']['create(string)string'] | LifeCycleAppArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.params.create(LifeCycleAppParamsFactory.create.createStringString(params))
+        return this.appFactory.createTransaction.create(LifeCycleAppParamsFactory.create.createStringString(params))
       },
       /**
        * Creates a new instance of the LifeCycleApp smart contract using the create(string,uint32)void ABI method.
@@ -456,10 +456,10 @@ export class LifeCycleAppFactory {
        * ABI create method with 2 arguments
        *
        * @param params The params for the smart contract call
-       * @returns The create params
+       * @returns The create transaction
        */
       createStringUint32Void: (params: CallParams<LifeCycleAppArgs['obj']['create(string,uint32)void'] | LifeCycleAppArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.params.create(LifeCycleAppParamsFactory.create.createStringUint32Void(params))
+        return this.appFactory.createTransaction.create(LifeCycleAppParamsFactory.create.createStringUint32Void(params))
       },
     },
 
