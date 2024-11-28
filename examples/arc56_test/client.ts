@@ -444,10 +444,10 @@ export class Arc56TestFactory {
        * Creates a new instance of the ARC56Test smart contract using the createApplication()void ABI method.
        *
        * @param params The params for the smart contract call
-       * @returns The create params
+       * @returns The create transaction
        */
       createApplication: (params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-        return this.appFactory.params.create(Arc56TestParamsFactory.create.createApplication(params))
+        return this.appFactory.createTransaction.create(Arc56TestParamsFactory.create.createApplication(params))
       },
     },
 

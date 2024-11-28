@@ -510,10 +510,10 @@ export class VotingRoundAppFactory {
        * Creates a new instance of the VotingRoundApp smart contract using the create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void ABI method.
        *
        * @param params The params for the smart contract call
-       * @returns The create params
+       * @returns The create transaction
        */
       create: (params: CallParams<VotingRoundAppArgs['obj']['create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'] | VotingRoundAppArgs['tuple']['create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.params.create(VotingRoundAppParamsFactory.create.create(params))
+        return this.appFactory.createTransaction.create(VotingRoundAppParamsFactory.create.create(params))
       },
     },
 

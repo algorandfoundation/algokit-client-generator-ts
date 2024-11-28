@@ -148,22 +148,43 @@ function* createMethods(generator: GeneratorContext): DocumentParts {
 function* paramMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig } = ctx
 
-  yield* operationMethods(ctx, `Creates a new instance of the ${app.name} smart contract`, callConfig.createMethods, 'create', true)
+  yield* operationMethods(
+    ctx,
+    `Creates a new instance of the ${app.name} smart contract`,
+    callConfig.createMethods,
+    'create',
+    'params',
+    true,
+  )
 
   yield* operationMethods(
     ctx,
     `Updates an existing instance of the ${app.name} smart contract`,
     callConfig.updateMethods,
     'deployUpdate',
+    'params',
     true,
   )
-  yield* operationMethods(ctx, `Deletes an existing instance of the ${app.name} smart contract`, callConfig.deleteMethods, 'deployDelete')
+  yield* operationMethods(
+    ctx,
+    `Deletes an existing instance of the ${app.name} smart contract`,
+    callConfig.deleteMethods,
+    'deployDelete',
+    'params',
+  )
 }
 
 function* createTransactionMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig } = ctx
 
-  yield* operationMethods(ctx, `Creates a new instance of the ${app.name} smart contract`, callConfig.createMethods, 'create', true)
+  yield* operationMethods(
+    ctx,
+    `Creates a new instance of the ${app.name} smart contract`,
+    callConfig.createMethods,
+    'create',
+    'createTransaction',
+    true,
+  )
 }
 
 function* bareMethodCallParams({
@@ -187,7 +208,10 @@ function* bareMethodCallParams({
     params: {
       params: `The params for the bare (raw) call`,
     },
-    returns: type === 'params' ? `The params for a ${verb} call` : `The ${verb} result`,
+    returns:
+      type === 'params' || type === 'createTransaction'
+        ? `The ${type === 'createTransaction' ? 'transaction' : type} for a ${verb} call`
+        : `The ${verb} result`,
   })
   yield `${name}: ${type === 'send' ? 'async ' : ''}(params?: Expand<AppClientBareCallParams${
     includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
@@ -257,6 +281,7 @@ function* operationMethods(
   description: string,
   methods: MethodList,
   verb: 'create' | 'deployUpdate' | 'deployDelete',
+  type: 'params' | 'createTransaction',
   includeCompilation?: boolean,
 ): DocumentParts {
   if (methods.length) {
@@ -270,7 +295,7 @@ function* operationMethods(
           name: 'bare',
           description: `${description} using a bare call`,
           verb,
-          type: 'params',
+          type,
           includeCompilation,
         })
       } else {
@@ -280,7 +305,7 @@ function* operationMethods(
           method,
           description,
           verb,
-          type: 'params',
+          type,
           includeCompilation,
         })
       }
