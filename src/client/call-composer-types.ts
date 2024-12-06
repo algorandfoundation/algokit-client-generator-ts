@@ -49,7 +49,9 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Simulates the transaction group and returns the result',
   })
-  yield `simulate(options?: SimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
+  yield `simulate(): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
+  yield `simulate(options: SkipSignaturesSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
+  yield `simulate(options: RawSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
 
   yield* jsDoc({
     description: 'Sends the transaction group to the network and returns the results',

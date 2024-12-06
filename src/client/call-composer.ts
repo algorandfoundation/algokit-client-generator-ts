@@ -41,7 +41,7 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield `async simulate(options?: SimulateOptions) {`
   yield IncIndent
   yield `await promiseChain`
-  yield `const result = await composer.simulate(options)`
+  yield `const result = await (!options ? composer.simulate() : composer.simulate(options))`
   yield `return {`
   yield IncIndent
   yield `...result,`
