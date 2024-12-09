@@ -271,6 +271,8 @@ function* keysAndMaps(
       yield `${keySafe}: ${prop.valueType === 'AVMBytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', { app, sanitizer })}`
     }
     yield DecIndentAndCloseBlock
+  } else {
+    yield 'keys: {}'
   }
 
   if (maps && Object.keys(maps).length) {
@@ -286,6 +288,8 @@ function* keysAndMaps(
       yield `${keySafe}: Map<${getEquivalentType(prop.keyType, 'input', { app, sanitizer })}, ${getEquivalentType(prop.valueType, 'output', { app, sanitizer })}>`
     }
     yield DecIndentAndCloseBlock
+  } else {
+    yield 'maps: {}'
   }
 }
 
@@ -295,7 +299,7 @@ function* appState(
 ): DocumentParts {
   const { hasBox, hasGlobal, hasLocal } = stateFlags
 
-  if (hasLocal || hasGlobal) {
+  if (hasLocal || hasGlobal || hasBox) {
     yield* jsDoc('Defines the shape of the state of the application.')
     yield 'state: {'
     yield IncIndent
