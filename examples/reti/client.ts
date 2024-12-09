@@ -789,6 +789,7 @@ export type ValidatorRegistryTypes = {
         numStakers: bigint
         totalAlgoStaked: bigint
       }
+      maps: {}
     }
     box: {
       keys: {
