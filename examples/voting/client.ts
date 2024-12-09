@@ -232,6 +232,7 @@ export type VotingRoundAppTypes = {
          */
         voterCount: bigint
       }
+      maps: {}
     }
   }
 }

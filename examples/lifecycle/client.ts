@@ -147,6 +147,7 @@ export type LifeCycleAppTypes = {
         greeting: BinaryState
         times: bigint
       }
+      maps: {}
     }
   }
 }

@@ -311,6 +311,7 @@ export type StateAppTypes = {
         int2: bigint
         value: bigint
       }
+      maps: {}
     }
     local: {
       keys: {
@@ -319,6 +320,7 @@ export type StateAppTypes = {
         localInt1: bigint
         localInt2: bigint
       }
+      maps: {}
     }
   }
 }
