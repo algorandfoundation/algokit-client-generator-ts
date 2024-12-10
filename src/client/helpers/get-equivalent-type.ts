@@ -15,6 +15,9 @@ import {
 } from 'algosdk'
 import { Sanitizer } from '../../util/sanitization'
 
+const bigIntOrNumberType = 'bigint | number'
+const bytesOrStringType = 'Uint8Array | string'
+
 export function getEquivalentType(
   abiTypeStr: string,
   ioType: 'input' | 'output',
@@ -25,7 +28,7 @@ export function getEquivalentType(
     return 'void'
   }
   if (abiTypeStr == 'AVMBytes') {
-    return ioType === 'input' ? 'Uint8Array | string' : 'Uint8Array'
+    return ioType === 'input' ? bytesOrStringType : 'Uint8Array'
   }
   if (abiTypeStr == 'AVMString') {
     return 'string'
@@ -37,7 +40,7 @@ export function getEquivalentType(
     return 'AppMethodCallTransactionArgument'
   }
   if (abiTypeStr == ABIReferenceType.account) {
-    return 'string | Uint8Array'
+    return bytesOrStringType
   }
   if (abiTypeStr == ABIReferenceType.application || abiTypeStr == ABIReferenceType.asset) {
     return 'bigint'
@@ -52,13 +55,19 @@ export function getEquivalentType(
 
   function abiTypeToTs(abiType: ABIType, ioType: 'input' | 'output'): string {
     if (abiType instanceof ABIUintType) {
-      if (abiType.bitSize < 53) return ioType === 'input' ? 'bigint | number' : 'number'
-      return ioType === 'input' ? 'bigint | number' : 'bigint'
+      if (abiType.bitSize < 53) return ioType === 'input' ? bigIntOrNumberType : 'number'
+      return ioType === 'input' ? bigIntOrNumberType : 'bigint'
     }
     if (abiType instanceof ABIArrayDynamicType) {
       if (abiType.childType instanceof ABIByteType) return 'Uint8Array'
 
       const childTsType = abiTypeToTs(abiType.childType, ioType)
+      if (childTsType === bigIntOrNumberType) {
+        return 'bigint[] | number[]'
+      } else if (childTsType === bytesOrStringType) {
+        return 'Uint8Array[] | string[]'
+      }
+
       return `${childTsType}[]`
     }
     if (abiType instanceof ABIArrayStaticType) {

@@ -94,7 +94,7 @@ export type VotingRoundAppArgs = {
       metadataIpfsCid: string
       startTime: bigint | number
       endTime: bigint | number
-      optionCounts: bigint | number[]
+      optionCounts: bigint[] | number[]
       quorum: bigint | number
       nftImageUrl: string
     }
@@ -111,18 +111,18 @@ export type VotingRoundAppArgs = {
     'vote(pay,byte[],uint8[])void': {
       fundMinBalReq: AppMethodCallTransactionArgument
       signature: Uint8Array
-      answerIds: bigint | number[]
+      answerIds: bigint[] | number[]
     }
   }
   /**
    * The tuple representation of the arguments for each method
    */
   tuple: {
-    'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void': [voteId: string, snapshotPublicKey: Uint8Array, metadataIpfsCid: string, startTime: bigint | number, endTime: bigint | number, optionCounts: bigint | number[], quorum: bigint | number, nftImageUrl: string]
+    'create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void': [voteId: string, snapshotPublicKey: Uint8Array, metadataIpfsCid: string, startTime: bigint | number, endTime: bigint | number, optionCounts: bigint[] | number[], quorum: bigint | number, nftImageUrl: string]
     'bootstrap(pay)void': [fundMinBalReq: AppMethodCallTransactionArgument]
     'close()void': []
     'get_preconditions(byte[])(uint64,uint64,uint64,uint64)': [signature: Uint8Array]
-    'vote(pay,byte[],uint8[])void': [fundMinBalReq: AppMethodCallTransactionArgument, signature: Uint8Array, answerIds: bigint | number[]]
+    'vote(pay,byte[],uint8[])void': [fundMinBalReq: AppMethodCallTransactionArgument, signature: Uint8Array, answerIds: bigint[] | number[]]
   }
 }
 
