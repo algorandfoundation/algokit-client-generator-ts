@@ -92,7 +92,7 @@ export type StateAppArgs = {
     }
     'call_with_references(asset,account,application)uint64': {
       asset: bigint
-      account: string | Uint8Array
+      account: Uint8Array | string
       application: bigint
     }
     'set_global(uint64,uint64,string,byte[4])void': {
@@ -148,7 +148,7 @@ export type StateAppArgs = {
     'call_abi_uint64_readonly(uint64)uint64': [input: bigint | number]
     'call_abi(string)string': [value: string]
     'call_abi_txn(pay,string)string': [txn: AppMethodCallTransactionArgument, value: string]
-    'call_with_references(asset,account,application)uint64': [asset: bigint, account: string | Uint8Array, application: bigint]
+    'call_with_references(asset,account,application)uint64': [asset: bigint, account: Uint8Array | string, application: bigint]
     'set_global(uint64,uint64,string,byte[4])void': [int1: bigint | number, int2: bigint | number, bytes1: string, bytes2: Uint8Array]
     'set_local(uint64,uint64,string,byte[4])void': [int1: bigint | number, int2: bigint | number, bytes1: string, bytes2: Uint8Array]
     'set_box(byte[4],string)void': [name: Uint8Array, value: string]

@@ -17,6 +17,7 @@ const testContracts = [
   'reti',
   'arc56_test',
   'nested',
+  'nfd',
 ] as const
 
 describe('When generating a ts client for a the contract', () => {
