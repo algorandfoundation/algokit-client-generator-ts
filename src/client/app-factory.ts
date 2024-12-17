@@ -270,7 +270,7 @@ function* abiMethodCallParams({
   } else {
     yield* indent(
       `const result = await this.appFactory.send.create(${name}ParamsFactory.${verb}${methodNameAccessor}(params))`,
-      `return { result: { ...result.result, return: result.result.return as undefined | ${name}Returns['${methodSigSafe}'] }, appClient: new ${name}Client(result.appClient) }`,
+      `return { result: { ...result.result, return: result.result.return as unknown as (undefined | ${name}Returns['${methodSigSafe}']) }, appClient: new ${name}Client(result.appClient) }`,
     )
   }
   yield '},'
@@ -332,13 +332,13 @@ function* deployMethod(ctx: GeneratorContext): DocumentParts {
   yield IncIndent
   yield `...params,`
   if (callConfig.createMethods.filter((m) => m !== BARE_CALL).length) {
-    yield `createParams: params.createParams?.method ? ${name}ParamsFactory.create._resolveByMethod(params.createParams) : params.createParams,`
+    yield `createParams: params.createParams?.method ? ${name}ParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (${name}CreateCallParams & { args: Uint8Array[] }) : undefined,`
   }
   if (callConfig.updateMethods.filter((m) => m !== BARE_CALL).length) {
-    yield `updateParams: params.updateParams?.method ? ${name}ParamsFactory.update._resolveByMethod(params.updateParams) : params.updateParams,`
+    yield `updateParams: params.updateParams?.method ? ${name}ParamsFactory.update._resolveByMethod(params.updateParams) : params.updateParams ? params.updateParams as (${name}UpdateCallParams & { args: Uint8Array[] }) : undefined,`
   }
   if (callConfig.deleteMethods.filter((m) => m !== BARE_CALL).length) {
-    yield `deleteParams: params.deleteParams?.method ? ${name}ParamsFactory.delete._resolveByMethod(params.deleteParams) : params.deleteParams,`
+    yield `deleteParams: params.deleteParams?.method ? ${name}ParamsFactory.delete._resolveByMethod(params.deleteParams) : params.deleteParams ? params.deleteParams as (${name}DeleteCallParams & { args: Uint8Array[] }) : undefined,`
   }
   yield DecIndent
   yield `})`

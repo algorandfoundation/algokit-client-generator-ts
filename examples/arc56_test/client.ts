@@ -406,7 +406,7 @@ export class Arc56TestFactory {
   public async deploy(params: Arc56TestDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
-      createParams: params.createParams?.method ? Arc56TestParamsFactory.create._resolveByMethod(params.createParams) : params.createParams,
+      createParams: params.createParams?.method ? Arc56TestParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (Arc56TestCreateCallParams & { args: Uint8Array[] }) : undefined,
     })
     return { result: result.result, appClient: new Arc56TestClient(result.appClient) }
   }
@@ -469,7 +469,7 @@ export class Arc56TestFactory {
        */
       createApplication: async (params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
         const result = await this.appFactory.send.create(Arc56TestParamsFactory.create.createApplication(params))
-        return { result: { ...result.result, return: result.result.return as undefined | Arc56TestReturns['createApplication()void'] }, appClient: new Arc56TestClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | Arc56TestReturns['createApplication()void']) }, appClient: new Arc56TestClient(result.appClient) }
       },
     },
 
@@ -659,7 +659,7 @@ export class Arc56TestClient {
        */
       optInToApplication: async (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']> & SendParams = {args: []}) => {
         const result = await this.appClient.send.optIn(Arc56TestParamsFactory.optIn.optInToApplication(params))
-        return {...result, return: result.return as undefined | Arc56TestReturns['optInToApplication()void']}
+        return {...result, return: result.return as unknown as (undefined | Arc56TestReturns['optInToApplication()void'])}
       },
 
     },
@@ -682,7 +682,7 @@ export class Arc56TestClient {
      */
     foo: async (params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(Arc56TestParamsFactory.foo(params))
-      return {...result, return: result.return as undefined | Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'])}
     },
 
   }

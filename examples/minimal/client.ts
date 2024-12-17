@@ -127,17 +127,17 @@ export type MethodReturn<TSignature extends AppSignatures> = AppTypes['methods']
  * Defines supported create method params for this smart contract
  */
 export type AppCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: undefined} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
 export type AppUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: undefined}
+  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines supported delete method params for this smart contract
  */
 export type AppDeleteCallParams =
-  | Expand<AppClientBareCallParams> & {method?: undefined}
+  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines arguments required for the deploy method.
  */
