@@ -1506,7 +1506,7 @@ export class ValidatorRegistryFactory {
   public async deploy(params: ValidatorRegistryDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
-      createParams: params.createParams?.method ? ValidatorRegistryParamsFactory.create._resolveByMethod(params.createParams) : params.createParams,
+      createParams: params.createParams?.method ? ValidatorRegistryParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (ValidatorRegistryCreateCallParams & { args: Uint8Array[] }) : undefined,
     })
     return { result: result.result, appClient: new ValidatorRegistryClient(result.appClient) }
   }
@@ -1569,7 +1569,7 @@ export class ValidatorRegistryFactory {
        */
       createApplication: async (params: CallParams<ValidatorRegistryArgs['obj']['createApplication()void'] | ValidatorRegistryArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
         const result = await this.appFactory.send.create(ValidatorRegistryParamsFactory.create.createApplication(params))
-        return { result: { ...result.result, return: result.result.return as undefined | ValidatorRegistryReturns['createApplication()void'] }, appClient: new ValidatorRegistryClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | ValidatorRegistryReturns['createApplication()void']) }, appClient: new ValidatorRegistryClient(result.appClient) }
       },
     },
 
@@ -2663,7 +2663,7 @@ export class ValidatorRegistryClient {
      */
     initStakingContract: async (params: CallParams<ValidatorRegistryArgs['obj']['initStakingContract(uint64)void'] | ValidatorRegistryArgs['tuple']['initStakingContract(uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.initStakingContract(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['initStakingContract(uint64)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['initStakingContract(uint64)void'])}
     },
 
     /**
@@ -2674,7 +2674,7 @@ export class ValidatorRegistryClient {
      */
     loadStakingContractData: async (params: CallParams<ValidatorRegistryArgs['obj']['loadStakingContractData(uint64,byte[])void'] | ValidatorRegistryArgs['tuple']['loadStakingContractData(uint64,byte[])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.loadStakingContractData(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['loadStakingContractData(uint64,byte[])void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['loadStakingContractData(uint64,byte[])void'])}
     },
 
     /**
@@ -2685,7 +2685,7 @@ export class ValidatorRegistryClient {
      */
     finalizeStakingContract: async (params: CallParams<ValidatorRegistryArgs['obj']['finalizeStakingContract()void'] | ValidatorRegistryArgs['tuple']['finalizeStakingContract()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.finalizeStakingContract(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['finalizeStakingContract()void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['finalizeStakingContract()void'])}
     },
 
     /**
@@ -2698,7 +2698,7 @@ export class ValidatorRegistryClient {
      */
     gas: async (params: CallParams<ValidatorRegistryArgs['obj']['gas()void'] | ValidatorRegistryArgs['tuple']['gas()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.gas(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['gas()void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['gas()void'])}
     },
 
     /**
@@ -2720,7 +2720,7 @@ export class ValidatorRegistryClient {
      */
     getMbrAmounts: async (params: CallParams<ValidatorRegistryArgs['obj']['getMbrAmounts()(uint64,uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['getMbrAmounts()(uint64,uint64,uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getMbrAmounts(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getMbrAmounts()(uint64,uint64,uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getMbrAmounts()(uint64,uint64,uint64,uint64)'])}
     },
 
     /**
@@ -2735,7 +2735,7 @@ export class ValidatorRegistryClient {
      */
     getProtocolConstraints: async (params: CallParams<ValidatorRegistryArgs['obj']['getProtocolConstraints()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['getProtocolConstraints()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getProtocolConstraints(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getProtocolConstraints()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getProtocolConstraints()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'])}
     },
 
     /**
@@ -2750,7 +2750,7 @@ export class ValidatorRegistryClient {
      */
     getNumValidators: async (params: CallParams<ValidatorRegistryArgs['obj']['getNumValidators()uint64'] | ValidatorRegistryArgs['tuple']['getNumValidators()uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNumValidators(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getNumValidators()uint64']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getNumValidators()uint64'])}
     },
 
     /**
@@ -2763,7 +2763,7 @@ export class ValidatorRegistryClient {
      */
     getValidatorConfig: async (params: CallParams<ValidatorRegistryArgs['obj']['getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getValidatorConfig(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)'])}
     },
 
     /**
@@ -2776,7 +2776,7 @@ export class ValidatorRegistryClient {
      */
     getValidatorState: async (params: CallParams<ValidatorRegistryArgs['obj']['getValidatorState(uint64)(uint16,uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['getValidatorState(uint64)(uint16,uint64,uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getValidatorState(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getValidatorState(uint64)(uint16,uint64,uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getValidatorState(uint64)(uint16,uint64,uint64,uint64)'])}
     },
 
     /**
@@ -2789,7 +2789,7 @@ export class ValidatorRegistryClient {
      */
     getValidatorOwnerAndManager: async (params: CallParams<ValidatorRegistryArgs['obj']['getValidatorOwnerAndManager(uint64)(address,address)'] | ValidatorRegistryArgs['tuple']['getValidatorOwnerAndManager(uint64)(address,address)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getValidatorOwnerAndManager(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getValidatorOwnerAndManager(uint64)(address,address)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getValidatorOwnerAndManager(uint64)(address,address)'])}
     },
 
     /**
@@ -2804,7 +2804,7 @@ export class ValidatorRegistryClient {
      */
     getPools: async (params: CallParams<ValidatorRegistryArgs['obj']['getPools(uint64)(uint64,uint16,uint64)[]'] | ValidatorRegistryArgs['tuple']['getPools(uint64)(uint64,uint16,uint64)[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getPools(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getPools(uint64)(uint64,uint16,uint64)[]']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getPools(uint64)(uint64,uint16,uint64)[]'])}
     },
 
     /**
@@ -2822,7 +2822,7 @@ export class ValidatorRegistryClient {
      */
     getPoolAppId: async (params: CallParams<ValidatorRegistryArgs['obj']['getPoolAppId(uint64,uint64)uint64'] | ValidatorRegistryArgs['tuple']['getPoolAppId(uint64,uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getPoolAppId(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getPoolAppId(uint64,uint64)uint64']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getPoolAppId(uint64,uint64)uint64'])}
     },
 
     /**
@@ -2835,7 +2835,7 @@ export class ValidatorRegistryClient {
      */
     getPoolInfo: async (params: CallParams<ValidatorRegistryArgs['obj']['getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)'] | ValidatorRegistryArgs['tuple']['getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getPoolInfo(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)'])}
     },
 
     /**
@@ -2853,7 +2853,7 @@ export class ValidatorRegistryClient {
      */
     getCurMaxStakePerPool: async (params: CallParams<ValidatorRegistryArgs['obj']['getCurMaxStakePerPool(uint64)uint64'] | ValidatorRegistryArgs['tuple']['getCurMaxStakePerPool(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getCurMaxStakePerPool(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getCurMaxStakePerPool(uint64)uint64']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getCurMaxStakePerPool(uint64)uint64'])}
     },
 
     /**
@@ -2868,7 +2868,7 @@ export class ValidatorRegistryClient {
      */
     doesStakerNeedToPayMbr: async (params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMbr(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['doesStakerNeedToPayMBR(address)bool']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['doesStakerNeedToPayMBR(address)bool'])}
     },
 
     /**
@@ -2883,7 +2883,7 @@ export class ValidatorRegistryClient {
      */
     getStakedPoolsForAccount: async (params: CallParams<ValidatorRegistryArgs['obj']['getStakedPoolsForAccount(address)(uint64,uint64,uint64)[]'] | ValidatorRegistryArgs['tuple']['getStakedPoolsForAccount(address)(uint64,uint64,uint64)[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getStakedPoolsForAccount(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getStakedPoolsForAccount(address)(uint64,uint64,uint64)[]']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getStakedPoolsForAccount(address)(uint64,uint64,uint64)[]'])}
     },
 
     /**
@@ -2900,7 +2900,7 @@ export class ValidatorRegistryClient {
      */
     getTokenPayoutRatio: async (params: CallParams<ValidatorRegistryArgs['obj']['getTokenPayoutRatio(uint64)(uint64[24],uint64)'] | ValidatorRegistryArgs['tuple']['getTokenPayoutRatio(uint64)(uint64[24],uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getTokenPayoutRatio(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getTokenPayoutRatio(uint64)(uint64[24],uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getTokenPayoutRatio(uint64)(uint64[24],uint64)'])}
     },
 
     /**
@@ -2913,7 +2913,7 @@ export class ValidatorRegistryClient {
      */
     getNodePoolAssignments: async (params: CallParams<ValidatorRegistryArgs['obj']['getNodePoolAssignments(uint64)((uint64[3])[8])'] | ValidatorRegistryArgs['tuple']['getNodePoolAssignments(uint64)((uint64[3])[8])']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNodePoolAssignments(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getNodePoolAssignments(uint64)((uint64[3])[8])']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getNodePoolAssignments(uint64)((uint64[3])[8])'])}
     },
 
     /**
@@ -2926,7 +2926,7 @@ export class ValidatorRegistryClient {
      */
     getNfdRegistryId: async (params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNfdRegistryId(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['getNFDRegistryID()uint64']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getNFDRegistryID()uint64'])}
     },
 
     /**
@@ -2941,7 +2941,7 @@ export class ValidatorRegistryClient {
      */
     addValidator: async (params: CallParams<ValidatorRegistryArgs['obj']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64'] | ValidatorRegistryArgs['tuple']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.addValidator(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64'])}
     },
 
     /**
@@ -2956,7 +2956,7 @@ export class ValidatorRegistryClient {
      */
     changeValidatorManager: async (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorManager(uint64,address)void'] | ValidatorRegistryArgs['tuple']['changeValidatorManager(uint64,address)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.changeValidatorManager(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['changeValidatorManager(uint64,address)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['changeValidatorManager(uint64,address)void'])}
     },
 
     /**
@@ -2971,7 +2971,7 @@ export class ValidatorRegistryClient {
      */
     changeValidatorSunsetInfo: async (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorSunsetInfo(uint64,uint64,uint64)void'] | ValidatorRegistryArgs['tuple']['changeValidatorSunsetInfo(uint64,uint64,uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.changeValidatorSunsetInfo(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['changeValidatorSunsetInfo(uint64,uint64,uint64)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['changeValidatorSunsetInfo(uint64,uint64,uint64)void'])}
     },
 
     /**
@@ -2986,7 +2986,7 @@ export class ValidatorRegistryClient {
      */
     changeValidatorNfd: async (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.changeValidatorNfd(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['changeValidatorNFD(uint64,uint64,string)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['changeValidatorNFD(uint64,uint64,string)void'])}
     },
 
     /**
@@ -3001,7 +3001,7 @@ export class ValidatorRegistryClient {
      */
     changeValidatorCommissionAddress: async (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorCommissionAddress(uint64,address)void'] | ValidatorRegistryArgs['tuple']['changeValidatorCommissionAddress(uint64,address)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.changeValidatorCommissionAddress(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['changeValidatorCommissionAddress(uint64,address)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['changeValidatorCommissionAddress(uint64,address)void'])}
     },
 
     /**
@@ -3016,7 +3016,7 @@ export class ValidatorRegistryClient {
      */
     changeValidatorRewardInfo: async (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorRewardInfo(uint64,uint8,address,uint64[4],uint64,uint64)void'] | ValidatorRegistryArgs['tuple']['changeValidatorRewardInfo(uint64,uint8,address,uint64[4],uint64,uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.changeValidatorRewardInfo(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['changeValidatorRewardInfo(uint64,uint8,address,uint64[4],uint64,uint64)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['changeValidatorRewardInfo(uint64,uint8,address,uint64[4],uint64,uint64)void'])}
     },
 
     /**
@@ -3034,7 +3034,7 @@ export class ValidatorRegistryClient {
      */
     addPool: async (params: CallParams<ValidatorRegistryArgs['obj']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.addPool(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['addPool(pay,uint64,uint64)(uint64,uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['addPool(pay,uint64,uint64)(uint64,uint64,uint64)'])}
     },
 
     /**
@@ -3047,7 +3047,7 @@ export class ValidatorRegistryClient {
      */
     addStake: async (params: CallParams<ValidatorRegistryArgs['obj']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.addStake(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['addStake(pay,uint64,uint64)(uint64,uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['addStake(pay,uint64,uint64)(uint64,uint64,uint64)'])}
     },
 
     /**
@@ -3071,7 +3071,7 @@ export class ValidatorRegistryClient {
      */
     setTokenPayoutRatio: async (params: CallParams<ValidatorRegistryArgs['obj']['setTokenPayoutRatio(uint64)(uint64[24],uint64)'] | ValidatorRegistryArgs['tuple']['setTokenPayoutRatio(uint64)(uint64[24],uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.setTokenPayoutRatio(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['setTokenPayoutRatio(uint64)(uint64[24],uint64)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['setTokenPayoutRatio(uint64)(uint64[24],uint64)'])}
     },
 
     /**
@@ -3087,7 +3087,7 @@ export class ValidatorRegistryClient {
      */
     stakeUpdatedViaRewards: async (params: CallParams<ValidatorRegistryArgs['obj']['stakeUpdatedViaRewards((uint64,uint64,uint64),uint64,uint64,uint64,uint64)void'] | ValidatorRegistryArgs['tuple']['stakeUpdatedViaRewards((uint64,uint64,uint64),uint64,uint64,uint64,uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.stakeUpdatedViaRewards(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['stakeUpdatedViaRewards((uint64,uint64,uint64),uint64,uint64,uint64,uint64)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['stakeUpdatedViaRewards((uint64,uint64,uint64),uint64,uint64,uint64,uint64)void'])}
     },
 
     /**
@@ -3104,7 +3104,7 @@ export class ValidatorRegistryClient {
      */
     stakeRemoved: async (params: CallParams<ValidatorRegistryArgs['obj']['stakeRemoved((uint64,uint64,uint64),address,uint64,uint64,bool)void'] | ValidatorRegistryArgs['tuple']['stakeRemoved((uint64,uint64,uint64),address,uint64,uint64,bool)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.stakeRemoved(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['stakeRemoved((uint64,uint64,uint64),address,uint64,uint64,bool)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['stakeRemoved((uint64,uint64,uint64),address,uint64,uint64,bool)void'])}
     },
 
     /**
@@ -3124,7 +3124,7 @@ export class ValidatorRegistryClient {
      */
     findPoolForStaker: async (params: CallParams<ValidatorRegistryArgs['obj']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)'] | ValidatorRegistryArgs['tuple']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.findPoolForStaker(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)'])}
     },
 
     /**
@@ -3142,7 +3142,7 @@ export class ValidatorRegistryClient {
      */
     movePoolToNode: async (params: CallParams<ValidatorRegistryArgs['obj']['movePoolToNode(uint64,uint64,uint64)void'] | ValidatorRegistryArgs['tuple']['movePoolToNode(uint64,uint64,uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.movePoolToNode(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['movePoolToNode(uint64,uint64,uint64)void']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['movePoolToNode(uint64,uint64,uint64)void'])}
     },
 
     /**
@@ -3160,7 +3160,7 @@ export class ValidatorRegistryClient {
      */
     emptyTokenRewards: async (params: CallParams<ValidatorRegistryArgs['obj']['emptyTokenRewards(uint64,address)uint64'] | ValidatorRegistryArgs['tuple']['emptyTokenRewards(uint64,address)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.emptyTokenRewards(params))
-      return {...result, return: result.return as undefined | ValidatorRegistryReturns['emptyTokenRewards(uint64,address)uint64']}
+      return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['emptyTokenRewards(uint64,address)uint64'])}
     },
 
   }
@@ -3194,7 +3194,7 @@ export class ValidatorRegistryClient {
    */
   async getMbrAmounts(params: CallParams<ValidatorRegistryArgs['obj']['getMbrAmounts()(uint64,uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['getMbrAmounts()(uint64,uint64,uint64,uint64)']> = {args: []}) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getMbrAmounts(params))
-    return result.return as ValidatorRegistryReturns['getMbrAmounts()(uint64,uint64,uint64,uint64)']
+    return result.return as unknown as ValidatorRegistryReturns['getMbrAmounts()(uint64,uint64,uint64,uint64)']
   }
 
   /**
@@ -3209,7 +3209,7 @@ export class ValidatorRegistryClient {
    */
   async getProtocolConstraints(params: CallParams<ValidatorRegistryArgs['obj']['getProtocolConstraints()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['getProtocolConstraints()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']> = {args: []}) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getProtocolConstraints(params))
-    return result.return as ValidatorRegistryReturns['getProtocolConstraints()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']
+    return result.return as unknown as ValidatorRegistryReturns['getProtocolConstraints()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']
   }
 
   /**
@@ -3224,7 +3224,7 @@ export class ValidatorRegistryClient {
    */
   async getNumValidators(params: CallParams<ValidatorRegistryArgs['obj']['getNumValidators()uint64'] | ValidatorRegistryArgs['tuple']['getNumValidators()uint64']> = {args: []}) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNumValidators(params))
-    return result.return as ValidatorRegistryReturns['getNumValidators()uint64']
+    return result.return as unknown as ValidatorRegistryReturns['getNumValidators()uint64']
   }
 
   /**
@@ -3237,7 +3237,7 @@ export class ValidatorRegistryClient {
    */
   async getValidatorConfig(params: CallParams<ValidatorRegistryArgs['obj']['getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getValidatorConfig(params))
-    return result.return as ValidatorRegistryReturns['getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)']
+    return result.return as unknown as ValidatorRegistryReturns['getValidatorConfig(uint64)(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64)']
   }
 
   /**
@@ -3250,7 +3250,7 @@ export class ValidatorRegistryClient {
    */
   async getValidatorState(params: CallParams<ValidatorRegistryArgs['obj']['getValidatorState(uint64)(uint16,uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['getValidatorState(uint64)(uint16,uint64,uint64,uint64)']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getValidatorState(params))
-    return result.return as ValidatorRegistryReturns['getValidatorState(uint64)(uint16,uint64,uint64,uint64)']
+    return result.return as unknown as ValidatorRegistryReturns['getValidatorState(uint64)(uint16,uint64,uint64,uint64)']
   }
 
   /**
@@ -3263,7 +3263,7 @@ export class ValidatorRegistryClient {
    */
   async getValidatorOwnerAndManager(params: CallParams<ValidatorRegistryArgs['obj']['getValidatorOwnerAndManager(uint64)(address,address)'] | ValidatorRegistryArgs['tuple']['getValidatorOwnerAndManager(uint64)(address,address)']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getValidatorOwnerAndManager(params))
-    return result.return as ValidatorRegistryReturns['getValidatorOwnerAndManager(uint64)(address,address)']
+    return result.return as unknown as ValidatorRegistryReturns['getValidatorOwnerAndManager(uint64)(address,address)']
   }
 
   /**
@@ -3278,7 +3278,7 @@ export class ValidatorRegistryClient {
    */
   async getPools(params: CallParams<ValidatorRegistryArgs['obj']['getPools(uint64)(uint64,uint16,uint64)[]'] | ValidatorRegistryArgs['tuple']['getPools(uint64)(uint64,uint16,uint64)[]']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getPools(params))
-    return result.return as ValidatorRegistryReturns['getPools(uint64)(uint64,uint16,uint64)[]']
+    return result.return as unknown as ValidatorRegistryReturns['getPools(uint64)(uint64,uint16,uint64)[]']
   }
 
   /**
@@ -3296,7 +3296,7 @@ export class ValidatorRegistryClient {
    */
   async getPoolAppId(params: CallParams<ValidatorRegistryArgs['obj']['getPoolAppId(uint64,uint64)uint64'] | ValidatorRegistryArgs['tuple']['getPoolAppId(uint64,uint64)uint64']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getPoolAppId(params))
-    return result.return as ValidatorRegistryReturns['getPoolAppId(uint64,uint64)uint64']
+    return result.return as unknown as ValidatorRegistryReturns['getPoolAppId(uint64,uint64)uint64']
   }
 
   /**
@@ -3309,7 +3309,7 @@ export class ValidatorRegistryClient {
    */
   async getPoolInfo(params: CallParams<ValidatorRegistryArgs['obj']['getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)'] | ValidatorRegistryArgs['tuple']['getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getPoolInfo(params))
-    return result.return as ValidatorRegistryReturns['getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)']
+    return result.return as unknown as ValidatorRegistryReturns['getPoolInfo((uint64,uint64,uint64))(uint64,uint16,uint64)']
   }
 
   /**
@@ -3327,7 +3327,7 @@ export class ValidatorRegistryClient {
    */
   async getCurMaxStakePerPool(params: CallParams<ValidatorRegistryArgs['obj']['getCurMaxStakePerPool(uint64)uint64'] | ValidatorRegistryArgs['tuple']['getCurMaxStakePerPool(uint64)uint64']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getCurMaxStakePerPool(params))
-    return result.return as ValidatorRegistryReturns['getCurMaxStakePerPool(uint64)uint64']
+    return result.return as unknown as ValidatorRegistryReturns['getCurMaxStakePerPool(uint64)uint64']
   }
 
   /**
@@ -3342,7 +3342,7 @@ export class ValidatorRegistryClient {
    */
   async doesStakerNeedToPayMbr(params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMbr(params))
-    return result.return as ValidatorRegistryReturns['doesStakerNeedToPayMBR(address)bool']
+    return result.return as unknown as ValidatorRegistryReturns['doesStakerNeedToPayMBR(address)bool']
   }
 
   /**
@@ -3357,7 +3357,7 @@ export class ValidatorRegistryClient {
    */
   async getStakedPoolsForAccount(params: CallParams<ValidatorRegistryArgs['obj']['getStakedPoolsForAccount(address)(uint64,uint64,uint64)[]'] | ValidatorRegistryArgs['tuple']['getStakedPoolsForAccount(address)(uint64,uint64,uint64)[]']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getStakedPoolsForAccount(params))
-    return result.return as ValidatorRegistryReturns['getStakedPoolsForAccount(address)(uint64,uint64,uint64)[]']
+    return result.return as unknown as ValidatorRegistryReturns['getStakedPoolsForAccount(address)(uint64,uint64,uint64)[]']
   }
 
   /**
@@ -3374,7 +3374,7 @@ export class ValidatorRegistryClient {
    */
   async getTokenPayoutRatio(params: CallParams<ValidatorRegistryArgs['obj']['getTokenPayoutRatio(uint64)(uint64[24],uint64)'] | ValidatorRegistryArgs['tuple']['getTokenPayoutRatio(uint64)(uint64[24],uint64)']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getTokenPayoutRatio(params))
-    return result.return as ValidatorRegistryReturns['getTokenPayoutRatio(uint64)(uint64[24],uint64)']
+    return result.return as unknown as ValidatorRegistryReturns['getTokenPayoutRatio(uint64)(uint64[24],uint64)']
   }
 
   /**
@@ -3387,7 +3387,7 @@ export class ValidatorRegistryClient {
    */
   async getNodePoolAssignments(params: CallParams<ValidatorRegistryArgs['obj']['getNodePoolAssignments(uint64)((uint64[3])[8])'] | ValidatorRegistryArgs['tuple']['getNodePoolAssignments(uint64)((uint64[3])[8])']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNodePoolAssignments(params))
-    return result.return as ValidatorRegistryReturns['getNodePoolAssignments(uint64)((uint64[3])[8])']
+    return result.return as unknown as ValidatorRegistryReturns['getNodePoolAssignments(uint64)((uint64[3])[8])']
   }
 
   /**
@@ -3400,7 +3400,7 @@ export class ValidatorRegistryClient {
    */
   async getNfdRegistryId(params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> = {args: []}) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNfdRegistryId(params))
-    return result.return as ValidatorRegistryReturns['getNFDRegistryID()uint64']
+    return result.return as unknown as ValidatorRegistryReturns['getNFDRegistryID()uint64']
   }
 
   /**
@@ -3420,7 +3420,7 @@ export class ValidatorRegistryClient {
    */
   async findPoolForStaker(params: CallParams<ValidatorRegistryArgs['obj']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)'] | ValidatorRegistryArgs['tuple']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.findPoolForStaker(params))
-    return result.return as ValidatorRegistryReturns['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']
+    return result.return as unknown as ValidatorRegistryReturns['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']
   }
 
   /**

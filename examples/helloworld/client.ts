@@ -147,17 +147,17 @@ export type MethodReturn<TSignature extends HelloWorldAppSignatures> = HelloWorl
  * Defines supported create method params for this smart contract
  */
 export type HelloWorldAppCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: undefined} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
 export type HelloWorldAppUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: undefined}
+  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines supported delete method params for this smart contract
  */
 export type HelloWorldAppDeleteCallParams =
-  | Expand<AppClientBareCallParams> & {method?: undefined}
+  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines arguments required for the deploy method.
  */
@@ -661,7 +661,7 @@ export class HelloWorldAppClient {
      */
     hello: async (params: CallParams<HelloWorldAppArgs['obj']['hello(string)string'] | HelloWorldAppArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(HelloWorldAppParamsFactory.hello(params))
-      return {...result, return: result.return as undefined | HelloWorldAppReturns['hello(string)string']}
+      return {...result, return: result.return as unknown as (undefined | HelloWorldAppReturns['hello(string)string'])}
     },
 
     /**
@@ -674,7 +674,7 @@ export class HelloWorldAppClient {
      */
     helloWorldCheck: async (params: CallParams<HelloWorldAppArgs['obj']['hello_world_check(string)void'] | HelloWorldAppArgs['tuple']['hello_world_check(string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(HelloWorldAppParamsFactory.helloWorldCheck(params))
-      return {...result, return: result.return as undefined | HelloWorldAppReturns['hello_world_check(string)void']}
+      return {...result, return: result.return as unknown as (undefined | HelloWorldAppReturns['hello_world_check(string)void'])}
     },
 
   }

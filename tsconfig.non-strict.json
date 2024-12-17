@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "preserveSymlinks": true,
+    "strict": false
+  },
+  "include": ["src/**/*.ts", "rollup.config.ts", "examples/**/*.ts"],
+  "exclude": ["examples/**/*.algo.ts"]
+}

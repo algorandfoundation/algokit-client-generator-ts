@@ -367,21 +367,21 @@ export type LocalKeysState = StateAppTypes['state']['local']['keys']
  * Defines supported create method params for this smart contract
  */
 export type StateAppCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: undefined} & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC} & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC} & CreateSchema>
   | Expand<CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & {method: 'create_abi'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
   | Expand<CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & {method: 'create_abi(string)string'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
 export type StateAppUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: undefined}
+  | Expand<AppClientBareCallParams> & {method?: never}
   | Expand<CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & {method: 'update_abi'}>
   | Expand<CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & {method: 'update_abi(string)string'}>
 /**
  * Defines supported delete method params for this smart contract
  */
 export type StateAppDeleteCallParams =
-  | Expand<AppClientBareCallParams> & {method?: undefined}
+  | Expand<AppClientBareCallParams> & {method?: never}
   | Expand<CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']> & {method: 'delete_abi'}>
   | Expand<CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']> & {method: 'delete_abi(string)string'}>
 /**
@@ -800,9 +800,9 @@ export class StateAppFactory {
   public async deploy(params: StateAppDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
-      createParams: params.createParams?.method ? StateAppParamsFactory.create._resolveByMethod(params.createParams) : params.createParams,
-      updateParams: params.updateParams?.method ? StateAppParamsFactory.update._resolveByMethod(params.updateParams) : params.updateParams,
-      deleteParams: params.deleteParams?.method ? StateAppParamsFactory.delete._resolveByMethod(params.deleteParams) : params.deleteParams,
+      createParams: params.createParams?.method ? StateAppParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (StateAppCreateCallParams & { args: Uint8Array[] }) : undefined,
+      updateParams: params.updateParams?.method ? StateAppParamsFactory.update._resolveByMethod(params.updateParams) : params.updateParams ? params.updateParams as (StateAppUpdateCallParams & { args: Uint8Array[] }) : undefined,
+      deleteParams: params.deleteParams?.method ? StateAppParamsFactory.delete._resolveByMethod(params.deleteParams) : params.deleteParams ? params.deleteParams as (StateAppDeleteCallParams & { args: Uint8Array[] }) : undefined,
     })
     return { result: result.result, appClient: new StateAppClient(result.appClient) }
   }
@@ -941,7 +941,7 @@ export class StateAppFactory {
        */
       createAbi: async (params: CallParams<StateAppArgs['obj']['create_abi(string)string'] | StateAppArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         const result = await this.appFactory.send.create(StateAppParamsFactory.create.createAbi(params))
-        return { result: { ...result.result, return: result.result.return as undefined | StateAppReturns['create_abi(string)string'] }, appClient: new StateAppClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | StateAppReturns['create_abi(string)string']) }, appClient: new StateAppClient(result.appClient) }
       },
     },
 
@@ -1580,7 +1580,7 @@ export class StateAppClient {
        */
       updateAbi: async (params: CallParams<StateAppArgs['obj']['update_abi(string)string'] | StateAppArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams & SendParams) => {
         const result = await this.appClient.send.update(StateAppParamsFactory.update.updateAbi(params))
-        return {...result, return: result.return as undefined | StateAppReturns['update_abi(string)string']}
+        return {...result, return: result.return as unknown as (undefined | StateAppReturns['update_abi(string)string'])}
       },
 
     },
@@ -1606,7 +1606,7 @@ export class StateAppClient {
        */
       deleteAbi: async (params: CallParams<StateAppArgs['obj']['delete_abi(string)string'] | StateAppArgs['tuple']['delete_abi(string)string']> & SendParams) => {
         const result = await this.appClient.send.delete(StateAppParamsFactory.delete.deleteAbi(params))
-        return {...result, return: result.return as undefined | StateAppReturns['delete_abi(string)string']}
+        return {...result, return: result.return as unknown as (undefined | StateAppReturns['delete_abi(string)string'])}
       },
 
     },
@@ -1623,7 +1623,7 @@ export class StateAppClient {
        */
       optIn: async (params: CallParams<StateAppArgs['obj']['opt_in()void'] | StateAppArgs['tuple']['opt_in()void']> & SendParams = {args: []}) => {
         const result = await this.appClient.send.optIn(StateAppParamsFactory.optIn.optIn(params))
-        return {...result, return: result.return as undefined | StateAppReturns['opt_in()void']}
+        return {...result, return: result.return as unknown as (undefined | StateAppReturns['opt_in()void'])}
       },
 
     },
@@ -1646,7 +1646,7 @@ export class StateAppClient {
      */
     callAbiUint32: async (params: CallParams<StateAppArgs['obj']['call_abi_uint32(uint32)uint32'] | StateAppArgs['tuple']['call_abi_uint32(uint32)uint32']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callAbiUint32(params))
-      return {...result, return: result.return as undefined | StateAppReturns['call_abi_uint32(uint32)uint32']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['call_abi_uint32(uint32)uint32'])}
     },
 
     /**
@@ -1659,7 +1659,7 @@ export class StateAppClient {
      */
     callAbiUint32Readonly: async (params: CallParams<StateAppArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateAppArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callAbiUint32Readonly(params))
-      return {...result, return: result.return as undefined | StateAppReturns['call_abi_uint32_readonly(uint32)uint32']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['call_abi_uint32_readonly(uint32)uint32'])}
     },
 
     /**
@@ -1670,7 +1670,7 @@ export class StateAppClient {
      */
     callAbiUint64: async (params: CallParams<StateAppArgs['obj']['call_abi_uint64(uint64)uint64'] | StateAppArgs['tuple']['call_abi_uint64(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callAbiUint64(params))
-      return {...result, return: result.return as undefined | StateAppReturns['call_abi_uint64(uint64)uint64']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['call_abi_uint64(uint64)uint64'])}
     },
 
     /**
@@ -1683,7 +1683,7 @@ export class StateAppClient {
      */
     callAbiUint64Readonly: async (params: CallParams<StateAppArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateAppArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callAbiUint64Readonly(params))
-      return {...result, return: result.return as undefined | StateAppReturns['call_abi_uint64_readonly(uint64)uint64']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['call_abi_uint64_readonly(uint64)uint64'])}
     },
 
     /**
@@ -1696,7 +1696,7 @@ export class StateAppClient {
      */
     callAbi: async (params: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callAbi(params))
-      return {...result, return: result.return as undefined | StateAppReturns['call_abi(string)string']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['call_abi(string)string'])}
     },
 
     /**
@@ -1709,7 +1709,7 @@ export class StateAppClient {
      */
     callAbiTxn: async (params: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callAbiTxn(params))
-      return {...result, return: result.return as undefined | StateAppReturns['call_abi_txn(pay,string)string']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['call_abi_txn(pay,string)string'])}
     },
 
     /**
@@ -1720,7 +1720,7 @@ export class StateAppClient {
      */
     callWithReferences: async (params: CallParams<StateAppArgs['obj']['call_with_references(asset,account,application)uint64'] | StateAppArgs['tuple']['call_with_references(asset,account,application)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.callWithReferences(params))
-      return {...result, return: result.return as undefined | StateAppReturns['call_with_references(asset,account,application)uint64']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['call_with_references(asset,account,application)uint64'])}
     },
 
     /**
@@ -1731,7 +1731,7 @@ export class StateAppClient {
      */
     setGlobal: async (params: CallParams<StateAppArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.setGlobal(params))
-      return {...result, return: result.return as undefined | StateAppReturns['set_global(uint64,uint64,string,byte[4])void']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['set_global(uint64,uint64,string,byte[4])void'])}
     },
 
     /**
@@ -1742,7 +1742,7 @@ export class StateAppClient {
      */
     setLocal: async (params: CallParams<StateAppArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateAppArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.setLocal(params))
-      return {...result, return: result.return as undefined | StateAppReturns['set_local(uint64,uint64,string,byte[4])void']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['set_local(uint64,uint64,string,byte[4])void'])}
     },
 
     /**
@@ -1753,7 +1753,7 @@ export class StateAppClient {
      */
     setBox: async (params: CallParams<StateAppArgs['obj']['set_box(byte[4],string)void'] | StateAppArgs['tuple']['set_box(byte[4],string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.setBox(params))
-      return {...result, return: result.return as undefined | StateAppReturns['set_box(byte[4],string)void']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['set_box(byte[4],string)void'])}
     },
 
     /**
@@ -1766,7 +1766,7 @@ export class StateAppClient {
      */
     error: async (params: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.error(params))
-      return {...result, return: result.return as undefined | StateAppReturns['error()void']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['error()void'])}
     },
 
     /**
@@ -1779,7 +1779,7 @@ export class StateAppClient {
      */
     defaultValue: async (params: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValue(params))
-      return {...result, return: result.return as undefined | StateAppReturns['default_value(string)string']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['default_value(string)string'])}
     },
 
     /**
@@ -1792,7 +1792,7 @@ export class StateAppClient {
      */
     defaultValueInt: async (params: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueInt(params))
-      return {...result, return: result.return as undefined | StateAppReturns['default_value_int(uint64)uint64']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['default_value_int(uint64)uint64'])}
     },
 
     /**
@@ -1805,7 +1805,7 @@ export class StateAppClient {
      */
     defaultValueFromAbi: async (params: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromAbi(params))
-      return {...result, return: result.return as undefined | StateAppReturns['default_value_from_abi(string)string']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['default_value_from_abi(string)string'])}
     },
 
     /**
@@ -1818,7 +1818,7 @@ export class StateAppClient {
      */
     defaultValueFromGlobalState: async (params: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
-      return {...result, return: result.return as undefined | StateAppReturns['default_value_from_global_state(uint64)uint64']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['default_value_from_global_state(uint64)uint64'])}
     },
 
     /**
@@ -1831,7 +1831,7 @@ export class StateAppClient {
      */
     defaultValueFromLocalState: async (params: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
       const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromLocalState(params))
-      return {...result, return: result.return as undefined | StateAppReturns['default_value_from_local_state(string)string']}
+      return {...result, return: result.return as unknown as (undefined | StateAppReturns['default_value_from_local_state(string)string'])}
     },
 
   }
@@ -1856,7 +1856,7 @@ export class StateAppClient {
    */
   async callAbiUint32Readonly(params: CallParams<StateAppArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateAppArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']>) {
     const result = await this.appClient.send.call(StateAppParamsFactory.callAbiUint32Readonly(params))
-    return result.return as StateAppReturns['call_abi_uint32_readonly(uint32)uint32']
+    return result.return as unknown as StateAppReturns['call_abi_uint32_readonly(uint32)uint32']
   }
 
   /**
@@ -1869,7 +1869,7 @@ export class StateAppClient {
    */
   async callAbiUint64Readonly(params: CallParams<StateAppArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateAppArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']>) {
     const result = await this.appClient.send.call(StateAppParamsFactory.callAbiUint64Readonly(params))
-    return result.return as StateAppReturns['call_abi_uint64_readonly(uint64)uint64']
+    return result.return as unknown as StateAppReturns['call_abi_uint64_readonly(uint64)uint64']
   }
 
   /**
@@ -1882,7 +1882,7 @@ export class StateAppClient {
    */
   async callAbi(params: CallParams<StateAppArgs['obj']['call_abi(string)string'] | StateAppArgs['tuple']['call_abi(string)string']>) {
     const result = await this.appClient.send.call(StateAppParamsFactory.callAbi(params))
-    return result.return as StateAppReturns['call_abi(string)string']
+    return result.return as unknown as StateAppReturns['call_abi(string)string']
   }
 
   /**
@@ -1895,7 +1895,7 @@ export class StateAppClient {
    */
   async callAbiTxn(params: CallParams<StateAppArgs['obj']['call_abi_txn(pay,string)string'] | StateAppArgs['tuple']['call_abi_txn(pay,string)string']>) {
     const result = await this.appClient.send.call(StateAppParamsFactory.callAbiTxn(params))
-    return result.return as StateAppReturns['call_abi_txn(pay,string)string']
+    return result.return as unknown as StateAppReturns['call_abi_txn(pay,string)string']
   }
 
   /**
@@ -1908,7 +1908,7 @@ export class StateAppClient {
    */
   async error(params: CallParams<StateAppArgs['obj']['error()void'] | StateAppArgs['tuple']['error()void']> = {args: []}) {
     const result = await this.appClient.send.call(StateAppParamsFactory.error(params))
-    return result.return as StateAppReturns['error()void']
+    return result.return as unknown as StateAppReturns['error()void']
   }
 
   /**
@@ -1921,7 +1921,7 @@ export class StateAppClient {
    */
   async defaultValue(params: CallParams<StateAppArgs['obj']['default_value(string)string'] | StateAppArgs['tuple']['default_value(string)string']> = {args: [undefined]}) {
     const result = await this.appClient.send.call(StateAppParamsFactory.defaultValue(params))
-    return result.return as StateAppReturns['default_value(string)string']
+    return result.return as unknown as StateAppReturns['default_value(string)string']
   }
 
   /**
@@ -1934,7 +1934,7 @@ export class StateAppClient {
    */
   async defaultValueInt(params: CallParams<StateAppArgs['obj']['default_value_int(uint64)uint64'] | StateAppArgs['tuple']['default_value_int(uint64)uint64']> = {args: [undefined]}) {
     const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueInt(params))
-    return result.return as StateAppReturns['default_value_int(uint64)uint64']
+    return result.return as unknown as StateAppReturns['default_value_int(uint64)uint64']
   }
 
   /**
@@ -1947,7 +1947,7 @@ export class StateAppClient {
    */
   async defaultValueFromAbi(params: CallParams<StateAppArgs['obj']['default_value_from_abi(string)string'] | StateAppArgs['tuple']['default_value_from_abi(string)string']> = {args: [undefined]}) {
     const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromAbi(params))
-    return result.return as StateAppReturns['default_value_from_abi(string)string']
+    return result.return as unknown as StateAppReturns['default_value_from_abi(string)string']
   }
 
   /**
@@ -1960,7 +1960,7 @@ export class StateAppClient {
    */
   async defaultValueFromGlobalState(params: CallParams<StateAppArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateAppArgs['tuple']['default_value_from_global_state(uint64)uint64']> = {args: [undefined]}) {
     const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromGlobalState(params))
-    return result.return as StateAppReturns['default_value_from_global_state(uint64)uint64']
+    return result.return as unknown as StateAppReturns['default_value_from_global_state(uint64)uint64']
   }
 
   /**
@@ -1973,7 +1973,7 @@ export class StateAppClient {
    */
   async defaultValueFromLocalState(params: CallParams<StateAppArgs['obj']['default_value_from_local_state(string)string'] | StateAppArgs['tuple']['default_value_from_local_state(string)string']> = {args: [undefined]}) {
     const result = await this.appClient.send.call(StateAppParamsFactory.defaultValueFromLocalState(params))
-    return result.return as StateAppReturns['default_value_from_local_state(string)string']
+    return result.return as unknown as StateAppReturns['default_value_from_local_state(string)string']
   }
 
   /**

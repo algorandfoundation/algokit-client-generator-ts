@@ -280,7 +280,7 @@ export type VotingRoundAppCreateCallParams =
  * Defines supported delete method params for this smart contract
  */
 export type VotingRoundAppDeleteCallParams =
-  | Expand<AppClientBareCallParams> & {method?: undefined}
+  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines arguments required for the deploy method.
  */
@@ -458,7 +458,7 @@ export class VotingRoundAppFactory {
   public async deploy(params: VotingRoundAppDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
-      createParams: params.createParams?.method ? VotingRoundAppParamsFactory.create._resolveByMethod(params.createParams) : params.createParams,
+      createParams: params.createParams?.method ? VotingRoundAppParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (VotingRoundAppCreateCallParams & { args: Uint8Array[] }) : undefined,
     })
     return { result: result.result, appClient: new VotingRoundAppClient(result.appClient) }
   }
@@ -536,7 +536,7 @@ export class VotingRoundAppFactory {
        */
       create: async (params: CallParams<VotingRoundAppArgs['obj']['create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'] | VotingRoundAppArgs['tuple']['create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         const result = await this.appFactory.send.create(VotingRoundAppParamsFactory.create.create(params))
-        return { result: { ...result.result, return: result.result.return as undefined | VotingRoundAppReturns['create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void'] }, appClient: new VotingRoundAppClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | VotingRoundAppReturns['create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void']) }, appClient: new VotingRoundAppClient(result.appClient) }
       },
     },
 
@@ -813,7 +813,7 @@ export class VotingRoundAppClient {
      */
     bootstrap: async (params: CallParams<VotingRoundAppArgs['obj']['bootstrap(pay)void'] | VotingRoundAppArgs['tuple']['bootstrap(pay)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(VotingRoundAppParamsFactory.bootstrap(params))
-      return {...result, return: result.return as undefined | VotingRoundAppReturns['bootstrap(pay)void']}
+      return {...result, return: result.return as unknown as (undefined | VotingRoundAppReturns['bootstrap(pay)void'])}
     },
 
     /**
@@ -824,7 +824,7 @@ export class VotingRoundAppClient {
      */
     close: async (params: CallParams<VotingRoundAppArgs['obj']['close()void'] | VotingRoundAppArgs['tuple']['close()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(VotingRoundAppParamsFactory.close(params))
-      return {...result, return: result.return as undefined | VotingRoundAppReturns['close()void']}
+      return {...result, return: result.return as unknown as (undefined | VotingRoundAppReturns['close()void'])}
     },
 
     /**
@@ -839,7 +839,7 @@ export class VotingRoundAppClient {
      */
     getPreconditions: async (params: CallParams<VotingRoundAppArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundAppArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(VotingRoundAppParamsFactory.getPreconditions(params))
-      return {...result, return: result.return as undefined | VotingRoundAppReturns['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | VotingRoundAppReturns['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'])}
     },
 
     /**
@@ -850,7 +850,7 @@ export class VotingRoundAppClient {
      */
     vote: async (params: CallParams<VotingRoundAppArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundAppArgs['tuple']['vote(pay,byte[],uint8[])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(VotingRoundAppParamsFactory.vote(params))
-      return {...result, return: result.return as undefined | VotingRoundAppReturns['vote(pay,byte[],uint8[])void']}
+      return {...result, return: result.return as unknown as (undefined | VotingRoundAppReturns['vote(pay,byte[],uint8[])void'])}
     },
 
   }
@@ -877,7 +877,7 @@ export class VotingRoundAppClient {
    */
   async getPreconditions(params: CallParams<VotingRoundAppArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundAppArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']>) {
     const result = await this.appClient.send.call(VotingRoundAppParamsFactory.getPreconditions(params))
-    return result.return as VotingRoundAppReturns['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']
+    return result.return as unknown as VotingRoundAppReturns['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']
   }
 
   /**

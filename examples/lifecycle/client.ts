@@ -189,14 +189,14 @@ export type GlobalKeysState = LifeCycleAppTypes['state']['global']['keys']
  * Defines supported create method params for this smart contract
  */
 export type LifeCycleAppCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: undefined} & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC} & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC} & CreateSchema>
   | Expand<CallParams<LifeCycleAppArgs['obj']['create(string)string'] | LifeCycleAppArgs['tuple']['create(string)string']> & {method: 'create(string)string'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
   | Expand<CallParams<LifeCycleAppArgs['obj']['create(string,uint32)void'] | LifeCycleAppArgs['tuple']['create(string,uint32)void']> & {method: 'create(string,uint32)void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
 export type LifeCycleAppUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: undefined}
+  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines arguments required for the deploy method.
  */
@@ -360,7 +360,7 @@ export class LifeCycleAppFactory {
   public async deploy(params: LifeCycleAppDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
-      createParams: params.createParams?.method ? LifeCycleAppParamsFactory.create._resolveByMethod(params.createParams) : params.createParams,
+      createParams: params.createParams?.method ? LifeCycleAppParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (LifeCycleAppCreateCallParams & { args: Uint8Array[] }) : undefined,
     })
     return { result: result.result, appClient: new LifeCycleAppClient(result.appClient) }
   }
@@ -494,7 +494,7 @@ export class LifeCycleAppFactory {
        */
       createStringString: async (params: CallParams<LifeCycleAppArgs['obj']['create(string)string'] | LifeCycleAppArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         const result = await this.appFactory.send.create(LifeCycleAppParamsFactory.create.createStringString(params))
-        return { result: { ...result.result, return: result.result.return as undefined | LifeCycleAppReturns['create(string)string'] }, appClient: new LifeCycleAppClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | LifeCycleAppReturns['create(string)string']) }, appClient: new LifeCycleAppClient(result.appClient) }
       },
       /**
        * Creates a new instance of the LifeCycleApp smart contract using an ABI method call using the create(string,uint32)void ABI method.
@@ -506,7 +506,7 @@ export class LifeCycleAppFactory {
        */
       createStringUint32Void: async (params: CallParams<LifeCycleAppArgs['obj']['create(string,uint32)void'] | LifeCycleAppArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         const result = await this.appFactory.send.create(LifeCycleAppParamsFactory.create.createStringUint32Void(params))
-        return { result: { ...result.result, return: result.result.return as undefined | LifeCycleAppReturns['create(string,uint32)void'] }, appClient: new LifeCycleAppClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | LifeCycleAppReturns['create(string,uint32)void']) }, appClient: new LifeCycleAppClient(result.appClient) }
       },
     },
 
@@ -735,7 +735,7 @@ export class LifeCycleAppClient {
      */
     helloStringString: async (params: CallParams<LifeCycleAppArgs['obj']['hello(string)string'] | LifeCycleAppArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(LifeCycleAppParamsFactory.helloStringString(params))
-      return {...result, return: result.return as undefined | LifeCycleAppReturns['hello(string)string']}
+      return {...result, return: result.return as unknown as (undefined | LifeCycleAppReturns['hello(string)string'])}
     },
 
     /**
@@ -746,7 +746,7 @@ export class LifeCycleAppClient {
      */
     helloString: async (params: CallParams<LifeCycleAppArgs['obj']['hello()string'] | LifeCycleAppArgs['tuple']['hello()string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(LifeCycleAppParamsFactory.helloString(params))
-      return {...result, return: result.return as undefined | LifeCycleAppReturns['hello()string']}
+      return {...result, return: result.return as unknown as (undefined | LifeCycleAppReturns['hello()string'])}
     },
 
   }

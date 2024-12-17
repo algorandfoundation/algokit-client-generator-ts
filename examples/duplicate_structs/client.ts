@@ -158,7 +158,7 @@ export type MethodReturn<TSignature extends DuplicateStructsContractSignatures> 
  * Defines supported create method params for this smart contract
  */
 export type DuplicateStructsContractCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: undefined} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines arguments required for the deploy method.
  */
@@ -520,7 +520,7 @@ export class DuplicateStructsContractClient {
      */
     methodAThatUsesStruct: async (params: CallParams<DuplicateStructsContractArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(DuplicateStructsContractParamsFactory.methodAThatUsesStruct(params))
-      return {...result, return: result.return as undefined | DuplicateStructsContractReturns['method_a_that_uses_struct()(uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | DuplicateStructsContractReturns['method_a_that_uses_struct()(uint64,uint64)'])}
     },
 
     /**
@@ -531,7 +531,7 @@ export class DuplicateStructsContractClient {
      */
     methodBThatUsesSameStruct: async (params: CallParams<DuplicateStructsContractArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsContractArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(DuplicateStructsContractParamsFactory.methodBThatUsesSameStruct(params))
-      return {...result, return: result.return as undefined | DuplicateStructsContractReturns['method_b_that_uses_same_struct()(uint64,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | DuplicateStructsContractReturns['method_b_that_uses_same_struct()(uint64,uint64)'])}
     },
 
   }
