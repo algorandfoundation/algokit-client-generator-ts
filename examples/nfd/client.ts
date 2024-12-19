@@ -981,8 +981,8 @@ export class NfdInstanceFactory {
   public async deploy(params: NfdInstanceDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
-      createParams: params.createParams?.method ? NfdInstanceParamsFactory.create._resolveByMethod(params.createParams) : params.createParams,
-      updateParams: params.updateParams?.method ? NfdInstanceParamsFactory.update._resolveByMethod(params.updateParams) : params.updateParams,
+      createParams: params.createParams?.method ? NfdInstanceParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (NfdInstanceCreateCallParams & { args: Uint8Array[] }) : undefined,
+      updateParams: params.updateParams?.method ? NfdInstanceParamsFactory.update._resolveByMethod(params.updateParams) : params.updateParams ? params.updateParams as (NfdInstanceUpdateCallParams & { args: Uint8Array[] }) : undefined,
     })
     return { result: result.result, appClient: new NfdInstanceClient(result.appClient) }
   }
@@ -1060,7 +1060,7 @@ export class NfdInstanceFactory {
        */
       createApplication: async (params: CallParams<NfdInstanceArgs['obj']['createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void'] | NfdInstanceArgs['tuple']['createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
         const result = await this.appFactory.send.create(NfdInstanceParamsFactory.create.createApplication(params))
-        return { result: { ...result.result, return: result.result.return as undefined | NfdInstanceReturns['createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void'] }, appClient: new NfdInstanceClient(result.appClient) }
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | NfdInstanceReturns['createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void']) }, appClient: new NfdInstanceClient(result.appClient) }
       },
     },
 
@@ -1774,7 +1774,7 @@ export class NfdInstanceClient {
        */
       updateApplication: async (params: CallParams<NfdInstanceArgs['obj']['updateApplication(string)void'] | NfdInstanceArgs['tuple']['updateApplication(string)void']> & AppClientCompilationParams & SendParams) => {
         const result = await this.appClient.send.update(NfdInstanceParamsFactory.update.updateApplication(params))
-        return {...result, return: result.return as undefined | NfdInstanceReturns['updateApplication(string)void']}
+        return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['updateApplication(string)void'])}
       },
 
     },
@@ -1797,7 +1797,7 @@ export class NfdInstanceClient {
      */
     gas: async (params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.gas(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['gas()void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['gas()void'])}
     },
 
     /**
@@ -1808,7 +1808,7 @@ export class NfdInstanceClient {
      */
     mintAsa: async (params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.mintAsa(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['mintAsa(string,string)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['mintAsa(string,string)void'])}
     },
 
     /**
@@ -1819,7 +1819,7 @@ export class NfdInstanceClient {
      */
     deleteFields: async (params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.deleteFields(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['deleteFields(byte[][])void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['deleteFields(byte[][])void'])}
     },
 
     /**
@@ -1830,7 +1830,7 @@ export class NfdInstanceClient {
      */
     updateSegmentCount: async (params: CallParams<NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.updateSegmentCount(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['updateSegmentCount(string,uint64)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['updateSegmentCount(string,uint64)void'])}
     },
 
     /**
@@ -1843,7 +1843,7 @@ export class NfdInstanceClient {
      */
     getFieldUpdateCost: async (params: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.getFieldUpdateCost(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64'])}
     },
 
     /**
@@ -1854,7 +1854,7 @@ export class NfdInstanceClient {
      */
     updateFields: async (params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.updateFields(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['updateFields(byte[][])void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['updateFields(byte[][])void'])}
     },
 
     /**
@@ -1867,7 +1867,7 @@ export class NfdInstanceClient {
      */
     readField: async (params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.readField(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['readField(byte[])byte[]']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['readField(byte[])byte[]'])}
     },
 
     /**
@@ -1878,7 +1878,7 @@ export class NfdInstanceClient {
      */
     offerForSale: async (params: CallParams<NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.offerForSale(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['offerForSale(uint64,address)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['offerForSale(uint64,address)void'])}
     },
 
     /**
@@ -1889,7 +1889,7 @@ export class NfdInstanceClient {
      */
     cancelSale: async (params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.cancelSale(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['cancelSale()void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['cancelSale()void'])}
     },
 
     /**
@@ -1900,7 +1900,7 @@ export class NfdInstanceClient {
      */
     postOffer: async (params: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.postOffer(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['postOffer(uint64,string)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['postOffer(uint64,string)void'])}
     },
 
     /**
@@ -1911,7 +1911,7 @@ export class NfdInstanceClient {
      */
     mintPayout: async (params: CallParams<NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.mintPayout(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'])}
     },
 
     /**
@@ -1922,7 +1922,7 @@ export class NfdInstanceClient {
      */
     purchase: async (params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.purchase(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['purchase(pay)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['purchase(pay)void'])}
     },
 
     /**
@@ -1935,7 +1935,7 @@ export class NfdInstanceClient {
      */
     isAddressInField: async (params: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.isAddressInField(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['isAddressInField(string,address)bool']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['isAddressInField(string,address)bool'])}
     },
 
     /**
@@ -1948,7 +1948,7 @@ export class NfdInstanceClient {
      */
     getRenewPrice: async (params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.getRenewPrice(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['getRenewPrice()uint64']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['getRenewPrice()uint64'])}
     },
 
     /**
@@ -1959,7 +1959,7 @@ export class NfdInstanceClient {
      */
     updateHash: async (params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.updateHash(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['updateHash(byte[])void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['updateHash(byte[])void'])}
     },
 
     /**
@@ -1970,7 +1970,7 @@ export class NfdInstanceClient {
      */
     contractLock: async (params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.contractLock(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['contractLock(bool)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['contractLock(bool)void'])}
     },
 
     /**
@@ -1981,7 +1981,7 @@ export class NfdInstanceClient {
      */
     segmentLock: async (params: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.segmentLock(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['segmentLock(bool,uint64)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['segmentLock(bool,uint64)void'])}
     },
 
     /**
@@ -1992,7 +1992,7 @@ export class NfdInstanceClient {
      */
     vaultOptInLock: async (params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.vaultOptInLock(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['vaultOptInLock(bool)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['vaultOptInLock(bool)void'])}
     },
 
     /**
@@ -2003,7 +2003,7 @@ export class NfdInstanceClient {
      */
     vaultOptIn: async (params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.vaultOptIn(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['vaultOptIn(uint64[])void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['vaultOptIn(uint64[])void'])}
     },
 
     /**
@@ -2014,7 +2014,7 @@ export class NfdInstanceClient {
      */
     vaultSend: async (params: CallParams<NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void'] | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.vaultSend(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['vaultSend(uint64,address,string,uint64,uint64[])void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['vaultSend(uint64,address,string,uint64,uint64[])void'])}
     },
 
     /**
@@ -2043,7 +2043,7 @@ export class NfdInstanceClient {
      */
     renew: async (params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.renew(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['renew(pay)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['renew(pay)void'])}
     },
 
     /**
@@ -2054,7 +2054,7 @@ export class NfdInstanceClient {
      */
     setPrimaryAddress: async (params: CallParams<NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.setPrimaryAddress(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['setPrimaryAddress(string,address)void']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['setPrimaryAddress(string,address)void'])}
     },
 
     /**
@@ -2069,7 +2069,7 @@ export class NfdInstanceClient {
      */
     registryAddingVerifiedAddress: async (params: CallParams<NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.registryAddingVerifiedAddress(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['registryAddingVerifiedAddress(string,string)bool']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['registryAddingVerifiedAddress(string,string)bool'])}
     },
 
     /**
@@ -2082,7 +2082,7 @@ export class NfdInstanceClient {
      */
     registryRemovingVerifiedAddress: async (params: CallParams<NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool'] | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.registryRemovingVerifiedAddress(params))
-      return {...result, return: result.return as undefined | NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool']}
+      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool'])}
     },
 
   }
@@ -2107,7 +2107,7 @@ export class NfdInstanceClient {
    */
   async getFieldUpdateCost(params: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']>) {
     const result = await this.appClient.send.call(NfdInstanceParamsFactory.getFieldUpdateCost(params))
-    return result.return as NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64']
+    return result.return as unknown as NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64']
   }
 
   /**
@@ -2120,7 +2120,7 @@ export class NfdInstanceClient {
    */
   async readField(params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']>) {
     const result = await this.appClient.send.call(NfdInstanceParamsFactory.readField(params))
-    return result.return as NfdInstanceReturns['readField(byte[])byte[]']
+    return result.return as unknown as NfdInstanceReturns['readField(byte[])byte[]']
   }
 
   /**
@@ -2133,7 +2133,7 @@ export class NfdInstanceClient {
    */
   async isAddressInField(params: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']>) {
     const result = await this.appClient.send.call(NfdInstanceParamsFactory.isAddressInField(params))
-    return result.return as NfdInstanceReturns['isAddressInField(string,address)bool']
+    return result.return as unknown as NfdInstanceReturns['isAddressInField(string,address)bool']
   }
 
   /**
@@ -2146,7 +2146,7 @@ export class NfdInstanceClient {
    */
   async getRenewPrice(params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> = {args: []}) {
     const result = await this.appClient.send.call(NfdInstanceParamsFactory.getRenewPrice(params))
-    return result.return as NfdInstanceReturns['getRenewPrice()uint64']
+    return result.return as unknown as NfdInstanceReturns['getRenewPrice()uint64']
   }
 
   /**

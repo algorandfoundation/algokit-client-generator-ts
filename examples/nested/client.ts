@@ -160,7 +160,7 @@ export type MethodReturn<TSignature extends NestedContractSignatures> = NestedCo
  * Defines supported create method params for this smart contract
  */
 export type NestedContractCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: undefined} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines arguments required for the deploy method.
  */
@@ -555,7 +555,7 @@ export class NestedContractClient {
      */
     add: async (params: CallParams<NestedContractArgs['obj']['add(uint64,uint64)uint64'] | NestedContractArgs['tuple']['add(uint64,uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NestedContractParamsFactory.add(params))
-      return {...result, return: result.return as undefined | NestedContractReturns['add(uint64,uint64)uint64']}
+      return {...result, return: result.return as unknown as (undefined | NestedContractReturns['add(uint64,uint64)uint64'])}
     },
 
     /**
@@ -566,7 +566,7 @@ export class NestedContractClient {
      */
     getPayTxnAmount: async (params: CallParams<NestedContractArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedContractArgs['tuple']['get_pay_txn_amount(pay)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NestedContractParamsFactory.getPayTxnAmount(params))
-      return {...result, return: result.return as undefined | NestedContractReturns['get_pay_txn_amount(pay)uint64']}
+      return {...result, return: result.return as unknown as (undefined | NestedContractReturns['get_pay_txn_amount(pay)uint64'])}
     },
 
     /**
@@ -577,7 +577,7 @@ export class NestedContractClient {
      */
     nestedMethodCall: async (params: CallParams<NestedContractArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedContractArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(NestedContractParamsFactory.nestedMethodCall(params))
-      return {...result, return: result.return as undefined | NestedContractReturns['nested_method_call(string,pay,appl)byte[]']}
+      return {...result, return: result.return as unknown as (undefined | NestedContractReturns['nested_method_call(string,pay,appl)byte[]'])}
     },
 
   }

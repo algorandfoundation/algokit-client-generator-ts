@@ -253,8 +253,8 @@ function* abiMethodCall({
     yield* indent(
       `const result = await this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
       readonly
-        ? `return result.return as ${name}Returns['${methodSigSafe}']`
-        : `return {...result, return: result.return as undefined | ${name}Returns['${methodSigSafe}']}`,
+        ? `return result.return as unknown as ${name}Returns['${methodSigSafe}']`
+        : `return {...result, return: result.return as unknown as (undefined | ${name}Returns['${methodSigSafe}'])}`,
     )
   } else {
     yield* indent(

@@ -40,7 +40,7 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
     for (const method of callConfig.createMethods) {
       const onComplete = getCreateOnCompleteOptions(method, app)
       if (method === BARE_CALL) {
-        yield `| Expand<AppClientBareCallParams & {method?: undefined} & ${onComplete.type} & CreateSchema>`
+        yield `| Expand<AppClientBareCallParams & {method?: never} & ${onComplete.type} & CreateSchema>`
       } else {
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
         const uniqueName = methodSignatureToUniqueName[method]
@@ -59,7 +59,7 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
     yield IncIndent
     for (const method of callConfig.updateMethods) {
       if (method === BARE_CALL) {
-        yield `| Expand<AppClientBareCallParams> & {method?: undefined}`
+        yield `| Expand<AppClientBareCallParams> & {method?: never}`
       } else {
         const uniqueName = methodSignatureToUniqueName[method]
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
@@ -79,7 +79,7 @@ export function* deployTypes({ app, callConfig, sanitizer, methodSignatureToUniq
     yield IncIndent
     for (const method of callConfig.deleteMethods) {
       if (method === BARE_CALL) {
-        yield `| Expand<AppClientBareCallParams> & {method?: undefined}`
+        yield `| Expand<AppClientBareCallParams> & {method?: never}`
       } else {
         const uniqueName = methodSignatureToUniqueName[method]
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method)
