@@ -14,6 +14,10 @@ npm install @algorandfoundation/algokit-utils
 
 Note: you need at least version 7 of AlgoKit Utils to work with the latest version of the generator. It currently only works with algosdk v2.
 
+### Migration
+
+If you're migrating your project from an older generated typed client to v4, please refer to the [v4 migration guide](./docs/v4-migration.md).
+
 ### Use
 
 The cli can be used to generate a client via the following command.
