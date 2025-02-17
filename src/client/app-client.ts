@@ -405,7 +405,7 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
       const name = sanitizer.makeSafePropertyIdentifier(n)
       const k = app.state.keys[storageType][n]
       yield* jsDoc(`Get the current value of the ${n} key in ${storageType} state`)
-      yield `${name}: async (): Promise<${k.valueType === 'AVMBytes' ? 'BinaryState' : `${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`}> => { return ${k.valueType === 'AVMBytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getValue("${name}"))${k.valueType === 'AVMBytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
+      yield `${name}: async (): Promise<${k.valueType === 'AVMBytes' ? 'BinaryState' : `${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`}> => { return ${k.valueType === 'AVMBytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getValue("${sanitizer.makeSafeStringTypeLiteral(n)}"))${k.valueType === 'AVMBytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
     }
 
     for (const n of Object.keys(app.state.maps[storageType])) {

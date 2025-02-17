@@ -48,6 +48,10 @@ describe('state typed client', () => {
     expect(globalState.int2).toBe(2n)
     expect(globalState.bytes1?.asString()).toBe('asdf')
     expect(globalState.bytes2?.asByteArray()).toEqual(new Uint8Array([1, 2, 3, 4]))
+    expect(await client.state.global.int1()).toBe(1n)
+    expect(await client.state.global.int2()).toBe(2n)
+    expect((await client.state.global.bytes1())?.asString()).toBe('asdf')
+    expect((await client.state.global.bytes2())?.asByteArray()).toEqual(new Uint8Array([1, 2, 3, 4]))
 
     await client.send.optIn.optIn()
     await client.send.setLocal({ args: { int1: 1, int2: 2, bytes1: 'asdf', bytes2: new Uint8Array([1, 2, 3, 4]) } })
@@ -58,6 +62,10 @@ describe('state typed client', () => {
     expect(localState.localInt2).toBe(2n)
     expect(localState.localBytes1?.asString()).toBe('asdf')
     expect(localState.localBytes2?.asByteArray()).toEqual(new Uint8Array([1, 2, 3, 4]))
+    expect(await client.state.local(testAccount.addr).localInt1()).toBe(1n)
+    expect(await client.state.local(testAccount.addr).localInt2()).toBe(2n)
+    expect((await client.state.local(testAccount.addr).localBytes1())?.asString()).toBe('asdf')
+    expect((await client.state.local(testAccount.addr).localBytes2())?.asByteArray()).toEqual(new Uint8Array([1, 2, 3, 4]))
   })
 
   test('Readonly methods do not consume algos', async () => {

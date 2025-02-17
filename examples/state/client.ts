@@ -2039,19 +2039,19 @@ export class StateAppClient {
         /**
          * Get the current value of the local_bytes1 key in local state
          */
-        localBytes1: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.local(encodedAddress).getValue("localBytes1")) as Uint8Array | undefined) },
+        localBytes1: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.local(encodedAddress).getValue("local_bytes1")) as Uint8Array | undefined) },
         /**
          * Get the current value of the local_bytes2 key in local state
          */
-        localBytes2: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.local(encodedAddress).getValue("localBytes2")) as Uint8Array | undefined) },
+        localBytes2: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.local(encodedAddress).getValue("local_bytes2")) as Uint8Array | undefined) },
         /**
          * Get the current value of the local_int1 key in local state
          */
-        localInt1: async (): Promise<bigint | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("localInt1")) as bigint | undefined },
+        localInt1: async (): Promise<bigint | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("local_int1")) as bigint | undefined },
         /**
          * Get the current value of the local_int2 key in local state
          */
-        localInt2: async (): Promise<bigint | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("localInt2")) as bigint | undefined },
+        localInt2: async (): Promise<bigint | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("local_int2")) as bigint | undefined },
       }
     },
   }

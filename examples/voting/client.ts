@@ -912,31 +912,31 @@ export class VotingRoundAppClient {
       /**
        * Get the current value of the close_time key in global state
        */
-      closeTime: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("closeTime")) as bigint | undefined },
+      closeTime: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("close_time")) as bigint | undefined },
       /**
        * Get the current value of the end_time key in global state
        */
-      endTime: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("endTime")) as bigint | undefined },
+      endTime: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("end_time")) as bigint | undefined },
       /**
        * Get the current value of the is_bootstrapped key in global state
        */
-      isBootstrapped: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("isBootstrapped")) as bigint | undefined },
+      isBootstrapped: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("is_bootstrapped")) as bigint | undefined },
       /**
        * Get the current value of the metadata_ipfs_cid key in global state
        */
-      metadataIpfsCid: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("metadataIpfsCid")) as Uint8Array | undefined) },
+      metadataIpfsCid: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("metadata_ipfs_cid")) as Uint8Array | undefined) },
       /**
        * Get the current value of the nft_asset_id key in global state
        */
-      nftAssetId: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("nftAssetId")) as bigint | undefined },
+      nftAssetId: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("nft_asset_id")) as bigint | undefined },
       /**
        * Get the current value of the nft_image_url key in global state
        */
-      nftImageUrl: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("nftImageUrl")) as Uint8Array | undefined) },
+      nftImageUrl: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("nft_image_url")) as Uint8Array | undefined) },
       /**
        * Get the current value of the option_counts key in global state
        */
-      optionCounts: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("optionCounts")) as Uint8Array | undefined) },
+      optionCounts: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("option_counts")) as Uint8Array | undefined) },
       /**
        * Get the current value of the quorum key in global state
        */
@@ -944,23 +944,23 @@ export class VotingRoundAppClient {
       /**
        * Get the current value of the snapshot_public_key key in global state
        */
-      snapshotPublicKey: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("snapshotPublicKey")) as Uint8Array | undefined) },
+      snapshotPublicKey: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("snapshot_public_key")) as Uint8Array | undefined) },
       /**
        * Get the current value of the start_time key in global state
        */
-      startTime: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("startTime")) as bigint | undefined },
+      startTime: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("start_time")) as bigint | undefined },
       /**
        * Get the current value of the total_options key in global state
        */
-      totalOptions: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("totalOptions")) as bigint | undefined },
+      totalOptions: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("total_options")) as bigint | undefined },
       /**
        * Get the current value of the vote_id key in global state
        */
-      voteId: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("voteId")) as Uint8Array | undefined) },
+      voteId: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("vote_id")) as Uint8Array | undefined) },
       /**
        * Get the current value of the voter_count key in global state
        */
-      voterCount: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("voterCount")) as bigint | undefined },
+      voterCount: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("voter_count")) as bigint | undefined },
     },
   }
 
