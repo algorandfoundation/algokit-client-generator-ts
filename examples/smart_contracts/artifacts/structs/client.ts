@@ -715,11 +715,11 @@ export class StructsClient {
       /**
        * Get the current value of the my_struct key in global state
        */
-      myStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.global.getValue("myStruct")) as Vector | undefined },
+      myStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.global.getValue("my_struct")) as Vector | undefined },
       /**
        * Get the current value of the my_nested_struct key in global state
        */
-      myNestedStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.global.getValue("myNestedStruct")) as RootStruct | undefined },
+      myNestedStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.global.getValue("my_nested_struct")) as RootStruct | undefined },
     },
     /**
      * Methods to access local state for the current Structs app
@@ -740,11 +740,11 @@ export class StructsClient {
         /**
          * Get the current value of the my_localstate_struct key in local state
          */
-        myLocalstateStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("myLocalstateStruct")) as Vector | undefined },
+        myLocalstateStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("my_localstate_struct")) as Vector | undefined },
         /**
          * Get the current value of the my_nested_localstate_struct key in local state
          */
-        myNestedLocalstateStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("myNestedLocalstateStruct")) as RootStruct | undefined },
+        myNestedLocalstateStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("my_nested_localstate_struct")) as RootStruct | undefined },
       }
     },
     /**
@@ -764,11 +764,11 @@ export class StructsClient {
       /**
        * Get the current value of the my_box_struct key in box state
        */
-      myBoxStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.box.getValue("myBoxStruct")) as Vector | undefined },
+      myBoxStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.box.getValue("my_box_struct")) as Vector | undefined },
       /**
        * Get the current value of the my_nested_box_struct key in box state
        */
-      myNestedBoxStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.box.getValue("myNestedBoxStruct")) as RootStruct | undefined },
+      myNestedBoxStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.box.getValue("my_nested_box_struct")) as RootStruct | undefined },
       /**
        * Get values from the my_boxmap_struct map in box state
        */
@@ -914,7 +914,7 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
   /**
    * Returns the underlying AtomicTransactionComposer instance
    */
-  composer(): TransactionComposer
+  composer(): Promise<TransactionComposer>
   /**
    * Simulates the transaction group and returns the result
    */

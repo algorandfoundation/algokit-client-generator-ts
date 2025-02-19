@@ -2274,19 +2274,19 @@ export class ZeroCouponBondClient {
       /**
        * Get the current value of the denomination_asset_id key in global state
        */
-      denominationAssetId: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("denominationAssetId")) as bigint | undefined },
+      denominationAssetId: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("denomination_asset_id")) as bigint | undefined },
       /**
        * Get the current value of the settlement_asset_id key in global state
        */
-      settlementAssetId: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("settlementAssetId")) as bigint | undefined },
+      settlementAssetId: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("settlement_asset_id")) as bigint | undefined },
       /**
        * Get the current value of the unit_value key in global state
        */
-      unitValue: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("unitValue")) as bigint | undefined },
+      unitValue: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("unit_value")) as bigint | undefined },
       /**
        * Get the current value of the day_count_convention key in global state
        */
-      dayCountConvention: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("dayCountConvention")) as bigint | undefined },
+      dayCountConvention: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("day_count_convention")) as bigint | undefined },
       /**
        * Get the current value of the metadata key in global state
        */
@@ -2294,43 +2294,43 @@ export class ZeroCouponBondClient {
       /**
        * Get the current value of the total_units key in global state
        */
-      totalUnits: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("totalUnits")) as bigint | undefined },
+      totalUnits: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("total_units")) as bigint | undefined },
       /**
        * Get the current value of the circulating_units key in global state
        */
-      circulatingUnits: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("circulatingUnits")) as bigint | undefined },
+      circulatingUnits: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("circulating_units")) as bigint | undefined },
       /**
        * Get the current value of the interest_rate key in global state
        */
-      interestRate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("interestRate")) as bigint | undefined },
+      interestRate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("interest_rate")) as bigint | undefined },
       /**
        * Get the current value of the total_coupons key in global state
        */
-      totalCoupons: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("totalCoupons")) as bigint | undefined },
+      totalCoupons: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("total_coupons")) as bigint | undefined },
       /**
        * Get the current value of the primary_distribution_opening_date key in global state
        */
-      primaryDistributionOpeningDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("primaryDistributionOpeningDate")) as bigint | undefined },
+      primaryDistributionOpeningDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("primary_distribution_opening_date")) as bigint | undefined },
       /**
        * Get the current value of the primary_distribution_closure_date key in global state
        */
-      primaryDistributionClosureDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("primaryDistributionClosureDate")) as bigint | undefined },
+      primaryDistributionClosureDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("primary_distribution_closure_date")) as bigint | undefined },
       /**
        * Get the current value of the issuance_date key in global state
        */
-      issuanceDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("issuanceDate")) as bigint | undefined },
+      issuanceDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("issuance_date")) as bigint | undefined },
       /**
        * Get the current value of the secondary_market_opening_date key in global state
        */
-      secondaryMarketOpeningDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("secondaryMarketOpeningDate")) as bigint | undefined },
+      secondaryMarketOpeningDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("secondary_market_opening_date")) as bigint | undefined },
       /**
        * Get the current value of the secondary_market_closure_date key in global state
        */
-      secondaryMarketClosureDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("secondaryMarketClosureDate")) as bigint | undefined },
+      secondaryMarketClosureDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("secondary_market_closure_date")) as bigint | undefined },
       /**
        * Get the current value of the maturity_date key in global state
        */
-      maturityDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("maturityDate")) as bigint | undefined },
+      maturityDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("maturity_date")) as bigint | undefined },
       /**
        * Get the current value of the status key in global state
        */
@@ -2362,15 +2362,15 @@ export class ZeroCouponBondClient {
       /**
        * Get the current value of the coupon_rates key in box state
        */
-      couponRates: async (): Promise<number[] | undefined> => { return (await this.appClient.state.box.getValue("couponRates")) as number[] | undefined },
+      couponRates: async (): Promise<number[] | undefined> => { return (await this.appClient.state.box.getValue("coupon_rates")) as number[] | undefined },
       /**
        * Get the current value of the time_events key in box state
        */
-      timeEvents: async (): Promise<bigint[] | undefined> => { return (await this.appClient.state.box.getValue("timeEvents")) as bigint[] | undefined },
+      timeEvents: async (): Promise<bigint[] | undefined> => { return (await this.appClient.state.box.getValue("time_events")) as bigint[] | undefined },
       /**
        * Get the current value of the time_periods key in box state
        */
-      timePeriods: async (): Promise<[bigint, bigint][] | undefined> => { return (await this.appClient.state.box.getValue("timePeriods")) as [bigint, bigint][] | undefined },
+      timePeriods: async (): Promise<[bigint, bigint][] | undefined> => { return (await this.appClient.state.box.getValue("time_periods")) as [bigint, bigint][] | undefined },
       /**
        * Get values from the account_manager map in box state
        */
@@ -2880,7 +2880,7 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
   /**
    * Returns the underlying AtomicTransactionComposer instance
    */
-  composer(): TransactionComposer
+  composer(): Promise<TransactionComposer>
   /**
    * Simulates the transaction group and returns the result
    */
