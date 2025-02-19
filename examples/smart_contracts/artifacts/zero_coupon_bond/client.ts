@@ -135,7 +135,7 @@ export type CurrentUnitsValue = {
 /**
  * Converts the ABI tuple representation of a CurrentUnitsValue to the struct representation
  */
-export function CurrentUnitsValueFromTuple(abiTuple: [bigint, bigint, DayCountFactor]) {
+export function CurrentUnitsValueFromTuple(abiTuple: [bigint, bigint, [bigint, bigint]]) {
   return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.CurrentUnitsValue, APP_SPEC.structs) as CurrentUnitsValue
 }
 

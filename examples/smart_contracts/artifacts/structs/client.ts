@@ -73,7 +73,7 @@ export type NestedStruct = {
 /**
  * Converts the ABI tuple representation of a NestedStruct to the struct representation
  */
-export function NestedStructFromTuple(abiTuple: [Vector]) {
+export function NestedStructFromTuple(abiTuple: [[string, string]]) {
   return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.NestedStruct, APP_SPEC.structs) as NestedStruct
 }
 
@@ -85,7 +85,7 @@ export type RootStruct = {
 /**
  * Converts the ABI tuple representation of a RootStruct to the struct representation
  */
-export function RootStructFromTuple(abiTuple: [NestedStruct]) {
+export function RootStructFromTuple(abiTuple: [[[string, string]]]) {
   return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.RootStruct, APP_SPEC.structs) as RootStruct
 }
 
