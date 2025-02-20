@@ -200,7 +200,9 @@ function getStructAsObject(struct: StructField[], ctx: GeneratorContext): Record
 }
 
 function getStructAsTupleTypes(struct: StructField[], ctx: GeneratorContext): string {
-  return `[${struct.map((s) => (Array.isArray(s.type) ? getStructAsTupleTypes(s.type, ctx) : getEquivalentType(s.type, 'output', ctx))).join(', ')}]`
+  return `[${struct.map((s) => {
+    return Array.isArray(s.type) ? getStructAsTupleTypes(s.type, ctx) : Object.keys(ctx.app.structs).includes(s.type) ? getStructAsTupleTypes(ctx.app.structs[s.type], ctx) : getEquivalentType(s.type, "output", ctx);
+  }).join(', ')}]`
 }
 
 function* structTypes(ctx: GeneratorContext): DocumentParts {

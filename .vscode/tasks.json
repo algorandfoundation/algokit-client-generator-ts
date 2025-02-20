@@ -2,12 +2,12 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build Beaker examples",
+      "label": "Build Algorand Python examples",
       "command": "${workspaceFolder}/.venv/bin/python",
       "windows": {
         "command": "${workspaceFolder}/.venv/Scripts/python.exe"
       },
-      "args": ["-m", "examples", "build"],
+      "args": ["-m", "examples"],
       "options": {
         "cwd": "${workspaceFolder}"
       },

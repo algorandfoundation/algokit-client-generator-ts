@@ -7,8 +7,7 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.10"
-beaker-pyteal = "^1.1.1"
+python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
 black = {extras = ["d"], version = "*"}
@@ -16,6 +15,8 @@ ruff = ">=0.0.260"
 mypy = "*"
 pytest = "*"
 pytest-cov = "*"
+puyapy = "^4.3.3"
+algorand-python = "^2.6.0"
 
 [build-system]
 requires = ["poetry-core"]
