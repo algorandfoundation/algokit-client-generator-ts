@@ -642,6 +642,19 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
   }
 
   /**
+   * Gets available update methods
+   */
+  readonly update: {
+    /**
+     * Updates an existing instance of the Minimal smart contract using a bare call.
+     *
+     * @param args The arguments for the bare call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(params?: AppClientBareCallParams ): MinimalComposer<[...TReturns, undefined]>
+  }
+
+  /**
    * Makes a clear_state call to an existing instance of the Minimal smart contract.
    *
    * @param args The arguments for the bare call

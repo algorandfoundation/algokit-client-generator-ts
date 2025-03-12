@@ -2863,6 +2863,19 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
   getAssetMetadata(params?: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | undefined]>
 
   /**
+   * Gets available update methods
+   */
+  readonly update: {
+    /**
+     * Updates an existing instance of the ZeroCouponBond smart contract using a bare call.
+     *
+     * @param args The arguments for the bare call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(params?: AppClientBareCallParams ): ZeroCouponBondComposer<[...TReturns, undefined]>
+  }
+
+  /**
    * Makes a clear_state call to an existing instance of the ZeroCouponBond smart contract.
    *
    * @param args The arguments for the bare call

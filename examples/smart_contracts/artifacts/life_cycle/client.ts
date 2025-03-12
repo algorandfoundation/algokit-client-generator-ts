@@ -856,6 +856,19 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
   helloString(params?: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello()string'] | undefined]>
 
   /**
+   * Gets available update methods
+   */
+  readonly update: {
+    /**
+     * Updates an existing instance of the LifeCycle smart contract using a bare call.
+     *
+     * @param args The arguments for the bare call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(params?: AppClientBareCallParams ): LifeCycleComposer<[...TReturns, undefined]>
+  }
+
+  /**
    * Makes a clear_state call to an existing instance of the LifeCycle smart contract.
    *
    * @param args The arguments for the bare call
