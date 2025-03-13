@@ -29,6 +29,12 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
     callConfig.closeOutMethods,
     'closeOut',
   )
+  yield* callComposerOperationMethodType(
+    ctx,
+    `Updates an existing instance of the ${app.name} smart contract`,
+    callConfig.updateMethods,
+    'update',
+  )
 
   yield* callComposerTypeClearState(ctx)
 

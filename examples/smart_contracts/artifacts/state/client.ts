@@ -2539,6 +2539,27 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
   }
 
   /**
+   * Gets available update methods
+   */
+  readonly update: {
+    /**
+     * Updates an existing instance of the State smart contract using a bare call.
+     *
+     * @param args The arguments for the bare call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(params?: AppClientBareCallParams ): StateComposer<[...TReturns, undefined]>
+    /**
+     * Updates an existing instance of the State smart contract using the update_abi(string)string ABI method.
+     *
+     * @param args The arguments for the smart contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateAbi(params?: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']>): StateComposer<[...TReturns, StateReturns['update_abi(string)string'] | undefined]>
+  }
+
+  /**
    * Makes a clear_state call to an existing instance of the State smart contract.
    *
    * @param args The arguments for the bare call

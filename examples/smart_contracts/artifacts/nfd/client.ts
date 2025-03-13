@@ -2690,6 +2690,20 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
   registryRemovingVerifiedAddress(params?: CallParams<NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool'] | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool'] | undefined]>
 
   /**
+   * Gets available update methods
+   */
+  readonly update: {
+    /**
+     * Updates an existing instance of the NFDInstance smart contract using the updateApplication(string)void ABI method.
+     *
+     * @param args The arguments for the smart contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateApplication(params?: CallParams<NfdInstanceArgs['obj']['updateApplication(string)void'] | NfdInstanceArgs['tuple']['updateApplication(string)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['updateApplication(string)void'] | undefined]>
+  }
+
+  /**
    * Makes a clear_state call to an existing instance of the NFDInstance smart contract.
    *
    * @param args The arguments for the bare call
