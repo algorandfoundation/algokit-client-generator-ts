@@ -91,7 +91,7 @@ If you want to contribute to this project the following information will be help
 
 ### Building examples
 
-In the `examples` folder there is a series of example contracts along with their generated client. These contracts are built using [Beaker](https://beaker.algo.xyz/).
+In the `examples` folder there is a series of example contracts along with their generated client. These contracts are built using [Algorand Python](https://github.com/algorandfoundation/puya).
 
 If you want to make changes to any of the smart contract examples and re-generate the ARC-0032 application.json files then change the corresponding `examples/{contract}/{contract}.py` file and then run:
 
