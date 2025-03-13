@@ -169,8 +169,8 @@
         "compiler": "puya",
         "compilerVersion": {
             "major": 4,
-            "minor": 3,
-            "patch": 3
+            "minor": 1,
+            "patch": 1
         }
     },
     "events": [],

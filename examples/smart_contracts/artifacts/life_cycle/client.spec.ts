@@ -101,4 +101,15 @@ describe('lifecycle typed client', () => {
     expectType<string | undefined>(response.return)
     expect(response.return).toBe('Greetings, 2 Arg\nGreetings, 2 Arg\n')
   })
+
+  test('operation_methods_exist_in_composer', async () => {
+    const { appClient: client } = await factory.send.create.createStringUint32Void({
+      args: { greeting: 'Greetings', times: 2 },
+      updatable: true,
+    })
+    const group = client.newGroup()
+    expect(group.closeOut).toBeDefined()
+    expect(group.delete).toBeDefined()
+    expect(group.update).toBeDefined()
+  })
 })

@@ -41,3 +41,15 @@ class LifeCycle(ImmutabilityControlARC4Contract):
             result += self.greeting + String(", mystery person\n")
 
         return result
+
+    @arc4.abimethod(allow_actions=["CloseOut"])
+    def close_out_test(self) -> String:
+        return String("close_out_test")
+
+    @arc4.abimethod(allow_actions=["DeleteApplication"])
+    def delete_test(self) -> String:
+        return String("delete_test")
+
+    @arc4.abimethod(allow_actions=["UpdateApplication"])
+    def update_test(self) -> String:
+        return String("update_test")
