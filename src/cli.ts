@@ -21,7 +21,7 @@ export function cli(workingDirectory: string, args: string[]) {
           preserveNames: Boolean(preserveNames),
           workingDirectory,
         })
-        colorConsole.success`Operation completed successfully`
+        colorConsole.success`Operation completed successfully!`
       },
     )
     .configureOutput({
