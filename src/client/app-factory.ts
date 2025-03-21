@@ -43,7 +43,7 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
     }
 
     /** A reference to the underlying \`AlgorandClient\` this app factory is using. */
-    public get algorand(): AlgorandClientInterface {
+    public get algorand(): AlgorandClient {
       return this.appFactory.algorand
     }
 
