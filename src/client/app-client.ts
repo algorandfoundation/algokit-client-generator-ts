@@ -88,7 +88,7 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
     }
 
     /** A reference to the underlying \`AlgorandClient\` this app client is using. */
-    public get algorand(): AlgorandClientInterface {
+    public get algorand(): AlgorandClient {
       return this.appClient.algorand
     }
 
