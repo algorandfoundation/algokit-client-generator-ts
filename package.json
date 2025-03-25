@@ -43,7 +43,7 @@
     "build:3-check-types": "tsc -p tsconfig.json",
     "build:4-check-types-non-strict": "tsc -p tsconfig.non-strict.json",
     "build:5-build": "rollup -c --configPlugin typescript",
-    "build:6-copy-pkg-json": "npx --yes @makerx/ts-toolkit@latest copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts --custom-sections module type ",
+    "build:6-copy-pkg-json": "npx --yes @makerx/ts-toolkit@4.0.0-beta.22 copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts --custom-sections module type ",
     "build:7-copy-bin": "copyfiles bin/* dist/bin -f",
     "build:8-copy-readme": "copyfiles ./README.md ./dist",
     "format": "prettier --write .",
@@ -77,11 +77,11 @@
     "jsonschema": "^1.4.1"
   },
   "peerDependencies": {
-    "@algorandfoundation/algokit-utils": "^v9.0.0-beta.1",
+    "@algorandfoundation/algokit-utils": "^9.0.0",
     "algosdk": "^3.0.0"
   },
   "devDependencies": {
-    "@algorandfoundation/algokit-utils": "^v9.0.0-beta.1",
+    "@algorandfoundation/algokit-utils": "^9.0.0",
     "@algorandfoundation/tealscript": "^0.105.4",
     "@commitlint/cli": "^18.6.0",
     "@commitlint/config-conventional": "^18.6.0",
