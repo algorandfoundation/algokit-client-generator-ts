@@ -53,7 +53,7 @@
     "test": "vitest run",
     "test:ci": "TEST_ENV=ci vitest run --coverage",
     "update-approvals": "tsx scripts/update-approvals.ts",
-    "pyteal-build": "poetry run python -m examples",
+    "contract-build": "poetry run python -m examples",
     "postinstall": "npx --yes patch-package",
     "pre-commit": "npm run lint:fix && npm run test && npm run audit && npm run build"
   },
