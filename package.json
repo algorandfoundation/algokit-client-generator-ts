@@ -90,7 +90,7 @@
     "@makerx/ts-config": "1.0.1",
     "@noble/ed25519": "2.2.3",
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^11.1.6",
     "@tsconfig/node20": "^20.1.5",
     "@types/wait-on": "^5.3.4",
