@@ -91,7 +91,7 @@
     "@noble/ed25519": "2.2.3",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@tsconfig/node20": "^20.1.5",
     "@types/wait-on": "^5.3.4",
     "better-npm-audit": "^3.11.0",
