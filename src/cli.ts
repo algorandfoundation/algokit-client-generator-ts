@@ -12,7 +12,7 @@ export function cli(workingDirectory: string, args: string[]) {
     .description('Generates a TypeScript client for the given application.json file')
     .requiredOption('-a --application <path>', 'Specifies the application.json file')
     .requiredOption('-o --output <path>', 'Specifies the output file path')
-    .option('-pn --preserve-names', 'Preserve names from application.json spec instead of sanitizing them')
+    .option('--pn --preserve-names', 'Preserve names from application.json spec instead of sanitizing them')
     .action(
       async ({ application, output, preserveNames }: { application: string; output: string; preserveNames?: boolean }): Promise<void> => {
         await generateClientCommand({
