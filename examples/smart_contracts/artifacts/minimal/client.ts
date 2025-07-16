@@ -628,11 +628,11 @@ export class MinimalClient {
 }
 export type MinimalComposer<TReturns extends [...any[]] = []> = {
   /**
-   * Gets available delete methods
+   * Gets available update methods
    */
-  readonly delete: {
+  readonly update: {
     /**
-     * Deletes an existing instance of the Minimal smart contract using a bare call.
+     * Updates an existing instance of the Minimal smart contract using a bare call.
      *
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
@@ -641,11 +641,11 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
   }
 
   /**
-   * Gets available update methods
+   * Gets available delete methods
    */
-  readonly update: {
+  readonly delete: {
     /**
-     * Updates an existing instance of the Minimal smart contract using a bare call.
+     * Deletes an existing instance of the Minimal smart contract using a bare call.
      *
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions

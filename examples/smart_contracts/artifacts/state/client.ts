@@ -2503,6 +2503,27 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
   setBox(params?: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']>): StateComposer<[...TReturns, StateReturns['set_box(byte[4],string)void'] | undefined]>
 
   /**
+   * Gets available update methods
+   */
+  readonly update: {
+    /**
+     * Updates an existing instance of the State smart contract using a bare call.
+     *
+     * @param args The arguments for the bare call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(params?: AppClientBareCallParams ): StateComposer<[...TReturns, undefined]>
+    /**
+     * Updates an existing instance of the State smart contract using the update_abi(string)string ABI method.
+     *
+     * @param args The arguments for the smart contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateAbi(params?: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']>): StateComposer<[...TReturns, StateReturns['update_abi(string)string'] | undefined]>
+  }
+
+  /**
    * Gets available delete methods
    */
   readonly delete: {
@@ -2535,27 +2556,6 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     optIn(params?: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']>): StateComposer<[...TReturns, StateReturns['opt_in()void'] | undefined]>
-  }
-
-  /**
-   * Gets available update methods
-   */
-  readonly update: {
-    /**
-     * Updates an existing instance of the State smart contract using a bare call.
-     *
-     * @param args The arguments for the bare call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    bare(params?: AppClientBareCallParams ): StateComposer<[...TReturns, undefined]>
-    /**
-     * Updates an existing instance of the State smart contract using the update_abi(string)string ABI method.
-     *
-     * @param args The arguments for the smart contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    updateAbi(params?: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']>): StateComposer<[...TReturns, StateReturns['update_abi(string)string'] | undefined]>
   }
 
   /**

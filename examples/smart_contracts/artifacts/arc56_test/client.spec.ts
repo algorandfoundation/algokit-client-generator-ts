@@ -4,6 +4,7 @@ import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { setUpLocalnet } from '../../../../src/tests/util'
 import { Arc56TestFactory, Inputs } from './client'
+import { Arc56TestClient } from './client.slim.generated'
 import invariant from 'tiny-invariant'
 
 describe('state typed client', () => {
@@ -29,10 +30,18 @@ describe('state typed client', () => {
 
     const {
       result: { appId, appAddress },
-      appClient,
+      appClient: fullAppClient,
     } = await factory.send.create.createApplication({
       args: [],
       deployTimeParams: { someNumber: 1337n },
+    })
+
+    // TODO: NC - Extract this out to a seperate test
+
+    // Slim client
+    const appClient = algorand.client.getTypedAppClientById(Arc56TestClient, {
+      appId: fullAppClient.appId,
+      defaultSender: defaultSender,
     })
 
     console.log('App ID:', appId, 'App Address:', appAddress)
@@ -71,7 +80,18 @@ describe('state typed client', () => {
     const {
       result: { appId: anotherAppId, appAddress: anotherAppAddress },
     } = await factory.send.create.createApplication({ deployTimeParams: { someNumber: 1338n }, args: [] })
-    const anotherAppClient = factory.getAppClientById({ appId: anotherAppId, defaultSender: bob })
+    // const anotherAppClient = factory.getAppClientById({ appId: anotherAppId, defaultSender: bob })
+    // const anotherAppClient = appClient.clone({
+    //   appId: anotherAppId,
+    //   defaultSender: bob,
+    // })
+    const anotherAppClient = algorand.client.getTypedAppClientById(Arc56TestClient, {
+      appId: anotherAppId,
+      defaultSender: bob,
+    })
+
+    factory.getAppClientById({ appId: anotherAppId, defaultSender: bob })
+
     console.log('App ID:', anotherAppId, 'App Address:', anotherAppAddress)
 
     // Composer together multiple appClients
@@ -82,7 +102,7 @@ describe('state typed client', () => {
         await appClient.params.foo({ extraFee: microAlgos(1_000), args: { inputs } }),
       )
       .addAppCallMethodCall(await anotherAppClient.params.foo({ staticFee: microAlgos(0), args: { inputs } }))
-      .execute()
+      .send()
 
     const { sum: firstSum } = appClient.decodeReturnValue('foo', result.returns![0])!
     const { sum: secondSum } = appClient.decodeReturnValue('foo', result.returns![1])!

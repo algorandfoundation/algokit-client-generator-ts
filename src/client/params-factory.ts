@@ -25,21 +25,24 @@ export function* paramsFactory(ctx: GeneratorContext): DocumentParts {
 function* opMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig } = ctx
 
-  yield* operationMethod(
-    ctx,
-    `Constructs create ABI call params for the ${app.name} smart contract`,
-    callConfig.createMethods,
-    'create',
-    true,
-  )
-  yield* operationMethod(
-    ctx,
-    `Constructs update ABI call params for the ${app.name} smart contract`,
-    callConfig.updateMethods,
-    'update',
-    true,
-  )
-  yield* operationMethod(ctx, `Constructs delete ABI call params for the ${app.name} smart contract`, callConfig.deleteMethods, 'delete')
+  // Only include create methods if not in slim mode
+  if (!ctx.slim) {
+    yield* operationMethod(
+      ctx,
+      `Constructs create ABI call params for the ${app.name} smart contract`,
+      callConfig.createMethods,
+      'create',
+      true,
+    )
+    yield* operationMethod(
+      ctx,
+      `Constructs update ABI call params for the ${app.name} smart contract`,
+      callConfig.updateMethods,
+      'update',
+      true,
+    )
+    yield* operationMethod(ctx, `Constructs delete ABI call params for the ${app.name} smart contract`, callConfig.deleteMethods, 'delete')
+  }
   yield* operationMethod(ctx, `Constructs opt-in ABI call params for the ${app.name} smart contract`, callConfig.optInMethods, 'optIn')
   yield* operationMethod(
     ctx,

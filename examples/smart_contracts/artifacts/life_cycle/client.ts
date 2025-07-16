@@ -1150,6 +1150,27 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
   helloString(params?: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello()string'] | undefined]>
 
   /**
+   * Gets available update methods
+   */
+  readonly update: {
+    /**
+     * Updates an existing instance of the LifeCycle smart contract using a bare call.
+     *
+     * @param args The arguments for the bare call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(params?: AppClientBareCallParams ): LifeCycleComposer<[...TReturns, undefined]>
+    /**
+     * Updates an existing instance of the LifeCycle smart contract using the update_test()string ABI method.
+     *
+     * @param args The arguments for the smart contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateTest(params?: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['update_test()string'] | undefined]>
+  }
+
+  /**
    * Gets available delete methods
    */
   readonly delete: {
@@ -1175,27 +1196,6 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     closeOutTest(params?: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['close_out_test()string'] | undefined]>
-  }
-
-  /**
-   * Gets available update methods
-   */
-  readonly update: {
-    /**
-     * Updates an existing instance of the LifeCycle smart contract using a bare call.
-     *
-     * @param args The arguments for the bare call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    bare(params?: AppClientBareCallParams ): LifeCycleComposer<[...TReturns, undefined]>
-    /**
-     * Updates an existing instance of the LifeCycle smart contract using the update_test()string ABI method.
-     *
-     * @param args The arguments for the smart contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    updateTest(params?: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['update_test()string'] | undefined]>
   }
 
   /**
