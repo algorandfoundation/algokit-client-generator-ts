@@ -13,6 +13,7 @@ export type GeneratorContext = {
 
 export type GeneratorOptions = {
   preserveNames: boolean
+  slim?: boolean
 }
 
 export const createGeneratorContext = (app: Arc56Contract, options: GeneratorOptions) => {

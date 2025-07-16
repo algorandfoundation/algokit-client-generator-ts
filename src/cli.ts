@@ -15,13 +15,25 @@ export function cli(workingDirectory: string, args: string[]) {
     .requiredOption('-a --application <path>', 'Specifies the application.json file')
     .requiredOption('-o --output <path>', 'Specifies the output file path')
     .option('--pn --preserve-names', 'Preserve names from application.json spec instead of sanitizing them')
+    .option('--slim', 'Generate a slim client by stripping non-essential source info from the embedded app spec')
     .allowExcessArguments(true) // Maintains backwards compatibility with pre 13 commanded
     .action(
-      async ({ application, output, preserveNames }: { application: string; output: string; preserveNames?: boolean }): Promise<void> => {
+      async ({
+        application,
+        output,
+        preserveNames,
+        slim,
+      }: {
+        application: string
+        output: string
+        preserveNames?: boolean
+        slim?: boolean
+      }): Promise<void> => {
         await generateClientCommand({
           application,
           output,
           preserveNames: Boolean(preserveNames),
+          slim: Boolean(slim),
           workingDirectory,
         })
         colorConsole.success`Operation completed successfully`
@@ -48,11 +60,13 @@ export async function generateClientCommand({
   application,
   output,
   preserveNames,
+  slim,
   workingDirectory,
 }: {
   application: string
   output: string
   preserveNames: boolean
+  slim: boolean
   workingDirectory: string
 }) {
   const fs = await import('fs')
@@ -63,7 +77,7 @@ export async function generateClientCommand({
   colorConsole.info`Reading application.json file from path ${resolvedAppJsonPath}`
   const spec = await loadApplicationJson(resolvedAppJsonPath)
   colorConsole.info`Generating TS client for ${spec.name}`
-  const parts = generate(spec, { preserveNames })
+  const parts = generate(spec, { preserveNames, slim })
   if (!fs.existsSync(resolvedOutDir)) {
     colorConsole.warn`Output directory ${resolvedOutDir} does not exist and will be created.`
     fs.mkdirSync(resolvedOutDir, { recursive: true })
