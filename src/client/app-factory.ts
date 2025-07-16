@@ -75,10 +75,17 @@ export function* appFactory(ctx: GeneratorContext): DocumentParts {
     }
   `
 
-  yield* deployMethod(ctx)
-  yield* params(ctx)
-  yield* createTransaction(ctx)
-  yield* send(ctx)
+  // Only include deployment functionality if not in slim mode
+  if (!ctx.slim) {
+    yield* deployMethod(ctx)
+  }
+
+  // Only include deployment-related functionality if not in slim mode
+  if (!ctx.slim) {
+    yield* params(ctx)
+    yield* createTransaction(ctx)
+    yield* send(ctx)
+  }
   yield DecIndentAndCloseBlock
 }
 

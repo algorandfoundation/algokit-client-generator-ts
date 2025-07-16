@@ -9,6 +9,7 @@ export type GeneratorContext = {
   callConfig: CallConfigSummary
   methodSignatureToUniqueName: Record<string, string>
   sanitizer: Sanitizer
+  slim: boolean
 }
 
 export type GeneratorOptions = {
@@ -31,5 +32,6 @@ export const createGeneratorContext = (app: Arc56Contract, options: GeneratorOpt
       },
       {} as Record<string, string>,
     ),
+    slim: Boolean(options.slim),
   }
 }

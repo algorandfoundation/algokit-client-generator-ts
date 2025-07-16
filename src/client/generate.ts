@@ -22,7 +22,10 @@ function convertStructs(s: StructField[], sanitizer: Sanitizer): StructField[] {
 }
 
 function stripSourceInfo(app: Arc56Contract): Arc56Contract {
-  const strippedApp = { ...app }
+  const strippedApp = { ...app } as Arc56Contract & {
+    source?: { approval: string; clear: string }
+    byteCode?: { approval: string; clear: string }
+  }
 
   if (strippedApp.sourceInfo?.approval?.sourceInfo) {
     // Keep only source info entries that have errorMessage
@@ -45,6 +48,15 @@ function stripSourceInfo(app: Arc56Contract): Arc56Contract {
         errorMessage: entry.errorMessage!,
         ...(entry.teal !== undefined && { teal: entry.teal }),
       }))
+  }
+
+  // Remove approval and clear programs to reduce size
+  // These are needed for deployment but not for calling existing contracts
+  if (strippedApp.source) {
+    delete strippedApp.source
+  }
+  if (strippedApp.byteCode) {
+    delete strippedApp.byteCode
   }
 
   return strippedApp
@@ -74,7 +86,11 @@ export function* generate(app: Arc56Contract, options: GeneratorOptions = { pres
   yield* utilityTypes()
   yield NewLine
   yield* appTypes(ctx)
-  yield* deployTypes(ctx)
+
+  // Only generate deploy types if not in slim mode
+  if (!ctx.slim) {
+    yield* deployTypes(ctx)
+  }
   yield NewLine
 
   // Write a call factory
