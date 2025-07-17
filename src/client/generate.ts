@@ -7,7 +7,7 @@ import { imports } from './imports'
 import { createGeneratorContext, GeneratorOptions } from './generator-context'
 import { appTypes } from './app-types'
 import { callComposerType } from './call-composer-types'
-import { Arc56Contract, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, ProgramSourceInfo, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { appFactory } from './app-factory'
 import { Sanitizer } from '../util/sanitization'
 
@@ -21,13 +21,12 @@ function convertStructs(s: StructField[], sanitizer: Sanitizer): StructField[] {
   )
 }
 
-// TODO: NC - This can be cleaned up further
-function shrinkAppSpec(app: Arc56Contract, isSlim: boolean = false): Arc56Contract {
-  const strippedApp = { ...app } satisfies Arc56Contract
+function shrinkAppSpec(app: Arc56Contract, options: GeneratorOptions): Arc56Contract {
+  const strippedApp = structuredClone(app)
 
-  if (strippedApp.sourceInfo?.approval?.sourceInfo) {
-    // Keep only source info entries that have errorMessage
-    strippedApp.sourceInfo.approval.sourceInfo = strippedApp.sourceInfo.approval.sourceInfo
+  // Only keep the source info if it is needed for error mapping
+  const shrinkSourceInfo = (sourceInfo: ProgramSourceInfo['sourceInfo']) => {
+    return sourceInfo
       .filter((entry) => entry.errorMessage)
       .map((entry) => ({
         pc: entry.pc,
@@ -37,24 +36,21 @@ function shrinkAppSpec(app: Arc56Contract, isSlim: boolean = false): Arc56Contra
       }))
   }
 
-  if (strippedApp.sourceInfo?.clear?.sourceInfo) {
-    // Apply same logic to clear program source info
-    strippedApp.sourceInfo.clear.sourceInfo = strippedApp.sourceInfo.clear.sourceInfo
-      .filter((entry) => entry.errorMessage)
-      .map((entry) => ({
-        pc: entry.pc,
-        errorMessage: entry.errorMessage,
-        // Keep minimal context for error mapping if available
-        ...(entry.teal !== undefined && { teal: entry.teal }),
-      }))
+  // Keep only source info entries that can be used for approval and clear program error mapping
+  if (strippedApp.sourceInfo?.approval?.sourceInfo && strippedApp.sourceInfo.approval.sourceInfo.length > 0) {
+    strippedApp.sourceInfo.approval.sourceInfo = shrinkSourceInfo(strippedApp.sourceInfo.approval.sourceInfo)
+  }
+
+  if (strippedApp.sourceInfo?.clear?.sourceInfo && strippedApp.sourceInfo.clear.sourceInfo.length > 0) {
+    strippedApp.sourceInfo.clear.sourceInfo = shrinkSourceInfo(strippedApp.sourceInfo.clear.sourceInfo)
   }
 
   if (strippedApp.compilerInfo) {
     delete strippedApp.compilerInfo
   }
 
-  // These are needed for deployment but not for calling existing contracts
-  if (isSlim) {
+  // These are used for deploying but not for calling deployed apps
+  if (options.slim) {
     if (strippedApp.source) {
       delete strippedApp.source
     }
@@ -71,9 +67,9 @@ function shrinkAppSpec(app: Arc56Contract, isSlim: boolean = false): Arc56Contra
   return strippedApp
 }
 
-export function* generate(app: Arc56Contract, options: GeneratorOptions = { preserveNames: false }): DocumentParts {
+export function* generate(app: Arc56Contract, options: GeneratorOptions = { preserveNames: false, slim: false }): DocumentParts {
   // Apply source info stripping if slim mode is enabled
-  const reduceAppSpec = shrinkAppSpec(app, options.slim)
+  const reduceAppSpec = shrinkAppSpec(app, options)
 
   const ctx = createGeneratorContext(reduceAppSpec, options)
   yield `/* eslint-disable */`

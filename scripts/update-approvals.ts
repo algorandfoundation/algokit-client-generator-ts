@@ -20,7 +20,7 @@ async function updateApprovals() {
       application: applicationJsonPath,
       output: approvedPath,
       preserveNames: false,
-      slim: false, // TODO: NC - This should be optional
+      slim: false,
     })
     colorConsole.info`----------------------`
   }

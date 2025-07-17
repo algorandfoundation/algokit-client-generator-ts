@@ -1,4 +1,5 @@
 import { camelCase, pascalCase } from 'change-case'
+import { GeneratorOptions } from '../client/generator-context'
 
 const replaceInvalidWithUnderscore = (value: string) => value.replace(/[^a-z0-9_$]+/gi, '_')
 
@@ -68,4 +69,4 @@ const preservingSanitiser: Sanitizer = {
   },
 }
 
-export const getSanitizer = ({ preserveNames }: { preserveNames: boolean }) => (preserveNames ? preservingSanitiser : defaultSanitiser)
+export const getSanitizer = (options: GeneratorOptions) => (options.preserveNames ? preservingSanitiser : defaultSanitiser)

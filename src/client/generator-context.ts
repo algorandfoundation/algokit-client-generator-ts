@@ -13,11 +13,11 @@ export type GeneratorContext = {
 }
 
 export type GeneratorOptions = {
-  preserveNames: boolean
+  preserveNames?: boolean
   slim?: boolean
 }
 
-export const createGeneratorContext = (app: Arc56Contract, options: GeneratorOptions) => {
+export const createGeneratorContext = (app: Arc56Contract, options: GeneratorOptions): GeneratorContext => {
   const sanitizer = getSanitizer(options)
   return {
     sanitizer,

@@ -1,0 +1,210 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Client type differences > arc56_test: regular vs slim differences > arc56_test-differences 1`] = `
+[
+  "appClient._appSpec.scratchVariables",
+  "appClient._appSpec.scratchVariables.someNumber",
+  "appClient._appSpec.scratchVariables.someNumber.slot",
+  "appClient._appSpec.scratchVariables.someNumber.type",
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "appClient._appSpec.templateVariables",
+  "appClient._appSpec.templateVariables.someNumber",
+  "appClient._appSpec.templateVariables.someNumber.type",
+]
+`;
+
+exports[`Client type differences > duplicate_structs: regular vs slim differences > duplicate_structs-differences 1`] = `
+[
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+]
+`;
+
+exports[`Client type differences > hello_world: regular vs slim differences > hello_world-differences 1`] = `
+[
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "createTransaction.delete",
+  "createTransaction.delete.bare",
+  "createTransaction.update",
+  "createTransaction.update.bare",
+  "params.delete",
+  "params.delete.bare",
+  "params.update",
+  "params.update.bare",
+  "send.delete",
+  "send.delete.bare",
+  "send.update",
+  "send.update.bare",
+]
+`;
+
+exports[`Client type differences > life_cycle: regular vs slim differences > life_cycle-differences 1`] = `
+[
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "createTransaction.delete",
+  "createTransaction.delete.deleteTest",
+  "createTransaction.update",
+  "createTransaction.update.bare",
+  "createTransaction.update.updateTest",
+  "params.delete",
+  "params.delete.deleteTest",
+  "params.update",
+  "params.update.bare",
+  "params.update.updateTest",
+  "send.delete",
+  "send.delete.deleteTest",
+  "send.update",
+  "send.update.bare",
+  "send.update.updateTest",
+]
+`;
+
+exports[`Client type differences > minimal: regular vs slim differences > minimal-differences 1`] = `
+[
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "createTransaction.delete",
+  "createTransaction.delete.bare",
+  "createTransaction.update",
+  "createTransaction.update.bare",
+  "params.delete",
+  "params.delete.bare",
+  "params.update",
+  "params.update.bare",
+  "send.delete",
+  "send.delete.bare",
+  "send.update",
+  "send.update.bare",
+]
+`;
+
+exports[`Client type differences > nested: regular vs slim differences > nested-differences 1`] = `
+[
+  "appClient._appSpec.byteCode",
+  "appClient._appSpec.byteCode.approval",
+  "appClient._appSpec.byteCode.clear",
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "appClient._appSpec.templateVariables",
+]
+`;
+
+exports[`Client type differences > nfd: regular vs slim differences > nfd-differences 1`] = `
+[
+  "appClient._appSpec.scratchVariables",
+  "appClient._appSpec.scratchVariables.adminAsaId",
+  "appClient._appSpec.scratchVariables.adminAsaId.slot",
+  "appClient._appSpec.scratchVariables.adminAsaId.type",
+  "appClient._appSpec.scratchVariables.registryAppId",
+  "appClient._appSpec.scratchVariables.registryAppId.slot",
+  "appClient._appSpec.scratchVariables.registryAppId.type",
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "appClient._appSpec.templateVariables",
+  "appClient._appSpec.templateVariables.adminAsaId",
+  "appClient._appSpec.templateVariables.adminAsaId.type",
+  "appClient._appSpec.templateVariables.registryAppId",
+  "appClient._appSpec.templateVariables.registryAppId.type",
+  "createTransaction.update",
+  "createTransaction.update.updateApplication",
+  "params.update",
+  "params.update.updateApplication",
+  "send.update",
+  "send.update.updateApplication",
+]
+`;
+
+exports[`Client type differences > reti: regular vs slim differences > reti-differences 1`] = `
+[
+  "appClient._appSpec.scratchVariables",
+  "appClient._appSpec.scratchVariables.nfdRegistryAppId",
+  "appClient._appSpec.scratchVariables.nfdRegistryAppId.slot",
+  "appClient._appSpec.scratchVariables.nfdRegistryAppId.type",
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "appClient._appSpec.templateVariables",
+  "appClient._appSpec.templateVariables.nfdRegistryAppId",
+  "appClient._appSpec.templateVariables.nfdRegistryAppId.type",
+]
+`;
+
+exports[`Client type differences > state: regular vs slim differences > state-differences 1`] = `
+[
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "createTransaction.delete",
+  "createTransaction.delete.bare",
+  "createTransaction.delete.deleteAbi",
+  "createTransaction.update",
+  "createTransaction.update.bare",
+  "createTransaction.update.updateAbi",
+  "params.delete",
+  "params.delete.bare",
+  "params.delete.deleteAbi",
+  "params.update",
+  "params.update.bare",
+  "params.update.updateAbi",
+  "send.delete",
+  "send.delete.bare",
+  "send.delete.deleteAbi",
+  "send.update",
+  "send.update.bare",
+  "send.update.updateAbi",
+]
+`;
+
+exports[`Client type differences > structs: regular vs slim differences > structs-differences 1`] = `
+[
+  "appClient._appSpec.byteCode",
+  "appClient._appSpec.byteCode.approval",
+  "appClient._appSpec.byteCode.clear",
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "appClient._appSpec.templateVariables",
+]
+`;
+
+exports[`Client type differences > voting_round: regular vs slim differences > voting_round-differences 1`] = `
+[
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "createTransaction.delete",
+  "createTransaction.delete.bare",
+  "params.delete",
+  "params.delete.bare",
+  "send.delete",
+  "send.delete.bare",
+]
+`;
+
+exports[`Client type differences > zero_coupon_bond: regular vs slim differences > zero_coupon_bond-differences 1`] = `
+[
+  "appClient._appSpec.byteCode",
+  "appClient._appSpec.byteCode.approval",
+  "appClient._appSpec.byteCode.clear",
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "appClient._appSpec.templateVariables",
+  "createTransaction.update",
+  "createTransaction.update.bare",
+  "params.update",
+  "params.update.bare",
+  "send.update",
+  "send.update.bare",
+]
+`;

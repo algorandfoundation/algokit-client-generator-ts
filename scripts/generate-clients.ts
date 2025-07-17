@@ -25,7 +25,7 @@ async function generateClients(applicationPath: string) {
   // Generate preserve names client
   await generateClientCommand({
     application: applicationPath,
-    output: path.join(outputDir, 'client.pn.generated.ts'),
+    output: path.join(outputDir, 'client.generated.pn.ts'),
     preserveNames: true,
     slim: false,
     workingDirectory,
@@ -34,8 +34,17 @@ async function generateClients(applicationPath: string) {
   // Generate slim client
   await generateClientCommand({
     application: applicationPath,
-    output: path.join(outputDir, 'client.slim.generated.ts'),
+    output: path.join(outputDir, 'client.generated.slim.ts'),
     preserveNames: false,
+    slim: true,
+    workingDirectory,
+  })
+
+  // Generate preserve names slim client
+  await generateClientCommand({
+    application: applicationPath,
+    output: path.join(outputDir, 'client.generated.pn.slim.ts'),
+    preserveNames: true,
     slim: true,
     workingDirectory,
   })
