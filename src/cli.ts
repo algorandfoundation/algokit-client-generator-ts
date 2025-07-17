@@ -6,6 +6,8 @@ import { writeDocumentPartsToStream } from './output/writer'
 import { colorConsole } from './util/color-console'
 
 export function cli(workingDirectory: string, args: string[]) {
+  // Pre 13 commander allowed `-pn` however the latest version doesn't. Rewrite it to `--pn` for backwards compatibility.
+  const processedArgs = args.map((arg) => (arg === '-pn' ? '--pn' : arg))
   const program = new Command()
   program
     .command('generate')
@@ -13,6 +15,7 @@ export function cli(workingDirectory: string, args: string[]) {
     .requiredOption('-a --application <path>', 'Specifies the application.json file')
     .requiredOption('-o --output <path>', 'Specifies the output file path')
     .option('--pn --preserve-names', 'Preserve names from application.json spec instead of sanitizing them')
+    .allowExcessArguments(true) // Maintains backwards compatibility with pre 13 commanded
     .action(
       async ({ application, output, preserveNames }: { application: string; output: string; preserveNames?: boolean }): Promise<void> => {
         await generateClientCommand({
@@ -30,7 +33,7 @@ export function cli(workingDirectory: string, args: string[]) {
       },
     })
   try {
-    program.parse(args)
+    program.parse(processedArgs)
   } catch (err) {
     if (err instanceof Error) {
       colorConsole.error`Unhandled error: \n\n${err.stack}`
