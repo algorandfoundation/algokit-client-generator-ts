@@ -370,7 +370,7 @@ export type ValidatorRegistryArgs = {
       /**
        * The application id of the NFD to assign to the validator.
        */
-      nfdAppId: bigint | number
+      nfdAppID: bigint | number
       /**
        * The name of the NFD (which must match)
        */
@@ -382,11 +382,11 @@ export type ValidatorRegistryArgs = {
     }
     'changeValidatorRewardInfo(uint64,uint8,address,uint64[4],uint64,uint64)void': {
       validatorId: bigint | number
-      entryGatingType: bigint | number
-      entryGatingAddress: string
-      entryGatingAssets: [bigint | number, bigint | number, bigint | number, bigint | number]
-      gatingAssetMinBalance: bigint | number
-      rewardPerPayout: bigint | number
+      EntryGatingType: bigint | number
+      EntryGatingAddress: string
+      EntryGatingAssets: [bigint | number, bigint | number, bigint | number, bigint | number]
+      GatingAssetMinBalance: bigint | number
+      RewardPerPayout: bigint | number
     }
     'addPool(pay,uint64,uint64)(uint64,uint64,uint64)': {
       /**
@@ -525,9 +525,9 @@ export type ValidatorRegistryArgs = {
     'addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64': [mbrPayment: AppMethodCallTransactionArgument, nfdName: string, config: ValidatorConfig]
     'changeValidatorManager(uint64,address)void': [validatorId: bigint | number, manager: string]
     'changeValidatorSunsetInfo(uint64,uint64,uint64)void': [validatorId: bigint | number, sunsettingOn: bigint | number, sunsettingTo: bigint | number]
-    'changeValidatorNFD(uint64,uint64,string)void': [validatorId: bigint | number, nfdAppId: bigint | number, nfdName: string]
+    'changeValidatorNFD(uint64,uint64,string)void': [validatorId: bigint | number, nfdAppID: bigint | number, nfdName: string]
     'changeValidatorCommissionAddress(uint64,address)void': [validatorId: bigint | number, commissionAddress: string]
-    'changeValidatorRewardInfo(uint64,uint8,address,uint64[4],uint64,uint64)void': [validatorId: bigint | number, entryGatingType: bigint | number, entryGatingAddress: string, entryGatingAssets: [bigint | number, bigint | number, bigint | number, bigint | number], gatingAssetMinBalance: bigint | number, rewardPerPayout: bigint | number]
+    'changeValidatorRewardInfo(uint64,uint8,address,uint64[4],uint64,uint64)void': [validatorId: bigint | number, EntryGatingType: bigint | number, EntryGatingAddress: string, EntryGatingAssets: [bigint | number, bigint | number, bigint | number, bigint | number], GatingAssetMinBalance: bigint | number, RewardPerPayout: bigint | number]
     'addPool(pay,uint64,uint64)(uint64,uint64,uint64)': [mbrPayment: AppMethodCallTransactionArgument, validatorId: bigint | number, nodeNum: bigint | number]
     'addStake(pay,uint64,uint64)(uint64,uint64,uint64)': [stakedAmountPayment: AppMethodCallTransactionArgument, validatorId: bigint | number, valueToVerify: bigint | number]
     'setTokenPayoutRatio(uint64)(uint64[24],uint64)': [validatorId: bigint | number]
@@ -1108,7 +1108,7 @@ export abstract class ValidatorRegistryParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static doesStakerNeedToPayMbr(params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static doesStakerNeedToPayMBR(params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'doesStakerNeedToPayMBR(address)bool' as const,
@@ -1166,7 +1166,7 @@ export abstract class ValidatorRegistryParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getNfdRegistryId(params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getNFDRegistryID(params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'getNFDRegistryID()uint64' as const,
@@ -1234,11 +1234,11 @@ export abstract class ValidatorRegistryParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static changeValidatorNfd(params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static changeValidatorNFD(params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'changeValidatorNFD(uint64,uint64,string)void' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.validatorId, params.args.nfdAppId, params.args.nfdName],
+      args: Array.isArray(params.args) ? params.args : [params.args.validatorId, params.args.nfdAppID, params.args.nfdName],
     }
   }
   /**
@@ -1272,7 +1272,7 @@ export abstract class ValidatorRegistryParamsFactory {
     return {
       ...params,
       method: 'changeValidatorRewardInfo(uint64,uint8,address,uint64[4],uint64,uint64)void' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.validatorId, params.args.entryGatingType, params.args.entryGatingAddress, params.args.entryGatingAssets, params.args.gatingAssetMinBalance, params.args.rewardPerPayout],
+      args: Array.isArray(params.args) ? params.args : [params.args.validatorId, params.args.EntryGatingType, params.args.EntryGatingAddress, params.args.EntryGatingAssets, params.args.GatingAssetMinBalance, params.args.RewardPerPayout],
     }
   }
   /**
@@ -1869,8 +1869,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    doesStakerNeedToPayMbr: (params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMbr(params))
+    doesStakerNeedToPayMBR: (params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMBR(params))
     },
 
     /**
@@ -1923,8 +1923,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    getNfdRegistryId: (params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.params.call(ValidatorRegistryParamsFactory.getNfdRegistryId(params))
+    getNFDRegistryID: (params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(ValidatorRegistryParamsFactory.getNFDRegistryID(params))
     },
 
     /**
@@ -1979,8 +1979,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    changeValidatorNfd: (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(ValidatorRegistryParamsFactory.changeValidatorNfd(params))
+    changeValidatorNFD: (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(ValidatorRegistryParamsFactory.changeValidatorNFD(params))
     },
 
     /**
@@ -2360,8 +2360,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    doesStakerNeedToPayMbr: (params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMbr(params))
+    doesStakerNeedToPayMBR: (params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMBR(params))
     },
 
     /**
@@ -2414,8 +2414,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    getNfdRegistryId: (params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.getNfdRegistryId(params))
+    getNFDRegistryID: (params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.getNFDRegistryID(params))
     },
 
     /**
@@ -2470,8 +2470,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    changeValidatorNfd: (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.changeValidatorNfd(params))
+    changeValidatorNFD: (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.changeValidatorNFD(params))
     },
 
     /**
@@ -2865,8 +2865,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    doesStakerNeedToPayMbr: async (params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMbr(params))
+    doesStakerNeedToPayMBR: async (params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMBR(params))
       return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['doesStakerNeedToPayMBR(address)bool'])}
     },
 
@@ -2923,8 +2923,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getNfdRegistryId: async (params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNfdRegistryId(params))
+    getNFDRegistryID: async (params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNFDRegistryID(params))
       return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['getNFDRegistryID()uint64'])}
     },
 
@@ -2983,8 +2983,8 @@ export class ValidatorRegistryClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    changeValidatorNfd: async (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.changeValidatorNfd(params))
+    changeValidatorNFD: async (params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.changeValidatorNFD(params))
       return {...result, return: result.return as unknown as (undefined | ValidatorRegistryReturns['changeValidatorNFD(uint64,uint64,string)void'])}
     },
 
@@ -3339,8 +3339,8 @@ export class ValidatorRegistryClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async doesStakerNeedToPayMbr(params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']>) {
-    const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMbr(params))
+  async doesStakerNeedToPayMBR(params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']>) {
+    const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.doesStakerNeedToPayMBR(params))
     return result.return as unknown as ValidatorRegistryReturns['doesStakerNeedToPayMBR(address)bool']
   }
 
@@ -3397,8 +3397,8 @@ export class ValidatorRegistryClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async getNfdRegistryId(params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> = {args: []}) {
-    const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNfdRegistryId(params))
+  async getNFDRegistryID(params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> = {args: []}) {
+    const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.getNFDRegistryID(params))
     return result.return as unknown as ValidatorRegistryReturns['getNFDRegistryID()uint64']
   }
 
@@ -3626,8 +3626,8 @@ export class ValidatorRegistryClient {
       /**
        * Add a doesStakerNeedToPayMBR(address)bool method call against the ValidatorRegistry contract
        */
-      doesStakerNeedToPayMbr(params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.doesStakerNeedToPayMbr(params)))
+      doesStakerNeedToPayMBR(params: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.doesStakerNeedToPayMBR(params)))
         resultMappers.push((v) => client.decodeReturnValue('doesStakerNeedToPayMBR(address)bool', v))
         return this
       },
@@ -3658,8 +3658,8 @@ export class ValidatorRegistryClient {
       /**
        * Add a getNFDRegistryID()uint64 method call against the ValidatorRegistry contract
        */
-      getNfdRegistryId(params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getNfdRegistryId(params)))
+      getNFDRegistryID(params: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getNFDRegistryID(params)))
         resultMappers.push((v) => client.decodeReturnValue('getNFDRegistryID()uint64', v))
         return this
       },
@@ -3690,8 +3690,8 @@ export class ValidatorRegistryClient {
       /**
        * Add a changeValidatorNFD(uint64,uint64,string)void method call against the ValidatorRegistry contract
        */
-      changeValidatorNfd(params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.changeValidatorNfd(params)))
+      changeValidatorNFD(params: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.changeValidatorNFD(params)))
         resultMappers.push(undefined)
         return this
       },
@@ -3972,7 +3972,7 @@ export type ValidatorRegistryComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  doesStakerNeedToPayMbr(params?: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']>): ValidatorRegistryComposer<[...TReturns, ValidatorRegistryReturns['doesStakerNeedToPayMBR(address)bool'] | undefined]>
+  doesStakerNeedToPayMBR(params?: CallParams<ValidatorRegistryArgs['obj']['doesStakerNeedToPayMBR(address)bool'] | ValidatorRegistryArgs['tuple']['doesStakerNeedToPayMBR(address)bool']>): ValidatorRegistryComposer<[...TReturns, ValidatorRegistryReturns['doesStakerNeedToPayMBR(address)bool'] | undefined]>
 
   /**
    * Calls the getStakedPoolsForAccount(address)(uint64,uint64,uint64)[] ABI method.
@@ -4014,7 +4014,7 @@ export type ValidatorRegistryComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getNfdRegistryId(params?: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']>): ValidatorRegistryComposer<[...TReturns, ValidatorRegistryReturns['getNFDRegistryID()uint64'] | undefined]>
+  getNFDRegistryID(params?: CallParams<ValidatorRegistryArgs['obj']['getNFDRegistryID()uint64'] | ValidatorRegistryArgs['tuple']['getNFDRegistryID()uint64']>): ValidatorRegistryComposer<[...TReturns, ValidatorRegistryReturns['getNFDRegistryID()uint64'] | undefined]>
 
   /**
    * Calls the addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64 ABI method.
@@ -4066,7 +4066,7 @@ export type ValidatorRegistryComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  changeValidatorNfd(params?: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']>): ValidatorRegistryComposer<[...TReturns, ValidatorRegistryReturns['changeValidatorNFD(uint64,uint64,string)void'] | undefined]>
+  changeValidatorNFD(params?: CallParams<ValidatorRegistryArgs['obj']['changeValidatorNFD(uint64,uint64,string)void'] | ValidatorRegistryArgs['tuple']['changeValidatorNFD(uint64,uint64,string)void']>): ValidatorRegistryComposer<[...TReturns, ValidatorRegistryReturns['changeValidatorNFD(uint64,uint64,string)void'] | undefined]>
 
   /**
    * Calls the changeValidatorCommissionAddress(uint64,address)void ABI method.

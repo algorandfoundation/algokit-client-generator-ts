@@ -134,22 +134,22 @@ export type StateArgs = {
       application: bigint
     }
     'default_value(string)string': {
-      argWithDefault?: string
+      arg_with_default?: string
     }
     'default_value_int(uint64)uint64': {
-      argWithDefault?: bigint | number
+      arg_with_default?: bigint | number
     }
     'default_value_from_abi(string)string': {
-      argWithDefault?: string
+      arg_with_default?: string
     }
     'default_value_from_global_state(uint64)uint64': {
-      argWithDefault?: bigint | number
+      arg_with_default?: bigint | number
     }
     'default_value_from_local_state(string)string': {
-      argWithDefault?: string
+      arg_with_default?: string
     }
     'structs((string,uint64))(string,uint64)': {
-      nameAge: Input
+      name_age: Input
     }
     'set_global(uint64,uint64,string,byte[4])void': {
       int1: bigint | number
@@ -184,12 +184,12 @@ export type StateArgs = {
     'call_abi_uint64_readonly(uint64)uint64': [input: bigint | number]
     'call_abi_txn(pay,string)string': [txn: AppMethodCallTransactionArgument, value: string]
     'call_with_references(asset,account,application)uint64': [asset: bigint, account: Uint8Array | string, application: bigint]
-    'default_value(string)string': [argWithDefault: string | undefined]
-    'default_value_int(uint64)uint64': [argWithDefault: bigint | number | undefined]
-    'default_value_from_abi(string)string': [argWithDefault: string | undefined]
-    'default_value_from_global_state(uint64)uint64': [argWithDefault: bigint | number | undefined]
-    'default_value_from_local_state(string)string': [argWithDefault: string | undefined]
-    'structs((string,uint64))(string,uint64)': [nameAge: Input]
+    'default_value(string)string': [arg_with_default: string | undefined]
+    'default_value_int(uint64)uint64': [arg_with_default: bigint | number | undefined]
+    'default_value_from_abi(string)string': [arg_with_default: string | undefined]
+    'default_value_from_global_state(uint64)uint64': [arg_with_default: bigint | number | undefined]
+    'default_value_from_local_state(string)string': [arg_with_default: string | undefined]
+    'structs((string,uint64))(string,uint64)': [name_age: Input]
     'set_global(uint64,uint64,string,byte[4])void': [int1: bigint | number, int2: bigint | number, bytes1: string, bytes2: Uint8Array]
     'set_local(uint64,uint64,string,byte[4])void': [int1: bigint | number, int2: bigint | number, bytes1: string, bytes2: Uint8Array]
     'set_box(byte[4],string)void': [name: Uint8Array, value: string]
@@ -352,10 +352,10 @@ export type StateTypes = {
     }
     local: {
       keys: {
-        localBytes1: BinaryState
-        localBytes2: BinaryState
-        localInt1: bigint
-        localInt2: bigint
+        local_bytes1: BinaryState
+        local_bytes2: BinaryState
+        local_int1: bigint
+        local_int2: bigint
       }
       maps: {}
     }
@@ -453,7 +453,7 @@ export abstract class StateParamsFactory {
         switch(params.method) {
           case 'create_abi':
           case 'create_abi(string)string':
-            return StateParamsFactory.create.createAbi(params)
+            return StateParamsFactory.create.create_abi(params)
         }
         throw new Error(`Unknown ' + verb + ' method`)
       },
@@ -464,7 +464,7 @@ export abstract class StateParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      createAbi(params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      create_abi(params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
         return {
           ...params,
           method: 'create_abi(string)string' as const,
@@ -483,7 +483,7 @@ export abstract class StateParamsFactory {
         switch(params.method) {
           case 'update_abi':
           case 'update_abi(string)string':
-            return StateParamsFactory.update.updateAbi(params)
+            return StateParamsFactory.update.update_abi(params)
         }
         throw new Error(`Unknown ' + verb + ' method`)
       },
@@ -494,7 +494,7 @@ export abstract class StateParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      updateAbi(params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams {
+      update_abi(params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams {
         return {
           ...params,
           method: 'update_abi(string)string' as const,
@@ -513,7 +513,7 @@ export abstract class StateParamsFactory {
         switch(params.method) {
           case 'delete_abi':
           case 'delete_abi(string)string':
-            return StateParamsFactory.delete.deleteAbi(params)
+            return StateParamsFactory.delete.delete_abi(params)
         }
         throw new Error(`Unknown ' + verb + ' method`)
       },
@@ -524,7 +524,7 @@ export abstract class StateParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      deleteAbi(params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>): AppClientMethodCallParams {
+      delete_abi(params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'delete_abi(string)string' as const,
@@ -545,7 +545,7 @@ export abstract class StateParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      optIn(params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']>): AppClientMethodCallParams {
+      opt_in(params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'opt_in()void' as const,
@@ -574,7 +574,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callAbi(params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static call_abi(params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_abi(string)string' as const,
@@ -587,7 +587,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callAbiUint32(params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static call_abi_uint32(params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_abi_uint32(uint32)uint32' as const,
@@ -600,7 +600,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callAbiUint32Readonly(params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static call_abi_uint32_readonly(params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_abi_uint32_readonly(uint32)uint32' as const,
@@ -613,7 +613,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callAbiUint64(params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static call_abi_uint64(params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_abi_uint64(uint64)uint64' as const,
@@ -626,7 +626,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callAbiUint64Readonly(params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static call_abi_uint64_readonly(params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_abi_uint64_readonly(uint64)uint64' as const,
@@ -639,7 +639,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callAbiTxn(params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static call_abi_txn(params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_abi_txn(pay,string)string' as const,
@@ -652,7 +652,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static callWithReferences(params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static call_with_references(params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'call_with_references(asset,account,application)uint64' as const,
@@ -665,11 +665,11 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValue(params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static default_value(params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value(string)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.argWithDefault],
+      args: Array.isArray(params.args) ? params.args : [params.args.arg_with_default],
     }
   }
   /**
@@ -678,11 +678,11 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValueInt(params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static default_value_int(params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value_int(uint64)uint64' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.argWithDefault],
+      args: Array.isArray(params.args) ? params.args : [params.args.arg_with_default],
     }
   }
   /**
@@ -691,11 +691,11 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValueFromAbi(params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static default_value_from_abi(params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value_from_abi(string)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.argWithDefault],
+      args: Array.isArray(params.args) ? params.args : [params.args.arg_with_default],
     }
   }
   /**
@@ -704,11 +704,11 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValueFromGlobalState(params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static default_value_from_global_state(params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value_from_global_state(uint64)uint64' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.argWithDefault],
+      args: Array.isArray(params.args) ? params.args : [params.args.arg_with_default],
     }
   }
   /**
@@ -717,11 +717,11 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static defaultValueFromLocalState(params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static default_value_from_local_state(params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'default_value_from_local_state(string)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.argWithDefault],
+      args: Array.isArray(params.args) ? params.args : [params.args.arg_with_default],
     }
   }
   /**
@@ -734,7 +734,7 @@ export abstract class StateParamsFactory {
     return {
       ...params,
       method: 'structs((string,uint64))(string,uint64)' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.nameAge],
+      args: Array.isArray(params.args) ? params.args : [params.args.name_age],
     }
   }
   /**
@@ -743,7 +743,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setGlobal(params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static set_global(params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_global(uint64,uint64,string,byte[4])void' as const,
@@ -756,7 +756,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setLocal(params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static set_local(params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_local(uint64,uint64,string,byte[4])void' as const,
@@ -769,7 +769,7 @@ export abstract class StateParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setBox(params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static set_box(params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_box(byte[4],string)void' as const,
@@ -880,8 +880,8 @@ export class StateFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createAbi: (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.params.create(StateParamsFactory.create.createAbi(params))
+      create_abi: (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        return this.appFactory.params.create(StateParamsFactory.create.create_abi(params))
       },
     },
 
@@ -904,8 +904,8 @@ export class StateFactory {
        * @param params The params for the smart contract call
        * @returns The deployUpdate params
        */
-      updateAbi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
-        return this.appFactory.params.deployUpdate(StateParamsFactory.update.updateAbi(params))
+      update_abi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
+        return this.appFactory.params.deployUpdate(StateParamsFactory.update.update_abi(params))
       },
     },
 
@@ -928,8 +928,8 @@ export class StateFactory {
        * @param params The params for the smart contract call
        * @returns The deployDelete params
        */
-      deleteAbi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
-        return this.appFactory.params.deployDelete(StateParamsFactory.delete.deleteAbi(params))
+      delete_abi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
+        return this.appFactory.params.deployDelete(StateParamsFactory.delete.delete_abi(params))
       },
     },
 
@@ -958,8 +958,8 @@ export class StateFactory {
        * @param params The params for the smart contract call
        * @returns The create transaction
        */
-      createAbi: (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.createTransaction.create(StateParamsFactory.create.createAbi(params))
+      create_abi: (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        return this.appFactory.createTransaction.create(StateParamsFactory.create.create_abi(params))
       },
     },
 
@@ -989,8 +989,8 @@ export class StateFactory {
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      createAbi: async (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        const result = await this.appFactory.send.create(StateParamsFactory.create.createAbi(params))
+      create_abi: async (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        const result = await this.appFactory.send.create(StateParamsFactory.create.create_abi(params))
         return { result: { ...result.result, return: result.result.return as unknown as (undefined | StateReturns['create_abi(string)string']) }, appClient: new StateClient(result.appClient) }
       },
     },
@@ -1104,8 +1104,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The update params
        */
-      updateAbi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
-        return this.appClient.params.update(StateParamsFactory.update.updateAbi(params))
+      update_abi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
+        return this.appClient.params.update(StateParamsFactory.update.update_abi(params))
       },
 
     },
@@ -1129,8 +1129,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The delete params
        */
-      deleteAbi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
-        return this.appClient.params.delete(StateParamsFactory.delete.deleteAbi(params))
+      delete_abi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
+        return this.appClient.params.delete(StateParamsFactory.delete.delete_abi(params))
       },
 
     },
@@ -1145,8 +1145,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The optIn params
        */
-      optIn: (params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']> = {args: []}) => {
-        return this.appClient.params.optIn(StateParamsFactory.optIn.optIn(params))
+      opt_in: (params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']> = {args: []}) => {
+        return this.appClient.params.optIn(StateParamsFactory.optIn.opt_in(params))
       },
 
     },
@@ -1181,8 +1181,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callAbi: (params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.callAbi(params))
+    call_abi: (params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.call_abi(params))
     },
 
     /**
@@ -1191,8 +1191,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callAbiUint32: (params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.callAbiUint32(params))
+    call_abi_uint32: (params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.call_abi_uint32(params))
     },
 
     /**
@@ -1203,8 +1203,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callAbiUint32Readonly: (params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.callAbiUint32Readonly(params))
+    call_abi_uint32_readonly: (params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.call_abi_uint32_readonly(params))
     },
 
     /**
@@ -1213,8 +1213,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callAbiUint64: (params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.callAbiUint64(params))
+    call_abi_uint64: (params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.call_abi_uint64(params))
     },
 
     /**
@@ -1225,8 +1225,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callAbiUint64Readonly: (params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.callAbiUint64Readonly(params))
+    call_abi_uint64_readonly: (params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.call_abi_uint64_readonly(params))
     },
 
     /**
@@ -1237,8 +1237,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callAbiTxn: (params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.callAbiTxn(params))
+    call_abi_txn: (params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.call_abi_txn(params))
     },
 
     /**
@@ -1247,8 +1247,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    callWithReferences: (params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.callWithReferences(params))
+    call_with_references: (params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.call_with_references(params))
     },
 
     /**
@@ -1259,8 +1259,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValue: (params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.params.call(StateParamsFactory.defaultValue(params))
+    default_value: (params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.params.call(StateParamsFactory.default_value(params))
     },
 
     /**
@@ -1271,8 +1271,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValueInt: (params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.params.call(StateParamsFactory.defaultValueInt(params))
+    default_value_int: (params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.params.call(StateParamsFactory.default_value_int(params))
     },
 
     /**
@@ -1283,8 +1283,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValueFromAbi: (params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.params.call(StateParamsFactory.defaultValueFromAbi(params))
+    default_value_from_abi: (params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.params.call(StateParamsFactory.default_value_from_abi(params))
     },
 
     /**
@@ -1295,8 +1295,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValueFromGlobalState: (params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.params.call(StateParamsFactory.defaultValueFromGlobalState(params))
+    default_value_from_global_state: (params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.params.call(StateParamsFactory.default_value_from_global_state(params))
     },
 
     /**
@@ -1307,8 +1307,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    defaultValueFromLocalState: (params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.params.call(StateParamsFactory.defaultValueFromLocalState(params))
+    default_value_from_local_state: (params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.params.call(StateParamsFactory.default_value_from_local_state(params))
     },
 
     /**
@@ -1327,8 +1327,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setGlobal: (params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.setGlobal(params))
+    set_global: (params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.set_global(params))
     },
 
     /**
@@ -1337,8 +1337,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setLocal: (params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.setLocal(params))
+    set_local: (params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.set_local(params))
     },
 
     /**
@@ -1347,8 +1347,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setBox: (params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(StateParamsFactory.setBox(params))
+    set_box: (params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(StateParamsFactory.set_box(params))
     },
 
   }
@@ -1376,8 +1376,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The update transaction
        */
-      updateAbi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
-        return this.appClient.createTransaction.update(StateParamsFactory.update.updateAbi(params))
+      update_abi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
+        return this.appClient.createTransaction.update(StateParamsFactory.update.update_abi(params))
       },
 
     },
@@ -1401,8 +1401,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The delete transaction
        */
-      deleteAbi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
-        return this.appClient.createTransaction.delete(StateParamsFactory.delete.deleteAbi(params))
+      delete_abi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
+        return this.appClient.createTransaction.delete(StateParamsFactory.delete.delete_abi(params))
       },
 
     },
@@ -1417,8 +1417,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The optIn transaction
        */
-      optIn: (params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']> = {args: []}) => {
-        return this.appClient.createTransaction.optIn(StateParamsFactory.optIn.optIn(params))
+      opt_in: (params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']> = {args: []}) => {
+        return this.appClient.createTransaction.optIn(StateParamsFactory.optIn.opt_in(params))
       },
 
     },
@@ -1453,8 +1453,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callAbi: (params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.callAbi(params))
+    call_abi: (params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.call_abi(params))
     },
 
     /**
@@ -1463,8 +1463,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callAbiUint32: (params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.callAbiUint32(params))
+    call_abi_uint32: (params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.call_abi_uint32(params))
     },
 
     /**
@@ -1475,8 +1475,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callAbiUint32Readonly: (params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.callAbiUint32Readonly(params))
+    call_abi_uint32_readonly: (params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.call_abi_uint32_readonly(params))
     },
 
     /**
@@ -1485,8 +1485,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callAbiUint64: (params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.callAbiUint64(params))
+    call_abi_uint64: (params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.call_abi_uint64(params))
     },
 
     /**
@@ -1497,8 +1497,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callAbiUint64Readonly: (params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.callAbiUint64Readonly(params))
+    call_abi_uint64_readonly: (params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.call_abi_uint64_readonly(params))
     },
 
     /**
@@ -1509,8 +1509,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callAbiTxn: (params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.callAbiTxn(params))
+    call_abi_txn: (params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.call_abi_txn(params))
     },
 
     /**
@@ -1519,8 +1519,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    callWithReferences: (params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.callWithReferences(params))
+    call_with_references: (params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.call_with_references(params))
     },
 
     /**
@@ -1531,8 +1531,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValue: (params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.defaultValue(params))
+    default_value: (params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.default_value(params))
     },
 
     /**
@@ -1543,8 +1543,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValueInt: (params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.defaultValueInt(params))
+    default_value_int: (params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.default_value_int(params))
     },
 
     /**
@@ -1555,8 +1555,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValueFromAbi: (params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.defaultValueFromAbi(params))
+    default_value_from_abi: (params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.default_value_from_abi(params))
     },
 
     /**
@@ -1567,8 +1567,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValueFromGlobalState: (params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.defaultValueFromGlobalState(params))
+    default_value_from_global_state: (params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.default_value_from_global_state(params))
     },
 
     /**
@@ -1579,8 +1579,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    defaultValueFromLocalState: (params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.defaultValueFromLocalState(params))
+    default_value_from_local_state: (params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.default_value_from_local_state(params))
     },
 
     /**
@@ -1599,8 +1599,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setGlobal: (params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.setGlobal(params))
+    set_global: (params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.set_global(params))
     },
 
     /**
@@ -1609,8 +1609,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setLocal: (params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.setLocal(params))
+    set_local: (params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.set_local(params))
     },
 
     /**
@@ -1619,8 +1619,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setBox: (params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(StateParamsFactory.setBox(params))
+    set_box: (params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(StateParamsFactory.set_box(params))
     },
 
   }
@@ -1648,8 +1648,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The update result
        */
-      updateAbi: async (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams & SendParams) => {
-        const result = await this.appClient.send.update(StateParamsFactory.update.updateAbi(params))
+      update_abi: async (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams & SendParams) => {
+        const result = await this.appClient.send.update(StateParamsFactory.update.update_abi(params))
         return {...result, return: result.return as unknown as (undefined | StateReturns['update_abi(string)string'])}
       },
 
@@ -1674,8 +1674,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The delete result
        */
-      deleteAbi: async (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']> & SendParams) => {
-        const result = await this.appClient.send.delete(StateParamsFactory.delete.deleteAbi(params))
+      delete_abi: async (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']> & SendParams) => {
+        const result = await this.appClient.send.delete(StateParamsFactory.delete.delete_abi(params))
         return {...result, return: result.return as unknown as (undefined | StateReturns['delete_abi(string)string'])}
       },
 
@@ -1691,8 +1691,8 @@ export class StateClient {
        * @param params The params for the smart contract call
        * @returns The optIn result
        */
-      optIn: async (params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']> & SendParams = {args: []}) => {
-        const result = await this.appClient.send.optIn(StateParamsFactory.optIn.optIn(params))
+      opt_in: async (params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']> & SendParams = {args: []}) => {
+        const result = await this.appClient.send.optIn(StateParamsFactory.optIn.opt_in(params))
         return {...result, return: result.return as unknown as (undefined | StateReturns['opt_in()void'])}
       },
 
@@ -1729,8 +1729,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callAbi: async (params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.callAbi(params))
+    call_abi: async (params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.call_abi(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['call_abi(string)string'])}
     },
 
@@ -1740,8 +1740,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callAbiUint32: async (params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.callAbiUint32(params))
+    call_abi_uint32: async (params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.call_abi_uint32(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['call_abi_uint32(uint32)uint32'])}
     },
 
@@ -1753,8 +1753,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callAbiUint32Readonly: async (params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.callAbiUint32Readonly(params))
+    call_abi_uint32_readonly: async (params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.call_abi_uint32_readonly(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['call_abi_uint32_readonly(uint32)uint32'])}
     },
 
@@ -1764,8 +1764,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callAbiUint64: async (params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.callAbiUint64(params))
+    call_abi_uint64: async (params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.call_abi_uint64(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['call_abi_uint64(uint64)uint64'])}
     },
 
@@ -1777,8 +1777,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callAbiUint64Readonly: async (params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.callAbiUint64Readonly(params))
+    call_abi_uint64_readonly: async (params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.call_abi_uint64_readonly(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['call_abi_uint64_readonly(uint64)uint64'])}
     },
 
@@ -1790,8 +1790,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callAbiTxn: async (params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.callAbiTxn(params))
+    call_abi_txn: async (params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.call_abi_txn(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['call_abi_txn(pay,string)string'])}
     },
 
@@ -1801,8 +1801,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    callWithReferences: async (params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.callWithReferences(params))
+    call_with_references: async (params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.call_with_references(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['call_with_references(asset,account,application)uint64'])}
     },
 
@@ -1814,8 +1814,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValue: async (params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.defaultValue(params))
+    default_value: async (params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.default_value(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['default_value(string)string'])}
     },
 
@@ -1827,8 +1827,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValueInt: async (params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.defaultValueInt(params))
+    default_value_int: async (params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.default_value_int(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['default_value_int(uint64)uint64'])}
     },
 
@@ -1840,8 +1840,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValueFromAbi: async (params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.defaultValueFromAbi(params))
+    default_value_from_abi: async (params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.default_value_from_abi(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['default_value_from_abi(string)string'])}
     },
 
@@ -1853,8 +1853,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValueFromGlobalState: async (params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.defaultValueFromGlobalState(params))
+    default_value_from_global_state: async (params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.default_value_from_global_state(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['default_value_from_global_state(uint64)uint64'])}
     },
 
@@ -1866,8 +1866,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    defaultValueFromLocalState: async (params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.defaultValueFromLocalState(params))
+    default_value_from_local_state: async (params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: [undefined]}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.default_value_from_local_state(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['default_value_from_local_state(string)string'])}
     },
 
@@ -1888,8 +1888,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setGlobal: async (params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.setGlobal(params))
+    set_global: async (params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.set_global(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['set_global(uint64,uint64,string,byte[4])void'])}
     },
 
@@ -1899,8 +1899,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setLocal: async (params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.setLocal(params))
+    set_local: async (params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.set_local(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['set_local(uint64,uint64,string,byte[4])void'])}
     },
 
@@ -1910,8 +1910,8 @@ export class StateClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setBox: async (params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(StateParamsFactory.setBox(params))
+    set_box: async (params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(StateParamsFactory.set_box(params))
       return {...result, return: result.return as unknown as (undefined | StateReturns['set_box(byte[4],string)void'])}
     },
 
@@ -1948,8 +1948,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async callAbi(params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']>) {
-    const result = await this.appClient.send.call(StateParamsFactory.callAbi(params))
+  async call_abi(params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']>) {
+    const result = await this.appClient.send.call(StateParamsFactory.call_abi(params))
     return result.return as unknown as StateReturns['call_abi(string)string']
   }
 
@@ -1961,8 +1961,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async callAbiUint32Readonly(params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']>) {
-    const result = await this.appClient.send.call(StateParamsFactory.callAbiUint32Readonly(params))
+  async call_abi_uint32_readonly(params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']>) {
+    const result = await this.appClient.send.call(StateParamsFactory.call_abi_uint32_readonly(params))
     return result.return as unknown as StateReturns['call_abi_uint32_readonly(uint32)uint32']
   }
 
@@ -1974,8 +1974,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async callAbiUint64Readonly(params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']>) {
-    const result = await this.appClient.send.call(StateParamsFactory.callAbiUint64Readonly(params))
+  async call_abi_uint64_readonly(params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']>) {
+    const result = await this.appClient.send.call(StateParamsFactory.call_abi_uint64_readonly(params))
     return result.return as unknown as StateReturns['call_abi_uint64_readonly(uint64)uint64']
   }
 
@@ -1987,8 +1987,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async callAbiTxn(params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']>) {
-    const result = await this.appClient.send.call(StateParamsFactory.callAbiTxn(params))
+  async call_abi_txn(params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']>) {
+    const result = await this.appClient.send.call(StateParamsFactory.call_abi_txn(params))
     return result.return as unknown as StateReturns['call_abi_txn(pay,string)string']
   }
 
@@ -2000,8 +2000,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async defaultValue(params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> = {args: [undefined]}) {
-    const result = await this.appClient.send.call(StateParamsFactory.defaultValue(params))
+  async default_value(params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateParamsFactory.default_value(params))
     return result.return as unknown as StateReturns['default_value(string)string']
   }
 
@@ -2013,8 +2013,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async defaultValueInt(params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> = {args: [undefined]}) {
-    const result = await this.appClient.send.call(StateParamsFactory.defaultValueInt(params))
+  async default_value_int(params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateParamsFactory.default_value_int(params))
     return result.return as unknown as StateReturns['default_value_int(uint64)uint64']
   }
 
@@ -2026,8 +2026,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async defaultValueFromAbi(params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> = {args: [undefined]}) {
-    const result = await this.appClient.send.call(StateParamsFactory.defaultValueFromAbi(params))
+  async default_value_from_abi(params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateParamsFactory.default_value_from_abi(params))
     return result.return as unknown as StateReturns['default_value_from_abi(string)string']
   }
 
@@ -2039,8 +2039,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async defaultValueFromGlobalState(params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> = {args: [undefined]}) {
-    const result = await this.appClient.send.call(StateParamsFactory.defaultValueFromGlobalState(params))
+  async default_value_from_global_state(params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateParamsFactory.default_value_from_global_state(params))
     return result.return as unknown as StateReturns['default_value_from_global_state(uint64)uint64']
   }
 
@@ -2052,8 +2052,8 @@ export class StateClient {
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async defaultValueFromLocalState(params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> = {args: [undefined]}) {
-    const result = await this.appClient.send.call(StateParamsFactory.defaultValueFromLocalState(params))
+  async default_value_from_local_state(params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> = {args: [undefined]}) {
+    const result = await this.appClient.send.call(StateParamsFactory.default_value_from_local_state(params))
     return result.return as unknown as StateReturns['default_value_from_local_state(string)string']
   }
 
@@ -2111,28 +2111,28 @@ export class StateClient {
         getAll: async (): Promise<Partial<Expand<LocalKeysState>>> => {
           const result = await this.appClient.state.local(encodedAddress).getAll()
           return {
-            localBytes1: new BinaryStateValue(result.local_bytes1),
-            localBytes2: new BinaryStateValue(result.local_bytes2),
-            localInt1: result.local_int1,
-            localInt2: result.local_int2,
+            local_bytes1: new BinaryStateValue(result.local_bytes1),
+            local_bytes2: new BinaryStateValue(result.local_bytes2),
+            local_int1: result.local_int1,
+            local_int2: result.local_int2,
           }
         },
         /**
          * Get the current value of the local_bytes1 key in local state
          */
-        localBytes1: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.local(encodedAddress).getValue("local_bytes1")) as Uint8Array | undefined) },
+        local_bytes1: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.local(encodedAddress).getValue("local_bytes1")) as Uint8Array | undefined) },
         /**
          * Get the current value of the local_bytes2 key in local state
          */
-        localBytes2: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.local(encodedAddress).getValue("local_bytes2")) as Uint8Array | undefined) },
+        local_bytes2: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.local(encodedAddress).getValue("local_bytes2")) as Uint8Array | undefined) },
         /**
          * Get the current value of the local_int1 key in local state
          */
-        localInt1: async (): Promise<bigint | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("local_int1")) as bigint | undefined },
+        local_int1: async (): Promise<bigint | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("local_int1")) as bigint | undefined },
         /**
          * Get the current value of the local_int2 key in local state
          */
-        localInt2: async (): Promise<bigint | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("local_int2")) as bigint | undefined },
+        local_int2: async (): Promise<bigint | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("local_int2")) as bigint | undefined },
       }
     },
   }
@@ -2154,96 +2154,96 @@ export class StateClient {
       /**
        * Add a call_abi(string)string method call against the State contract
        */
-      callAbi(params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbi(params)))
+      call_abi(params: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.call_abi(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi(string)string', v))
         return this
       },
       /**
        * Add a call_abi_uint32(uint32)uint32 method call against the State contract
        */
-      callAbiUint32(params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbiUint32(params)))
+      call_abi_uint32(params: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.call_abi_uint32(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi_uint32(uint32)uint32', v))
         return this
       },
       /**
        * Add a call_abi_uint32_readonly(uint32)uint32 method call against the State contract
        */
-      callAbiUint32Readonly(params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbiUint32Readonly(params)))
+      call_abi_uint32_readonly(params: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.call_abi_uint32_readonly(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi_uint32_readonly(uint32)uint32', v))
         return this
       },
       /**
        * Add a call_abi_uint64(uint64)uint64 method call against the State contract
        */
-      callAbiUint64(params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbiUint64(params)))
+      call_abi_uint64(params: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.call_abi_uint64(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi_uint64(uint64)uint64', v))
         return this
       },
       /**
        * Add a call_abi_uint64_readonly(uint64)uint64 method call against the State contract
        */
-      callAbiUint64Readonly(params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbiUint64Readonly(params)))
+      call_abi_uint64_readonly(params: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.call_abi_uint64_readonly(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi_uint64_readonly(uint64)uint64', v))
         return this
       },
       /**
        * Add a call_abi_txn(pay,string)string method call against the State contract
        */
-      callAbiTxn(params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callAbiTxn(params)))
+      call_abi_txn(params: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.call_abi_txn(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_abi_txn(pay,string)string', v))
         return this
       },
       /**
        * Add a call_with_references(asset,account,application)uint64 method call against the State contract
        */
-      callWithReferences(params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.callWithReferences(params)))
+      call_with_references(params: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.call_with_references(params)))
         resultMappers.push((v) => client.decodeReturnValue('call_with_references(asset,account,application)uint64', v))
         return this
       },
       /**
        * Add a default_value(string)string method call against the State contract
        */
-      defaultValue(params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValue(params)))
+      default_value(params: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.default_value(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value(string)string', v))
         return this
       },
       /**
        * Add a default_value_int(uint64)uint64 method call against the State contract
        */
-      defaultValueInt(params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueInt(params)))
+      default_value_int(params: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.default_value_int(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_int(uint64)uint64', v))
         return this
       },
       /**
        * Add a default_value_from_abi(string)string method call against the State contract
        */
-      defaultValueFromAbi(params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromAbi(params)))
+      default_value_from_abi(params: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.default_value_from_abi(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_abi(string)string', v))
         return this
       },
       /**
        * Add a default_value_from_global_state(uint64)uint64 method call against the State contract
        */
-      defaultValueFromGlobalState(params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromGlobalState(params)))
+      default_value_from_global_state(params: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.default_value_from_global_state(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_global_state(uint64)uint64', v))
         return this
       },
       /**
        * Add a default_value_from_local_state(string)string method call against the State contract
        */
-      defaultValueFromLocalState(params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.defaultValueFromLocalState(params)))
+      default_value_from_local_state(params: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.default_value_from_local_state(params)))
         resultMappers.push((v) => client.decodeReturnValue('default_value_from_local_state(string)string', v))
         return this
       },
@@ -2258,24 +2258,24 @@ export class StateClient {
       /**
        * Add a set_global(uint64,uint64,string,byte[4])void method call against the State contract
        */
-      setGlobal(params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setGlobal(params)))
+      set_global(params: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.set_global(params)))
         resultMappers.push(undefined)
         return this
       },
       /**
        * Add a set_local(uint64,uint64,string,byte[4])void method call against the State contract
        */
-      setLocal(params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setLocal(params)))
+      set_local(params: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.set_local(params)))
         resultMappers.push(undefined)
         return this
       },
       /**
        * Add a set_box(byte[4],string)void method call against the State contract
        */
-      setBox(params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setBox(params)))
+      set_box(params: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.set_box(params)))
         resultMappers.push(undefined)
         return this
       },
@@ -2285,8 +2285,8 @@ export class StateClient {
             promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
             return this
           },
-          updateAbi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
-            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.updateAbi(params)))
+          update_abi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.update_abi(params)))
             resultMappers.push((v) => client.decodeReturnValue('update_abi(string)string', v))
             return this
           },
@@ -2298,8 +2298,8 @@ export class StateClient {
             promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
             return this
           },
-          deleteAbi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
-            promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.deleteAbi(params)))
+          delete_abi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
+            promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.delete_abi(params)))
             resultMappers.push((v) => client.decodeReturnValue('delete_abi(string)string', v))
             return this
           },
@@ -2307,8 +2307,8 @@ export class StateClient {
       },
       get optIn() {
         return {
-          optIn: (params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']>) => {
-            promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.optIn(params)))
+          opt_in: (params: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']>) => {
+            promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.opt_in(params)))
             resultMappers.push(undefined)
             return this
           },
@@ -2365,7 +2365,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbi(params?: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']>): StateComposer<[...TReturns, StateReturns['call_abi(string)string'] | undefined]>
+  call_abi(params?: CallParams<StateArgs['obj']['call_abi(string)string'] | StateArgs['tuple']['call_abi(string)string']>): StateComposer<[...TReturns, StateReturns['call_abi(string)string'] | undefined]>
 
   /**
    * Calls the call_abi_uint32(uint32)uint32 ABI method.
@@ -2374,7 +2374,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbiUint32(params?: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']>): StateComposer<[...TReturns, StateReturns['call_abi_uint32(uint32)uint32'] | undefined]>
+  call_abi_uint32(params?: CallParams<StateArgs['obj']['call_abi_uint32(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32(uint32)uint32']>): StateComposer<[...TReturns, StateReturns['call_abi_uint32(uint32)uint32'] | undefined]>
 
   /**
    * Calls the call_abi_uint32_readonly(uint32)uint32 ABI method.
@@ -2383,7 +2383,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbiUint32Readonly(params?: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']>): StateComposer<[...TReturns, StateReturns['call_abi_uint32_readonly(uint32)uint32'] | undefined]>
+  call_abi_uint32_readonly(params?: CallParams<StateArgs['obj']['call_abi_uint32_readonly(uint32)uint32'] | StateArgs['tuple']['call_abi_uint32_readonly(uint32)uint32']>): StateComposer<[...TReturns, StateReturns['call_abi_uint32_readonly(uint32)uint32'] | undefined]>
 
   /**
    * Calls the call_abi_uint64(uint64)uint64 ABI method.
@@ -2392,7 +2392,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbiUint64(params?: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']>): StateComposer<[...TReturns, StateReturns['call_abi_uint64(uint64)uint64'] | undefined]>
+  call_abi_uint64(params?: CallParams<StateArgs['obj']['call_abi_uint64(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64(uint64)uint64']>): StateComposer<[...TReturns, StateReturns['call_abi_uint64(uint64)uint64'] | undefined]>
 
   /**
    * Calls the call_abi_uint64_readonly(uint64)uint64 ABI method.
@@ -2401,7 +2401,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbiUint64Readonly(params?: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']>): StateComposer<[...TReturns, StateReturns['call_abi_uint64_readonly(uint64)uint64'] | undefined]>
+  call_abi_uint64_readonly(params?: CallParams<StateArgs['obj']['call_abi_uint64_readonly(uint64)uint64'] | StateArgs['tuple']['call_abi_uint64_readonly(uint64)uint64']>): StateComposer<[...TReturns, StateReturns['call_abi_uint64_readonly(uint64)uint64'] | undefined]>
 
   /**
    * Calls the call_abi_txn(pay,string)string ABI method.
@@ -2410,7 +2410,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callAbiTxn(params?: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']>): StateComposer<[...TReturns, StateReturns['call_abi_txn(pay,string)string'] | undefined]>
+  call_abi_txn(params?: CallParams<StateArgs['obj']['call_abi_txn(pay,string)string'] | StateArgs['tuple']['call_abi_txn(pay,string)string']>): StateComposer<[...TReturns, StateReturns['call_abi_txn(pay,string)string'] | undefined]>
 
   /**
    * Calls the call_with_references(asset,account,application)uint64 ABI method.
@@ -2419,7 +2419,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  callWithReferences(params?: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']>): StateComposer<[...TReturns, StateReturns['call_with_references(asset,account,application)uint64'] | undefined]>
+  call_with_references(params?: CallParams<StateArgs['obj']['call_with_references(asset,account,application)uint64'] | StateArgs['tuple']['call_with_references(asset,account,application)uint64']>): StateComposer<[...TReturns, StateReturns['call_with_references(asset,account,application)uint64'] | undefined]>
 
   /**
    * Calls the default_value(string)string ABI method.
@@ -2428,7 +2428,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValue(params?: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']>): StateComposer<[...TReturns, StateReturns['default_value(string)string'] | undefined]>
+  default_value(params?: CallParams<StateArgs['obj']['default_value(string)string'] | StateArgs['tuple']['default_value(string)string']>): StateComposer<[...TReturns, StateReturns['default_value(string)string'] | undefined]>
 
   /**
    * Calls the default_value_int(uint64)uint64 ABI method.
@@ -2437,7 +2437,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueInt(params?: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']>): StateComposer<[...TReturns, StateReturns['default_value_int(uint64)uint64'] | undefined]>
+  default_value_int(params?: CallParams<StateArgs['obj']['default_value_int(uint64)uint64'] | StateArgs['tuple']['default_value_int(uint64)uint64']>): StateComposer<[...TReturns, StateReturns['default_value_int(uint64)uint64'] | undefined]>
 
   /**
    * Calls the default_value_from_abi(string)string ABI method.
@@ -2446,7 +2446,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromAbi(params?: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']>): StateComposer<[...TReturns, StateReturns['default_value_from_abi(string)string'] | undefined]>
+  default_value_from_abi(params?: CallParams<StateArgs['obj']['default_value_from_abi(string)string'] | StateArgs['tuple']['default_value_from_abi(string)string']>): StateComposer<[...TReturns, StateReturns['default_value_from_abi(string)string'] | undefined]>
 
   /**
    * Calls the default_value_from_global_state(uint64)uint64 ABI method.
@@ -2455,7 +2455,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromGlobalState(params?: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']>): StateComposer<[...TReturns, StateReturns['default_value_from_global_state(uint64)uint64'] | undefined]>
+  default_value_from_global_state(params?: CallParams<StateArgs['obj']['default_value_from_global_state(uint64)uint64'] | StateArgs['tuple']['default_value_from_global_state(uint64)uint64']>): StateComposer<[...TReturns, StateReturns['default_value_from_global_state(uint64)uint64'] | undefined]>
 
   /**
    * Calls the default_value_from_local_state(string)string ABI method.
@@ -2464,7 +2464,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  defaultValueFromLocalState(params?: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']>): StateComposer<[...TReturns, StateReturns['default_value_from_local_state(string)string'] | undefined]>
+  default_value_from_local_state(params?: CallParams<StateArgs['obj']['default_value_from_local_state(string)string'] | StateArgs['tuple']['default_value_from_local_state(string)string']>): StateComposer<[...TReturns, StateReturns['default_value_from_local_state(string)string'] | undefined]>
 
   /**
    * Calls the structs((string,uint64))(string,uint64) ABI method.
@@ -2482,7 +2482,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setGlobal(params?: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']>): StateComposer<[...TReturns, StateReturns['set_global(uint64,uint64,string,byte[4])void'] | undefined]>
+  set_global(params?: CallParams<StateArgs['obj']['set_global(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_global(uint64,uint64,string,byte[4])void']>): StateComposer<[...TReturns, StateReturns['set_global(uint64,uint64,string,byte[4])void'] | undefined]>
 
   /**
    * Calls the set_local(uint64,uint64,string,byte[4])void ABI method.
@@ -2491,7 +2491,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setLocal(params?: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']>): StateComposer<[...TReturns, StateReturns['set_local(uint64,uint64,string,byte[4])void'] | undefined]>
+  set_local(params?: CallParams<StateArgs['obj']['set_local(uint64,uint64,string,byte[4])void'] | StateArgs['tuple']['set_local(uint64,uint64,string,byte[4])void']>): StateComposer<[...TReturns, StateReturns['set_local(uint64,uint64,string,byte[4])void'] | undefined]>
 
   /**
    * Calls the set_box(byte[4],string)void ABI method.
@@ -2500,7 +2500,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setBox(params?: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']>): StateComposer<[...TReturns, StateReturns['set_box(byte[4],string)void'] | undefined]>
+  set_box(params?: CallParams<StateArgs['obj']['set_box(byte[4],string)void'] | StateArgs['tuple']['set_box(byte[4],string)void']>): StateComposer<[...TReturns, StateReturns['set_box(byte[4],string)void'] | undefined]>
 
   /**
    * Gets available update methods
@@ -2520,7 +2520,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    updateAbi(params?: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']>): StateComposer<[...TReturns, StateReturns['update_abi(string)string'] | undefined]>
+    update_abi(params?: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']>): StateComposer<[...TReturns, StateReturns['update_abi(string)string'] | undefined]>
   }
 
   /**
@@ -2541,7 +2541,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    deleteAbi(params?: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>): StateComposer<[...TReturns, StateReturns['delete_abi(string)string'] | undefined]>
+    delete_abi(params?: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>): StateComposer<[...TReturns, StateReturns['delete_abi(string)string'] | undefined]>
   }
 
   /**
@@ -2555,7 +2555,7 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    optIn(params?: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']>): StateComposer<[...TReturns, StateReturns['opt_in()void'] | undefined]>
+    opt_in(params?: CallParams<StateArgs['obj']['opt_in()void'] | StateArgs['tuple']['opt_in()void']>): StateComposer<[...TReturns, StateReturns['opt_in()void'] | undefined]>
   }
 
   /**

@@ -21,7 +21,7 @@ describe('voting typed client', () => {
   })
 
   beforeEach(async () => {
-    await localnet.beforeEach()
+    await localnet.newScope()
     const { algorand, testAccount } = localnet.context
     factory = algorand.client.getTypedAppFactory(VotingRoundFactory, { defaultSender: testAccount.addr })
   }, 10_000)

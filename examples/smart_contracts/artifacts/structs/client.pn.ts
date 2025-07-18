@@ -163,26 +163,26 @@ export type StructsTypes = {
   state: {
     global: {
       keys: {
-        myStruct: Vector
-        myNestedStruct: RootStruct
+        my_struct: Vector
+        my_nested_struct: RootStruct
       }
       maps: {}
     }
     local: {
       keys: {
-        myLocalstateStruct: Vector
-        myNestedLocalstateStruct: RootStruct
+        my_localstate_struct: Vector
+        my_nested_localstate_struct: RootStruct
       }
       maps: {}
     }
     box: {
       keys: {
-        myBoxStruct: Vector
-        myNestedBoxStruct: RootStruct
+        my_box_struct: Vector
+        my_nested_box_struct: RootStruct
       }
       maps: {
-        myBoxmapStruct: Map<bigint | number, Vector>
-        myNestedBoxmapStruct: Map<bigint | number, RootStruct>
+        my_boxmap_struct: Map<bigint | number, Vector>
+        my_nested_boxmap_struct: Map<bigint | number, RootStruct>
       }
     }
   }
@@ -262,7 +262,7 @@ export abstract class StructsParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      optIn(params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']>): AppClientMethodCallParams {
+      opt_in(params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'opt_in()void' as const,
@@ -291,7 +291,7 @@ export abstract class StructsParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static giveMeRootStruct(params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static give_me_root_struct(params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'give_me_root_struct()(((string,string)))' as const,
@@ -538,8 +538,8 @@ export class StructsClient {
        * @param params The params for the smart contract call
        * @returns The optIn params
        */
-      optIn: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> = {args: []}) => {
-        return this.appClient.params.optIn(StructsParamsFactory.optIn.optIn(params))
+      opt_in: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> = {args: []}) => {
+        return this.appClient.params.optIn(StructsParamsFactory.optIn.opt_in(params))
       },
 
     },
@@ -570,8 +570,8 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    giveMeRootStruct: (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.params.call(StructsParamsFactory.giveMeRootStruct(params))
+    give_me_root_struct: (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(StructsParamsFactory.give_me_root_struct(params))
     },
 
   }
@@ -590,8 +590,8 @@ export class StructsClient {
        * @param params The params for the smart contract call
        * @returns The optIn transaction
        */
-      optIn: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> = {args: []}) => {
-        return this.appClient.createTransaction.optIn(StructsParamsFactory.optIn.optIn(params))
+      opt_in: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> = {args: []}) => {
+        return this.appClient.createTransaction.optIn(StructsParamsFactory.optIn.opt_in(params))
       },
 
     },
@@ -622,8 +622,8 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    giveMeRootStruct: (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.createTransaction.call(StructsParamsFactory.giveMeRootStruct(params))
+    give_me_root_struct: (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(StructsParamsFactory.give_me_root_struct(params))
     },
 
   }
@@ -642,8 +642,8 @@ export class StructsClient {
        * @param params The params for the smart contract call
        * @returns The optIn result
        */
-      optIn: async (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> & SendParams = {args: []}) => {
-        const result = await this.appClient.send.optIn(StructsParamsFactory.optIn.optIn(params))
+      opt_in: async (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> & SendParams = {args: []}) => {
+        const result = await this.appClient.send.optIn(StructsParamsFactory.optIn.opt_in(params))
         return {...result, return: result.return as unknown as (undefined | StructsReturns['opt_in()void'])}
       },
 
@@ -676,8 +676,8 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    giveMeRootStruct: async (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      const result = await this.appClient.send.call(StructsParamsFactory.giveMeRootStruct(params))
+    give_me_root_struct: async (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(StructsParamsFactory.give_me_root_struct(params))
       return {...result, return: result.return as unknown as (undefined | StructsReturns['give_me_root_struct()(((string,string)))'])}
     },
 
@@ -707,18 +707,18 @@ export class StructsClient {
       getAll: async (): Promise<Partial<Expand<GlobalKeysState>>> => {
         const result = await this.appClient.state.global.getAll()
         return {
-          myStruct: result.my_struct,
-          myNestedStruct: result.my_nested_struct,
+          my_struct: result.my_struct,
+          my_nested_struct: result.my_nested_struct,
         }
       },
       /**
        * Get the current value of the my_struct key in global state
        */
-      myStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.global.getValue("my_struct")) as Vector | undefined },
+      my_struct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.global.getValue("my_struct")) as Vector | undefined },
       /**
        * Get the current value of the my_nested_struct key in global state
        */
-      myNestedStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.global.getValue("my_nested_struct")) as RootStruct | undefined },
+      my_nested_struct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.global.getValue("my_nested_struct")) as RootStruct | undefined },
     },
     /**
      * Methods to access local state for the current Structs app
@@ -732,18 +732,18 @@ export class StructsClient {
         getAll: async (): Promise<Partial<Expand<LocalKeysState>>> => {
           const result = await this.appClient.state.local(encodedAddress).getAll()
           return {
-            myLocalstateStruct: result.my_localstate_struct,
-            myNestedLocalstateStruct: result.my_nested_localstate_struct,
+            my_localstate_struct: result.my_localstate_struct,
+            my_nested_localstate_struct: result.my_nested_localstate_struct,
           }
         },
         /**
          * Get the current value of the my_localstate_struct key in local state
          */
-        myLocalstateStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("my_localstate_struct")) as Vector | undefined },
+        my_localstate_struct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("my_localstate_struct")) as Vector | undefined },
         /**
          * Get the current value of the my_nested_localstate_struct key in local state
          */
-        myNestedLocalstateStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("my_nested_localstate_struct")) as RootStruct | undefined },
+        my_nested_localstate_struct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.local(encodedAddress).getValue("my_nested_localstate_struct")) as RootStruct | undefined },
       }
     },
     /**
@@ -756,22 +756,22 @@ export class StructsClient {
       getAll: async (): Promise<Partial<Expand<BoxKeysState>>> => {
         const result = await this.appClient.state.box.getAll()
         return {
-          myBoxStruct: result.my_box_struct,
-          myNestedBoxStruct: result.my_nested_box_struct,
+          my_box_struct: result.my_box_struct,
+          my_nested_box_struct: result.my_nested_box_struct,
         }
       },
       /**
        * Get the current value of the my_box_struct key in box state
        */
-      myBoxStruct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.box.getValue("my_box_struct")) as Vector | undefined },
+      my_box_struct: async (): Promise<Vector | undefined> => { return (await this.appClient.state.box.getValue("my_box_struct")) as Vector | undefined },
       /**
        * Get the current value of the my_nested_box_struct key in box state
        */
-      myNestedBoxStruct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.box.getValue("my_nested_box_struct")) as RootStruct | undefined },
+      my_nested_box_struct: async (): Promise<RootStruct | undefined> => { return (await this.appClient.state.box.getValue("my_nested_box_struct")) as RootStruct | undefined },
       /**
        * Get values from the my_boxmap_struct map in box state
        */
-      myBoxmapStruct: {
+      my_boxmap_struct: {
         /**
          * Get all current values of the my_boxmap_struct map in box state
          */
@@ -784,7 +784,7 @@ export class StructsClient {
       /**
        * Get values from the my_nested_boxmap_struct map in box state
        */
-      myNestedBoxmapStruct: {
+      my_nested_boxmap_struct: {
         /**
          * Get all current values of the my_nested_boxmap_struct map in box state
          */
@@ -814,15 +814,15 @@ export class StructsClient {
       /**
        * Add a give_me_root_struct()(((string,string))) method call against the Structs contract
        */
-      giveMeRootStruct(params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.giveMeRootStruct(params)))
+      give_me_root_struct(params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.give_me_root_struct(params)))
         resultMappers.push((v) => client.decodeReturnValue('give_me_root_struct()(((string,string)))', v))
         return this
       },
       get optIn() {
         return {
-          optIn: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']>) => {
-            promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.optIn(params)))
+          opt_in: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']>) => {
+            promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.opt_in(params)))
             resultMappers.push(undefined)
             return this
           },
@@ -879,7 +879,7 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  giveMeRootStruct(params?: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']>): StructsComposer<[...TReturns, StructsReturns['give_me_root_struct()(((string,string)))'] | undefined]>
+  give_me_root_struct(params?: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']>): StructsComposer<[...TReturns, StructsReturns['give_me_root_struct()(((string,string)))'] | undefined]>
 
   /**
    * Gets available optIn methods
@@ -892,7 +892,7 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    optIn(params?: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']>): StructsComposer<[...TReturns, StructsReturns['opt_in()void'] | undefined]>
+    opt_in(params?: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']>): StructsComposer<[...TReturns, StructsReturns['opt_in()void'] | undefined]>
   }
 
   /**

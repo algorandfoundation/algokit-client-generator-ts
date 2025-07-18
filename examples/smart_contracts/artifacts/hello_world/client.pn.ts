@@ -199,7 +199,7 @@ export abstract class HelloWorldParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloWorldCheck(params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static hello_world_check(params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello_world_check(string)void' as const,
@@ -522,8 +522,8 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloWorldCheck: (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(HelloWorldParamsFactory.helloWorldCheck(params))
+    hello_world_check: (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(HelloWorldParamsFactory.hello_world_check(params))
     },
 
   }
@@ -588,8 +588,8 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloWorldCheck: (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(HelloWorldParamsFactory.helloWorldCheck(params))
+    hello_world_check: (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(HelloWorldParamsFactory.hello_world_check(params))
     },
 
   }
@@ -655,8 +655,8 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloWorldCheck: async (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(HelloWorldParamsFactory.helloWorldCheck(params))
+    hello_world_check: async (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(HelloWorldParamsFactory.hello_world_check(params))
       return {...result, return: result.return as unknown as (undefined | HelloWorldReturns['hello_world_check(string)void'])}
     },
 
@@ -695,8 +695,8 @@ export class HelloWorldClient {
       /**
        * Add a hello_world_check(string)void method call against the HelloWorld contract
        */
-      helloWorldCheck(params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloWorldCheck(params)))
+      hello_world_check(params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.hello_world_check(params)))
         resultMappers.push(undefined)
         return this
       },
@@ -767,7 +767,7 @@ export type HelloWorldComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloWorldCheck(params?: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']>): HelloWorldComposer<[...TReturns, HelloWorldReturns['hello_world_check(string)void'] | undefined]>
+  hello_world_check(params?: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']>): HelloWorldComposer<[...TReturns, HelloWorldReturns['hello_world_check(string)void'] | undefined]>
 
   /**
    * Gets available update methods

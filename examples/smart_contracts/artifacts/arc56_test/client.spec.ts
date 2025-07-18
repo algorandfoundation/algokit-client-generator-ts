@@ -3,8 +3,10 @@ import { test, describe, beforeAll, beforeEach, expect } from 'vitest'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { setUpLocalnet } from '../../../../src/tests/util'
-import { Arc56TestFactory, Inputs } from './client'
+import * as full from './client'
+import * as minimal from './client.minimal'
 import invariant from 'tiny-invariant'
+import { generateModes } from '../../../../src/client/generator-context'
 
 describe('state typed client', () => {
   let localnet: AlgorandFixture
@@ -14,30 +16,38 @@ describe('state typed client', () => {
   })
 
   beforeEach(async () => {
-    await localnet.beforeEach()
+    await localnet.newScope()
   }, 10_000)
 
-  test('Demo works', async () => {
+  test.each(generateModes)('Demo works with %s client', async (clientType) => {
     const { algorand } = localnet.context
 
     const defaultSender = (await algorand.account.localNetDispenser()).addr
 
-    const factory = new Arc56TestFactory({
+    const factory = new full.Arc56TestFactory({
       algorand,
       defaultSender,
     })
 
     const {
       result: { appId, appAddress },
-      appClient,
+      appClient: fullAppClient,
     } = await factory.send.create.createApplication({
       args: [],
       deployTimeParams: { someNumber: 1337n },
     })
 
-    console.log('App ID:', appId, 'App Address:', appAddress)
+    const appClient =
+      clientType === 'minimal'
+        ? algorand.client.getTypedAppClientById(minimal.Arc56TestClient, {
+            appId: fullAppClient.appId,
+            defaultSender: defaultSender,
+          })
+        : fullAppClient
 
-    const inputs: Inputs = { add: { a: 1n, b: 2n }, subtract: { a: 10n, b: 5n } }
+    console.log(`App ID (${clientType} client):`, appId, 'App Address:', appAddress)
+
+    const inputs: full.Inputs = { add: { a: 1n, b: 2n }, subtract: { a: 10n, b: 5n } }
 
     // Call the app with default sender
     const outputs = await appClient.send.foo({ args: { inputs } })
@@ -71,8 +81,18 @@ describe('state typed client', () => {
     const {
       result: { appId: anotherAppId, appAddress: anotherAppAddress },
     } = await factory.send.create.createApplication({ deployTimeParams: { someNumber: 1338n }, args: [] })
-    const anotherAppClient = factory.getAppClientById({ appId: anotherAppId, defaultSender: bob })
-    console.log('App ID:', anotherAppId, 'App Address:', anotherAppAddress)
+
+    const anotherAppClient =
+      clientType === 'minimal'
+        ? algorand.client.getTypedAppClientById(minimal.Arc56TestClient, {
+            appId: anotherAppId,
+            defaultSender: bob,
+          })
+        : factory.getAppClientById({ appId: anotherAppId, defaultSender: bob })
+
+    factory.getAppClientById({ appId: anotherAppId, defaultSender: bob })
+
+    console.log(`App ID (${clientType} client):`, anotherAppId, 'App Address:', anotherAppAddress)
 
     // Composer together multiple appClients
     const result = await algorand
@@ -82,7 +102,7 @@ describe('state typed client', () => {
         await appClient.params.foo({ extraFee: microAlgos(1_000), args: { inputs } }),
       )
       .addAppCallMethodCall(await anotherAppClient.params.foo({ staticFee: microAlgos(0), args: { inputs } }))
-      .execute()
+      .send()
 
     const { sum: firstSum } = appClient.decodeReturnValue('foo', result.returns![0])!
     const { sum: secondSum } = appClient.decodeReturnValue('foo', result.returns![1])!

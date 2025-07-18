@@ -14,7 +14,7 @@ describe('lifecycle typed client', () => {
   let factory: LifeCycleFactory
 
   beforeEach(async () => {
-    await localnet.beforeEach()
+    await localnet.newScope()
 
     const { algorand, testAccount } = localnet.context
     factory = algorand.client.getTypedAppFactory(LifeCycleFactory, {
