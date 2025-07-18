@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Client type differences > arc56_test: regular vs slim differences > arc56_test-differences 1`] = `
+exports[`Client type differences > arc56_test: full vs minimal differences > arc56_test-client-diff 1`] = `
 [
   "appClient._appSpec.scratchVariables",
   "appClient._appSpec.scratchVariables.someNumber",
@@ -15,7 +15,9 @@ exports[`Client type differences > arc56_test: regular vs slim differences > arc
 ]
 `;
 
-exports[`Client type differences > duplicate_structs: regular vs slim differences > duplicate_structs-differences 1`] = `
+exports[`Client type differences > arc56_test: full vs minimal differences > arc56_test-composer-diff 1`] = `[]`;
+
+exports[`Client type differences > duplicate_structs: full vs minimal differences > duplicate_structs-client-diff 1`] = `
 [
   "appClient._appSpec.source",
   "appClient._appSpec.source.approval",
@@ -23,7 +25,9 @@ exports[`Client type differences > duplicate_structs: regular vs slim difference
 ]
 `;
 
-exports[`Client type differences > hello_world: regular vs slim differences > hello_world-differences 1`] = `
+exports[`Client type differences > duplicate_structs: full vs minimal differences > duplicate_structs-composer-diff 1`] = `[]`;
+
+exports[`Client type differences > hello_world: full vs minimal differences > hello_world-client-diff 1`] = `
 [
   "appClient._appSpec.source",
   "appClient._appSpec.source.approval",
@@ -43,7 +47,16 @@ exports[`Client type differences > hello_world: regular vs slim differences > he
 ]
 `;
 
-exports[`Client type differences > life_cycle: regular vs slim differences > life_cycle-differences 1`] = `
+exports[`Client type differences > hello_world: full vs minimal differences > hello_world-composer-diff 1`] = `
+[
+  "delete",
+  "delete.bare",
+  "update",
+  "update.bare",
+]
+`;
+
+exports[`Client type differences > life_cycle: full vs minimal differences > life_cycle-client-diff 1`] = `
 [
   "appClient._appSpec.source",
   "appClient._appSpec.source.approval",
@@ -66,7 +79,17 @@ exports[`Client type differences > life_cycle: regular vs slim differences > lif
 ]
 `;
 
-exports[`Client type differences > minimal: regular vs slim differences > minimal-differences 1`] = `
+exports[`Client type differences > life_cycle: full vs minimal differences > life_cycle-composer-diff 1`] = `
+[
+  "delete",
+  "delete.deleteTest",
+  "update",
+  "update.bare",
+  "update.updateTest",
+]
+`;
+
+exports[`Client type differences > minimal: full vs minimal differences > minimal-client-diff 1`] = `
 [
   "appClient._appSpec.source",
   "appClient._appSpec.source.approval",
@@ -86,7 +109,16 @@ exports[`Client type differences > minimal: regular vs slim differences > minima
 ]
 `;
 
-exports[`Client type differences > nested: regular vs slim differences > nested-differences 1`] = `
+exports[`Client type differences > minimal: full vs minimal differences > minimal-composer-diff 1`] = `
+[
+  "delete",
+  "delete.bare",
+  "update",
+  "update.bare",
+]
+`;
+
+exports[`Client type differences > nested: full vs minimal differences > nested-client-diff 1`] = `
 [
   "appClient._appSpec.byteCode",
   "appClient._appSpec.byteCode.approval",
@@ -98,7 +130,9 @@ exports[`Client type differences > nested: regular vs slim differences > nested-
 ]
 `;
 
-exports[`Client type differences > nfd: regular vs slim differences > nfd-differences 1`] = `
+exports[`Client type differences > nested: full vs minimal differences > nested-composer-diff 1`] = `[]`;
+
+exports[`Client type differences > nfd: full vs minimal differences > nfd-client-diff 1`] = `
 [
   "appClient._appSpec.scratchVariables",
   "appClient._appSpec.scratchVariables.adminAsaId",
@@ -124,7 +158,14 @@ exports[`Client type differences > nfd: regular vs slim differences > nfd-differ
 ]
 `;
 
-exports[`Client type differences > reti: regular vs slim differences > reti-differences 1`] = `
+exports[`Client type differences > nfd: full vs minimal differences > nfd-composer-diff 1`] = `
+[
+  "update",
+  "update.updateApplication",
+]
+`;
+
+exports[`Client type differences > reti: full vs minimal differences > reti-client-diff 1`] = `
 [
   "appClient._appSpec.scratchVariables",
   "appClient._appSpec.scratchVariables.nfdRegistryAppId",
@@ -139,7 +180,9 @@ exports[`Client type differences > reti: regular vs slim differences > reti-diff
 ]
 `;
 
-exports[`Client type differences > state: regular vs slim differences > state-differences 1`] = `
+exports[`Client type differences > reti: full vs minimal differences > reti-composer-diff 1`] = `[]`;
+
+exports[`Client type differences > state: full vs minimal differences > state-client-diff 1`] = `
 [
   "appClient._appSpec.source",
   "appClient._appSpec.source.approval",
@@ -165,7 +208,18 @@ exports[`Client type differences > state: regular vs slim differences > state-di
 ]
 `;
 
-exports[`Client type differences > structs: regular vs slim differences > structs-differences 1`] = `
+exports[`Client type differences > state: full vs minimal differences > state-composer-diff 1`] = `
+[
+  "delete",
+  "delete.bare",
+  "delete.deleteAbi",
+  "update",
+  "update.bare",
+  "update.updateAbi",
+]
+`;
+
+exports[`Client type differences > structs: full vs minimal differences > structs-client-diff 1`] = `
 [
   "appClient._appSpec.byteCode",
   "appClient._appSpec.byteCode.approval",
@@ -177,7 +231,9 @@ exports[`Client type differences > structs: regular vs slim differences > struct
 ]
 `;
 
-exports[`Client type differences > voting_round: regular vs slim differences > voting_round-differences 1`] = `
+exports[`Client type differences > structs: full vs minimal differences > structs-composer-diff 1`] = `[]`;
+
+exports[`Client type differences > voting_round: full vs minimal differences > voting_round-client-diff 1`] = `
 [
   "appClient._appSpec.source",
   "appClient._appSpec.source.approval",
@@ -191,7 +247,14 @@ exports[`Client type differences > voting_round: regular vs slim differences > v
 ]
 `;
 
-exports[`Client type differences > zero_coupon_bond: regular vs slim differences > zero_coupon_bond-differences 1`] = `
+exports[`Client type differences > voting_round: full vs minimal differences > voting_round-composer-diff 1`] = `
+[
+  "delete",
+  "delete.bare",
+]
+`;
+
+exports[`Client type differences > zero_coupon_bond: full vs minimal differences > zero_coupon_bond-client-diff 1`] = `
 [
   "appClient._appSpec.byteCode",
   "appClient._appSpec.byteCode.approval",
@@ -206,5 +269,12 @@ exports[`Client type differences > zero_coupon_bond: regular vs slim differences
   "params.update.bare",
   "send.update",
   "send.update.bare",
+]
+`;
+
+exports[`Client type differences > zero_coupon_bond: full vs minimal differences > zero_coupon_bond-composer-diff 1`] = `
+[
+  "update",
+  "update.bare",
 ]
 `;

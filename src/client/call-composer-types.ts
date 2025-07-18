@@ -11,7 +11,7 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield IncIndent
 
   yield* callComposerTypeNoops(ctx)
-  if (!ctx.slim) {
+  if (ctx.mode === 'full') {
     yield* callComposerOperationMethodType(
       ctx,
       `Updates an existing instance of the ${app.name} smart contract`,

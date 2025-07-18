@@ -22,7 +22,6 @@ import {
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
-import SimulateResponse = modelsv2.SimulateResponse
 
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"DuplicateStructs","desc":"\n    Used for snapshot testing to ensure no duplicate struct definitions in typed clients.\n    ","structs":{"SomeStruct":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]},"methods":[{"name":"method_a_that_uses_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"method_b_that_uses_same_struct","args":[],"returns":{"type":"(uint64,uint64)","struct":"SomeStruct"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]}} as unknown as Arc56Contract
 
@@ -493,9 +492,9 @@ export type DuplicateStructsComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<DuplicateStructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<DuplicateStructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<DuplicateStructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(): Promise<DuplicateStructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<DuplicateStructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<DuplicateStructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */

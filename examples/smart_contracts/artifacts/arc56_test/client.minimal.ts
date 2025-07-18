@@ -22,7 +22,6 @@ import {
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
-import SimulateResponse = modelsv2.SimulateResponse
 
 export const APP_SPEC: Arc56Contract = {"name":"ARC56Test","desc":"","methods":[{"name":"foo","args":[{"name":"inputs","type":"((uint64,uint64),(uint64,uint64))","struct":"Inputs"}],"returns":{"type":"(uint64,uint64)","struct":"Outputs"},"actions":{"create":[],"call":["NoOp"]}},{"name":"optInToApplication","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["OptIn"]}},{"name":"createApplication","args":[],"returns":{"type":"void"},"actions":{"create":["NoOp"],"call":[]}}],"arcs":[4,56],"structs":{"{ foo: uint16; bar: uint16 }":[{"name":"foo","type":"uint16"},{"name":"bar","type":"uint16"}],"Outputs":[{"name":"sum","type":"uint64"},{"name":"difference","type":"uint64"}],"Inputs":[{"name":"add","type":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]},{"name":"subtract","type":[{"name":"a","type":"uint64"},{"name":"b","type":"uint64"}]}]},"state":{"schema":{"global":{"bytes":37,"ints":1},"local":{"bytes":13,"ints":1}},"keys":{"global":{"globalKey":{"key":"Z2xvYmFsS2V5","keyType":"AVMBytes","valueType":"uint64"}},"local":{"localKey":{"key":"bG9jYWxLZXk=","keyType":"AVMBytes","valueType":"uint64"}},"box":{"boxKey":{"key":"Ym94S2V5","keyType":"AVMBytes","valueType":"string"}}},"maps":{"global":{"globalMap":{"keyType":"string","valueType":"{ foo: uint16; bar: uint16 }","prefix":"cA=="}},"local":{"localMap":{"keyType":"AVMBytes","valueType":"string","prefix":"cA=="}},"box":{"boxMap":{"keyType":"Inputs","valueType":"Outputs","prefix":"cA=="}}}},"bareActions":{"create":[],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[36],"errorMessage":"The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?","teal":25},{"pc":[51],"errorMessage":"argument 0 (inputs) for foo must be a ((uint64,uint64),(uint64,uint64))","teal":40},{"pc":[78],"errorMessage":"subtract.a must be greater than subtract.b","teal":67},{"pc":[257],"errorMessage":"this contract does not implement the given ABI method for create NoOp","teal":160},{"pc":[271],"errorMessage":"this contract does not implement the given ABI method for call NoOp","teal":168},{"pc":[285],"errorMessage":"this contract does not implement the given ABI method for call OptIn","teal":176}],"pcOffsetMethod":"cblocks"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}}} as unknown as Arc56Contract
 
@@ -707,9 +706,9 @@ export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */

@@ -18,7 +18,7 @@ export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   yield IncIndent
 
   yield* callComposerNoops(ctx)
-  if (!ctx.slim) {
+  if (ctx.mode === 'full') {
     yield* callComposerOperationMethods(ctx, callConfig.updateMethods, 'update', true)
     yield* callComposerOperationMethods(ctx, callConfig.deleteMethods, 'delete')
   }

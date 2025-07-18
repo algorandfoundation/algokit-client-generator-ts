@@ -22,7 +22,6 @@ import {
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
-import SimulateResponse = modelsv2.SimulateResponse
 
 export const APP_SPEC: Arc56Contract = {"name":"Nested","structs":{},"methods":[{"name":"add","args":[{"type":"uint64","name":"a"},{"type":"uint64","name":"b"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"get_pay_txn_amount","args":[{"type":"pay","name":"pay_txn"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"nested_method_call","args":[{"type":"string","name":"_"},{"type":"pay","name":"_pay_txn"},{"type":"appl","name":"method_call"}],"returns":{"type":"byte[]"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[50,91,117],"errorMessage":"OnCompletion is not NoOp"},{"pc":[144],"errorMessage":"can only call when creating"},{"pc":[53,94,120],"errorMessage":"can only call when not creating"},{"pc":[78],"errorMessage":"transaction type is appl"},{"pc":[67,104],"errorMessage":"transaction type is pay"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"events":[]} as unknown as Arc56Contract
 
@@ -556,9 +555,9 @@ export type NestedComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<NestedComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<NestedComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<NestedComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(): Promise<NestedComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<NestedComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<NestedComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */

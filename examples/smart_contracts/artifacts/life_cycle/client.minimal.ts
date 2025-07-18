@@ -22,7 +22,6 @@ import {
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
-import SimulateResponse = modelsv2.SimulateResponse
 
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"LifeCycle","structs":{},"methods":[{"name":"create","args":[{"name":"greeting","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"create","args":[{"name":"greeting","type":"string"},{"name":"times","type":"uint32"}],"returns":{"type":"void"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"close_out_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["CloseOut"]}},{"name":"delete_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["DeleteApplication"]}},{"name":"update_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["UpdateApplication"]}}],"state":{"schema":{"global":{"ints":1,"bytes":1},"local":{"ints":0,"bytes":0}},"keys":{"global":{"greeting":{"key":"Z3JlZXRpbmc=","keyType":"AVMString","valueType":"AVMBytes"},"times":{"key":"dGltZXM=","keyType":"AVMString","valueType":"AVMUint64"}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp","OptIn"],"call":["UpdateApplication"]}} as unknown as Arc56Contract
 
@@ -658,9 +657,9 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */

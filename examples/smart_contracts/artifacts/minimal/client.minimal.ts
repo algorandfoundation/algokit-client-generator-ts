@@ -22,7 +22,6 @@ import {
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
-import SimulateResponse = modelsv2.SimulateResponse
 
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"Minimal","structs":{},"methods":[],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
 
@@ -340,9 +339,9 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<MinimalComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<MinimalComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<MinimalComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */

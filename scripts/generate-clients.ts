@@ -18,7 +18,7 @@ async function generateClients(applicationPath: string) {
     application: applicationPath,
     output: path.join(outputDir, 'client.generated.ts'),
     preserveNames: false,
-    slim: false,
+    mode: 'full',
     workingDirectory,
   })
 
@@ -27,25 +27,25 @@ async function generateClients(applicationPath: string) {
     application: applicationPath,
     output: path.join(outputDir, 'client.generated.pn.ts'),
     preserveNames: true,
-    slim: false,
+    mode: 'full',
     workingDirectory,
   })
 
-  // Generate slim client
+  // Generate minimal client
   await generateClientCommand({
     application: applicationPath,
-    output: path.join(outputDir, 'client.generated.slim.ts'),
+    output: path.join(outputDir, 'client.generated.minimal.ts'),
     preserveNames: false,
-    slim: true,
+    mode: 'minimal',
     workingDirectory,
   })
 
-  // Generate preserve names slim client
+  // Generate preserve names minimal client
   await generateClientCommand({
     application: applicationPath,
-    output: path.join(outputDir, 'client.generated.pn.slim.ts'),
+    output: path.join(outputDir, 'client.generated.pn.minimal.ts'),
     preserveNames: true,
-    slim: true,
+    mode: 'minimal',
     workingDirectory,
   })
 

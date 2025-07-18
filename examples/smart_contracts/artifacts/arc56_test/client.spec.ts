@@ -3,11 +3,10 @@ import { test, describe, beforeAll, beforeEach, expect } from 'vitest'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { setUpLocalnet } from '../../../../src/tests/util'
-import * as regular from './client'
-import * as slim from './client.slim'
+import * as full from './client'
+import * as minimal from './client.minimal'
 import invariant from 'tiny-invariant'
-
-// TODO: NC - Name and documentation of this mode?
+import { generateModes } from '../../../../src/client/generator-context'
 
 describe('state typed client', () => {
   let localnet: AlgorandFixture
@@ -20,12 +19,12 @@ describe('state typed client', () => {
     await localnet.newScope()
   }, 10_000)
 
-  test.each(['full', 'slim'])('Demo works with %s client', async (clientType) => {
+  test.each(generateModes)('Demo works with %s client', async (clientType) => {
     const { algorand } = localnet.context
 
     const defaultSender = (await algorand.account.localNetDispenser()).addr
 
-    const factory = new regular.Arc56TestFactory({
+    const factory = new full.Arc56TestFactory({
       algorand,
       defaultSender,
     })
@@ -39,8 +38,8 @@ describe('state typed client', () => {
     })
 
     const appClient =
-      clientType === 'slim'
-        ? algorand.client.getTypedAppClientById(slim.Arc56TestClient, {
+      clientType === 'minimal'
+        ? algorand.client.getTypedAppClientById(minimal.Arc56TestClient, {
             appId: fullAppClient.appId,
             defaultSender: defaultSender,
           })
@@ -48,7 +47,7 @@ describe('state typed client', () => {
 
     console.log(`App ID (${clientType} client):`, appId, 'App Address:', appAddress)
 
-    const inputs: regular.Inputs = { add: { a: 1n, b: 2n }, subtract: { a: 10n, b: 5n } }
+    const inputs: full.Inputs = { add: { a: 1n, b: 2n }, subtract: { a: 10n, b: 5n } }
 
     // Call the app with default sender
     const outputs = await appClient.send.foo({ args: { inputs } })
@@ -84,8 +83,8 @@ describe('state typed client', () => {
     } = await factory.send.create.createApplication({ deployTimeParams: { someNumber: 1338n }, args: [] })
 
     const anotherAppClient =
-      clientType === 'slim'
-        ? algorand.client.getTypedAppClientById(slim.Arc56TestClient, {
+      clientType === 'minimal'
+        ? algorand.client.getTypedAppClientById(minimal.Arc56TestClient, {
             appId: anotherAppId,
             defaultSender: bob,
           })

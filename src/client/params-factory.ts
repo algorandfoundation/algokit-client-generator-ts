@@ -25,8 +25,7 @@ export function* paramsFactory(ctx: GeneratorContext): DocumentParts {
 function* opMethods(ctx: GeneratorContext): DocumentParts {
   const { app, callConfig } = ctx
 
-  // Only include create methods if not in slim mode
-  if (!ctx.slim) {
+  if (ctx.mode === 'full') {
     yield* operationMethod(
       ctx,
       `Constructs create ABI call params for the ${app.name} smart contract`,

@@ -13,15 +13,47 @@ async function updateApprovals() {
   for (const [app, extension] of [...arc32Dirs, ...arc56Dirs]) {
     const dir = path.join(process.cwd(), 'examples/smart_contracts/artifacts', app)
     const applicationJsonPath = path.join(dir, `${pascalCase(app)}.${extension}.json`)
-    const approvedPath = path.join(dir, 'client.ts')
 
+    // Generate full client
+    const approvedPath = path.join(dir, 'client.ts')
     await generateClientCommand({
       workingDirectory: process.cwd(),
       application: applicationJsonPath,
       output: approvedPath,
       preserveNames: false,
-      slim: false,
+      mode: 'full',
     })
+
+    // Generate preserve names client
+    const approvedPnPath = path.join(dir, 'client.pn.ts')
+    await generateClientCommand({
+      workingDirectory: process.cwd(),
+      application: applicationJsonPath,
+      output: approvedPnPath,
+      preserveNames: true,
+      mode: 'full',
+    })
+
+    // Generate minimal client
+    const approvedMinimalPath = path.join(dir, 'client.minimal.ts')
+    await generateClientCommand({
+      workingDirectory: process.cwd(),
+      application: applicationJsonPath,
+      output: approvedMinimalPath,
+      preserveNames: false,
+      mode: 'minimal',
+    })
+
+    // Generate preserve names minimal client
+    const approvedPnMinimalPath = path.join(dir, 'client.pn.minimal.ts')
+    await generateClientCommand({
+      workingDirectory: process.cwd(),
+      application: applicationJsonPath,
+      output: approvedPnMinimalPath,
+      preserveNames: true,
+      mode: 'minimal',
+    })
+
     colorConsole.info`----------------------`
   }
   colorConsole.success`Operation completed successfully`

@@ -22,7 +22,6 @@ import {
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
-import SimulateResponse = modelsv2.SimulateResponse
 
 export const APP_SPEC: Arc56Contract = {"name":"Structs","structs":{"NestedStruct":[{"name":"content","type":"Vector"}],"RootStruct":[{"name":"nested","type":"NestedStruct"}],"Vector":[{"name":"x","type":"string"},{"name":"y","type":"string"}]},"methods":[{"name":"hello","args":[{"type":"string","name":"name"}],"returns":{"type":"string"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"give_me_root_struct","args":[],"returns":{"type":"(((string,string)))","struct":"RootStruct"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"opt_in","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["OptIn"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":2},"local":{"ints":0,"bytes":2}},"keys":{"global":{"my_struct":{"keyType":"AVMString","valueType":"Vector","key":"bXlfc3RydWN0"},"my_nested_struct":{"keyType":"AVMString","valueType":"RootStruct","key":"bXlfbmVzdGVkX3N0cnVjdA=="}},"local":{"my_localstate_struct":{"keyType":"AVMString","valueType":"Vector","key":"bXlfbG9jYWxzdGF0ZV9zdHJ1Y3Q="},"my_nested_localstate_struct":{"keyType":"AVMString","valueType":"RootStruct","key":"bXlfbmVzdGVkX2xvY2Fsc3RhdGVfc3RydWN0"}},"box":{"my_box_struct":{"keyType":"AVMString","valueType":"Vector","key":"bXlfYm94X3N0cnVjdA=="},"my_nested_box_struct":{"keyType":"AVMString","valueType":"RootStruct","key":"bXlfbmVzdGVkX2JveF9zdHJ1Y3Q="}}},"maps":{"global":{},"local":{},"box":{"my_boxmap_struct":{"keyType":"uint64","valueType":"Vector","prefix":"bXlfYm94bWFwX3N0cnVjdA=="},"my_nested_boxmap_struct":{"keyType":"uint64","valueType":"RootStruct","prefix":"bXlfbmVzdGVkX2JveG1hcF9zdHJ1Y3Q="}}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[214,244],"errorMessage":"OnCompletion is not NoOp"},{"pc":[202],"errorMessage":"OnCompletion is not OptIn"},{"pc":[273],"errorMessage":"can only call when creating"},{"pc":[205,217,247],"errorMessage":"can only call when not creating"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"events":[]} as unknown as Arc56Contract
 
@@ -762,9 +761,9 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<StructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<StructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<StructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(): Promise<StructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<StructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<StructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
