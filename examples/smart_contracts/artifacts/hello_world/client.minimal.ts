@@ -18,12 +18,12 @@ import {
   ResolveAppClientByNetwork,
   CloneAppClientParams,
 } from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory as _AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"HelloWorld","structs":{},"methods":[{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello_world_check","args":[{"name":"name","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6NgogICAgLy8gY2xhc3MgSGVsbG9Xb3JsZChFeGFtcGxlQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX2JhcmVfcm91dGluZ0A3CiAgICBwdXNoYnl0ZXNzIDB4MDJiZWNlMTEgMHhiZjljMWVkZiAvLyBtZXRob2QgImhlbGxvKHN0cmluZylzdHJpbmciLCBtZXRob2QgImhlbGxvX3dvcmxkX2NoZWNrKHN0cmluZyl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9oZWxsb19yb3V0ZUAzIG1haW5faGVsbG9fd29ybGRfY2hlY2tfcm91dGVANAoKbWFpbl9hZnRlcl9pZl9lbHNlQDEzOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2hlbGxvX3dvcmxkL2NvbnRyYWN0LnB5OjYKICAgIC8vIGNsYXNzIEhlbGxvV29ybGQoRXhhbXBsZUFSQzRDb250cmFjdCk6CiAgICBwdXNoaW50IDAgLy8gMAogICAgcmV0dXJuCgptYWluX2hlbGxvX3dvcmxkX2NoZWNrX3JvdXRlQDQ6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6MTEKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6NgogICAgLy8gY2xhc3MgSGVsbG9Xb3JsZChFeGFtcGxlQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6MTEKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgY2FsbHN1YiBoZWxsb193b3JsZF9jaGVjawogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9oZWxsb19yb3V0ZUAzOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2hlbGxvX3dvcmxkL2NvbnRyYWN0LnB5OjcKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6NgogICAgLy8gY2xhc3MgSGVsbG9Xb3JsZChFeGFtcGxlQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6NwogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIGhlbGxvCiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A3OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2hlbGxvX3dvcmxkL2NvbnRyYWN0LnB5OjYKICAgIC8vIGNsYXNzIEhlbGxvV29ybGQoRXhhbXBsZUFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBzd2l0Y2ggbWFpbl9fX2FsZ29weV9kZWZhdWx0X2NyZWF0ZUA4IG1haW5fYWZ0ZXJfaWZfZWxzZUAxMyBtYWluX2FmdGVyX2lmX2Vsc2VAMTMgbWFpbl9hZnRlcl9pZl9lbHNlQDEzIG1haW5fdXBkYXRlQDkgbWFpbl9kZWxldGVAMTAKICAgIGIgbWFpbl9hZnRlcl9pZl9lbHNlQDEzCgptYWluX2RlbGV0ZUAxMDoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjMwCiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJEZWxldGVBcHBsaWNhdGlvbiJdKQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMC0zMQogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiRGVsZXRlQXBwbGljYXRpb24iXSkKICAgIC8vIGRlZiBkZWxldGUoc2VsZikgLT4gTm9uZToKICAgIGNhbGxzdWIgZGVsZXRlCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3VwZGF0ZUA5OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MjMKICAgIC8vIEBhcmM0LmJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIlVwZGF0ZUFwcGxpY2F0aW9uIl0pCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjIzLTI0CiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJVcGRhdGVBcHBsaWNhdGlvbiJdKQogICAgLy8gZGVmIHVwZGF0ZShzZWxmKSAtPiBOb25lOgogICAgY2FsbHN1YiB1cGRhdGUKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fX19hbGdvcHlfZGVmYXVsdF9jcmVhdGVAODoKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgoKLy8gZXhhbXBsZXMuc21hcnRfY29udHJhY3RzLmhlbGxvX3dvcmxkLmNvbnRyYWN0LkhlbGxvV29ybGQuaGVsbG8obmFtZTogYnl0ZXMpIC0+IGJ5dGVzOgpoZWxsbzoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9oZWxsb193b3JsZC9jb250cmFjdC5weTo3LTgKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGhlbGxvKHNlbGYsIG5hbWU6IFN0cmluZykgLT4gU3RyaW5nOgogICAgcHJvdG8gMSAxCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6OQogICAgLy8gcmV0dXJuICJIZWxsbywgIiArIG5hbWUKICAgIHB1c2hieXRlcyAiSGVsbG8sICIKICAgIGZyYW1lX2RpZyAtMQogICAgY29uY2F0CiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuaGVsbG9fd29ybGQuY29udHJhY3QuSGVsbG9Xb3JsZC5oZWxsb193b3JsZF9jaGVjayhuYW1lOiBieXRlcykgLT4gdm9pZDoKaGVsbG9fd29ybGRfY2hlY2s6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6MTEtMTIKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGhlbGxvX3dvcmxkX2NoZWNrKHNlbGYsIG5hbWU6IFN0cmluZykgLT4gTm9uZToKICAgIHByb3RvIDEgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2hlbGxvX3dvcmxkL2NvbnRyYWN0LnB5OjEzCiAgICAvLyBhc3NlcnQgbmFtZSA9PSAiV29ybGQiCiAgICBmcmFtZV9kaWcgLTEKICAgIHB1c2hieXRlcyAiV29ybGQiCiAgICA9PQogICAgYXNzZXJ0CiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5JbW11dGFiaWxpdHlDb250cm9sQVJDNENvbnRyYWN0LnVwZGF0ZSgpIC0+IHZvaWQ6CnVwZGF0ZToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjIzLTI0CiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJVcGRhdGVBcHBsaWNhdGlvbiJdKQogICAgLy8gZGVmIHVwZGF0ZShzZWxmKSAtPiBOb25lOgogICAgcHJvdG8gMCAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyNQogICAgLy8gYXNzZXJ0IFRlbXBsYXRlVmFyW2Jvb2xdKFVQREFUQUJMRV9URU1QTEFURV9OQU1FKSwgIkNoZWNrIGFwcCBpcyB1cGRhdGFibGUiCiAgICBpbnRjXzEgLy8gVE1QTF9VUERBVEFCTEUKICAgIGFzc2VydCAvLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyNgogICAgLy8gc2VsZi5hdXRob3JpemVfY3JlYXRvcigpCiAgICBjYWxsc3ViIGF1dGhvcml6ZV9jcmVhdG9yCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5CYXNlQVJDNENvbnRyYWN0LmF1dGhvcml6ZV9jcmVhdG9yKCkgLT4gdm9pZDoKYXV0aG9yaXplX2NyZWF0b3I6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTo4LTkKICAgIC8vIEBzdWJyb3V0aW5lCiAgICAvLyBkZWYgYXV0aG9yaXplX2NyZWF0b3Ioc2VsZikgLT4gTm9uZToKICAgIHByb3RvIDAgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MTAKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyID09IEdsb2JhbC5jcmVhdG9yX2FkZHJlc3MsICJ1bmF1dGhvcml6ZWQiCiAgICB0eG4gU2VuZGVyCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgID09CiAgICBhc3NlcnQgLy8gdW5hdXRob3JpemVkCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5QZXJtYW5lbmNlQ29udHJvbEFSQzRDb250cmFjdC5kZWxldGUoKSAtPiB2b2lkOgpkZWxldGU6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMC0zMQogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiRGVsZXRlQXBwbGljYXRpb24iXSkKICAgIC8vIGRlZiBkZWxldGUoc2VsZikgLT4gTm9uZToKICAgIHByb3RvIDAgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MzIKICAgIC8vIGFzc2VydCBUZW1wbGF0ZVZhcltib29sXShERUxFVEFCTEVfVEVNUExBVEVfTkFNRSksICJDaGVjayBhcHAgaXMgZGVsZXRhYmxlIgogICAgaW50Y18yIC8vIFRNUExfREVMRVRBQkxFCiAgICBhc3NlcnQgLy8gQ2hlY2sgYXBwIGlzIGRlbGV0YWJsZQogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MzMKICAgIC8vIHNlbGYuYXV0aG9yaXplX2NyZWF0b3IoKQogICAgY2FsbHN1YiBhdXRob3JpemVfY3JlYXRvcgogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"HelloWorld","structs":{},"methods":[{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello_world_check","args":[{"name":"name","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -142,39 +142,6 @@ export type MethodArgs<TSignature extends HelloWorldSignatures> = HelloWorldType
 export type MethodReturn<TSignature extends HelloWorldSignatures> = HelloWorldTypes['methods'][TSignature]['returns']
 
 
-/**
- * Defines supported create method params for this smart contract
- */
-export type HelloWorldCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
-/**
- * Defines supported update method params for this smart contract
- */
-export type HelloWorldUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
-/**
- * Defines supported delete method params for this smart contract
- */
-export type HelloWorldDeleteCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
-/**
- * Defines arguments required for the deploy method.
- */
-export type HelloWorldDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
-  /**
-   * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  createParams?: HelloWorldCreateCallParams
-  /**
-   * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  updateParams?: HelloWorldUpdateCallParams
-  /**
-   * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  deleteParams?: HelloWorldDeleteCallParams
-}>
-
 
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the HelloWorld smart contract
@@ -208,177 +175,6 @@ export abstract class HelloWorldParamsFactory {
   }
 }
 
-/**
- * A factory to create and deploy one or more instance of the HelloWorld smart contract and to create one or more app clients to interact with those (or other) app instances
- */
-export class HelloWorldFactory {
-  /**
-   * The underlying `AppFactory` for when you want to have more flexibility
-   */
-  public readonly appFactory: _AppFactory
-
-  /**
-   * Creates a new instance of `HelloWorldFactory`
-   *
-   * @param params The parameters to initialise the app factory with
-   */
-  constructor(params: Omit<AppFactoryParams, 'appSpec'>) {
-    this.appFactory = new _AppFactory({
-      ...params,
-      appSpec: APP_SPEC,
-    })
-  }
-  
-  /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
-  public get appName() {
-    return this.appFactory.appName
-  }
-  
-  /** The ARC-56 app spec being used */
-  get appSpec() {
-    return APP_SPEC
-  }
-  
-  /** A reference to the underlying `AlgorandClient` this app factory is using. */
-  public get algorand(): AlgorandClient {
-    return this.appFactory.algorand
-  }
-  
-  /**
-   * Returns a new `AppClient` client for an app instance of the given ID.
-   *
-   * Automatically populates appName, defaultSender and source maps from the factory
-   * if not specified in the params.
-   * @param params The parameters to create the app client
-   * @returns The `AppClient`
-   */
-  public getAppClientById(params: AppFactoryAppClientParams) {
-    return new HelloWorldClient(this.appFactory.getAppClientById(params))
-  }
-  
-  /**
-   * Returns a new `AppClient` client, resolving the app by creator address and name
-   * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
-   *
-   * Automatically populates appName, defaultSender and source maps from the factory
-   * if not specified in the params.
-   * @param params The parameters to create the app client
-   * @returns The `AppClient`
-   */
-  public async getAppClientByCreatorAndName(
-    params: AppFactoryResolveAppClientByCreatorAndNameParams,
-  ) {
-    return new HelloWorldClient(await this.appFactory.getAppClientByCreatorAndName(params))
-  }
-
-  /**
-   * Idempotently deploys the HelloWorld smart contract.
-   *
-   * @param params The arguments for the contract calls and any additional parameters for the call
-   * @returns The deployment result
-   */
-  public async deploy(params: HelloWorldDeployParams = {}) {
-    const result = await this.appFactory.deploy({
-      ...params,
-    })
-    return { result: result.result, appClient: new HelloWorldClient(result.appClient) }
-  }
-
-  /**
-   * Get parameters to create transactions (create and deploy related calls) for the current app. A good mental model for this is that these parameters represent a deferred transaction creation.
-   */
-  readonly params = {
-    /**
-     * Gets available create methods
-     */
-    create: {
-      /**
-       * Creates a new instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The params for a create call
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
-        return this.appFactory.params.bare.create(params)
-      },
-    },
-
-    /**
-     * Gets available deployUpdate methods
-     */
-    deployUpdate: {
-      /**
-       * Updates an existing instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The params for a deployUpdate call
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
-        return this.appFactory.params.bare.deployUpdate(params)
-      },
-    },
-
-    /**
-     * Gets available deployDelete methods
-     */
-    deployDelete: {
-      /**
-       * Deletes an existing instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The params for a deployDelete call
-       */
-      bare: (params?: Expand<AppClientBareCallParams>) => {
-        return this.appFactory.params.bare.deployDelete(params)
-      },
-    },
-
-  }
-
-  /**
-   * Create transactions for the current app
-   */
-  readonly createTransaction = {
-    /**
-     * Gets available create methods
-     */
-    create: {
-      /**
-       * Creates a new instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The transaction for a create call
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
-        return this.appFactory.createTransaction.bare.create(params)
-      },
-    },
-
-  }
-
-  /**
-   * Send calls to the current app
-   */
-  readonly send = {
-    /**
-     * Gets available create methods
-     */
-    create: {
-      /**
-       * Creates a new instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The create result
-       */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
-        const result = await this.appFactory.send.bare.create(params)
-        return { result: result.result, appClient: new HelloWorldClient(result.appClient) }
-      },
-    },
-
-  }
-
-}
 /**
  * A client to make calls to the HelloWorld smart contract
  */
@@ -467,36 +263,6 @@ export class HelloWorldClient {
    */
   readonly params = {
     /**
-     * Gets available update methods
-     */
-    update: {
-      /**
-       * Updates an existing instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
-        return this.appClient.params.bare.update(params)
-      },
-    },
-
-    /**
-     * Gets available delete methods
-     */
-    delete: {
-      /**
-       * Deletes an existing instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The delete result
-       */
-      bare: (params?: Expand<AppClientBareCallParams>) => {
-        return this.appClient.params.bare.delete(params)
-      },
-    },
-
-    /**
      * Makes a clear_state call to an existing instance of the HelloWorld smart contract.
      *
      * @param params The params for the bare (raw) call
@@ -533,36 +299,6 @@ export class HelloWorldClient {
    */
   readonly createTransaction = {
     /**
-     * Gets available update methods
-     */
-    update: {
-      /**
-       * Updates an existing instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
-        return this.appClient.createTransaction.bare.update(params)
-      },
-    },
-
-    /**
-     * Gets available delete methods
-     */
-    delete: {
-      /**
-       * Deletes an existing instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The delete result
-       */
-      bare: (params?: Expand<AppClientBareCallParams>) => {
-        return this.appClient.createTransaction.bare.delete(params)
-      },
-    },
-
-    /**
      * Makes a clear_state call to an existing instance of the HelloWorld smart contract.
      *
      * @param params The params for the bare (raw) call
@@ -598,36 +334,6 @@ export class HelloWorldClient {
    * Send calls to the current app
    */
   readonly send = {
-    /**
-     * Gets available update methods
-     */
-    update: {
-      /**
-       * Updates an existing instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) => {
-        return this.appClient.send.bare.update(params)
-      },
-    },
-
-    /**
-     * Gets available delete methods
-     */
-    delete: {
-      /**
-       * Deletes an existing instance of the HelloWorld smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The delete result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & SendParams>) => {
-        return this.appClient.send.bare.delete(params)
-      },
-    },
-
     /**
      * Makes a clear_state call to an existing instance of the HelloWorld smart contract.
      *
@@ -700,22 +406,6 @@ export class HelloWorldClient {
         resultMappers.push(undefined)
         return this
       },
-      get update() {
-        return {
-          bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
-            promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
-            return this
-          },
-        }
-      },
-      get delete() {
-        return {
-          bare: (params?: AppClientBareCallParams ) => {
-            promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
-            return this
-          },
-        }
-      },
       /**
        * Add a clear state call to the HelloWorld contract
        */
@@ -768,32 +458,6 @@ export type HelloWorldComposer<TReturns extends [...any[]] = []> = {
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
   helloWorldCheck(params?: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']>): HelloWorldComposer<[...TReturns, HelloWorldReturns['hello_world_check(string)void'] | undefined]>
-
-  /**
-   * Gets available update methods
-   */
-  readonly update: {
-    /**
-     * Updates an existing instance of the HelloWorld smart contract using a bare call.
-     *
-     * @param args The arguments for the bare call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    bare(params?: AppClientBareCallParams ): HelloWorldComposer<[...TReturns, undefined]>
-  }
-
-  /**
-   * Gets available delete methods
-   */
-  readonly delete: {
-    /**
-     * Deletes an existing instance of the HelloWorld smart contract using a bare call.
-     *
-     * @param args The arguments for the bare call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    bare(params?: AppClientBareCallParams ): HelloWorldComposer<[...TReturns, undefined]>
-  }
 
   /**
    * Makes a clear_state call to an existing instance of the HelloWorld smart contract.

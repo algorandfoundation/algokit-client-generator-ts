@@ -75,12 +75,12 @@ export type NestedArgs = {
       b: bigint | number
     }
     'get_pay_txn_amount(pay)uint64': {
-      payTxn: AppMethodCallTransactionArgument
+      pay_txn: AppMethodCallTransactionArgument
     }
     'nested_method_call(string,pay,appl)byte[]': {
       _: string
-      _payTxn?: AppMethodCallTransactionArgument
-      methodCall: AppMethodCallTransactionArgument
+      _pay_txn?: AppMethodCallTransactionArgument
+      method_call: AppMethodCallTransactionArgument
     }
   }
   /**
@@ -88,8 +88,8 @@ export type NestedArgs = {
    */
   tuple: {
     'add(uint64,uint64)uint64': [a: bigint | number, b: bigint | number]
-    'get_pay_txn_amount(pay)uint64': [payTxn: AppMethodCallTransactionArgument]
-    'nested_method_call(string,pay,appl)byte[]': [_: string, _payTxn: AppMethodCallTransactionArgument | undefined, methodCall: AppMethodCallTransactionArgument]
+    'get_pay_txn_amount(pay)uint64': [pay_txn: AppMethodCallTransactionArgument]
+    'nested_method_call(string,pay,appl)byte[]': [_: string, _pay_txn: AppMethodCallTransactionArgument | undefined, method_call: AppMethodCallTransactionArgument]
   }
 }
 
@@ -194,11 +194,11 @@ export abstract class NestedParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getPayTxnAmount(params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static get_pay_txn_amount(params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'get_pay_txn_amount(pay)uint64' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.payTxn],
+      args: Array.isArray(params.args) ? params.args : [params.args.pay_txn],
     }
   }
   /**
@@ -207,11 +207,11 @@ export abstract class NestedParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static nestedMethodCall(params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static nested_method_call(params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'nested_method_call(string,pay,appl)byte[]' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args._, params.args._payTxn, params.args.methodCall],
+      args: Array.isArray(params.args) ? params.args : [params.args._, params.args._pay_txn, params.args.method_call],
     }
   }
 }
@@ -470,8 +470,8 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    getPayTxnAmount: (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(NestedParamsFactory.getPayTxnAmount(params))
+    get_pay_txn_amount: (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(NestedParamsFactory.get_pay_txn_amount(params))
     },
 
     /**
@@ -480,8 +480,8 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    nestedMethodCall: (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(NestedParamsFactory.nestedMethodCall(params))
+    nested_method_call: (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(NestedParamsFactory.nested_method_call(params))
     },
 
   }
@@ -516,8 +516,8 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    getPayTxnAmount: (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(NestedParamsFactory.getPayTxnAmount(params))
+    get_pay_txn_amount: (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(NestedParamsFactory.get_pay_txn_amount(params))
     },
 
     /**
@@ -526,8 +526,8 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    nestedMethodCall: (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(NestedParamsFactory.nestedMethodCall(params))
+    nested_method_call: (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(NestedParamsFactory.nested_method_call(params))
     },
 
   }
@@ -563,8 +563,8 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getPayTxnAmount: async (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(NestedParamsFactory.getPayTxnAmount(params))
+    get_pay_txn_amount: async (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(NestedParamsFactory.get_pay_txn_amount(params))
       return {...result, return: result.return as unknown as (undefined | NestedReturns['get_pay_txn_amount(pay)uint64'])}
     },
 
@@ -574,8 +574,8 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    nestedMethodCall: async (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(NestedParamsFactory.nestedMethodCall(params))
+    nested_method_call: async (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(NestedParamsFactory.nested_method_call(params))
       return {...result, return: result.return as unknown as (undefined | NestedReturns['nested_method_call(string,pay,appl)byte[]'])}
     },
 
@@ -614,16 +614,16 @@ export class NestedClient {
       /**
        * Add a get_pay_txn_amount(pay)uint64 method call against the Nested contract
        */
-      getPayTxnAmount(params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getPayTxnAmount(params)))
+      get_pay_txn_amount(params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.get_pay_txn_amount(params)))
         resultMappers.push((v) => client.decodeReturnValue('get_pay_txn_amount(pay)uint64', v))
         return this
       },
       /**
        * Add a nested_method_call(string,pay,appl)byte[] method call against the Nested contract
        */
-      nestedMethodCall(params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.nestedMethodCall(params)))
+      nested_method_call(params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.nested_method_call(params)))
         resultMappers.push((v) => client.decodeReturnValue('nested_method_call(string,pay,appl)byte[]', v))
         return this
       },
@@ -678,7 +678,7 @@ export type NestedComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getPayTxnAmount(params?: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']>): NestedComposer<[...TReturns, NestedReturns['get_pay_txn_amount(pay)uint64'] | undefined]>
+  get_pay_txn_amount(params?: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']>): NestedComposer<[...TReturns, NestedReturns['get_pay_txn_amount(pay)uint64'] | undefined]>
 
   /**
    * Calls the nested_method_call(string,pay,appl)byte[] ABI method.
@@ -687,7 +687,7 @@ export type NestedComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  nestedMethodCall(params?: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']>): NestedComposer<[...TReturns, NestedReturns['nested_method_call(string,pay,appl)byte[]'] | undefined]>
+  nested_method_call(params?: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']>): NestedComposer<[...TReturns, NestedReturns['nested_method_call(string,pay,appl)byte[]'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the Nested smart contract.

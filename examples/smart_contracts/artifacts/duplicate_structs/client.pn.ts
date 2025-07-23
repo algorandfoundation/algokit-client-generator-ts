@@ -179,7 +179,7 @@ export abstract class DuplicateStructsParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static methodAThatUsesStruct(params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static method_a_that_uses_struct(params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'method_a_that_uses_struct()(uint64,uint64)' as const,
@@ -192,7 +192,7 @@ export abstract class DuplicateStructsParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static methodBThatUsesSameStruct(params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static method_b_that_uses_same_struct(params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'method_b_that_uses_same_struct()(uint64,uint64)' as const,
@@ -445,8 +445,8 @@ export class DuplicateStructsClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    methodAThatUsesStruct: (params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.params.call(DuplicateStructsParamsFactory.methodAThatUsesStruct(params))
+    method_a_that_uses_struct: (params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(DuplicateStructsParamsFactory.method_a_that_uses_struct(params))
     },
 
     /**
@@ -455,8 +455,8 @@ export class DuplicateStructsClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    methodBThatUsesSameStruct: (params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.params.call(DuplicateStructsParamsFactory.methodBThatUsesSameStruct(params))
+    method_b_that_uses_same_struct: (params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(DuplicateStructsParamsFactory.method_b_that_uses_same_struct(params))
     },
 
   }
@@ -481,8 +481,8 @@ export class DuplicateStructsClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    methodAThatUsesStruct: (params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.createTransaction.call(DuplicateStructsParamsFactory.methodAThatUsesStruct(params))
+    method_a_that_uses_struct: (params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(DuplicateStructsParamsFactory.method_a_that_uses_struct(params))
     },
 
     /**
@@ -491,8 +491,8 @@ export class DuplicateStructsClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    methodBThatUsesSameStruct: (params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.createTransaction.call(DuplicateStructsParamsFactory.methodBThatUsesSameStruct(params))
+    method_b_that_uses_same_struct: (params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(DuplicateStructsParamsFactory.method_b_that_uses_same_struct(params))
     },
 
   }
@@ -517,8 +517,8 @@ export class DuplicateStructsClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    methodAThatUsesStruct: async (params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      const result = await this.appClient.send.call(DuplicateStructsParamsFactory.methodAThatUsesStruct(params))
+    method_a_that_uses_struct: async (params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(DuplicateStructsParamsFactory.method_a_that_uses_struct(params))
       return {...result, return: result.return as unknown as (undefined | DuplicateStructsReturns['method_a_that_uses_struct()(uint64,uint64)'])}
     },
 
@@ -528,8 +528,8 @@ export class DuplicateStructsClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    methodBThatUsesSameStruct: async (params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      const result = await this.appClient.send.call(DuplicateStructsParamsFactory.methodBThatUsesSameStruct(params))
+    method_b_that_uses_same_struct: async (params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(DuplicateStructsParamsFactory.method_b_that_uses_same_struct(params))
       return {...result, return: result.return as unknown as (undefined | DuplicateStructsReturns['method_b_that_uses_same_struct()(uint64,uint64)'])}
     },
 
@@ -560,16 +560,16 @@ export class DuplicateStructsClient {
       /**
        * Add a method_a_that_uses_struct()(uint64,uint64) method call against the DuplicateStructs contract
        */
-      methodAThatUsesStruct(params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.methodAThatUsesStruct(params)))
+      method_a_that_uses_struct(params: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.method_a_that_uses_struct(params)))
         resultMappers.push((v) => client.decodeReturnValue('method_a_that_uses_struct()(uint64,uint64)', v))
         return this
       },
       /**
        * Add a method_b_that_uses_same_struct()(uint64,uint64) method call against the DuplicateStructs contract
        */
-      methodBThatUsesSameStruct(params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.methodBThatUsesSameStruct(params)))
+      method_b_that_uses_same_struct(params: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.method_b_that_uses_same_struct(params)))
         resultMappers.push((v) => client.decodeReturnValue('method_b_that_uses_same_struct()(uint64,uint64)', v))
         return this
       },
@@ -615,7 +615,7 @@ export type DuplicateStructsComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  methodAThatUsesStruct(params?: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']>): DuplicateStructsComposer<[...TReturns, DuplicateStructsReturns['method_a_that_uses_struct()(uint64,uint64)'] | undefined]>
+  method_a_that_uses_struct(params?: CallParams<DuplicateStructsArgs['obj']['method_a_that_uses_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_a_that_uses_struct()(uint64,uint64)']>): DuplicateStructsComposer<[...TReturns, DuplicateStructsReturns['method_a_that_uses_struct()(uint64,uint64)'] | undefined]>
 
   /**
    * Calls the method_b_that_uses_same_struct()(uint64,uint64) ABI method.
@@ -624,7 +624,7 @@ export type DuplicateStructsComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  methodBThatUsesSameStruct(params?: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']>): DuplicateStructsComposer<[...TReturns, DuplicateStructsReturns['method_b_that_uses_same_struct()(uint64,uint64)'] | undefined]>
+  method_b_that_uses_same_struct(params?: CallParams<DuplicateStructsArgs['obj']['method_b_that_uses_same_struct()(uint64,uint64)'] | DuplicateStructsArgs['tuple']['method_b_that_uses_same_struct()(uint64,uint64)']>): DuplicateStructsComposer<[...TReturns, DuplicateStructsReturns['method_b_that_uses_same_struct()(uint64,uint64)'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the DuplicateStructs smart contract.

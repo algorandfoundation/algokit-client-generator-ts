@@ -11,12 +11,20 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield IncIndent
 
   yield* callComposerTypeNoops(ctx)
-  yield* callComposerOperationMethodType(
-    ctx,
-    `Deletes an existing instance of the ${app.name} smart contract`,
-    callConfig.deleteMethods,
-    'delete',
-  )
+  if (ctx.mode === 'full') {
+    yield* callComposerOperationMethodType(
+      ctx,
+      `Updates an existing instance of the ${app.name} smart contract`,
+      callConfig.updateMethods,
+      'update',
+    )
+    yield* callComposerOperationMethodType(
+      ctx,
+      `Deletes an existing instance of the ${app.name} smart contract`,
+      callConfig.deleteMethods,
+      'delete',
+    )
+  }
   yield* callComposerOperationMethodType(
     ctx,
     `Opts the user into an existing instance of the ${app.name} smart contract`,
@@ -28,12 +36,6 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
     `Makes a close out call to an existing instance of the ${app.name} smart contract`,
     callConfig.closeOutMethods,
     'closeOut',
-  )
-  yield* callComposerOperationMethodType(
-    ctx,
-    `Updates an existing instance of the ${app.name} smart contract`,
-    callConfig.updateMethods,
-    'update',
   )
 
   yield* callComposerTypeClearState(ctx)
@@ -55,9 +57,9 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Simulates the transaction group and returns the result',
   })
-  yield `simulate(): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
-  yield `simulate(options: SkipSignaturesSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
-  yield `simulate(options: RawSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
+  yield `simulate(): Promise<${name}ComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>`
+  yield `simulate(options: SkipSignaturesSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>`
+  yield `simulate(options: RawSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>`
 
   yield* jsDoc({
     description: 'Sends the transaction group to the network and returns the results',

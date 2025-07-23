@@ -12,7 +12,7 @@ describe('state typed client', () => {
     localnet = await setUpLocalnet()
   })
   beforeEach(async () => {
-    await localnet.beforeEach()
+    await localnet.newScope()
     const { algorand, testAccount } = localnet.context
     factory = algorand.client.getTypedAppFactory(StateFactory, {
       defaultSender: testAccount.addr,

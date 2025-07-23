@@ -22,9 +22,55 @@ If you're migrating your project from an older generated typed client to v4, ple
 
 The cli can be used to generate a client via the following command.
 
-```
+```bash
 npx --yes  @algorandfoundation/algokit-client-generator generate -a ./application.json -o ./client.generated.ts
 ```
+
+#### CLI Options
+
+The CLI supports the following options:
+
+- `-a, --application <path>` (required): Specifies the path to the ARC-56 or ARC-32 application.json file
+- `-o, --output <path>` (required): Specifies the output file path for the generated TypeScript client
+- `--pn, --preserve-names`: Preserve names from the application.json spec instead of sanitizing them to camelCase
+- `-m, --mode <mode>`: Generate client in specified mode (default: `full`)
+  - `full`: Generates a complete client with factory, deployment capabilities and all features
+  - `minimal`: Generates a lightweight client without factory or deployment capabilities, resulting in a smaller output
+
+#### CLI Examples
+
+Generate a full client (default):
+
+```bash
+npx --yes @algorandfoundation/algokit-client-generator generate -a ./application.json -o ./client.ts
+```
+
+Generate a minimal client:
+
+```bash
+npx --yes @algorandfoundation/algokit-client-generator generate -a ./application.json -o ./client.ts -m minimal
+```
+
+#### Generation Modes
+
+The generator supports two modes:
+
+**Full Mode (default):**
+
+- Includes factory class for creating and deploying smart contracts
+- Includes deployment types and methods
+- Includes all deployment-related metadata (source code, bytecode, template variables)
+- Includes client class for interacting with already deployed contracts
+- Best for development, deployment and interaction workflows or where output size is less important
+
+**Minimal Mode:**
+
+- Excludes factory class and deployment capabilities
+- Excludes deployment-related metadata to reduce output size
+- Only includes client class for interacting with already deployed contracts
+- Best for scenarios that only need to interact with existing contracts
+
+#### Programmatic API
 
 Alternatively, a client can be generated from code by invoking the `generate` function paired with either `writeDocumentPartsToString` or `writeDocumentPartsToStream` depending on your needs. We also expose helpers to optionally load and validate an application.json file.
 
@@ -45,14 +91,18 @@ const appJsonFromObject = validateApplicationJson(appJson)
 const fileStream = fs.createWriteStream('./client.ts', {
   flags: 'w',
 })
-writeDocumentPartsToStream(generate(appJsonFromFile, fileStream))
+writeDocumentPartsToStream(generate(appJsonFromFile), fileStream)
 
-const clientAsString = writeDocumentPartsToString(appJsonFromObject)
+// Generate a full client (default)
+const clientAsString = writeDocumentPartsToString(generate(appJsonFromObject))
+
+// Generate a minimal client
+const minimalClientAsString = writeDocumentPartsToString(generate(appJsonFromObject, { mode: 'minimal' }))
 ```
 
 For details on how to use the generated client see the more detailed [usage docs](./docs/usage.md)
 
-## Examples
+## Code Examples
 
 There are a range of [examples](./examples) that you can look at to see a source smart contract (e.g. `{contract.py}`), the generated client (`client.ts`) and some tests that demonstrate how you can use the client (`client.spec.ts`).
 
