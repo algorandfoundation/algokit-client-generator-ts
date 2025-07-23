@@ -21,6 +21,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Setup Git user
+        run: |
+          git config user.name "engineering-ci[bot]"
+          git config user.email "179917785+engineering-ci[bot]@users.noreply.github.com"
       - name: Merge main -> release
         uses: devmasx/merge-branch@854d3ac71ed1e9deb668e0074781b81fdd6e771f
         with:
