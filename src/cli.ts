@@ -16,7 +16,14 @@ export function cli(workingDirectory: string, args: string[]) {
     .requiredOption('-a --application <path>', 'Specifies the application.json file')
     .requiredOption('-o --output <path>', 'Specifies the output file path')
     .option('--pn --preserve-names', 'Preserve names from application.json spec instead of sanitizing them')
-    .addOption(new Option('-m --mode <mode>', 'Generate client in specified mode.').choices(generateModes).default('full'))
+    .addOption(
+      new Option(
+        '-m --mode <mode>',
+        "Generate client in specified mode. The 'full' mode includes all features, 'minimal' generates a smaller client without deployment features.",
+      )
+        .choices(generateModes)
+        .default('full'),
+    )
     .allowExcessArguments(true) // Maintains backwards compatibility with pre 13 commanded
     .action(
       async ({
