@@ -60,7 +60,7 @@ out/
 .env.production.local
 .env.local
 
-*.generated.ts
+*.generated.*
 
 # Python
 .venv

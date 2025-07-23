@@ -12,7 +12,7 @@ describe('nested contract typed client', () => {
     localnet = await setUpLocalnet()
   })
   beforeEach(async () => {
-    await localnet.beforeEach()
+    await localnet.newScope()
   }, 10_000)
 
   test('can call nestedMethodCall with obj args without payment transaction', async () => {

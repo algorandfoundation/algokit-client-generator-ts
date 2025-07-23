@@ -10,7 +10,7 @@ describe('minimal typed client', () => {
     localnet = await setUpLocalnet()
   })
   beforeEach(async () => {
-    await localnet.beforeEach()
+    await localnet.newScope()
   }, 10_000)
 
   test('Can be deployed and deleted', async () => {

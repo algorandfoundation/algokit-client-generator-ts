@@ -145,15 +145,17 @@ function* send(ctx: GeneratorContext): DocumentParts {
 function* opMethods(ctx: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
   const { app, callConfig } = ctx
 
-  yield* operationMethods(
-    ctx,
-    `Updates an existing instance of the ${app.name} smart contract`,
-    callConfig.updateMethods,
-    'update',
-    type,
-    true,
-  )
-  yield* operationMethods(ctx, `Deletes an existing instance of the ${app.name} smart contract`, callConfig.deleteMethods, 'delete', type)
+  if (ctx.mode === 'full') {
+    yield* operationMethods(
+      ctx,
+      `Updates an existing instance of the ${app.name} smart contract`,
+      callConfig.updateMethods,
+      'update',
+      type,
+      true,
+    )
+    yield* operationMethods(ctx, `Deletes an existing instance of the ${app.name} smart contract`, callConfig.deleteMethods, 'delete', type)
+  }
   yield* operationMethods(
     ctx,
     `Opts the user into an existing instance of the ${app.name} smart contract`,

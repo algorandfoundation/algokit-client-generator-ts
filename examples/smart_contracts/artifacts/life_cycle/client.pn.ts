@@ -253,9 +253,9 @@ export abstract class LifeCycleParamsFactory {
       _resolveByMethod<TParams extends LifeCycleCreateCallParams & {method: string}>(params: TParams) {
         switch(params.method) {
           case 'create(string)string':
-            return LifeCycleParamsFactory.create.createStringString(params)
+            return LifeCycleParamsFactory.create['create(string)string'](params)
           case 'create(string,uint32)void':
-            return LifeCycleParamsFactory.create.createStringUint32Void(params)
+            return LifeCycleParamsFactory.create['create(string,uint32)void'](params)
         }
         throw new Error(`Unknown ' + verb + ' method`)
       },
@@ -266,7 +266,7 @@ export abstract class LifeCycleParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      createStringString(params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      "create(string)string"(params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
         return {
           ...params,
           method: 'create(string)string' as const,
@@ -279,7 +279,7 @@ export abstract class LifeCycleParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      createStringUint32Void(params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      "create(string,uint32)void"(params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
         return {
           ...params,
           method: 'create(string,uint32)void' as const,
@@ -298,7 +298,7 @@ export abstract class LifeCycleParamsFactory {
         switch(params.method) {
           case 'update_test':
           case 'update_test()string':
-            return LifeCycleParamsFactory.update.updateTest(params)
+            return LifeCycleParamsFactory.update.update_test(params)
         }
         throw new Error(`Unknown ' + verb + ' method`)
       },
@@ -309,7 +309,7 @@ export abstract class LifeCycleParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      updateTest(params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams {
+      update_test(params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams {
         return {
           ...params,
           method: 'update_test()string' as const,
@@ -328,7 +328,7 @@ export abstract class LifeCycleParamsFactory {
         switch(params.method) {
           case 'delete_test':
           case 'delete_test()string':
-            return LifeCycleParamsFactory.delete.deleteTest(params)
+            return LifeCycleParamsFactory.delete.delete_test(params)
         }
         throw new Error(`Unknown ' + verb + ' method`)
       },
@@ -339,7 +339,7 @@ export abstract class LifeCycleParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      deleteTest(params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']>): AppClientMethodCallParams {
+      delete_test(params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'delete_test()string' as const,
@@ -360,7 +360,7 @@ export abstract class LifeCycleParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      closeOutTest(params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>): AppClientMethodCallParams {
+      close_out_test(params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'close_out_test()string' as const,
@@ -376,7 +376,7 @@ export abstract class LifeCycleParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloStringString(params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static "hello(string)string"(params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello(string)string' as const,
@@ -389,7 +389,7 @@ export abstract class LifeCycleParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloString(params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static "hello()string"(params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello()string' as const,
@@ -500,8 +500,8 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createStringString: (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.params.create(LifeCycleParamsFactory.create.createStringString(params))
+      "create(string)string": (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        return this.appFactory.params.create(LifeCycleParamsFactory.create['create(string)string'](params))
       },
       /**
        * Creates a new instance of the LifeCycle smart contract using the create(string,uint32)void ABI method.
@@ -509,8 +509,8 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createStringUint32Void: (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.params.create(LifeCycleParamsFactory.create.createStringUint32Void(params))
+      "create(string,uint32)void": (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        return this.appFactory.params.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
       },
     },
 
@@ -533,8 +533,8 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The deployUpdate params
        */
-      updateTest: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
-        return this.appFactory.params.deployUpdate(LifeCycleParamsFactory.update.updateTest(params))
+      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
+        return this.appFactory.params.deployUpdate(LifeCycleParamsFactory.update.update_test(params))
       },
     },
 
@@ -548,8 +548,8 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The deployDelete params
        */
-      deleteTest: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> = {args: []}) => {
-        return this.appFactory.params.deployDelete(LifeCycleParamsFactory.delete.deleteTest(params))
+      delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> = {args: []}) => {
+        return this.appFactory.params.deployDelete(LifeCycleParamsFactory.delete.delete_test(params))
       },
     },
 
@@ -578,8 +578,8 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create transaction
        */
-      createStringString: (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.createTransaction.create(LifeCycleParamsFactory.create.createStringString(params))
+      "create(string)string": (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        return this.appFactory.createTransaction.create(LifeCycleParamsFactory.create['create(string)string'](params))
       },
       /**
        * Creates a new instance of the LifeCycle smart contract using the create(string,uint32)void ABI method.
@@ -587,8 +587,8 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create transaction
        */
-      createStringUint32Void: (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        return this.appFactory.createTransaction.create(LifeCycleParamsFactory.create.createStringUint32Void(params))
+      "create(string,uint32)void": (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        return this.appFactory.createTransaction.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
       },
     },
 
@@ -618,8 +618,8 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      createStringString: async (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        const result = await this.appFactory.send.create(LifeCycleParamsFactory.create.createStringString(params))
+      "create(string)string": async (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        const result = await this.appFactory.send.create(LifeCycleParamsFactory.create['create(string)string'](params))
         return { result: { ...result.result, return: result.result.return as unknown as (undefined | LifeCycleReturns['create(string)string']) }, appClient: new LifeCycleClient(result.appClient) }
       },
       /**
@@ -628,8 +628,8 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      createStringUint32Void: async (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-        const result = await this.appFactory.send.create(LifeCycleParamsFactory.create.createStringUint32Void(params))
+      "create(string,uint32)void": async (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        const result = await this.appFactory.send.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
         return { result: { ...result.result, return: result.result.return as unknown as (undefined | LifeCycleReturns['create(string,uint32)void']) }, appClient: new LifeCycleClient(result.appClient) }
       },
     },
@@ -743,8 +743,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The update params
        */
-      updateTest: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
-        return this.appClient.params.update(LifeCycleParamsFactory.update.updateTest(params))
+      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
+        return this.appClient.params.update(LifeCycleParamsFactory.update.update_test(params))
       },
 
     },
@@ -759,8 +759,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The delete params
        */
-      deleteTest: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> = {args: []}) => {
-        return this.appClient.params.delete(LifeCycleParamsFactory.delete.deleteTest(params))
+      delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> = {args: []}) => {
+        return this.appClient.params.delete(LifeCycleParamsFactory.delete.delete_test(params))
       },
 
     },
@@ -775,8 +775,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut params
        */
-      closeOutTest: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> = {args: []}) => {
-        return this.appClient.params.closeOut(LifeCycleParamsFactory.closeOut.closeOutTest(params))
+      close_out_test: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> = {args: []}) => {
+        return this.appClient.params.closeOut(LifeCycleParamsFactory.closeOut.close_out_test(params))
       },
 
     },
@@ -797,8 +797,8 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloStringString: (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(LifeCycleParamsFactory.helloStringString(params))
+    "hello(string)string": (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(LifeCycleParamsFactory['hello(string)string'](params))
     },
 
     /**
@@ -807,8 +807,8 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloString: (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.params.call(LifeCycleParamsFactory.helloString(params))
+    "hello()string": (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(LifeCycleParamsFactory['hello()string'](params))
     },
 
   }
@@ -836,8 +836,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The update transaction
        */
-      updateTest: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
-        return this.appClient.createTransaction.update(LifeCycleParamsFactory.update.updateTest(params))
+      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
+        return this.appClient.createTransaction.update(LifeCycleParamsFactory.update.update_test(params))
       },
 
     },
@@ -852,8 +852,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The delete transaction
        */
-      deleteTest: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> = {args: []}) => {
-        return this.appClient.createTransaction.delete(LifeCycleParamsFactory.delete.deleteTest(params))
+      delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> = {args: []}) => {
+        return this.appClient.createTransaction.delete(LifeCycleParamsFactory.delete.delete_test(params))
       },
 
     },
@@ -868,8 +868,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut transaction
        */
-      closeOutTest: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> = {args: []}) => {
-        return this.appClient.createTransaction.closeOut(LifeCycleParamsFactory.closeOut.closeOutTest(params))
+      close_out_test: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> = {args: []}) => {
+        return this.appClient.createTransaction.closeOut(LifeCycleParamsFactory.closeOut.close_out_test(params))
       },
 
     },
@@ -890,8 +890,8 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloStringString: (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(LifeCycleParamsFactory.helloStringString(params))
+    "hello(string)string": (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(LifeCycleParamsFactory['hello(string)string'](params))
     },
 
     /**
@@ -900,8 +900,8 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloString: (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      return this.appClient.createTransaction.call(LifeCycleParamsFactory.helloString(params))
+    "hello()string": (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(LifeCycleParamsFactory['hello()string'](params))
     },
 
   }
@@ -929,8 +929,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The update result
        */
-      updateTest: async (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams & SendParams = {args: []}) => {
-        const result = await this.appClient.send.update(LifeCycleParamsFactory.update.updateTest(params))
+      update_test: async (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams & SendParams = {args: []}) => {
+        const result = await this.appClient.send.update(LifeCycleParamsFactory.update.update_test(params))
         return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['update_test()string'])}
       },
 
@@ -946,8 +946,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The delete result
        */
-      deleteTest: async (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> & SendParams = {args: []}) => {
-        const result = await this.appClient.send.delete(LifeCycleParamsFactory.delete.deleteTest(params))
+      delete_test: async (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> & SendParams = {args: []}) => {
+        const result = await this.appClient.send.delete(LifeCycleParamsFactory.delete.delete_test(params))
         return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['delete_test()string'])}
       },
 
@@ -963,8 +963,8 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut result
        */
-      closeOutTest: async (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & SendParams = {args: []}) => {
-        const result = await this.appClient.send.closeOut(LifeCycleParamsFactory.closeOut.closeOutTest(params))
+      close_out_test: async (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & SendParams = {args: []}) => {
+        const result = await this.appClient.send.closeOut(LifeCycleParamsFactory.closeOut.close_out_test(params))
         return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['close_out_test()string'])}
       },
 
@@ -986,8 +986,8 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloStringString: async (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(LifeCycleParamsFactory.helloStringString(params))
+    "hello(string)string": async (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(LifeCycleParamsFactory['hello(string)string'](params))
       return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['hello(string)string'])}
     },
 
@@ -997,8 +997,8 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloString: async (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-      const result = await this.appClient.send.call(LifeCycleParamsFactory.helloString(params))
+    "hello()string": async (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(LifeCycleParamsFactory['hello()string'](params))
       return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['hello()string'])}
     },
 
@@ -1052,16 +1052,16 @@ export class LifeCycleClient {
       /**
        * Add a hello(string)string method call against the LifeCycle contract
        */
-      helloStringString(params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloStringString(params)))
+      "hello(string)string"(params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params['hello(string)string'](params)))
         resultMappers.push((v) => client.decodeReturnValue('hello(string)string', v))
         return this
       },
       /**
        * Add a hello()string method call against the LifeCycle contract
        */
-      helloString(params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloString(params)))
+      "hello()string"(params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params['hello()string'](params)))
         resultMappers.push((v) => client.decodeReturnValue('hello()string', v))
         return this
       },
@@ -1071,8 +1071,8 @@ export class LifeCycleClient {
             promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
             return this
           },
-          updateTest: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams) => {
-            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.updateTest(params)))
+          update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams) => {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.update_test(params)))
             resultMappers.push((v) => client.decodeReturnValue('update_test()string', v))
             return this
           },
@@ -1080,8 +1080,8 @@ export class LifeCycleClient {
       },
       get delete() {
         return {
-          deleteTest: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']>) => {
-            promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.deleteTest(params)))
+          delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']>) => {
+            promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.delete_test(params)))
             resultMappers.push((v) => client.decodeReturnValue('delete_test()string', v))
             return this
           },
@@ -1089,8 +1089,8 @@ export class LifeCycleClient {
       },
       get closeOut() {
         return {
-          closeOutTest: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>) => {
-            promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.closeOut.closeOutTest(params)))
+          close_out_test: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>) => {
+            promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.closeOut.close_out_test(params)))
             resultMappers.push((v) => client.decodeReturnValue('close_out_test()string', v))
             return this
           },
@@ -1138,7 +1138,7 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloStringString(params?: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello(string)string'] | undefined]>
+  "hello(string)string"(params?: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello(string)string'] | undefined]>
 
   /**
    * Calls the hello()string ABI method.
@@ -1147,7 +1147,7 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloString(params?: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello()string'] | undefined]>
+  "hello()string"(params?: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello()string'] | undefined]>
 
   /**
    * Gets available update methods
@@ -1167,7 +1167,7 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    updateTest(params?: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['update_test()string'] | undefined]>
+    update_test(params?: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['update_test()string'] | undefined]>
   }
 
   /**
@@ -1181,7 +1181,7 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    deleteTest(params?: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['delete_test()string'] | undefined]>
+    delete_test(params?: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['delete_test()string'] | undefined]>
   }
 
   /**
@@ -1195,7 +1195,7 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    closeOutTest(params?: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['close_out_test()string'] | undefined]>
+    close_out_test(params?: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['close_out_test()string'] | undefined]>
   }
 
   /**

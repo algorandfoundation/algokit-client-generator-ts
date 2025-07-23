@@ -64,7 +64,7 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type FooUint16BarUint16 = {
+export type _foo_uint16_bar_uint16_ = {
   foo: number,
   bar: number
 }
@@ -73,8 +73,8 @@ export type FooUint16BarUint16 = {
 /**
  * Converts the ABI tuple representation of a { foo: uint16; bar: uint16 } to the struct representation
  */
-export function FooUint16BarUint16FromTuple(abiTuple: [number, number]) {
-  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs['{ foo: uint16; bar: uint16 }'], APP_SPEC.structs) as FooUint16BarUint16
+export function _foo_uint16_bar_uint16_FromTuple(abiTuple: [number, number]) {
+  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs['{ foo: uint16; bar: uint16 }'], APP_SPEC.structs) as _foo_uint16_bar_uint16_
 }
 
 export type Outputs = {
@@ -117,9 +117,9 @@ export type TemplateVariables = {
 }
 
 /**
- * The argument types for the Arc56Test contract
+ * The argument types for the ARC56Test contract
  */
-export type Arc56TestArgs = {
+export type ARC56TestArgs = {
   /**
    * The object representation of the arguments for each method
    */
@@ -143,34 +143,34 @@ export type Arc56TestArgs = {
 /**
  * The return type for each method
  */
-export type Arc56TestReturns = {
+export type ARC56TestReturns = {
   'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)': Outputs
   'optInToApplication()void': void
   'createApplication()void': void
 }
 
 /**
- * Defines the types of available calls and state of the Arc56Test smart contract.
+ * Defines the types of available calls and state of the ARC56Test smart contract.
  */
-export type Arc56TestTypes = {
+export type ARC56TestTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
   methods:
     & Record<'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)' | 'foo', {
-      argsObj: Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
-      argsTuple: Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
-      returns: Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
+      argsObj: ARC56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
+      argsTuple: ARC56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
+      returns: ARC56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']
     }>
     & Record<'optInToApplication()void' | 'optInToApplication', {
-      argsObj: Arc56TestArgs['obj']['optInToApplication()void']
-      argsTuple: Arc56TestArgs['tuple']['optInToApplication()void']
-      returns: Arc56TestReturns['optInToApplication()void']
+      argsObj: ARC56TestArgs['obj']['optInToApplication()void']
+      argsTuple: ARC56TestArgs['tuple']['optInToApplication()void']
+      returns: ARC56TestReturns['optInToApplication()void']
     }>
     & Record<'createApplication()void' | 'createApplication', {
-      argsObj: Arc56TestArgs['obj']['createApplication()void']
-      argsTuple: Arc56TestArgs['tuple']['createApplication()void']
-      returns: Arc56TestReturns['createApplication()void']
+      argsObj: ARC56TestArgs['obj']['createApplication()void']
+      argsTuple: ARC56TestArgs['tuple']['createApplication()void']
+      returns: ARC56TestReturns['createApplication()void']
     }>
   /**
    * Defines the shape of the state of the application.
@@ -181,7 +181,7 @@ export type Arc56TestTypes = {
         globalKey: bigint
       }
       maps: {
-        globalMap: Map<string, FooUint16BarUint16>
+        globalMap: Map<string, _foo_uint16_bar_uint16_>
       }
     }
     local: {
@@ -206,11 +206,11 @@ export type Arc56TestTypes = {
 /**
  * Defines the possible abi call signatures.
  */
-export type Arc56TestSignatures = keyof Arc56TestTypes['methods']
+export type ARC56TestSignatures = keyof ARC56TestTypes['methods']
 /**
  * Defines the possible abi call signatures for methods that return a non-void value.
  */
-export type Arc56TestNonVoidMethodSignatures = keyof Arc56TestTypes['methods'] extends infer T ? T extends keyof Arc56TestTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
+export type ARC56TestNonVoidMethodSignatures = keyof ARC56TestTypes['methods'] extends infer T ? T extends keyof ARC56TestTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
@@ -222,61 +222,61 @@ export type CallParams<TArgs> = Expand<
     }
 >
 /**
- * Maps a method signature from the Arc56Test smart contract to the method's arguments in either tuple or struct form
+ * Maps a method signature from the ARC56Test smart contract to the method's arguments in either tuple or struct form
  */
-export type MethodArgs<TSignature extends Arc56TestSignatures> = Arc56TestTypes['methods'][TSignature]['argsObj' | 'argsTuple']
+export type MethodArgs<TSignature extends ARC56TestSignatures> = ARC56TestTypes['methods'][TSignature]['argsObj' | 'argsTuple']
 /**
- * Maps a method signature from the Arc56Test smart contract to the method's return type
+ * Maps a method signature from the ARC56Test smart contract to the method's return type
  */
-export type MethodReturn<TSignature extends Arc56TestSignatures> = Arc56TestTypes['methods'][TSignature]['returns']
+export type MethodReturn<TSignature extends ARC56TestSignatures> = ARC56TestTypes['methods'][TSignature]['returns']
 
 /**
  * Defines the shape of the keyed global state of the application.
  */
-export type GlobalKeysState = Arc56TestTypes['state']['global']['keys']
+export type GlobalKeysState = ARC56TestTypes['state']['global']['keys']
 
 /**
  * Defines the shape of the keyed local state of the application.
  */
-export type LocalKeysState = Arc56TestTypes['state']['local']['keys']
+export type LocalKeysState = ARC56TestTypes['state']['local']['keys']
 
 /**
  * Defines the shape of the keyed box state of the application.
  */
-export type BoxKeysState = Arc56TestTypes['state']['box']['keys']
+export type BoxKeysState = ARC56TestTypes['state']['box']['keys']
 
 
 /**
  * Defines supported create method params for this smart contract
  */
-export type Arc56TestCreateCallParams =
-  | Expand<CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & {method: 'createApplication'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
-  | Expand<CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & {method: 'createApplication()void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+export type ARC56TestCreateCallParams =
+  | Expand<CallParams<ARC56TestArgs['obj']['createApplication()void'] | ARC56TestArgs['tuple']['createApplication()void']> & {method: 'createApplication'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<ARC56TestArgs['obj']['createApplication()void'] | ARC56TestArgs['tuple']['createApplication()void']> & {method: 'createApplication()void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines arguments required for the deploy method.
  */
-export type Arc56TestDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
+export type ARC56TestDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
   /**
    * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
    */
-  createParams?: Arc56TestCreateCallParams
+  createParams?: ARC56TestCreateCallParams
 }>
 
 
 /**
- * Exposes methods for constructing `AppClient` params objects for ABI calls to the Arc56Test smart contract
+ * Exposes methods for constructing `AppClient` params objects for ABI calls to the ARC56Test smart contract
  */
-export abstract class Arc56TestParamsFactory {
+export abstract class ARC56TestParamsFactory {
   /**
    * Gets available create ABI call param factories
    */
   static get create() {
     return {
-      _resolveByMethod<TParams extends Arc56TestCreateCallParams & {method: string}>(params: TParams) {
+      _resolveByMethod<TParams extends ARC56TestCreateCallParams & {method: string}>(params: TParams) {
         switch(params.method) {
           case 'createApplication':
           case 'createApplication()void':
-            return Arc56TestParamsFactory.create.createApplication(params)
+            return ARC56TestParamsFactory.create.createApplication(params)
         }
         throw new Error(`Unknown ' + verb + ' method`)
       },
@@ -287,7 +287,7 @@ export abstract class Arc56TestParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      createApplication(params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      createApplication(params: CallParams<ARC56TestArgs['obj']['createApplication()void'] | ARC56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
         return {
           ...params,
           method: 'createApplication()void' as const,
@@ -308,7 +308,7 @@ export abstract class Arc56TestParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      optInToApplication(params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']>): AppClientMethodCallParams {
+      optInToApplication(params: CallParams<ARC56TestArgs['obj']['optInToApplication()void'] | ARC56TestArgs['tuple']['optInToApplication()void']>): AppClientMethodCallParams {
         return {
           ...params,
           method: 'optInToApplication()void' as const,
@@ -324,7 +324,7 @@ export abstract class Arc56TestParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static foo(params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static foo(params: CallParams<ARC56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | ARC56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)' as const,
@@ -336,14 +336,14 @@ export abstract class Arc56TestParamsFactory {
 /**
  * A factory to create and deploy one or more instance of the ARC56Test smart contract and to create one or more app clients to interact with those (or other) app instances
  */
-export class Arc56TestFactory {
+export class ARC56TestFactory {
   /**
    * The underlying `AppFactory` for when you want to have more flexibility
    */
   public readonly appFactory: _AppFactory
 
   /**
-   * Creates a new instance of `Arc56TestFactory`
+   * Creates a new instance of `ARC56TestFactory`
    *
    * @param params The parameters to initialise the app factory with
    */
@@ -378,7 +378,7 @@ export class Arc56TestFactory {
    * @returns The `AppClient`
    */
   public getAppClientById(params: AppFactoryAppClientParams) {
-    return new Arc56TestClient(this.appFactory.getAppClientById(params))
+    return new ARC56TestClient(this.appFactory.getAppClientById(params))
   }
   
   /**
@@ -393,7 +393,7 @@ export class Arc56TestFactory {
   public async getAppClientByCreatorAndName(
     params: AppFactoryResolveAppClientByCreatorAndNameParams,
   ) {
-    return new Arc56TestClient(await this.appFactory.getAppClientByCreatorAndName(params))
+    return new ARC56TestClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
   /**
@@ -402,12 +402,12 @@ export class Arc56TestFactory {
    * @param params The arguments for the contract calls and any additional parameters for the call
    * @returns The deployment result
    */
-  public async deploy(params: Arc56TestDeployParams = {}) {
+  public async deploy(params: ARC56TestDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
-      createParams: params.createParams?.method ? Arc56TestParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (Arc56TestCreateCallParams & { args: Uint8Array[] }) : undefined,
+      createParams: params.createParams?.method ? ARC56TestParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (ARC56TestCreateCallParams & { args: Uint8Array[] }) : undefined,
     })
-    return { result: result.result, appClient: new Arc56TestClient(result.appClient) }
+    return { result: result.result, appClient: new ARC56TestClient(result.appClient) }
   }
 
   /**
@@ -424,8 +424,8 @@ export class Arc56TestFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      createApplication: (params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-        return this.appFactory.params.create(Arc56TestParamsFactory.create.createApplication(params))
+      createApplication: (params: CallParams<ARC56TestArgs['obj']['createApplication()void'] | ARC56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+        return this.appFactory.params.create(ARC56TestParamsFactory.create.createApplication(params))
       },
     },
 
@@ -445,8 +445,8 @@ export class Arc56TestFactory {
        * @param params The params for the smart contract call
        * @returns The create transaction
        */
-      createApplication: (params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-        return this.appFactory.createTransaction.create(Arc56TestParamsFactory.create.createApplication(params))
+      createApplication: (params: CallParams<ARC56TestArgs['obj']['createApplication()void'] | ARC56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+        return this.appFactory.createTransaction.create(ARC56TestParamsFactory.create.createApplication(params))
       },
     },
 
@@ -466,9 +466,9 @@ export class Arc56TestFactory {
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      createApplication: async (params: CallParams<Arc56TestArgs['obj']['createApplication()void'] | Arc56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
-        const result = await this.appFactory.send.create(Arc56TestParamsFactory.create.createApplication(params))
-        return { result: { ...result.result, return: result.result.return as unknown as (undefined | Arc56TestReturns['createApplication()void']) }, appClient: new Arc56TestClient(result.appClient) }
+      createApplication: async (params: CallParams<ARC56TestArgs['obj']['createApplication()void'] | ARC56TestArgs['tuple']['createApplication()void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+        const result = await this.appFactory.send.create(ARC56TestParamsFactory.create.createApplication(params))
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | ARC56TestReturns['createApplication()void']) }, appClient: new ARC56TestClient(result.appClient) }
       },
     },
 
@@ -478,20 +478,20 @@ export class Arc56TestFactory {
 /**
  * A client to make calls to the ARC56Test smart contract
  */
-export class Arc56TestClient {
+export class ARC56TestClient {
   /**
    * The underlying `AppClient` for when you want to have more flexibility
    */
   public readonly appClient: _AppClient
 
   /**
-   * Creates a new instance of `Arc56TestClient`
+   * Creates a new instance of `ARC56TestClient`
    *
-   * @param appClient An `AppClient` instance which has been created with the Arc56Test app spec
+   * @param appClient An `AppClient` instance which has been created with the ARC56Test app spec
    */
   constructor(appClient: _AppClient)
   /**
-   * Creates a new instance of `Arc56TestClient`
+   * Creates a new instance of `ARC56TestClient`
    *
    * @param params The parameters to initialise the app client with
    */
@@ -507,21 +507,21 @@ export class Arc56TestClient {
    * Checks for decode errors on the given return value and maps the return value to the return type for the given method
    * @returns The typed return value or undefined if there was no value
    */
-  decodeReturnValue<TSignature extends Arc56TestNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
+  decodeReturnValue<TSignature extends ARC56TestNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
     return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
   }
   
   /**
-   * Returns a new `Arc56TestClient` client, resolving the app by creator address and name
+   * Returns a new `ARC56TestClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
    */
-  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<Arc56TestClient> {
-    return new Arc56TestClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<ARC56TestClient> {
+    return new ARC56TestClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
   /**
-   * Returns an `Arc56TestClient` instance for the current network based on
+   * Returns an `ARC56TestClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
    *
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
@@ -529,8 +529,8 @@ export class Arc56TestClient {
    */
   static async fromNetwork(
     params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<Arc56TestClient> {
-    return new Arc56TestClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  ): Promise<ARC56TestClient> {
+    return new ARC56TestClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
   
   /** The ID of the app instance this client is linked to. */
@@ -572,8 +572,8 @@ export class Arc56TestClient {
        * @param params The params for the smart contract call
        * @returns The optIn params
        */
-      optInToApplication: (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']> = {args: []}) => {
-        return this.appClient.params.optIn(Arc56TestParamsFactory.optIn.optInToApplication(params))
+      optInToApplication: (params: CallParams<ARC56TestArgs['obj']['optInToApplication()void'] | ARC56TestArgs['tuple']['optInToApplication()void']> = {args: []}) => {
+        return this.appClient.params.optIn(ARC56TestParamsFactory.optIn.optInToApplication(params))
       },
 
     },
@@ -594,8 +594,8 @@ export class Arc56TestClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    foo: (params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(Arc56TestParamsFactory.foo(params))
+    foo: (params: CallParams<ARC56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | ARC56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(ARC56TestParamsFactory.foo(params))
     },
 
   }
@@ -614,8 +614,8 @@ export class Arc56TestClient {
        * @param params The params for the smart contract call
        * @returns The optIn transaction
        */
-      optInToApplication: (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']> = {args: []}) => {
-        return this.appClient.createTransaction.optIn(Arc56TestParamsFactory.optIn.optInToApplication(params))
+      optInToApplication: (params: CallParams<ARC56TestArgs['obj']['optInToApplication()void'] | ARC56TestArgs['tuple']['optInToApplication()void']> = {args: []}) => {
+        return this.appClient.createTransaction.optIn(ARC56TestParamsFactory.optIn.optInToApplication(params))
       },
 
     },
@@ -636,8 +636,8 @@ export class Arc56TestClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    foo: (params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(Arc56TestParamsFactory.foo(params))
+    foo: (params: CallParams<ARC56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | ARC56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(ARC56TestParamsFactory.foo(params))
     },
 
   }
@@ -656,9 +656,9 @@ export class Arc56TestClient {
        * @param params The params for the smart contract call
        * @returns The optIn result
        */
-      optInToApplication: async (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']> & SendParams = {args: []}) => {
-        const result = await this.appClient.send.optIn(Arc56TestParamsFactory.optIn.optInToApplication(params))
-        return {...result, return: result.return as unknown as (undefined | Arc56TestReturns['optInToApplication()void'])}
+      optInToApplication: async (params: CallParams<ARC56TestArgs['obj']['optInToApplication()void'] | ARC56TestArgs['tuple']['optInToApplication()void']> & SendParams = {args: []}) => {
+        const result = await this.appClient.send.optIn(ARC56TestParamsFactory.optIn.optInToApplication(params))
+        return {...result, return: result.return as unknown as (undefined | ARC56TestReturns['optInToApplication()void'])}
       },
 
     },
@@ -679,9 +679,9 @@ export class Arc56TestClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    foo: async (params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(Arc56TestParamsFactory.foo(params))
-      return {...result, return: result.return as unknown as (undefined | Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'])}
+    foo: async (params: CallParams<ARC56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | ARC56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(ARC56TestParamsFactory.foo(params))
+      return {...result, return: result.return as unknown as (undefined | ARC56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'])}
     },
 
   }
@@ -693,7 +693,7 @@ export class Arc56TestClient {
    * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
-    return new Arc56TestClient(this.appClient.clone(params))
+    return new ARC56TestClient(this.appClient.clone(params))
   }
 
   /**
@@ -724,11 +724,11 @@ export class Arc56TestClient {
         /**
          * Get all current values of the globalMap map in global state
          */
-        getMap: async (): Promise<Map<string, FooUint16BarUint16>> => { return (await this.appClient.state.global.getMap("globalMap")) as Map<string, FooUint16BarUint16> },
+        getMap: async (): Promise<Map<string, _foo_uint16_bar_uint16_>> => { return (await this.appClient.state.global.getMap("globalMap")) as Map<string, _foo_uint16_bar_uint16_> },
         /**
          * Get a current value of the globalMap map by key from global state
          */
-        value: async (key: string): Promise<FooUint16BarUint16 | undefined> => { return await this.appClient.state.global.getMapValue("globalMap", key) as FooUint16BarUint16 | undefined },
+        value: async (key: string): Promise<_foo_uint16_bar_uint16_ | undefined> => { return await this.appClient.state.global.getMapValue("globalMap", key) as _foo_uint16_bar_uint16_ | undefined },
       },
     },
     /**
@@ -798,7 +798,7 @@ export class Arc56TestClient {
     },
   }
 
-  public newGroup(): Arc56TestComposer {
+  public newGroup(): ARC56TestComposer {
     const client = this
     const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
@@ -807,14 +807,14 @@ export class Arc56TestClient {
       /**
        * Add a foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64) method call against the ARC56Test contract
        */
-      foo(params: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      foo(params: CallParams<ARC56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | ARC56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.foo(params)))
         resultMappers.push((v) => client.decodeReturnValue('foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)', v))
         return this
       },
       get optIn() {
         return {
-          optInToApplication: (params: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']>) => {
+          optInToApplication: (params: CallParams<ARC56TestArgs['obj']['optInToApplication()void'] | ARC56TestArgs['tuple']['optInToApplication()void']>) => {
             promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.optInToApplication(params)))
             resultMappers.push(undefined)
             return this
@@ -852,10 +852,10 @@ export class Arc56TestClient {
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
         }
       }
-    } as unknown as Arc56TestComposer
+    } as unknown as ARC56TestComposer
   }
 }
-export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
+export type ARC56TestComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64) ABI method.
    *
@@ -863,7 +863,7 @@ export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  foo(params?: CallParams<Arc56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | Arc56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']>): Arc56TestComposer<[...TReturns, Arc56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | undefined]>
+  foo(params?: CallParams<ARC56TestArgs['obj']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | ARC56TestArgs['tuple']['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)']>): ARC56TestComposer<[...TReturns, ARC56TestReturns['foo(((uint64,uint64),(uint64,uint64)))(uint64,uint64)'] | undefined]>
 
   /**
    * Gets available optIn methods
@@ -876,7 +876,7 @@ export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    optInToApplication(params?: CallParams<Arc56TestArgs['obj']['optInToApplication()void'] | Arc56TestArgs['tuple']['optInToApplication()void']>): Arc56TestComposer<[...TReturns, Arc56TestReturns['optInToApplication()void'] | undefined]>
+    optInToApplication(params?: CallParams<ARC56TestArgs['obj']['optInToApplication()void'] | ARC56TestArgs['tuple']['optInToApplication()void']>): ARC56TestComposer<[...TReturns, ARC56TestReturns['optInToApplication()void'] | undefined]>
   }
 
   /**
@@ -885,7 +885,7 @@ export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
    * @param args The arguments for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  clearState(params?: AppClientBareCallParams): Arc56TestComposer<[...TReturns, undefined]>
+  clearState(params?: AppClientBareCallParams): ARC56TestComposer<[...TReturns, undefined]>
 
   /**
    * Adds a transaction to the composer
@@ -893,7 +893,7 @@ export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
    * @param txn A transaction to add to the transaction group
    * @param signer The optional signer to use when signing this transaction.
    */
-  addTransaction(txn: Transaction, signer?: TransactionSigner): Arc56TestComposer<TReturns>
+  addTransaction(txn: Transaction, signer?: TransactionSigner): ARC56TestComposer<TReturns>
   /**
    * Returns the underlying AtomicTransactionComposer instance
    */
@@ -901,15 +901,15 @@ export type Arc56TestComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<Arc56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(): Promise<ARC56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<ARC56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<ARC56TestComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
-  send(params?: SendParams): Promise<Arc56TestComposerResults<TReturns>>
+  send(params?: SendParams): Promise<ARC56TestComposerResults<TReturns>>
 }
-export type Arc56TestComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+export type ARC56TestComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns
 }>
 

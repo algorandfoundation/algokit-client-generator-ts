@@ -10,7 +10,7 @@ describe('hello world typed client', () => {
     localnet = await setUpLocalnet()
   })
   beforeEach(async () => {
-    await localnet.beforeEach()
+    await localnet.newScope()
   }, 10_000)
 
   test('Calls hello', async () => {
