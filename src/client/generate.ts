@@ -22,7 +22,7 @@ function convertStructs(s: StructField[], sanitizer: Sanitizer): StructField[] {
 }
 
 function shrinkAppSpec(app: Arc56Contract, options: GeneratorOptions): Arc56Contract {
-  const strippedApp = structuredClone(app)
+  const strippedAppSpec = structuredClone(app)
 
   // Only keep the source info if it is needed for error mapping
   const shrinkSourceInfo = (sourceInfo: ProgramSourceInfo['sourceInfo']) => {
@@ -37,34 +37,34 @@ function shrinkAppSpec(app: Arc56Contract, options: GeneratorOptions): Arc56Cont
   }
 
   // Keep only source info entries that can be used for approval and clear program error mapping
-  if (strippedApp.sourceInfo?.approval?.sourceInfo && strippedApp.sourceInfo.approval.sourceInfo.length > 0) {
-    strippedApp.sourceInfo.approval.sourceInfo = shrinkSourceInfo(strippedApp.sourceInfo.approval.sourceInfo)
+  if (strippedAppSpec.sourceInfo?.approval?.sourceInfo && strippedAppSpec.sourceInfo.approval.sourceInfo.length > 0) {
+    strippedAppSpec.sourceInfo.approval.sourceInfo = shrinkSourceInfo(strippedAppSpec.sourceInfo.approval.sourceInfo)
   }
 
-  if (strippedApp.sourceInfo?.clear?.sourceInfo && strippedApp.sourceInfo.clear.sourceInfo.length > 0) {
-    strippedApp.sourceInfo.clear.sourceInfo = shrinkSourceInfo(strippedApp.sourceInfo.clear.sourceInfo)
+  if (strippedAppSpec.sourceInfo?.clear?.sourceInfo && strippedAppSpec.sourceInfo.clear.sourceInfo.length > 0) {
+    strippedAppSpec.sourceInfo.clear.sourceInfo = shrinkSourceInfo(strippedAppSpec.sourceInfo.clear.sourceInfo)
   }
 
-  if (strippedApp.compilerInfo) {
-    delete strippedApp.compilerInfo
+  if (strippedAppSpec.compilerInfo) {
+    delete strippedAppSpec.compilerInfo
   }
 
   // These are used for deploying but not for calling deployed apps
   if (options.mode === 'minimal') {
-    if (strippedApp.source) {
-      delete strippedApp.source
+    if (strippedAppSpec.source) {
+      delete strippedAppSpec.source
     }
-    if (strippedApp.byteCode) {
-      delete strippedApp.byteCode
+    if (strippedAppSpec.byteCode) {
+      delete strippedAppSpec.byteCode
     }
-    if (strippedApp.templateVariables) {
-      delete strippedApp.templateVariables
+    if (strippedAppSpec.templateVariables) {
+      delete strippedAppSpec.templateVariables
     }
-    if (strippedApp.scratchVariables) {
-      delete strippedApp.scratchVariables
+    if (strippedAppSpec.scratchVariables) {
+      delete strippedAppSpec.scratchVariables
     }
   }
-  return strippedApp
+  return strippedAppSpec
 }
 
 export function* generate(app: Arc56Contract, options?: Partial<GeneratorOptions>): DocumentParts {
