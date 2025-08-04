@@ -233,6 +233,43 @@ exports[`Client type differences > structs: full vs minimal differences > struct
 
 exports[`Client type differences > structs: full vs minimal differences > structs-composer-diff 1`] = `[]`;
 
+exports[`Client type differences > void: full vs minimal differences > void-client-diff 1`] = `
+[
+  "appClient._appSpec.byteCode",
+  "appClient._appSpec.byteCode.approval",
+  "appClient._appSpec.byteCode.clear",
+  "appClient._appSpec.source",
+  "appClient._appSpec.source.approval",
+  "appClient._appSpec.source.clear",
+  "appClient._appSpec.templateVariables",
+  "appClient._appSpec.templateVariables.DELETABLE",
+  "appClient._appSpec.templateVariables.DELETABLE.type",
+  "appClient._appSpec.templateVariables.UPDATABLE",
+  "appClient._appSpec.templateVariables.UPDATABLE.type",
+  "createTransaction.delete",
+  "createTransaction.delete.bare",
+  "createTransaction.update",
+  "createTransaction.update.bare",
+  "params.delete",
+  "params.delete.bare",
+  "params.update",
+  "params.update.bare",
+  "send.delete",
+  "send.delete.bare",
+  "send.update",
+  "send.update.bare",
+]
+`;
+
+exports[`Client type differences > void: full vs minimal differences > void-composer-diff 1`] = `
+[
+  "delete",
+  "delete.bare",
+  "update",
+  "update.bare",
+]
+`;
+
 exports[`Client type differences > voting_round: full vs minimal differences > voting_round-client-diff 1`] = `
 [
   "appClient._appSpec.source",

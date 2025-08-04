@@ -1,44 +1,46 @@
 import fs from 'fs'
 import path from 'path'
-import { generate } from '../client/generate.js'
-import { writeDocumentPartsToString } from '../output/writer.js'
-import { loadApplicationJson } from '../schema/load.js'
+import { generate } from '../client/generate'
+import { writeDocumentPartsToString } from '../output/writer'
+import { loadApplicationJson } from '../schema/load'
 import { expect, test, describe, beforeAll, beforeEach } from 'vitest'
 import { pascalCase } from 'change-case'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { setUpLocalnet } from './util.js'
+import { setUpLocalnet } from './util'
 
 // Import all full and minimal clients
-import * as duplicateStructsFull from '../../examples/smart_contracts/artifacts/duplicate_structs/client.js'
-import * as duplicateStructsMinimal from '../../examples/smart_contracts/artifacts/duplicate_structs/client.minimal.js'
-import * as helloWorldFull from '../../examples/smart_contracts/artifacts/hello_world/client.js'
-import * as helloWorldMinimal from '../../examples/smart_contracts/artifacts/hello_world/client.minimal.js'
-import * as lifeCycleFull from '../../examples/smart_contracts/artifacts/life_cycle/client.js'
-import * as lifeCycleMinimal from '../../examples/smart_contracts/artifacts/life_cycle/client.minimal.js'
-import * as minimalFull from '../../examples/smart_contracts/artifacts/minimal/client.js'
-import * as minimalMinimal from '../../examples/smart_contracts/artifacts/minimal/client.minimal.js'
-import * as stateFull from '../../examples/smart_contracts/artifacts/state/client.js'
-import * as stateMinimal from '../../examples/smart_contracts/artifacts/state/client.minimal.js'
-import * as votingRoundFull from '../../examples/smart_contracts/artifacts/voting_round/client.js'
-import * as votingRoundMinimal from '../../examples/smart_contracts/artifacts/voting_round/client.minimal.js'
-import * as retiFull from '../../examples/smart_contracts/artifacts/reti/client.js'
-import * as retiMinimal from '../../examples/smart_contracts/artifacts/reti/client.minimal.js'
-import * as arc56TestFull from '../../examples/smart_contracts/artifacts/arc56_test/client.js'
-import * as arc56TestMinimal from '../../examples/smart_contracts/artifacts/arc56_test/client.minimal.js'
-import * as nestedFull from '../../examples/smart_contracts/artifacts/nested/client.js'
-import * as nestedMinimal from '../../examples/smart_contracts/artifacts/nested/client.minimal.js'
-import * as nfdFull from '../../examples/smart_contracts/artifacts/nfd/client.js'
-import * as nfdMinimal from '../../examples/smart_contracts/artifacts/nfd/client.minimal.js'
-import * as structsFull from '../../examples/smart_contracts/artifacts/structs/client.js'
-import * as structsMinimal from '../../examples/smart_contracts/artifacts/structs/client.minimal.js'
-import * as zeroCouponBondFull from '../../examples/smart_contracts/artifacts/zero_coupon_bond/client.js'
-import * as zeroCouponBondMinimal from '../../examples/smart_contracts/artifacts/zero_coupon_bond/client.minimal.js'
+import * as duplicateStructsFull from '../../examples/smart_contracts/artifacts/duplicate_structs/client'
+import * as duplicateStructsMinimal from '../../examples/smart_contracts/artifacts/duplicate_structs/client.minimal'
+import * as helloWorldFull from '../../examples/smart_contracts/artifacts/hello_world/client'
+import * as helloWorldMinimal from '../../examples/smart_contracts/artifacts/hello_world/client.minimal'
+import * as lifeCycleFull from '../../examples/smart_contracts/artifacts/life_cycle/client'
+import * as lifeCycleMinimal from '../../examples/smart_contracts/artifacts/life_cycle/client.minimal'
+import * as minimalFull from '../../examples/smart_contracts/artifacts/minimal/client'
+import * as minimalMinimal from '../../examples/smart_contracts/artifacts/minimal/client.minimal'
+import * as stateFull from '../../examples/smart_contracts/artifacts/state/client'
+import * as stateMinimal from '../../examples/smart_contracts/artifacts/state/client.minimal'
+import * as votingRoundFull from '../../examples/smart_contracts/artifacts/voting_round/client'
+import * as votingRoundMinimal from '../../examples/smart_contracts/artifacts/voting_round/client.minimal'
+import * as retiFull from '../../examples/smart_contracts/artifacts/reti/client'
+import * as retiMinimal from '../../examples/smart_contracts/artifacts/reti/client.minimal'
+import * as arc56TestFull from '../../examples/smart_contracts/artifacts/arc56_test/client'
+import * as arc56TestMinimal from '../../examples/smart_contracts/artifacts/arc56_test/client.minimal'
+import * as nestedFull from '../../examples/smart_contracts/artifacts/nested/client'
+import * as nestedMinimal from '../../examples/smart_contracts/artifacts/nested/client.minimal'
+import * as nfdFull from '../../examples/smart_contracts/artifacts/nfd/client'
+import * as nfdMinimal from '../../examples/smart_contracts/artifacts/nfd/client.minimal'
+import * as structsFull from '../../examples/smart_contracts/artifacts/structs/client'
+import * as structsMinimal from '../../examples/smart_contracts/artifacts/structs/client.minimal'
+import * as zeroCouponBondFull from '../../examples/smart_contracts/artifacts/zero_coupon_bond/client'
+import * as zeroCouponBondMinimal from '../../examples/smart_contracts/artifacts/zero_coupon_bond/client.minimal'
+import * as voidFull from '../../examples/smart_contracts/artifacts/void/client'
+import * as voidMinimal from '../../examples/smart_contracts/artifacts/void/client.minimal'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 const writeActual = process.env.TEST_ENV !== 'ci'
 
 const arc32TestContracts = ['duplicate_structs', 'hello_world', 'life_cycle', 'minimal', 'state', 'voting_round'] as const
-const arc56TestContracts = ['reti', 'arc56_test', 'nested', 'nfd', 'structs', 'zero_coupon_bond'] as const
+const arc56TestContracts = ['reti', 'arc56_test', 'nested', 'nfd', 'structs', 'zero_coupon_bond', 'void'] as const
 
 type TestConfig = {
   contractName: string
@@ -119,6 +121,7 @@ const contractModules: Record<string, { full: Record<string, unknown>; minimal: 
   nfd: { full: nfdFull, minimal: nfdMinimal },
   structs: { full: structsFull, minimal: structsMinimal },
   zero_coupon_bond: { full: zeroCouponBondFull, minimal: zeroCouponBondMinimal },
+  void: { full: voidFull, minimal: voidMinimal },
 }
 
 describe('Client type differences', () => {
