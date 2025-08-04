@@ -5,6 +5,7 @@ import algosdk, { ABIMethod } from 'algosdk'
 import { Arc56Contract, Method, StorageKey, StorageMap, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { Sanitizer } from '../util/sanitization'
 import { Expand } from '@algorandfoundation/algokit-utils/types/expand'
+import { containsNonVoidMethod } from './helpers/contains-non-void-method'
 
 function getMethodMetadata(method: Method, ctx: GeneratorContext) {
   const { methodSignatureToUniqueName } = ctx
@@ -133,15 +134,21 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield DecIndentAndCloseBlock
   yield NewLine
 
-  yield `
+  yield* inline(`
   /**
    * Defines the possible abi call signatures.
    */
-  export type ${name}Signatures = keyof ${name}Types['methods']
+  export type ${name}Signatures = keyof ${name}Types['methods']`)
+
+  if (containsNonVoidMethod(app.methods)) {
+    yield* inline(`
   /**
    * Defines the possible abi call signatures for methods that return a non-void value.
    */
-  export type ${name}NonVoidMethodSignatures = keyof ${name}Types['methods'] extends infer T ? T extends keyof ${name}Types['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
+  export type ${name}NonVoidMethodSignatures = keyof ${name}Types['methods'] extends infer T ? T extends keyof ${name}Types['methods'] ? MethodReturn<T> extends void ? never : T  : never : never`)
+  }
+
+  yield `
   /**
    * Defines an object containing all relevant parameters for a single call to the contract.
    */
@@ -200,9 +207,15 @@ function getStructAsObject(struct: StructField[], ctx: GeneratorContext): Record
 }
 
 function getStructAsTupleTypes(struct: StructField[], ctx: GeneratorContext): string {
-  return `[${struct.map((s) => {
-    return Array.isArray(s.type) ? getStructAsTupleTypes(s.type, ctx) : Object.keys(ctx.app.structs).includes(s.type) ? getStructAsTupleTypes(ctx.app.structs[s.type], ctx) : getEquivalentType(s.type, "output", ctx);
-  }).join(', ')}]`
+  return `[${struct
+    .map((s) => {
+      return Array.isArray(s.type)
+        ? getStructAsTupleTypes(s.type, ctx)
+        : Object.keys(ctx.app.structs).includes(s.type)
+          ? getStructAsTupleTypes(ctx.app.structs[s.type], ctx)
+          : getEquivalentType(s.type, 'output', ctx)
+    })
+    .join(', ')}]`
 }
 
 function* structTypes(ctx: GeneratorContext): DocumentParts {
