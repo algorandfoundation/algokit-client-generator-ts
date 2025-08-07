@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "algokit-client-generator-ts-examples"
+name = "algokit-client-generator-ts"
 version = "0.1.0"
 description = "Example smart contracts"
-authors = ["Rob Moore <rob.moore@makerx.com.au>"]
+authors = ["Algorand Foundation <contact@algorand.foundation>"]
 readme = "README.md"
 package-mode = false
 
