@@ -44,16 +44,6 @@ async function updateApprovals() {
       mode: 'minimal',
     })
 
-    // Generate preserve names minimal client
-    const approvedPnMinimalPath = path.join(dir, 'client.pn.minimal.ts')
-    await generateClientCommand({
-      workingDirectory: process.cwd(),
-      application: applicationJsonPath,
-      output: approvedPnMinimalPath,
-      preserveNames: true,
-      mode: 'minimal',
-    })
-
     colorConsole.info`----------------------`
   }
   colorConsole.success`Operation completed successfully`
