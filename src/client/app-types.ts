@@ -209,11 +209,16 @@ function getStructAsObject(struct: StructField[], ctx: GeneratorContext): Record
 function getStructAsTupleTypes(struct: StructField[], ctx: GeneratorContext): string {
   return `[${struct
     .map((s) => {
-      return Array.isArray(s.type)
-        ? getStructAsTupleTypes(s.type, ctx)
-        : Object.keys(ctx.app.structs).includes(s.type)
-          ? getStructAsTupleTypes(ctx.app.structs[s.type], ctx)
-          : getEquivalentType(s.type, 'output', ctx)
+      // Field is an inline nested struct (array of StructField)
+      if (Array.isArray(s.type)) {
+        return getStructAsTupleTypes(s.type, ctx)
+      }
+      // Field references a named struct defined elsewhere
+      if (Object.keys(ctx.app.structs).includes(s.type)) {
+        return getStructAsTupleTypes(ctx.app.structs[s.type], ctx)
+      }
+      // Field is a primitive type (string, uint64, etc.)
+      return getEquivalentType(s.type, 'output', ctx)
     })
     .join(', ')}]`
 }
