@@ -6,6 +6,7 @@ import { composeMethod } from './call-composer'
 import { ABIMethod } from 'algosdk'
 import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { getEquivalentType } from './helpers/get-equivalent-type'
+import { containsNonVoidMethod } from './helpers/contains-non-void-method'
 
 export function* appClient(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
@@ -35,16 +36,20 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
         ...appClientOrParams,
         appSpec: APP_SPEC,
       })
-    }
+    }`
 
+  if (containsNonVoidMethod(app.methods)) {
+    yield `
     /**
      * Checks for decode errors on the given return value and maps the return value to the return type for the given method
      * @returns The typed return value or undefined if there was no value
      */
     decodeReturnValue<TSignature extends ${name}NonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
       return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
-    }
+    }`
+  }
 
+  yield `
     /**
      * Returns a new \`${name}Client\` client, resolving the app by creator address and name
      * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).

@@ -23,7 +23,7 @@ import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgumen
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"Minimal","structs":{},"methods":[],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"Void","structs":{},"methods":[{"name":"do_nothing","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[78],"errorMessage":"Check app is deletable"},{"pc":[72],"errorMessage":"Check app is updatable"},{"pc":[24],"errorMessage":"OnCompletion is not NoOp"},{"pc":[68],"errorMessage":"can only call when creating"},{"pc":[27,51,59],"errorMessage":"can only call when not creating"},{"pc":[88],"errorMessage":"unauthorized"}],"pcOffsetMethod":"cblocks"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"events":[]} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -63,41 +63,49 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 
 /**
- * The argument types for the Minimal contract
+ * The argument types for the Void contract
  */
-export type MinimalArgs = {
+export type VoidArgs = {
   /**
    * The object representation of the arguments for each method
    */
   obj: {
+    'do_nothing()void': Record<string, never>
   }
   /**
    * The tuple representation of the arguments for each method
    */
   tuple: {
+    'do_nothing()void': []
   }
 }
 
 /**
  * The return type for each method
  */
-export type MinimalReturns = {
+export type VoidReturns = {
+  'do_nothing()void': void
 }
 
 /**
- * Defines the types of available calls and state of the Minimal smart contract.
+ * Defines the types of available calls and state of the Void smart contract.
  */
-export type MinimalTypes = {
+export type VoidTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
-  methods: {}
+  methods:
+    & Record<'do_nothing()void' | 'do_nothing', {
+      argsObj: VoidArgs['obj']['do_nothing()void']
+      argsTuple: VoidArgs['tuple']['do_nothing()void']
+      returns: VoidReturns['do_nothing()void']
+    }>
 }
 
 /**
  * Defines the possible abi call signatures.
  */
-export type MinimalSignatures = keyof MinimalTypes['methods']
+export type VoidSignatures = keyof VoidTypes['methods']
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
@@ -109,39 +117,52 @@ export type CallParams<TArgs> = Expand<
     }
 >
 /**
- * Maps a method signature from the Minimal smart contract to the method's arguments in either tuple or struct form
+ * Maps a method signature from the Void smart contract to the method's arguments in either tuple or struct form
  */
-export type MethodArgs<TSignature extends MinimalSignatures> = MinimalTypes['methods'][TSignature]['argsObj' | 'argsTuple']
+export type MethodArgs<TSignature extends VoidSignatures> = VoidTypes['methods'][TSignature]['argsObj' | 'argsTuple']
 /**
- * Maps a method signature from the Minimal smart contract to the method's return type
+ * Maps a method signature from the Void smart contract to the method's return type
  */
-export type MethodReturn<TSignature extends MinimalSignatures> = MinimalTypes['methods'][TSignature]['returns']
+export type MethodReturn<TSignature extends VoidSignatures> = VoidTypes['methods'][TSignature]['returns']
 
 
 
 /**
- * Exposes methods for constructing `AppClient` params objects for ABI calls to the Minimal smart contract
+ * Exposes methods for constructing `AppClient` params objects for ABI calls to the Void smart contract
  */
-export abstract class MinimalParamsFactory {
+export abstract class VoidParamsFactory {
+  /**
+   * Constructs a no op call for the do_nothing()void ABI method
+   *
+   * @param params Parameters for the call
+   * @returns An `AppClientMethodCallParams` object for the call
+   */
+  static doNothing(params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+    return {
+      ...params,
+      method: 'do_nothing()void' as const,
+      args: Array.isArray(params.args) ? params.args : [],
+    }
+  }
 }
 
 /**
- * A client to make calls to the Minimal smart contract
+ * A client to make calls to the Void smart contract
  */
-export class MinimalClient {
+export class VoidClient {
   /**
    * The underlying `AppClient` for when you want to have more flexibility
    */
   public readonly appClient: _AppClient
 
   /**
-   * Creates a new instance of `MinimalClient`
+   * Creates a new instance of `VoidClient`
    *
-   * @param appClient An `AppClient` instance which has been created with the Minimal app spec
+   * @param appClient An `AppClient` instance which has been created with the Void app spec
    */
   constructor(appClient: _AppClient)
   /**
-   * Creates a new instance of `MinimalClient`
+   * Creates a new instance of `VoidClient`
    *
    * @param params The parameters to initialise the app client with
    */
@@ -154,16 +175,16 @@ export class MinimalClient {
   }
 
   /**
-   * Returns a new `MinimalClient` client, resolving the app by creator address and name
+   * Returns a new `VoidClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
    */
-  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<MinimalClient> {
-    return new MinimalClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<VoidClient> {
+    return new VoidClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
   /**
-   * Returns an `MinimalClient` instance for the current network based on
+   * Returns an `VoidClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
    *
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
@@ -171,8 +192,8 @@ export class MinimalClient {
    */
   static async fromNetwork(
     params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<MinimalClient> {
-    return new MinimalClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  ): Promise<VoidClient> {
+    return new VoidClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
   
   /** The ID of the app instance this client is linked to. */
@@ -205,13 +226,23 @@ export class MinimalClient {
    */
   readonly params = {
     /**
-     * Makes a clear_state call to an existing instance of the Minimal smart contract.
+     * Makes a clear_state call to an existing instance of the Void smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
      */
     clearState: (params?: Expand<AppClientBareCallParams>) => {
       return this.appClient.params.bare.clearState(params)
+    },
+
+    /**
+     * Makes a call to the Void smart contract using the `do_nothing()void` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call params
+     */
+    doNothing: (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(VoidParamsFactory.doNothing(params))
     },
 
   }
@@ -221,13 +252,23 @@ export class MinimalClient {
    */
   readonly createTransaction = {
     /**
-     * Makes a clear_state call to an existing instance of the Minimal smart contract.
+     * Makes a clear_state call to an existing instance of the Void smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
      */
     clearState: (params?: Expand<AppClientBareCallParams>) => {
       return this.appClient.createTransaction.bare.clearState(params)
+    },
+
+    /**
+     * Makes a call to the Void smart contract using the `do_nothing()void` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call transaction
+     */
+    doNothing: (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(VoidParamsFactory.doNothing(params))
     },
 
   }
@@ -237,13 +278,24 @@ export class MinimalClient {
    */
   readonly send = {
     /**
-     * Makes a clear_state call to an existing instance of the Minimal smart contract.
+     * Makes a clear_state call to an existing instance of the Void smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
      */
     clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => {
       return this.appClient.send.bare.clearState(params)
+    },
+
+    /**
+     * Makes a call to the Void smart contract using the `do_nothing()void` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    doNothing: async (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(VoidParamsFactory.doNothing(params))
+      return {...result, return: result.return as unknown as (undefined | VoidReturns['do_nothing()void'])}
     },
 
   }
@@ -255,23 +307,31 @@ export class MinimalClient {
    * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
-    return new MinimalClient(this.appClient.clone(params))
+    return new VoidClient(this.appClient.clone(params))
   }
 
   /**
-   * Methods to access state for the current Minimal app
+   * Methods to access state for the current Void app
    */
   state = {
   }
 
-  public newGroup(): MinimalComposer {
+  public newGroup(): VoidComposer {
     const client = this
     const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
-       * Add a clear state call to the Minimal contract
+       * Add a do_nothing()void method call against the Void contract
+       */
+      doNothing(params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.doNothing(params)))
+        resultMappers.push(undefined)
+        return this
+      },
+      /**
+       * Add a clear state call to the Void contract
        */
       clearState(params: AppClientBareCallParams) {
         promiseChain = promiseChain.then(() => composer.addAppCall(client.params.clearState(params)))
@@ -301,17 +361,26 @@ export class MinimalClient {
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
         }
       }
-    } as unknown as MinimalComposer
+    } as unknown as VoidComposer
   }
 }
-export type MinimalComposer<TReturns extends [...any[]] = []> = {
+export type VoidComposer<TReturns extends [...any[]] = []> = {
   /**
-   * Makes a clear_state call to an existing instance of the Minimal smart contract.
+   * Calls the do_nothing()void ABI method.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  doNothing(params?: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']>): VoidComposer<[...TReturns, VoidReturns['do_nothing()void'] | undefined]>
+
+  /**
+   * Makes a clear_state call to an existing instance of the Void smart contract.
    *
    * @param args The arguments for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  clearState(params?: AppClientBareCallParams): MinimalComposer<[...TReturns, undefined]>
+  clearState(params?: AppClientBareCallParams): VoidComposer<[...TReturns, undefined]>
 
   /**
    * Adds a transaction to the composer
@@ -319,7 +388,7 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
    * @param txn A transaction to add to the transaction group
    * @param signer The optional signer to use when signing this transaction.
    */
-  addTransaction(txn: Transaction, signer?: TransactionSigner): MinimalComposer<TReturns>
+  addTransaction(txn: Transaction, signer?: TransactionSigner): VoidComposer<TReturns>
   /**
    * Returns the underlying AtomicTransactionComposer instance
    */
@@ -327,15 +396,15 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(): Promise<VoidComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<VoidComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<VoidComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
-  send(params?: SendParams): Promise<MinimalComposerResults<TReturns>>
+  send(params?: SendParams): Promise<VoidComposerResults<TReturns>>
 }
-export type MinimalComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+export type VoidComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns
 }>
 

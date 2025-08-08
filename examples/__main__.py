@@ -27,6 +27,7 @@ def main() -> None:
     arc56_apps = [
         "structs",
         "nested",
+        "void",
     ]
 
     for app, options in chain(

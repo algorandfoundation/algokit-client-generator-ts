@@ -18,6 +18,7 @@
     "dev:lifecycle": "tsx scripts/generate-clients.ts ./examples/smart_contracts/artifacts/life_cycle/LifeCycle.arc32.json",
     "dev:minimal": "tsx scripts/generate-clients.ts ./examples/smart_contracts/artifacts/minimal/Minimal.arc32.json",
     "dev:state": "tsx scripts/generate-clients.ts ./examples/smart_contracts/artifacts/state/State.arc32.json",
+    "dev:void": "tsx scripts/generate-clients.ts ./examples/smart_contracts/artifacts/void/Void.arc56.json",
     "dev:voting_round": "tsx scripts/generate-clients.ts ./examples/smart_contracts/artifacts/voting_round/VotingRound.arc32.json",
     "dev:duplicate_structs": "tsx scripts/generate-clients.ts ./examples/smart_contracts/artifacts/duplicate_structs/DuplicateStructs.arc32.json",
     "dev:nested": "tsx scripts/generate-clients.ts ./examples/smart_contracts/artifacts/nested/Nested.arc56.json",

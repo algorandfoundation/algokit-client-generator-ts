@@ -23,7 +23,7 @@ import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgumen
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 
-export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"Minimal","structs":{},"methods":[],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbWluaW1hbC9jb250cmFjdC5weTo0CiAgICAvLyBjbGFzcyBNaW5pbWFsKEV4YW1wbGVBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAOQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgc3dpdGNoIG1haW5fX19hbGdvcHlfZGVmYXVsdF9jcmVhdGVANCBtYWluX2FmdGVyX2lmX2Vsc2VAOSBtYWluX2FmdGVyX2lmX2Vsc2VAOSBtYWluX2FmdGVyX2lmX2Vsc2VAOSBtYWluX3VwZGF0ZUA1IG1haW5fZGVsZXRlQDYKCm1haW5fYWZ0ZXJfaWZfZWxzZUA5OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL21pbmltYWwvY29udHJhY3QucHk6NAogICAgLy8gY2xhc3MgTWluaW1hbChFeGFtcGxlQVJDNENvbnRyYWN0KToKICAgIHB1c2hpbnQgMCAvLyAwCiAgICByZXR1cm4KCm1haW5fZGVsZXRlQDY6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMAogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiRGVsZXRlQXBwbGljYXRpb24iXSkKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MzAtMzEKICAgIC8vIEBhcmM0LmJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIkRlbGV0ZUFwcGxpY2F0aW9uIl0pCiAgICAvLyBkZWYgZGVsZXRlKHNlbGYpIC0+IE5vbmU6CiAgICBjYWxsc3ViIGRlbGV0ZQogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl91cGRhdGVANToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjIzCiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJVcGRhdGVBcHBsaWNhdGlvbiJdKQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyMy0yNAogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiVXBkYXRlQXBwbGljYXRpb24iXSkKICAgIC8vIGRlZiB1cGRhdGUoc2VsZikgLT4gTm9uZToKICAgIGNhbGxzdWIgdXBkYXRlCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX19fYWxnb3B5X2RlZmF1bHRfY3JlYXRlQDQ6CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5iYXNlLmNvbnRyYWN0LkltbXV0YWJpbGl0eUNvbnRyb2xBUkM0Q29udHJhY3QudXBkYXRlKCkgLT4gdm9pZDoKdXBkYXRlOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MjMtMjQKICAgIC8vIEBhcmM0LmJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIlVwZGF0ZUFwcGxpY2F0aW9uIl0pCiAgICAvLyBkZWYgdXBkYXRlKHNlbGYpIC0+IE5vbmU6CiAgICBwcm90byAwIDAKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjI1CiAgICAvLyBhc3NlcnQgVGVtcGxhdGVWYXJbYm9vbF0oVVBEQVRBQkxFX1RFTVBMQVRFX05BTUUpLCAiQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZSIKICAgIGludGNfMSAvLyBUTVBMX1VQREFUQUJMRQogICAgYXNzZXJ0IC8vIENoZWNrIGFwcCBpcyB1cGRhdGFibGUKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjI2CiAgICAvLyBzZWxmLmF1dGhvcml6ZV9jcmVhdG9yKCkKICAgIGNhbGxzdWIgYXV0aG9yaXplX2NyZWF0b3IKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5iYXNlLmNvbnRyYWN0LkJhc2VBUkM0Q29udHJhY3QuYXV0aG9yaXplX2NyZWF0b3IoKSAtPiB2b2lkOgphdXRob3JpemVfY3JlYXRvcjoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjgtOQogICAgLy8gQHN1YnJvdXRpbmUKICAgIC8vIGRlZiBhdXRob3JpemVfY3JlYXRvcihzZWxmKSAtPiBOb25lOgogICAgcHJvdG8gMCAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToxMAogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIgPT0gR2xvYmFsLmNyZWF0b3JfYWRkcmVzcywgInVuYXV0aG9yaXplZCIKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyB1bmF1dGhvcml6ZWQKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5iYXNlLmNvbnRyYWN0LlBlcm1hbmVuY2VDb250cm9sQVJDNENvbnRyYWN0LmRlbGV0ZSgpIC0+IHZvaWQ6CmRlbGV0ZToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjMwLTMxCiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJEZWxldGVBcHBsaWNhdGlvbiJdKQogICAgLy8gZGVmIGRlbGV0ZShzZWxmKSAtPiBOb25lOgogICAgcHJvdG8gMCAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMgogICAgLy8gYXNzZXJ0IFRlbXBsYXRlVmFyW2Jvb2xdKERFTEVUQUJMRV9URU1QTEFURV9OQU1FKSwgIkNoZWNrIGFwcCBpcyBkZWxldGFibGUiCiAgICBpbnRjXzIgLy8gVE1QTF9ERUxFVEFCTEUKICAgIGFzc2VydCAvLyBDaGVjayBhcHAgaXMgZGVsZXRhYmxlCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMwogICAgLy8gc2VsZi5hdXRob3JpemVfY3JlYXRvcigpCiAgICBjYWxsc3ViIGF1dGhvcml6ZV9jcmVhdG9yCiAgICByZXRzdWIK","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"Void","structs":{},"methods":[{"name":"do_nothing","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[78],"errorMessage":"Check app is deletable"},{"pc":[72],"errorMessage":"Check app is updatable"},{"pc":[24],"errorMessage":"OnCompletion is not NoOp"},{"pc":[68],"errorMessage":"can only call when creating"},{"pc":[27,51,59],"errorMessage":"can only call when not creating"},{"pc":[88],"errorMessage":"unauthorized"}],"pcOffsetMethod":"cblocks"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvdm9pZC9jb250cmFjdC5weTo2CiAgICAvLyBjbGFzcyBWb2lkKEV4YW1wbGVBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fYmFyZV9yb3V0aW5nQDYKICAgIHB1c2hieXRlcyAweDM0MTUwYzhmIC8vIG1ldGhvZCAiZG9fbm90aGluZygpdm9pZCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fZG9fbm90aGluZ19yb3V0ZUAzCgptYWluX2FmdGVyX2lmX2Vsc2VAMTI6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvdm9pZC9jb250cmFjdC5weTo2CiAgICAvLyBjbGFzcyBWb2lkKEV4YW1wbGVBUkM0Q29udHJhY3QpOgogICAgcHVzaGludCAwIC8vIDAKICAgIHJldHVybgoKbWFpbl9kb19ub3RoaW5nX3JvdXRlQDM6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvdm9pZC9jb250cmFjdC5weTo3CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9iYXJlX3JvdXRpbmdANjoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy92b2lkL2NvbnRyYWN0LnB5OjYKICAgIC8vIGNsYXNzIFZvaWQoRXhhbXBsZUFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBzd2l0Y2ggbWFpbl9fX2FsZ29weV9kZWZhdWx0X2NyZWF0ZUA3IG1haW5fYWZ0ZXJfaWZfZWxzZUAxMiBtYWluX2FmdGVyX2lmX2Vsc2VAMTIgbWFpbl9hZnRlcl9pZl9lbHNlQDEyIG1haW5fdXBkYXRlQDggbWFpbl9kZWxldGVAOQogICAgYiBtYWluX2FmdGVyX2lmX2Vsc2VAMTIKCm1haW5fZGVsZXRlQDk6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMAogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiRGVsZXRlQXBwbGljYXRpb24iXSkKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgY2FsbHN1YiBkZWxldGUKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fdXBkYXRlQDg6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyMwogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiVXBkYXRlQXBwbGljYXRpb24iXSkKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgY2FsbHN1YiB1cGRhdGUKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fX19hbGdvcHlfZGVmYXVsdF9jcmVhdGVANzoKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgoKLy8gZXhhbXBsZXMuc21hcnRfY29udHJhY3RzLmJhc2UuY29udHJhY3QuSW1tdXRhYmlsaXR5Q29udHJvbEFSQzRDb250cmFjdC51cGRhdGUoKSAtPiB2b2lkOgp1cGRhdGU6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyNQogICAgLy8gYXNzZXJ0IFRlbXBsYXRlVmFyW2Jvb2xdKFVQREFUQUJMRV9URU1QTEFURV9OQU1FKSwgIkNoZWNrIGFwcCBpcyB1cGRhdGFibGUiCiAgICBpbnRjXzEgLy8gVE1QTF9VUERBVEFCTEUKICAgIGFzc2VydCAvLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyNgogICAgLy8gc2VsZi5hdXRob3JpemVfY3JlYXRvcigpCiAgICBjYWxsc3ViIGF1dGhvcml6ZV9jcmVhdG9yCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5QZXJtYW5lbmNlQ29udHJvbEFSQzRDb250cmFjdC5kZWxldGUoKSAtPiB2b2lkOgpkZWxldGU6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMgogICAgLy8gYXNzZXJ0IFRlbXBsYXRlVmFyW2Jvb2xdKERFTEVUQUJMRV9URU1QTEFURV9OQU1FKSwgIkNoZWNrIGFwcCBpcyBkZWxldGFibGUiCiAgICBpbnRjXzIgLy8gVE1QTF9ERUxFVEFCTEUKICAgIGFzc2VydCAvLyBDaGVjayBhcHAgaXMgZGVsZXRhYmxlCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMwogICAgLy8gc2VsZi5hdXRob3JpemVfY3JlYXRvcigpCiAgICBjYWxsc3ViIGF1dGhvcml6ZV9jcmVhdG9yCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5CYXNlQVJDNENvbnRyYWN0LmF1dGhvcml6ZV9jcmVhdG9yKCkgLT4gdm9pZDoKYXV0aG9yaXplX2NyZWF0b3I6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToxMAogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIgPT0gR2xvYmFsLmNyZWF0b3JfYWRkcmVzcywgInVuYXV0aG9yaXplZCIKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyB1bmF1dGhvcml6ZWQKICAgIHJldHN1Ygo=","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"byteCode":{"approval":"CiADAQAAMRtBABmABDQVDI82GgCOAQADgQBDMRkURDEYRCJDMRmNBgAT/+T/5P/kAAsAA0L/4TEYRIgAFiJDMRhEiAAIIkMxGBREIkMjRIgAB4kkRIgAAYkxADIJEkSJ","clear":"CoEBQw=="},"events":[],"templateVariables":{"UPDATABLE":{"type":"AVMUint64"},"DELETABLE":{"type":"AVMUint64"}}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -63,41 +63,57 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 
 /**
- * The argument types for the Minimal contract
+ * Deploy-time template variables
  */
-export type MinimalArgs = {
+export type TemplateVariables = {
+  UPDATABLE: bigint,
+  DELETABLE: bigint,
+}
+
+/**
+ * The argument types for the Void contract
+ */
+export type VoidArgs = {
   /**
    * The object representation of the arguments for each method
    */
   obj: {
+    'do_nothing()void': Record<string, never>
   }
   /**
    * The tuple representation of the arguments for each method
    */
   tuple: {
+    'do_nothing()void': []
   }
 }
 
 /**
  * The return type for each method
  */
-export type MinimalReturns = {
+export type VoidReturns = {
+  'do_nothing()void': void
 }
 
 /**
- * Defines the types of available calls and state of the Minimal smart contract.
+ * Defines the types of available calls and state of the Void smart contract.
  */
-export type MinimalTypes = {
+export type VoidTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
-  methods: {}
+  methods:
+    & Record<'do_nothing()void' | 'do_nothing', {
+      argsObj: VoidArgs['obj']['do_nothing()void']
+      argsTuple: VoidArgs['tuple']['do_nothing()void']
+      returns: VoidReturns['do_nothing()void']
+    }>
 }
 
 /**
  * Defines the possible abi call signatures.
  */
-export type MinimalSignatures = keyof MinimalTypes['methods']
+export type VoidSignatures = keyof VoidTypes['methods']
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
@@ -109,66 +125,79 @@ export type CallParams<TArgs> = Expand<
     }
 >
 /**
- * Maps a method signature from the Minimal smart contract to the method's arguments in either tuple or struct form
+ * Maps a method signature from the Void smart contract to the method's arguments in either tuple or struct form
  */
-export type MethodArgs<TSignature extends MinimalSignatures> = MinimalTypes['methods'][TSignature]['argsObj' | 'argsTuple']
+export type MethodArgs<TSignature extends VoidSignatures> = VoidTypes['methods'][TSignature]['argsObj' | 'argsTuple']
 /**
- * Maps a method signature from the Minimal smart contract to the method's return type
+ * Maps a method signature from the Void smart contract to the method's return type
  */
-export type MethodReturn<TSignature extends MinimalSignatures> = MinimalTypes['methods'][TSignature]['returns']
+export type MethodReturn<TSignature extends VoidSignatures> = VoidTypes['methods'][TSignature]['returns']
 
 
 /**
  * Defines supported create method params for this smart contract
  */
-export type MinimalCreateCallParams =
+export type VoidCreateCallParams =
   | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
-export type MinimalUpdateCallParams =
+export type VoidUpdateCallParams =
   | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines supported delete method params for this smart contract
  */
-export type MinimalDeleteCallParams =
+export type VoidDeleteCallParams =
   | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines arguments required for the deploy method.
  */
-export type MinimalDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
+export type VoidDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
   /**
    * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
    */
-  createParams?: MinimalCreateCallParams
+  createParams?: VoidCreateCallParams
   /**
    * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
    */
-  updateParams?: MinimalUpdateCallParams
+  updateParams?: VoidUpdateCallParams
   /**
    * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
    */
-  deleteParams?: MinimalDeleteCallParams
+  deleteParams?: VoidDeleteCallParams
 }>
 
 
 /**
- * Exposes methods for constructing `AppClient` params objects for ABI calls to the Minimal smart contract
+ * Exposes methods for constructing `AppClient` params objects for ABI calls to the Void smart contract
  */
-export abstract class MinimalParamsFactory {
+export abstract class VoidParamsFactory {
+  /**
+   * Constructs a no op call for the do_nothing()void ABI method
+   *
+   * @param params Parameters for the call
+   * @returns An `AppClientMethodCallParams` object for the call
+   */
+  static doNothing(params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+    return {
+      ...params,
+      method: 'do_nothing()void' as const,
+      args: Array.isArray(params.args) ? params.args : [],
+    }
+  }
 }
 
 /**
- * A factory to create and deploy one or more instance of the Minimal smart contract and to create one or more app clients to interact with those (or other) app instances
+ * A factory to create and deploy one or more instance of the Void smart contract and to create one or more app clients to interact with those (or other) app instances
  */
-export class MinimalFactory {
+export class VoidFactory {
   /**
    * The underlying `AppFactory` for when you want to have more flexibility
    */
   public readonly appFactory: _AppFactory
 
   /**
-   * Creates a new instance of `MinimalFactory`
+   * Creates a new instance of `VoidFactory`
    *
    * @param params The parameters to initialise the app factory with
    */
@@ -203,7 +232,7 @@ export class MinimalFactory {
    * @returns The `AppClient`
    */
   public getAppClientById(params: AppFactoryAppClientParams) {
-    return new MinimalClient(this.appFactory.getAppClientById(params))
+    return new VoidClient(this.appFactory.getAppClientById(params))
   }
   
   /**
@@ -218,20 +247,20 @@ export class MinimalFactory {
   public async getAppClientByCreatorAndName(
     params: AppFactoryResolveAppClientByCreatorAndNameParams,
   ) {
-    return new MinimalClient(await this.appFactory.getAppClientByCreatorAndName(params))
+    return new VoidClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
   /**
-   * Idempotently deploys the Minimal smart contract.
+   * Idempotently deploys the Void smart contract.
    *
    * @param params The arguments for the contract calls and any additional parameters for the call
    * @returns The deployment result
    */
-  public async deploy(params: MinimalDeployParams = {}) {
+  public async deploy(params: VoidDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
     })
-    return { result: result.result, appClient: new MinimalClient(result.appClient) }
+    return { result: result.result, appClient: new VoidClient(result.appClient) }
   }
 
   /**
@@ -243,7 +272,7 @@ export class MinimalFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Minimal smart contract using a bare call.
+       * Creates a new instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The params for a create call
@@ -258,7 +287,7 @@ export class MinimalFactory {
      */
     deployUpdate: {
       /**
-       * Updates an existing instance of the Minimal smart contract using a bare call.
+       * Updates an existing instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The params for a deployUpdate call
@@ -273,7 +302,7 @@ export class MinimalFactory {
      */
     deployDelete: {
       /**
-       * Deletes an existing instance of the Minimal smart contract using a bare call.
+       * Deletes an existing instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The params for a deployDelete call
@@ -294,7 +323,7 @@ export class MinimalFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Minimal smart contract using a bare call.
+       * Creates a new instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The transaction for a create call
@@ -315,14 +344,14 @@ export class MinimalFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Minimal smart contract using a bare call.
+       * Creates a new instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The create result
        */
       bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
         const result = await this.appFactory.send.bare.create(params)
-        return { result: result.result, appClient: new MinimalClient(result.appClient) }
+        return { result: result.result, appClient: new VoidClient(result.appClient) }
       },
     },
 
@@ -330,22 +359,22 @@ export class MinimalFactory {
 
 }
 /**
- * A client to make calls to the Minimal smart contract
+ * A client to make calls to the Void smart contract
  */
-export class MinimalClient {
+export class VoidClient {
   /**
    * The underlying `AppClient` for when you want to have more flexibility
    */
   public readonly appClient: _AppClient
 
   /**
-   * Creates a new instance of `MinimalClient`
+   * Creates a new instance of `VoidClient`
    *
-   * @param appClient An `AppClient` instance which has been created with the Minimal app spec
+   * @param appClient An `AppClient` instance which has been created with the Void app spec
    */
   constructor(appClient: _AppClient)
   /**
-   * Creates a new instance of `MinimalClient`
+   * Creates a new instance of `VoidClient`
    *
    * @param params The parameters to initialise the app client with
    */
@@ -358,16 +387,16 @@ export class MinimalClient {
   }
 
   /**
-   * Returns a new `MinimalClient` client, resolving the app by creator address and name
+   * Returns a new `VoidClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
    */
-  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<MinimalClient> {
-    return new MinimalClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<VoidClient> {
+    return new VoidClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
   /**
-   * Returns an `MinimalClient` instance for the current network based on
+   * Returns an `VoidClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
    *
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
@@ -375,8 +404,8 @@ export class MinimalClient {
    */
   static async fromNetwork(
     params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<MinimalClient> {
-    return new MinimalClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  ): Promise<VoidClient> {
+    return new VoidClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
   
   /** The ID of the app instance this client is linked to. */
@@ -413,7 +442,7 @@ export class MinimalClient {
      */
     update: {
       /**
-       * Updates an existing instance of the Minimal smart contract using a bare call.
+       * Updates an existing instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The update result
@@ -428,7 +457,7 @@ export class MinimalClient {
      */
     delete: {
       /**
-       * Deletes an existing instance of the Minimal smart contract using a bare call.
+       * Deletes an existing instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The delete result
@@ -439,13 +468,23 @@ export class MinimalClient {
     },
 
     /**
-     * Makes a clear_state call to an existing instance of the Minimal smart contract.
+     * Makes a clear_state call to an existing instance of the Void smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
      */
     clearState: (params?: Expand<AppClientBareCallParams>) => {
       return this.appClient.params.bare.clearState(params)
+    },
+
+    /**
+     * Makes a call to the Void smart contract using the `do_nothing()void` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call params
+     */
+    doNothing: (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(VoidParamsFactory.doNothing(params))
     },
 
   }
@@ -459,7 +498,7 @@ export class MinimalClient {
      */
     update: {
       /**
-       * Updates an existing instance of the Minimal smart contract using a bare call.
+       * Updates an existing instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The update result
@@ -474,7 +513,7 @@ export class MinimalClient {
      */
     delete: {
       /**
-       * Deletes an existing instance of the Minimal smart contract using a bare call.
+       * Deletes an existing instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The delete result
@@ -485,13 +524,23 @@ export class MinimalClient {
     },
 
     /**
-     * Makes a clear_state call to an existing instance of the Minimal smart contract.
+     * Makes a clear_state call to an existing instance of the Void smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
      */
     clearState: (params?: Expand<AppClientBareCallParams>) => {
       return this.appClient.createTransaction.bare.clearState(params)
+    },
+
+    /**
+     * Makes a call to the Void smart contract using the `do_nothing()void` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call transaction
+     */
+    doNothing: (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(VoidParamsFactory.doNothing(params))
     },
 
   }
@@ -505,7 +554,7 @@ export class MinimalClient {
      */
     update: {
       /**
-       * Updates an existing instance of the Minimal smart contract using a bare call.
+       * Updates an existing instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The update result
@@ -520,7 +569,7 @@ export class MinimalClient {
      */
     delete: {
       /**
-       * Deletes an existing instance of the Minimal smart contract using a bare call.
+       * Deletes an existing instance of the Void smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The delete result
@@ -531,13 +580,24 @@ export class MinimalClient {
     },
 
     /**
-     * Makes a clear_state call to an existing instance of the Minimal smart contract.
+     * Makes a clear_state call to an existing instance of the Void smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
      */
     clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => {
       return this.appClient.send.bare.clearState(params)
+    },
+
+    /**
+     * Makes a call to the Void smart contract using the `do_nothing()void` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    doNothing: async (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(VoidParamsFactory.doNothing(params))
+      return {...result, return: result.return as unknown as (undefined | VoidReturns['do_nothing()void'])}
     },
 
   }
@@ -549,21 +609,29 @@ export class MinimalClient {
    * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
-    return new MinimalClient(this.appClient.clone(params))
+    return new VoidClient(this.appClient.clone(params))
   }
 
   /**
-   * Methods to access state for the current Minimal app
+   * Methods to access state for the current Void app
    */
   state = {
   }
 
-  public newGroup(): MinimalComposer {
+  public newGroup(): VoidComposer {
     const client = this
     const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
+      /**
+       * Add a do_nothing()void method call against the Void contract
+       */
+      doNothing(params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.doNothing(params)))
+        resultMappers.push(undefined)
+        return this
+      },
       get update() {
         return {
           bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
@@ -581,7 +649,7 @@ export class MinimalClient {
         }
       },
       /**
-       * Add a clear state call to the Minimal contract
+       * Add a clear state call to the Void contract
        */
       clearState(params: AppClientBareCallParams) {
         promiseChain = promiseChain.then(() => composer.addAppCall(client.params.clearState(params)))
@@ -611,21 +679,30 @@ export class MinimalClient {
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
         }
       }
-    } as unknown as MinimalComposer
+    } as unknown as VoidComposer
   }
 }
-export type MinimalComposer<TReturns extends [...any[]] = []> = {
+export type VoidComposer<TReturns extends [...any[]] = []> = {
+  /**
+   * Calls the do_nothing()void ABI method.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  doNothing(params?: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']>): VoidComposer<[...TReturns, VoidReturns['do_nothing()void'] | undefined]>
+
   /**
    * Gets available update methods
    */
   readonly update: {
     /**
-     * Updates an existing instance of the Minimal smart contract using a bare call.
+     * Updates an existing instance of the Void smart contract using a bare call.
      *
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(params?: AppClientBareCallParams ): MinimalComposer<[...TReturns, undefined]>
+    bare(params?: AppClientBareCallParams ): VoidComposer<[...TReturns, undefined]>
   }
 
   /**
@@ -633,21 +710,21 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
    */
   readonly delete: {
     /**
-     * Deletes an existing instance of the Minimal smart contract using a bare call.
+     * Deletes an existing instance of the Void smart contract using a bare call.
      *
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(params?: AppClientBareCallParams ): MinimalComposer<[...TReturns, undefined]>
+    bare(params?: AppClientBareCallParams ): VoidComposer<[...TReturns, undefined]>
   }
 
   /**
-   * Makes a clear_state call to an existing instance of the Minimal smart contract.
+   * Makes a clear_state call to an existing instance of the Void smart contract.
    *
    * @param args The arguments for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  clearState(params?: AppClientBareCallParams): MinimalComposer<[...TReturns, undefined]>
+  clearState(params?: AppClientBareCallParams): VoidComposer<[...TReturns, undefined]>
 
   /**
    * Adds a transaction to the composer
@@ -655,7 +732,7 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
    * @param txn A transaction to add to the transaction group
    * @param signer The optional signer to use when signing this transaction.
    */
-  addTransaction(txn: Transaction, signer?: TransactionSigner): MinimalComposer<TReturns>
+  addTransaction(txn: Transaction, signer?: TransactionSigner): VoidComposer<TReturns>
   /**
    * Returns the underlying AtomicTransactionComposer instance
    */
@@ -663,15 +740,15 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<MinimalComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(): Promise<VoidComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<VoidComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<VoidComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
-  send(params?: SendParams): Promise<MinimalComposerResults<TReturns>>
+  send(params?: SendParams): Promise<VoidComposerResults<TReturns>>
 }
-export type MinimalComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+export type VoidComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns
 }>
 

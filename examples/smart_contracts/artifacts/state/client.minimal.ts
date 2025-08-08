@@ -676,7 +676,7 @@ export class StateClient {
       appSpec: APP_SPEC,
     })
   }
-  
+
   /**
    * Checks for decode errors on the given return value and maps the return value to the return type for the given method
    * @returns The typed return value or undefined if there was no value
@@ -684,7 +684,7 @@ export class StateClient {
   decodeReturnValue<TSignature extends StateNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
     return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
   }
-  
+
   /**
    * Returns a new `StateClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
