@@ -33,8 +33,8 @@
     "build:4-check-types-non-strict": "tsc -p tsconfig.non-strict.json",
     "build:5-build": "rollup -c --configPlugin typescript --configImportAttributesKey with",
     "build:6-copy-pkg-json": "npx --yes @makerx/ts-toolkit@4.0.0-beta.22 copy-package-json --input-folder ./ --output-folder ./dist --main index.js --types index.d.ts --custom-sections module type ",
-    "build:7-copy-bin": "copyfiles bin/* dist/bin -f",
-    "build:8-copy-readme": "copyfiles ./README.md ./dist",
+    "build:7-copy-bin": "shx mkdir dist/bin && shx cp bin/* dist/bin",
+    "build:8-copy-readme": "shx cp ./README.md ./dist",
     "format": "prettier --write .",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
@@ -75,10 +75,8 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@tsconfig/node20": "^20.1.6",
-    "@types/wait-on": "^5.3.4",
     "better-npm-audit": "^3.11.0",
     "conventional-changelog-conventionalcommits": "^9.1.0",
-    "copyfiles": "^2.4.1",
     "eslint-config-prettier": "^10.1.8",
     "hi-base32": "^0.5.1",
     "json-schema-to-typescript": "^15.0.4",
@@ -87,13 +85,13 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.46.2",
     "semantic-release": "^24.2.7",
+    "shx": "^0.4.0",
     "tiny-invariant": "^1.3.3",
     "tsd": "^0.33.0",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0",
-    "vitest": "^3.2.4",
-    "wait-on": "^8.0.4"
+    "vitest": "^3.2.4"
   },
   "publishConfig": {
     "access": "public"

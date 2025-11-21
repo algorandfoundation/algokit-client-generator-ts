@@ -1,19 +1,14 @@
 /* eslint no-console: "off" */
-import { test, describe, beforeAll, beforeEach, expect } from 'vitest'
+import { test, describe, beforeEach, expect } from 'vitest'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { setUpLocalnet } from '../../../../src/tests/util'
 import * as full from './client'
 import * as minimal from './client.minimal'
 import invariant from 'tiny-invariant'
 import { generateModes } from '../../../../src/client/generator-context'
+import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
 describe('state typed client', () => {
-  let localnet: AlgorandFixture
-
-  beforeAll(async () => {
-    localnet = await setUpLocalnet()
-  })
+  const localnet = algorandFixture()
 
   beforeEach(async () => {
     await localnet.newScope()

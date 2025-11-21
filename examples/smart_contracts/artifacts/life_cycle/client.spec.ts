@@ -1,16 +1,12 @@
-import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
+import { expect, test, describe, beforeEach } from 'vitest'
 import { OnApplicationComplete } from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
 import { LifeCycleFactory } from './client'
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { setUpLocalnet } from '../../../../src/tests/util'
+import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
 describe('lifecycle typed client', () => {
-  let localnet: AlgorandFixture
-  beforeAll(async () => {
-    localnet = await setUpLocalnet()
-  })
+  const localnet = algorandFixture()
   let factory: LifeCycleFactory
 
   beforeEach(async () => {

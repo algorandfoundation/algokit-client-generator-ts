@@ -7,18 +7,13 @@ import { expectType } from 'tsd'
 import { VotingPreconditions, VotingRoundFactory } from './client'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 
-import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { setUpLocalnet } from '../../../../src/tests/util'
+import { expect, test, describe, beforeEach } from 'vitest'
+import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 const rndInt = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min
 
 describe('voting typed client', () => {
   let factory: VotingRoundFactory
-  let localnet: AlgorandFixture
-
-  beforeAll(async () => {
-    localnet = await setUpLocalnet()
-  })
+  const localnet = algorandFixture()
 
   beforeEach(async () => {
     await localnet.newScope()

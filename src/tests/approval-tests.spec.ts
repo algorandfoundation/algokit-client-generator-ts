@@ -3,10 +3,8 @@ import path from 'path'
 import { generate } from '../client/generate'
 import { writeDocumentPartsToString } from '../output/writer'
 import { loadApplicationJson } from '../schema/load'
-import { expect, test, describe, beforeAll, beforeEach } from 'vitest'
+import { expect, test, describe, beforeEach } from 'vitest'
 import { pascalCase } from 'change-case'
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { setUpLocalnet } from './util'
 
 // Import all full and minimal clients
 import * as duplicateStructsFull from '../../examples/smart_contracts/artifacts/duplicate_structs/client'
@@ -36,6 +34,7 @@ import * as zeroCouponBondMinimal from '../../examples/smart_contracts/artifacts
 import * as voidFull from '../../examples/smart_contracts/artifacts/void/client'
 import * as voidMinimal from '../../examples/smart_contracts/artifacts/void/client.minimal'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
 const writeActual = process.env.TEST_ENV !== 'ci'
 
@@ -125,11 +124,7 @@ const contractModules: Record<string, { full: Record<string, unknown>; minimal: 
 }
 
 describe('Client type differences', () => {
-  let localnet: AlgorandFixture
-
-  beforeAll(async () => {
-    localnet = await setUpLocalnet()
-  })
+  const localnet = algorandFixture()
 
   beforeEach(async () => {
     await localnet.newScope()

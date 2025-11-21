@@ -1,16 +1,12 @@
 import { StateFactory } from './client'
-import { expect, test, describe, beforeAll, beforeEach } from 'vitest'
+import { expect, test, describe, beforeEach } from 'vitest'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { setUpLocalnet } from '../../../../src/tests/util'
+import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
 describe('state typed client', () => {
-  let localnet: AlgorandFixture
+  const localnet = algorandFixture()
   let factory: StateFactory
 
-  beforeAll(async () => {
-    localnet = await setUpLocalnet()
-  })
   beforeEach(async () => {
     await localnet.newScope()
     const { algorand, testAccount } = localnet.context
