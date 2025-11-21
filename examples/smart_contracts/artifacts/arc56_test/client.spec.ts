@@ -127,7 +127,7 @@ describe('state typed client', () => {
 
     expect(await appClient.state.global.globalKey()).toBe(1337n)
     expect(await anotherAppClient.state.global.globalKey()).toBe(1338n)
-    expect(await appClient.state.global.globalMap.value('foo')).toEqual({ foo: 13n, bar: 37n })
+    expect(await appClient.state.global.globalMap.value('foo')).toEqual({ foo: 13, bar: 37 })
 
     await appClient.appClient.fundAppAccount({ amount: microAlgos(1_000_000) })
 
