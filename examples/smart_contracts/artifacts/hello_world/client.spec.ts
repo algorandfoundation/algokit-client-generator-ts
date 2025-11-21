@@ -1,14 +1,10 @@
 import { HelloWorldClient, HelloWorldFactory } from './client'
-import { expect, test, describe, beforeEach, beforeAll } from 'vitest'
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { setUpLocalnet } from '../../../../src/tests/util'
+import { expect, test, describe, beforeEach } from 'vitest'
+import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
 describe('hello world typed client', () => {
-  let localnet: AlgorandFixture
+  const localnet = algorandFixture()
 
-  beforeAll(async () => {
-    localnet = await setUpLocalnet()
-  })
   beforeEach(async () => {
     await localnet.newScope()
   }, 10_000)
