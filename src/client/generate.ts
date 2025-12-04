@@ -7,7 +7,7 @@ import { imports } from './imports'
 import { createGeneratorContext, GeneratorOptions } from './generator-context'
 import { appTypes } from './app-types'
 import { callComposerType } from './call-composer-types'
-import { Arc56Contract, ProgramSourceInfo, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, ProgramSourceInfo, StructField } from '@algorandfoundation/algokit-utils/abi'
 import { appFactory } from './app-factory'
 import { Sanitizer } from '../util/sanitization'
 

@@ -1,8 +1,7 @@
-import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { AppClientMethodContext } from '../app-client-context'
 
-export const containsNonVoidMethod = (methods: Method[]) => {
+export const containsNonVoidMethod = (methods: AppClientMethodContext[]) => {
   return methods.some((method) => {
-    const returnType = method.returns.struct ?? method.returns.type ?? 'void'
-    return returnType !== 'void'
+    return !method.isBare && method.returns.tsOutType !== 'void'
   })
 }

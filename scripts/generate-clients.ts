@@ -59,7 +59,4 @@ if (args.length === 0) {
 }
 
 const appSpecPath = args[0]
-generateClients(appSpecPath).catch((err) => {
-  colorConsole.error`${err}`
-  process.exit(-1)
-})
+void generateClients(appSpecPath)

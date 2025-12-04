@@ -5,23 +5,14 @@
  * requires: @algorandfoundation/algokit-utils: ^7
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import {
-  AppClient as _AppClient,
-  AppClientMethodCallParams,
-  AppClientParams,
-  AppClientBareCallParams,
-  CallOnComplete,
-  AppClientCompilationParams,
-  ResolveAppClientByCreatorAndName,
-  ResolveAppClientByNetwork,
-  CloneAppClientParams,
-} from '@algorandfoundation/algokit-utils/types/app-client'
-
-import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
-import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
+import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
+import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { TransactionComposer, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"VotingRound","structs":{"VotingPreconditions":[{"name":"isVotingOpen","type":"uint64"},{"name":"isAllowedToVote","type":"uint64"},{"name":"hasAlreadyVoted","type":"uint64"},{"name":"currentTime","type":"uint64"}]},"methods":[{"name":"get_preconditions","args":[{"name":"signature","type":"byte[]"}],"returns":{"type":"(uint64,uint64,uint64,uint64)","struct":"VotingPreconditions"},"events":[],"readonly":true,"actions":{"create":[],"call":["NoOp"]}},{"name":"create","args":[{"name":"vote_id","type":"string"},{"name":"snapshot_public_key","type":"byte[]"},{"name":"metadata_ipfs_cid","type":"string"},{"name":"start_time","type":"uint64"},{"name":"end_time","type":"uint64"},{"name":"option_counts","type":"uint8[]"},{"name":"quorum","type":"uint64"},{"name":"nft_image_url","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"bootstrap","args":[{"name":"fund_min_bal_req","type":"pay"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"close","args":[],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"vote","args":[{"name":"fund_min_bal_req","type":"pay"},{"name":"signature","type":"byte[]"},{"name":"answer_ids","type":"uint8[]"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":8,"bytes":5},"local":{"ints":0,"bytes":0}},"keys":{"global":{"close_time":{"key":"Y2xvc2VfdGltZQ==","keyType":"AVMString","valueType":"AVMUint64","desc":"The unix timestamp of the time the vote was closed"},"end_time":{"key":"ZW5kX3RpbWU=","keyType":"AVMString","valueType":"AVMUint64","desc":"The unix timestamp of the ending time of voting_round"},"is_bootstrapped":{"key":"aXNfYm9vdHN0cmFwcGVk","keyType":"AVMString","valueType":"AVMUint64","desc":"Whether or not the contract has been bootstrapped with answers"},"metadata_ipfs_cid":{"key":"bWV0YWRhdGFfaXBmc19jaWQ=","keyType":"AVMString","valueType":"AVMBytes","desc":"The IPFS content ID of the voting_round metadata file"},"nft_asset_id":{"key":"bmZ0X2Fzc2V0X2lk","keyType":"AVMString","valueType":"AVMUint64","desc":"The asset ID of a result NFT if one has been created"},"nft_image_url":{"key":"bmZ0X2ltYWdlX3VybA==","keyType":"AVMString","valueType":"AVMBytes","desc":"The IPFS URL of the default image to use as the media of the result NFT"},"option_counts":{"key":"b3B0aW9uX2NvdW50cw==","keyType":"AVMString","valueType":"AVMBytes","desc":"The number of options for each question"},"quorum":{"key":"cXVvcnVt","keyType":"AVMString","valueType":"AVMUint64","desc":"The minimum number of voters to reach quorum"},"snapshot_public_key":{"key":"c25hcHNob3RfcHVibGljX2tleQ==","keyType":"AVMString","valueType":"AVMBytes","desc":"The public key of the Ed25519 compatible private key that was used to encrypt entries in the vote gating snapshot"},"start_time":{"key":"c3RhcnRfdGltZQ==","keyType":"AVMString","valueType":"AVMUint64","desc":"The unix timestamp of the starting time of voting_round"},"total_options":{"key":"dG90YWxfb3B0aW9ucw==","keyType":"AVMString","valueType":"AVMUint64","desc":"The total number of options"},"vote_id":{"key":"dm90ZV9pZA==","keyType":"AVMString","valueType":"AVMBytes","desc":"The identifier of this voting_round round"},"voter_count":{"key":"dm90ZXJfY291bnQ=","keyType":"AVMString","valueType":"AVMUint64","desc":"The minimum number of voters who have voted"}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":[],"call":["DeleteApplication"]}} as unknown as Arc56Contract
 
@@ -64,20 +55,7 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type VotingPreconditions = {
-  isVotingOpen: bigint,
-  isAllowedToVote: bigint,
-  hasAlreadyVoted: bigint,
-  currentTime: bigint
-}
-
-
-/**
- * Converts the ABI tuple representation of a VotingPreconditions to the struct representation
- */
-export function VotingPreconditionsFromTuple(abiTuple: [bigint, bigint, bigint, bigint]) {
-  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.VotingPreconditions, APP_SPEC.structs) as VotingPreconditions
-}
+export type VotingPreconditions = { isVotingOpen: bigint, isAllowedToVote: bigint, hasAlreadyVoted: bigint, currentTime: bigint }
 
 /**
  * The argument types for the VotingRound contract
@@ -351,14 +329,6 @@ export class VotingRoundClient {
   }
 
   /**
-   * Checks for decode errors on the given return value and maps the return value to the return type for the given method
-   * @returns The typed return value or undefined if there was no value
-   */
-  decodeReturnValue<TSignature extends VotingRoundNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
-    return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
-  }
-
-  /**
    * Returns a new `VotingRoundClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
@@ -427,7 +397,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    getPreconditions: (params: CallParams<VotingRoundArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    getPreconditions: (params: CallParams<VotingRoundArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(VotingRoundParamsFactory.getPreconditions(params))
     },
 
@@ -437,7 +407,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    bootstrap: (params: CallParams<VotingRoundArgs['obj']['bootstrap(pay)void'] | VotingRoundArgs['tuple']['bootstrap(pay)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    bootstrap: (params: CallParams<VotingRoundArgs['obj']['bootstrap(pay)void'] | VotingRoundArgs['tuple']['bootstrap(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(VotingRoundParamsFactory.bootstrap(params))
     },
 
@@ -447,7 +417,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    close: (params: CallParams<VotingRoundArgs['obj']['close()void'] | VotingRoundArgs['tuple']['close()void']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    close: (params: CallParams<VotingRoundArgs['obj']['close()void'] | VotingRoundArgs['tuple']['close()void']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.params.call(VotingRoundParamsFactory.close(params))
     },
 
@@ -457,7 +427,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    vote: (params: CallParams<VotingRoundArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundArgs['tuple']['vote(pay,byte[],uint8[])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    vote: (params: CallParams<VotingRoundArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundArgs['tuple']['vote(pay,byte[],uint8[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(VotingRoundParamsFactory.vote(params))
     },
 
@@ -485,7 +455,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    getPreconditions: (params: CallParams<VotingRoundArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    getPreconditions: (params: CallParams<VotingRoundArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(VotingRoundParamsFactory.getPreconditions(params))
     },
 
@@ -495,7 +465,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    bootstrap: (params: CallParams<VotingRoundArgs['obj']['bootstrap(pay)void'] | VotingRoundArgs['tuple']['bootstrap(pay)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    bootstrap: (params: CallParams<VotingRoundArgs['obj']['bootstrap(pay)void'] | VotingRoundArgs['tuple']['bootstrap(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(VotingRoundParamsFactory.bootstrap(params))
     },
 
@@ -505,7 +475,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    close: (params: CallParams<VotingRoundArgs['obj']['close()void'] | VotingRoundArgs['tuple']['close()void']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    close: (params: CallParams<VotingRoundArgs['obj']['close()void'] | VotingRoundArgs['tuple']['close()void']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.createTransaction.call(VotingRoundParamsFactory.close(params))
     },
 
@@ -515,7 +485,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    vote: (params: CallParams<VotingRoundArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundArgs['tuple']['vote(pay,byte[],uint8[])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    vote: (params: CallParams<VotingRoundArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundArgs['tuple']['vote(pay,byte[],uint8[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(VotingRoundParamsFactory.vote(params))
     },
 
@@ -543,7 +513,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getPreconditions: async (params: CallParams<VotingRoundArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    getPreconditions: async (params: CallParams<VotingRoundArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(VotingRoundParamsFactory.getPreconditions(params))
       return {...result, return: result.return as unknown as (undefined | VotingRoundReturns['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'])}
     },
@@ -554,7 +524,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    bootstrap: async (params: CallParams<VotingRoundArgs['obj']['bootstrap(pay)void'] | VotingRoundArgs['tuple']['bootstrap(pay)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    bootstrap: async (params: CallParams<VotingRoundArgs['obj']['bootstrap(pay)void'] | VotingRoundArgs['tuple']['bootstrap(pay)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(VotingRoundParamsFactory.bootstrap(params))
       return {...result, return: result.return as unknown as (undefined | VotingRoundReturns['bootstrap(pay)void'])}
     },
@@ -565,7 +535,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    close: async (params: CallParams<VotingRoundArgs['obj']['close()void'] | VotingRoundArgs['tuple']['close()void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    close: async (params: CallParams<VotingRoundArgs['obj']['close()void'] | VotingRoundArgs['tuple']['close()void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       const result = await this.appClient.send.call(VotingRoundParamsFactory.close(params))
       return {...result, return: result.return as unknown as (undefined | VotingRoundReturns['close()void'])}
     },
@@ -576,7 +546,7 @@ export class VotingRoundClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    vote: async (params: CallParams<VotingRoundArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundArgs['tuple']['vote(pay,byte[],uint8[])void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    vote: async (params: CallParams<VotingRoundArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundArgs['tuple']['vote(pay,byte[],uint8[])void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(VotingRoundParamsFactory.vote(params))
       return {...result, return: result.return as unknown as (undefined | VotingRoundReturns['vote(pay,byte[],uint8[])void'])}
     },
@@ -586,7 +556,7 @@ export class VotingRoundClient {
   /**
    * Clone this app client with different params
    *
-   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @param params The params to use for the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
    * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
@@ -694,38 +664,33 @@ export class VotingRoundClient {
     const client = this
     const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
-    const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a get_preconditions(byte[])(uint64,uint64,uint64,uint64) method call against the VotingRound contract
        */
-      getPreconditions(params: CallParams<VotingRoundArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      getPreconditions(params: CallParams<VotingRoundArgs['obj']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)'] | VotingRoundArgs['tuple']['get_preconditions(byte[])(uint64,uint64,uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getPreconditions(params)))
-        resultMappers.push((v) => client.decodeReturnValue('get_preconditions(byte[])(uint64,uint64,uint64,uint64)', v))
         return this
       },
       /**
        * Add a bootstrap(pay)void method call against the VotingRound contract
        */
-      bootstrap(params: CallParams<VotingRoundArgs['obj']['bootstrap(pay)void'] | VotingRoundArgs['tuple']['bootstrap(pay)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      bootstrap(params: CallParams<VotingRoundArgs['obj']['bootstrap(pay)void'] | VotingRoundArgs['tuple']['bootstrap(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.bootstrap(params)))
-        resultMappers.push(undefined)
         return this
       },
       /**
        * Add a close()void method call against the VotingRound contract
        */
-      close(params: CallParams<VotingRoundArgs['obj']['close()void'] | VotingRoundArgs['tuple']['close()void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      close(params: CallParams<VotingRoundArgs['obj']['close()void'] | VotingRoundArgs['tuple']['close()void']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.close(params)))
-        resultMappers.push(undefined)
         return this
       },
       /**
        * Add a vote(pay,byte[],uint8[])void method call against the VotingRound contract
        */
-      vote(params: CallParams<VotingRoundArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundArgs['tuple']['vote(pay,byte[],uint8[])void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      vote(params: CallParams<VotingRoundArgs['obj']['vote(pay,byte[],uint8[])void'] | VotingRoundArgs['tuple']['vote(pay,byte[],uint8[])void']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.vote(params)))
-        resultMappers.push(undefined)
         return this
       },
       /**
@@ -748,7 +713,7 @@ export class VotingRoundClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
+          returns: result.returns?.map(val => val.returnValue)
         }
       },
       async send(params?: SendParams) {
@@ -756,7 +721,7 @@ export class VotingRoundClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
+          returns: result.returns?.map(val => val.returnValue)
         }
       }
     } as unknown as VotingRoundComposer
@@ -766,7 +731,6 @@ export type VotingRoundComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the get_preconditions(byte[])(uint64,uint64,uint64,uint64) ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -775,7 +739,6 @@ export type VotingRoundComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the bootstrap(pay)void ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -784,7 +747,6 @@ export type VotingRoundComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the close()void ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -793,7 +755,6 @@ export type VotingRoundComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the vote(pay,byte[],uint8[])void ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -802,7 +763,7 @@ export type VotingRoundComposer<TReturns extends [...any[]] = []> = {
   /**
    * Makes a clear_state call to an existing instance of the VotingRound smart contract.
    *
-   * @param args The arguments for the bare call
+   * @param params Any additional parameters for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
   clearState(params?: AppClientBareCallParams): VotingRoundComposer<[...TReturns, undefined]>
@@ -821,15 +782,15 @@ export type VotingRoundComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<VotingRoundComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<VotingRoundComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<VotingRoundComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(): Promise<VotingRoundComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<VotingRoundComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<VotingRoundComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
   send(params?: SendParams): Promise<VotingRoundComposerResults<TReturns>>
 }
-export type VotingRoundComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+export type VotingRoundComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
   returns: TReturns
 }>
 

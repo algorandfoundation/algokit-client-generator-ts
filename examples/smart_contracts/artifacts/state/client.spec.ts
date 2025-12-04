@@ -140,7 +140,7 @@ describe('state typed client', () => {
 
   test('ABI methods which take references can be called', async () => {
     const { testAccount } = localnet.context
-    const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 } })
+    const { appClient: client } = await factory.deploy({ deployTimeParams: { VALUE: 1 }, populateAppCallResources: true })
 
     // Call with number
     await client.send.callWithReferences({

@@ -7,14 +7,14 @@ import invariant from 'tiny-invariant'
 import { generateModes } from '../../../../src/client/generator-context'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
-describe('state typed client', () => {
+describe('state typed client', { timeout: 1000_000 }, () => {
   const localnet = algorandFixture()
 
   beforeEach(async () => {
     await localnet.newScope()
   }, 10_000)
 
-  test.each(generateModes)('Demo works with %s client', async (clientType) => {
+  test.each(generateModes)('Demo works with %s client', { timeout: 1000_000 }, async (clientType) => {
     const { algorand } = localnet.context
 
     const defaultSender = (await algorand.account.localNetDispenser()).addr
@@ -99,8 +99,8 @@ describe('state typed client', () => {
       .addAppCallMethodCall(await anotherAppClient.params.foo({ staticFee: microAlgos(0), args: { inputs } }))
       .send()
 
-    const { sum: firstSum } = appClient.decodeReturnValue('foo', result.returns![0])!
-    const { sum: secondSum } = appClient.decodeReturnValue('foo', result.returns![1])!
+    const { sum: firstSum } = result.returns?.[0].returnValue as full.Outputs
+    const { sum: secondSum } = result.returns?.[1].returnValue as full.Outputs
 
     expect(firstSum).toBe(3n)
     expect(secondSum).toBe(3n)

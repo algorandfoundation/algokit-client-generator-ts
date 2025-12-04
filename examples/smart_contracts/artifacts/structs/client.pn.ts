@@ -5,23 +5,14 @@
  * requires: @algorandfoundation/algokit-utils: ^7
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import {
-  AppClient as _AppClient,
-  AppClientMethodCallParams,
-  AppClientParams,
-  AppClientBareCallParams,
-  CallOnComplete,
-  AppClientCompilationParams,
-  ResolveAppClientByCreatorAndName,
-  ResolveAppClientByNetwork,
-  CloneAppClientParams,
-} from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory as _AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
-import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
+import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
+import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { TransactionComposer, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const APP_SPEC: Arc56Contract = {"name":"Structs","structs":{"NestedStruct":[{"name":"content","type":"Vector"}],"RootStruct":[{"name":"nested","type":"NestedStruct"}],"Vector":[{"name":"x","type":"string"},{"name":"y","type":"string"}]},"methods":[{"name":"hello","args":[{"type":"string","name":"name"}],"returns":{"type":"string"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"give_me_root_struct","args":[],"returns":{"type":"(((string,string)))","struct":"RootStruct"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"opt_in","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["OptIn"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":2},"local":{"ints":0,"bytes":2}},"keys":{"global":{"my_struct":{"keyType":"AVMString","valueType":"Vector","key":"bXlfc3RydWN0"},"my_nested_struct":{"keyType":"AVMString","valueType":"RootStruct","key":"bXlfbmVzdGVkX3N0cnVjdA=="}},"local":{"my_localstate_struct":{"keyType":"AVMString","valueType":"Vector","key":"bXlfbG9jYWxzdGF0ZV9zdHJ1Y3Q="},"my_nested_localstate_struct":{"keyType":"AVMString","valueType":"RootStruct","key":"bXlfbmVzdGVkX2xvY2Fsc3RhdGVfc3RydWN0"}},"box":{"my_box_struct":{"keyType":"AVMString","valueType":"Vector","key":"bXlfYm94X3N0cnVjdA=="},"my_nested_box_struct":{"keyType":"AVMString","valueType":"RootStruct","key":"bXlfbmVzdGVkX2JveF9zdHJ1Y3Q="}}},"maps":{"global":{},"local":{},"box":{"my_boxmap_struct":{"keyType":"uint64","valueType":"Vector","prefix":"bXlfYm94bWFwX3N0cnVjdA=="},"my_nested_boxmap_struct":{"keyType":"uint64","valueType":"RootStruct","prefix":"bXlfbmVzdGVkX2JveG1hcF9zdHJ1Y3Q="}}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[214,244],"errorMessage":"OnCompletion is not NoOp"},{"pc":[202],"errorMessage":"OnCompletion is not OptIn"},{"pc":[273],"errorMessage":"can only call when creating"},{"pc":[205,217,247],"errorMessage":"can only call when not creating"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuc3RydWN0cy5jb250cmFjdC5TdHJ1Y3RzLl9fYWxnb3B5X2VudHJ5cG9pbnRfd2l0aF9pbml0KCkgLT4gdWludDY0OgptYWluOgogICAgaW50Y2Jsb2NrIDEKICAgIGJ5dGVjYmxvY2sgMHgwMDA0MDAwNzAwMDEzMTAwMDEzMiAweDAwMDIwMDAyMDAwNDAwMDcwMDAxMzEwMDAxMzIgIm15X2JveF9zdHJ1Y3QiICJteV9uZXN0ZWRfYm94X3N0cnVjdCIgMHg2ZDc5NWY2MjZmNzg2ZDYxNzA1ZjczNzQ3Mjc1NjM3NDAwMDAwMDAwMDAwMDAwN2IgMHg2ZDc5NWY2ZTY1NzM3NDY1NjQ1ZjYyNmY3ODZkNjE3MDVmNzM3NDcyNzU2Mzc0MDAwMDAwMDAwMDAwMDA3YgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAMgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL3N0cnVjdHMvY29udHJhY3QucHk6MjEKICAgIC8vIHNlbGYubXlfc3RydWN0ID0gR2xvYmFsU3RhdGUoVmVjdG9yKHg9YXJjNC5TdHJpbmcoIjEiKSwgeT1hcmM0LlN0cmluZygiMiIpKSkKICAgIHB1c2hieXRlcyAibXlfc3RydWN0IgogICAgYnl0ZWNfMCAvLyAweDAwMDQwMDA3MDAwMTMxMDAwMTMyCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL3N0cnVjdHMvY29udHJhY3QucHk6MjIKICAgIC8vIHNlbGYubXlfbmVzdGVkX3N0cnVjdCA9IEdsb2JhbFN0YXRlKAogICAgcHVzaGJ5dGVzICJteV9uZXN0ZWRfc3RydWN0IgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL3N0cnVjdHMvY29udHJhY3QucHk6MjMKICAgIC8vIFJvb3RTdHJ1Y3QobmVzdGVkPU5lc3RlZFN0cnVjdChjb250ZW50PVZlY3Rvcih4PWFyYzQuU3RyaW5nKCIxIiksIHk9YXJjNC5TdHJpbmcoIjIiKSkpKQogICAgYnl0ZWNfMSAvLyAweDAwMDIwMDAyMDAwNDAwMDcwMDAxMzEwMDAxMzIKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjIyLTI0CiAgICAvLyBzZWxmLm15X25lc3RlZF9zdHJ1Y3QgPSBHbG9iYWxTdGF0ZSgKICAgIC8vICAgICBSb290U3RydWN0KG5lc3RlZD1OZXN0ZWRTdHJ1Y3QoY29udGVudD1WZWN0b3IoeD1hcmM0LlN0cmluZygiMSIpLCB5PWFyYzQuU3RyaW5nKCIyIikpKSkKICAgIC8vICkKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjE5CiAgICAvLyBjbGFzcyBTdHJ1Y3RzKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdAOAogICAgcHVzaGJ5dGVzcyAweDAyYmVjZTExIDB4YTRhM2NlOWEgMHgzMGM2ZDU4YSAvLyBtZXRob2QgImhlbGxvKHN0cmluZylzdHJpbmciLCBtZXRob2QgImdpdmVfbWVfcm9vdF9zdHJ1Y3QoKSgoKHN0cmluZyxzdHJpbmcpKSkiLCBtZXRob2QgIm9wdF9pbigpdm9pZCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5faGVsbG9fcm91dGVANSBtYWluX2dpdmVfbWVfcm9vdF9zdHJ1Y3Rfcm91dGVANiBtYWluX29wdF9pbl9yb3V0ZUA3CgptYWluX2FmdGVyX2lmX2Vsc2VAMTA6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weToxOQogICAgLy8gY2xhc3MgU3RydWN0cyhBUkM0Q29udHJhY3QpOgogICAgcHVzaGludCAwIC8vIDAKICAgIHJldHVybgoKbWFpbl9vcHRfaW5fcm91dGVANzoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjQwCiAgICAvLyBAYXJjNC5hYmltZXRob2QoYWxsb3dfYWN0aW9ucz1bIk9wdEluIl0pCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBpbnRjXzAgLy8gT3B0SW4KICAgID09CiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBPcHRJbgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICBjYWxsc3ViIG9wdF9pbgogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9naXZlX21lX3Jvb3Rfc3RydWN0X3JvdXRlQDY6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weTozNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUwMDAyMDAwMjAwMDQwMDA3MDAwMTMxMDAwMTMyCiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5faGVsbG9fcm91dGVANToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjMyCiAgICAvLyBAYXJjNC5hYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weToxOQogICAgLy8gY2xhc3MgU3RydWN0cyhBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL3N0cnVjdHMvY29udHJhY3QucHk6MzIKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICBjYWxsc3ViIGhlbGxvCiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fYmFyZV9yb3V0aW5nQDg6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weToxOQogICAgLy8gY2xhc3MgU3RydWN0cyhBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAxMAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuc3RydWN0cy5jb250cmFjdC5TdHJ1Y3RzLmhlbGxvKG5hbWU6IGJ5dGVzKSAtPiBieXRlczoKaGVsbG86CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weTozMi0zMwogICAgLy8gQGFyYzQuYWJpbWV0aG9kKCkKICAgIC8vIGRlZiBoZWxsbyhzZWxmLCBuYW1lOiBhcmM0LlN0cmluZykgLT4gYXJjNC5TdHJpbmc6CiAgICBwcm90byAxIDEKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjM0CiAgICAvLyByZXR1cm4gIkhlbGxvLCAiICsgbmFtZQogICAgZnJhbWVfZGlnIC0xCiAgICBleHRyYWN0IDIgMAogICAgcHVzaGJ5dGVzIDB4NDg2NTZjNmM2ZjJjMjAKICAgIHN3YXAKICAgIGNvbmNhdAogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5zdHJ1Y3RzLmNvbnRyYWN0LlN0cnVjdHMub3B0X2luKCkgLT4gdm9pZDoKb3B0X2luOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL3N0cnVjdHMvY29udHJhY3QucHk6NDAtNDEKICAgIC8vIEBhcmM0LmFiaW1ldGhvZChhbGxvd19hY3Rpb25zPVsiT3B0SW4iXSkKICAgIC8vIGRlZiBvcHRfaW4oc2VsZikgLT4gTm9uZToKICAgIHByb3RvIDAgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL3N0cnVjdHMvY29udHJhY3QucHk6NDIKICAgIC8vIHNlbGYubXlfYm94X3N0cnVjdC52YWx1ZSA9IFZlY3Rvcih4PWFyYzQuU3RyaW5nKCIxIiksIHk9YXJjNC5TdHJpbmcoIjIiKSkKICAgIGJ5dGVjXzIgLy8gIm15X2JveF9zdHJ1Y3QiCiAgICBib3hfZGVsCiAgICBwb3AKICAgIGJ5dGVjXzIgLy8gIm15X2JveF9zdHJ1Y3QiCiAgICBieXRlY18wIC8vIDB4MDAwNDAwMDcwMDAxMzEwMDAxMzIKICAgIGJveF9wdXQKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjQzCiAgICAvLyBzZWxmLm15X25lc3RlZF9ib3hfc3RydWN0LnZhbHVlID0gUm9vdFN0cnVjdCgKICAgIGJ5dGVjXzMgLy8gIm15X25lc3RlZF9ib3hfc3RydWN0IgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL3N0cnVjdHMvY29udHJhY3QucHk6NDMtNDUKICAgIC8vIHNlbGYubXlfbmVzdGVkX2JveF9zdHJ1Y3QudmFsdWUgPSBSb290U3RydWN0KAogICAgLy8gICAgIG5lc3RlZD1OZXN0ZWRTdHJ1Y3QoY29udGVudD1WZWN0b3IoeD1hcmM0LlN0cmluZygiMSIpLCB5PWFyYzQuU3RyaW5nKCIyIikpKQogICAgLy8gKQogICAgYm94X2RlbAogICAgcG9wCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weTo0MwogICAgLy8gc2VsZi5teV9uZXN0ZWRfYm94X3N0cnVjdC52YWx1ZSA9IFJvb3RTdHJ1Y3QoCiAgICBieXRlY18zIC8vICJteV9uZXN0ZWRfYm94X3N0cnVjdCIKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjQzLTQ1CiAgICAvLyBzZWxmLm15X25lc3RlZF9ib3hfc3RydWN0LnZhbHVlID0gUm9vdFN0cnVjdCgKICAgIC8vICAgICBuZXN0ZWQ9TmVzdGVkU3RydWN0KGNvbnRlbnQ9VmVjdG9yKHg9YXJjNC5TdHJpbmcoIjEiKSwgeT1hcmM0LlN0cmluZygiMiIpKSkKICAgIC8vICkKICAgIGJ5dGVjXzEgLy8gMHgwMDAyMDAwMjAwMDQwMDA3MDAwMTMxMDAwMTMyCiAgICBib3hfcHV0CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weTo0NgogICAgLy8gc2VsZi5teV9ib3htYXBfc3RydWN0W2FyYzQuVUludDY0KDEyMyldID0gVmVjdG9yKHg9YXJjNC5TdHJpbmcoIjEiKSwgeT1hcmM0LlN0cmluZygiMiIpKQogICAgYnl0ZWMgNCAvLyAweDZkNzk1ZjYyNmY3ODZkNjE3MDVmNzM3NDcyNzU2Mzc0MDAwMDAwMDAwMDAwMDA3YgogICAgYm94X2RlbAogICAgcG9wCiAgICBieXRlYyA0IC8vIDB4NmQ3OTVmNjI2Zjc4NmQ2MTcwNWY3Mzc0NzI3NTYzNzQwMDAwMDAwMDAwMDAwMDdiCiAgICBieXRlY18wIC8vIDB4MDAwNDAwMDcwMDAxMzEwMDAxMzIKICAgIGJveF9wdXQKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjQ3CiAgICAvLyBzZWxmLm15X25lc3RlZF9ib3htYXBfc3RydWN0W2FyYzQuVUludDY0KDEyMyldID0gUm9vdFN0cnVjdCgKICAgIGJ5dGVjIDUgLy8gMHg2ZDc5NWY2ZTY1NzM3NDY1NjQ1ZjYyNmY3ODZkNjE3MDVmNzM3NDcyNzU2Mzc0MDAwMDAwMDAwMDAwMDA3YgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL3N0cnVjdHMvY29udHJhY3QucHk6NDctNDkKICAgIC8vIHNlbGYubXlfbmVzdGVkX2JveG1hcF9zdHJ1Y3RbYXJjNC5VSW50NjQoMTIzKV0gPSBSb290U3RydWN0KAogICAgLy8gICAgIG5lc3RlZD1OZXN0ZWRTdHJ1Y3QoY29udGVudD1WZWN0b3IoeD1hcmM0LlN0cmluZygiMSIpLCB5PWFyYzQuU3RyaW5nKCIyIikpKQogICAgLy8gKQogICAgYm94X2RlbAogICAgcG9wCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weTo0NwogICAgLy8gc2VsZi5teV9uZXN0ZWRfYm94bWFwX3N0cnVjdFthcmM0LlVJbnQ2NCgxMjMpXSA9IFJvb3RTdHJ1Y3QoCiAgICBieXRlYyA1IC8vIDB4NmQ3OTVmNmU2NTczNzQ2NTY0NWY2MjZmNzg2ZDYxNzA1ZjczNzQ3Mjc1NjM3NDAwMDAwMDAwMDAwMDAwN2IKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjQ3LTQ5CiAgICAvLyBzZWxmLm15X25lc3RlZF9ib3htYXBfc3RydWN0W2FyYzQuVUludDY0KDEyMyldID0gUm9vdFN0cnVjdCgKICAgIC8vICAgICBuZXN0ZWQ9TmVzdGVkU3RydWN0KGNvbnRlbnQ9VmVjdG9yKHg9YXJjNC5TdHJpbmcoIjEiKSwgeT1hcmM0LlN0cmluZygiMiIpKSkKICAgIC8vICkKICAgIGJ5dGVjXzEgLy8gMHgwMDAyMDAwMjAwMDQwMDA3MDAwMTMxMDAwMTMyCiAgICBib3hfcHV0CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvc3RydWN0cy9jb250cmFjdC5weTo1MAogICAgLy8gc2VsZi5teV9sb2NhbHN0YXRlX3N0cnVjdFtUeG4uc2VuZGVyXSA9IFZlY3Rvcih4PWFyYzQuU3RyaW5nKCIxIiksIHk9YXJjNC5TdHJpbmcoIjIiKSkKICAgIHR4biBTZW5kZXIKICAgIHB1c2hieXRlcyAibXlfbG9jYWxzdGF0ZV9zdHJ1Y3QiCiAgICBieXRlY18wIC8vIDB4MDAwNDAwMDcwMDAxMzEwMDAxMzIKICAgIGFwcF9sb2NhbF9wdXQKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjUxCiAgICAvLyBzZWxmLm15X25lc3RlZF9sb2NhbHN0YXRlX3N0cnVjdFtUeG4uc2VuZGVyXSA9IFJvb3RTdHJ1Y3QoCiAgICB0eG4gU2VuZGVyCiAgICBwdXNoYnl0ZXMgIm15X25lc3RlZF9sb2NhbHN0YXRlX3N0cnVjdCIKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9zdHJ1Y3RzL2NvbnRyYWN0LnB5OjUxLTUzCiAgICAvLyBzZWxmLm15X25lc3RlZF9sb2NhbHN0YXRlX3N0cnVjdFtUeG4uc2VuZGVyXSA9IFJvb3RTdHJ1Y3QoCiAgICAvLyAgICAgbmVzdGVkPU5lc3RlZFN0cnVjdChjb250ZW50PVZlY3Rvcih4PWFyYzQuU3RyaW5nKCIxIiksIHk9YXJjNC5TdHJpbmcoIjIiKSkpCiAgICAvLyApCiAgICBieXRlY18xIC8vIDB4MDAwMjAwMDIwMDA0MDAwNzAwMDEzMTAwMDEzMgogICAgYXBwX2xvY2FsX3B1dAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"byteCode":{"approval":"CiABASYGCgAEAAcAATEAATIOAAIAAgAEAAcAATEAATINbXlfYm94X3N0cnVjdBRteV9uZXN0ZWRfYm94X3N0cnVjdBhteV9ib3htYXBfc3RydWN0AAAAAAAAAHsfbXlfbmVzdGVkX2JveG1hcF9zdHJ1Y3QAAAAAAAAAezEYQAAhgAlteV9zdHJ1Y3QoZ4AQbXlfbmVzdGVkX3N0cnVjdClnMRtBAGKCAwQCvs4RBKSjzpoEMMbVijYaAI4DAC4AEAADgQBDMRkiEkQxGESIAF8iQzEZFEQxGESAEhUffHUAAgACAAQABwABMQABMrAiQzEZFEQxGEQ2GgGIABaABBUffHVMULAiQzEZQP+1MRgURCJDigEBi/9XAgCAB0hlbGxvLCBMUEkVFlcGAkxQiYoAACq8SCoovyu8SCspvycEvEgnBCi/JwW8SCcFKb8xAIAUbXlfbG9jYWxzdGF0ZV9zdHJ1Y3QoZjEAgBtteV9uZXN0ZWRfbG9jYWxzdGF0ZV9zdHJ1Y3QpZok=","clear":"CoEBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
@@ -64,42 +55,11 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type NestedStruct = {
-  content: Vector
-}
+export type NestedStruct = { content: Vector }
 
+export type RootStruct = { nested: NestedStruct }
 
-/**
- * Converts the ABI tuple representation of a NestedStruct to the struct representation
- */
-export function NestedStructFromTuple(abiTuple: [[string, string]]) {
-  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.NestedStruct, APP_SPEC.structs) as NestedStruct
-}
-
-export type RootStruct = {
-  nested: NestedStruct
-}
-
-
-/**
- * Converts the ABI tuple representation of a RootStruct to the struct representation
- */
-export function RootStructFromTuple(abiTuple: [[[string, string]]]) {
-  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.RootStruct, APP_SPEC.structs) as RootStruct
-}
-
-export type Vector = {
-  x: string,
-  y: string
-}
-
-
-/**
- * Converts the ABI tuple representation of a Vector to the struct representation
- */
-export function VectorFromTuple(abiTuple: [string, string]) {
-  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.Vector, APP_SPEC.structs) as Vector
-}
+export type Vector = { x: string, y: string }
 
 /**
  * The argument types for the Structs contract
@@ -235,7 +195,7 @@ export type BoxKeysState = StructsTypes['state']['box']['keys']
  * Defines supported create method params for this smart contract
  */
 export type StructsCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
 /**
  * Defines arguments required for the deploy method.
  */
@@ -390,7 +350,7 @@ export class StructsFactory {
        * @param params The params for the bare (raw) call
        * @returns The params for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
         return this.appFactory.params.bare.create(params)
       },
     },
@@ -411,7 +371,7 @@ export class StructsFactory {
        * @param params The params for the bare (raw) call
        * @returns The transaction for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
         return this.appFactory.createTransaction.bare.create(params)
       },
     },
@@ -432,7 +392,7 @@ export class StructsFactory {
        * @param params The params for the bare (raw) call
        * @returns The create result
        */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }>) => {
         const result = await this.appFactory.send.bare.create(params)
         return { result: result.result, appClient: new StructsClient(result.appClient) }
       },
@@ -467,14 +427,6 @@ export class StructsClient {
       ...appClientOrParams,
       appSpec: APP_SPEC,
     })
-  }
-
-  /**
-   * Checks for decode errors on the given return value and maps the return value to the return type for the given method
-   * @returns The typed return value or undefined if there was no value
-   */
-  decodeReturnValue<TSignature extends StructsNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
-    return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
   }
 
   /**
@@ -538,7 +490,7 @@ export class StructsClient {
        * @param params The params for the smart contract call
        * @returns The optIn params
        */
-      opt_in: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> = {args: []}) => {
+      opt_in: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> & { onComplete?: OnApplicationComplete.OptIn } = {args: []}) => {
         return this.appClient.params.optIn(StructsParamsFactory.optIn.opt_in(params))
       },
 
@@ -560,7 +512,7 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    hello: (params: CallParams<StructsArgs['obj']['hello(string)string'] | StructsArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    hello: (params: CallParams<StructsArgs['obj']['hello(string)string'] | StructsArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(StructsParamsFactory.hello(params))
     },
 
@@ -570,7 +522,7 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    give_me_root_struct: (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    give_me_root_struct: (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.params.call(StructsParamsFactory.give_me_root_struct(params))
     },
 
@@ -590,7 +542,7 @@ export class StructsClient {
        * @param params The params for the smart contract call
        * @returns The optIn transaction
        */
-      opt_in: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> = {args: []}) => {
+      opt_in: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> & { onComplete?: OnApplicationComplete.OptIn } = {args: []}) => {
         return this.appClient.createTransaction.optIn(StructsParamsFactory.optIn.opt_in(params))
       },
 
@@ -612,7 +564,7 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    hello: (params: CallParams<StructsArgs['obj']['hello(string)string'] | StructsArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    hello: (params: CallParams<StructsArgs['obj']['hello(string)string'] | StructsArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(StructsParamsFactory.hello(params))
     },
 
@@ -622,7 +574,7 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    give_me_root_struct: (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    give_me_root_struct: (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.createTransaction.call(StructsParamsFactory.give_me_root_struct(params))
     },
 
@@ -642,7 +594,7 @@ export class StructsClient {
        * @param params The params for the smart contract call
        * @returns The optIn result
        */
-      opt_in: async (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> & SendParams = {args: []}) => {
+      opt_in: async (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']> & SendParams & { onComplete?: OnApplicationComplete.OptIn } = {args: []}) => {
         const result = await this.appClient.send.optIn(StructsParamsFactory.optIn.opt_in(params))
         return {...result, return: result.return as unknown as (undefined | StructsReturns['opt_in()void'])}
       },
@@ -665,7 +617,7 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    hello: async (params: CallParams<StructsArgs['obj']['hello(string)string'] | StructsArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    hello: async (params: CallParams<StructsArgs['obj']['hello(string)string'] | StructsArgs['tuple']['hello(string)string']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(StructsParamsFactory.hello(params))
       return {...result, return: result.return as unknown as (undefined | StructsReturns['hello(string)string'])}
     },
@@ -676,7 +628,7 @@ export class StructsClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    give_me_root_struct: async (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    give_me_root_struct: async (params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       const result = await this.appClient.send.call(StructsParamsFactory.give_me_root_struct(params))
       return {...result, return: result.return as unknown as (undefined | StructsReturns['give_me_root_struct()(((string,string)))'])}
     },
@@ -686,7 +638,7 @@ export class StructsClient {
   /**
    * Clone this app client with different params
    *
-   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @param params The params to use for the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
    * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
@@ -801,29 +753,25 @@ export class StructsClient {
     const client = this
     const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
-    const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a hello(string)string method call against the Structs contract
        */
-      hello(params: CallParams<StructsArgs['obj']['hello(string)string'] | StructsArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      hello(params: CallParams<StructsArgs['obj']['hello(string)string'] | StructsArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.hello(params)))
-        resultMappers.push((v) => client.decodeReturnValue('hello(string)string', v))
         return this
       },
       /**
        * Add a give_me_root_struct()(((string,string))) method call against the Structs contract
        */
-      give_me_root_struct(params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      give_me_root_struct(params: CallParams<StructsArgs['obj']['give_me_root_struct()(((string,string)))'] | StructsArgs['tuple']['give_me_root_struct()(((string,string)))']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.give_me_root_struct(params)))
-        resultMappers.push((v) => client.decodeReturnValue('give_me_root_struct()(((string,string)))', v))
         return this
       },
       get optIn() {
         return {
           opt_in: (params: CallParams<StructsArgs['obj']['opt_in()void'] | StructsArgs['tuple']['opt_in()void']>) => {
             promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.optIn.opt_in(params)))
-            resultMappers.push(undefined)
             return this
           },
         }
@@ -848,7 +796,7 @@ export class StructsClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
+          returns: result.returns?.map(val => val.returnValue)
         }
       },
       async send(params?: SendParams) {
@@ -856,7 +804,7 @@ export class StructsClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
+          returns: result.returns?.map(val => val.returnValue)
         }
       }
     } as unknown as StructsComposer
@@ -866,7 +814,6 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the hello(string)string ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -875,7 +822,6 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the give_me_root_struct()(((string,string))) ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -888,7 +834,6 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
     /**
      * Opts the user into an existing instance of the Structs smart contract using the opt_in()void ABI method.
      *
-     * @param args The arguments for the smart contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
@@ -898,7 +843,7 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
   /**
    * Makes a clear_state call to an existing instance of the Structs smart contract.
    *
-   * @param args The arguments for the bare call
+   * @param params Any additional parameters for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
   clearState(params?: AppClientBareCallParams): StructsComposer<[...TReturns, undefined]>
@@ -917,15 +862,15 @@ export type StructsComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<StructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<StructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<StructsComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(): Promise<StructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<StructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<StructsComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
   send(params?: SendParams): Promise<StructsComposerResults<TReturns>>
 }
-export type StructsComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+export type StructsComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
   returns: TReturns
 }>
 

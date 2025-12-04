@@ -5,23 +5,14 @@
  * requires: @algorandfoundation/algokit-utils: ^7
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import {
-  AppClient as _AppClient,
-  AppClientMethodCallParams,
-  AppClientParams,
-  AppClientBareCallParams,
-  CallOnComplete,
-  AppClientCompilationParams,
-  ResolveAppClientByCreatorAndName,
-  ResolveAppClientByNetwork,
-  CloneAppClientParams,
-} from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory as _AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
-import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
+import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
+import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { TransactionComposer, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"LifeCycle","structs":{},"methods":[{"name":"create","args":[{"name":"greeting","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"create","args":[{"name":"greeting","type":"string"},{"name":"times","type":"uint32"}],"returns":{"type":"void"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"close_out_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["CloseOut"]}},{"name":"delete_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["DeleteApplication"]}},{"name":"update_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["UpdateApplication"]}}],"state":{"schema":{"global":{"ints":1,"bytes":1},"local":{"ints":0,"bytes":0}},"keys":{"global":{"greeting":{"key":"Z3JlZXRpbmc=","keyType":"AVMString","valueType":"AVMBytes"},"times":{"key":"dGltZXM=","keyType":"AVMString","valueType":"AVMUint64"}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMubGlmZV9jeWNsZS5jb250cmFjdC5MaWZlQ3ljbGUuX19hbGdvcHlfZW50cnlwb2ludF93aXRoX2luaXQoKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgMSAwIDEwIFRNUExfVVBEQVRBQkxFCiAgICBieXRlY2Jsb2NrICJncmVldGluZyIgInRpbWVzIiAiIiAweDE1MWY3Yzc1CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weToxMQogICAgLy8gc2VsZi5ncmVldGluZyA9IFN0cmluZygiSGVsbG8iKQogICAgYnl0ZWNfMCAvLyAiZ3JlZXRpbmciCiAgICBwdXNoYnl0ZXMgIkhlbGxvIgogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjEyCiAgICAvLyBzZWxmLnRpbWVzID0gVUludDY0KDEpCiAgICBieXRlY18xIC8vICJ0aW1lcyIKICAgIGludGNfMCAvLyAxCiAgICBhcHBfZ2xvYmFsX3B1dAoKbWFpbl9hZnRlcl9pZl9lbHNlQDI6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTo2CiAgICAvLyBjbGFzcyBMaWZlQ3ljbGUoSW1tdXRhYmlsaXR5Q29udHJvbEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdAMTIKICAgIHB1c2hieXRlc3MgMHg5N2YxZmMxMSAweDYwMTkzMjY0IDB4MDJiZWNlMTEgMHhhYjA2YzFhOCAweGEwMjZmOGRkIDB4MWIzYmYyMDMgMHg1M2U2YjhjNyAvLyBtZXRob2QgImNyZWF0ZShzdHJpbmcpc3RyaW5nIiwgbWV0aG9kICJjcmVhdGUoc3RyaW5nLHVpbnQzMil2b2lkIiwgbWV0aG9kICJoZWxsbyhzdHJpbmcpc3RyaW5nIiwgbWV0aG9kICJoZWxsbygpc3RyaW5nIiwgbWV0aG9kICJjbG9zZV9vdXRfdGVzdCgpc3RyaW5nIiwgbWV0aG9kICJkZWxldGVfdGVzdCgpc3RyaW5nIiwgbWV0aG9kICJ1cGRhdGVfdGVzdCgpc3RyaW5nIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9jcmVhdGVfcm91dGVANSBtYWluX2NyZWF0ZV9yb3V0ZUA2IG1haW5faGVsbG9fcm91dGVANyBtYWluX2hlbGxvX3JvdXRlQDggbWFpbl9jbG9zZV9vdXRfdGVzdF9yb3V0ZUA5IG1haW5fZGVsZXRlX3Rlc3Rfcm91dGVAMTAgbWFpbl91cGRhdGVfdGVzdF9yb3V0ZUAxMQoKbWFpbl9hZnRlcl9pZl9lbHNlQDE1OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6NgogICAgLy8gY2xhc3MgTGlmZUN5Y2xlKEltbXV0YWJpbGl0eUNvbnRyb2xBUkM0Q29udHJhY3QpOgogICAgaW50Y18xIC8vIDAKICAgIHJldHVybgoKbWFpbl91cGRhdGVfdGVzdF9yb3V0ZUAxMToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjUzCiAgICAvLyBAYXJjNC5hYmltZXRob2QoYWxsb3dfYWN0aW9ucz1bIlVwZGF0ZUFwcGxpY2F0aW9uIl0pCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBwdXNoaW50IDQgLy8gVXBkYXRlQXBwbGljYXRpb24KICAgID09CiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBVcGRhdGVBcHBsaWNhdGlvbgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NTAwMGI3NTcwNjQ2MTc0NjU1Zjc0NjU3Mzc0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fZGVsZXRlX3Rlc3Rfcm91dGVAMTA6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTo0OQogICAgLy8gQGFyYzQuYWJpbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJEZWxldGVBcHBsaWNhdGlvbiJdKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgcHVzaGludCA1IC8vIERlbGV0ZUFwcGxpY2F0aW9uCiAgICA9PQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgRGVsZXRlQXBwbGljYXRpb24KICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUwMDBiNjQ2NTZjNjU3NDY1NWY3NDY1NzM3NAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2Nsb3NlX291dF90ZXN0X3JvdXRlQDk6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTo0NQogICAgLy8gQGFyYzQuYWJpbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJDbG9zZU91dCJdKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgcHVzaGludCAyIC8vIENsb3NlT3V0CiAgICA9PQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgQ2xvc2VPdXQKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUwMDBlNjM2YzZmNzM2NTVmNmY3NTc0NWY3NDY1NzM3NAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2hlbGxvX3JvdXRlQDg6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTozNwogICAgLy8gQGFyYzQuYWJpbWV0aG9kKG5hbWU9ImhlbGxvIikKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgY2FsbHN1YiBoZWxsb19ub19hcmcKICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBieXRlY18zIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2hlbGxvX3JvdXRlQDc6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weToyOQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjYKICAgIC8vIGNsYXNzIExpZmVDeWNsZShJbW11dGFiaWxpdHlDb250cm9sQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weToyOQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIGhlbGxvCiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgYnl0ZWNfMyAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9jcmVhdGVfcm91dGVANjoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjI0CiAgICAvLyBAYXJjNC5hYmltZXRob2QobmFtZT0iY3JlYXRlIiwgY3JlYXRlPSJyZXF1aXJlIikKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTo2CiAgICAvLyBjbGFzcyBMaWZlQ3ljbGUoSW1tdXRhYmlsaXR5Q29udHJvbEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6MjQKICAgIC8vIEBhcmM0LmFiaW1ldGhvZChuYW1lPSJjcmVhdGUiLCBjcmVhdGU9InJlcXVpcmUiKQogICAgY2FsbHN1YiBjcmVhdGVfMmFyZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9jcmVhdGVfcm91dGVANToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjE4CiAgICAvLyBAYXJjNC5hYmltZXRob2QobmFtZT0iY3JlYXRlIiwgY3JlYXRlPSJyZXF1aXJlIikKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTo2CiAgICAvLyBjbGFzcyBMaWZlQ3ljbGUoSW1tdXRhYmlsaXR5Q29udHJvbEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6MTgKICAgIC8vIEBhcmM0LmFiaW1ldGhvZChuYW1lPSJjcmVhdGUiLCBjcmVhdGU9InJlcXVpcmUiKQogICAgY2FsbHN1YiBjcmVhdGVfMWFyZwogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJ5dGVjXzMgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fYmFyZV9yb3V0aW5nQDEyOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6NgogICAgLy8gY2xhc3MgTGlmZUN5Y2xlKEltbXV0YWJpbGl0eUNvbnRyb2xBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgc3dpdGNoIG1haW5fY3JlYXRlQDEzIG1haW5fY3JlYXRlQDEzIG1haW5fYWZ0ZXJfaWZfZWxzZUAxNSBtYWluX2FmdGVyX2lmX2Vsc2VAMTUgbWFpbl91cGRhdGVAMTQKICAgIGIgbWFpbl9hZnRlcl9pZl9lbHNlQDE1CgptYWluX3VwZGF0ZUAxNDoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjIzCiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJVcGRhdGVBcHBsaWNhdGlvbiJdKQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyMy0yNAogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiVXBkYXRlQXBwbGljYXRpb24iXSkKICAgIC8vIGRlZiB1cGRhdGUoc2VsZikgLT4gTm9uZToKICAgIGNhbGxzdWIgdXBkYXRlCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2NyZWF0ZUAxMzoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjE0CiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGNyZWF0ZT0icmVxdWlyZSIsIGFsbG93X2FjdGlvbnM9WyJOb09wIiwgIk9wdEluIl0pCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6MTQtMTUKICAgIC8vIEBhcmM0LmJhcmVtZXRob2QoY3JlYXRlPSJyZXF1aXJlIiwgYWxsb3dfYWN0aW9ucz1bIk5vT3AiLCAiT3B0SW4iXSkKICAgIC8vIGRlZiBjcmVhdGUoc2VsZikgLT4gTm9uZToKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMubGlmZV9jeWNsZS5jb250cmFjdC5MaWZlQ3ljbGUuY3JlYXRlXzFhcmcoZ3JlZXRpbmc6IGJ5dGVzKSAtPiBieXRlczoKY3JlYXRlXzFhcmc6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weToxOC0xOQogICAgLy8gQGFyYzQuYWJpbWV0aG9kKG5hbWU9ImNyZWF0ZSIsIGNyZWF0ZT0icmVxdWlyZSIpCiAgICAvLyBkZWYgY3JlYXRlXzFhcmcoc2VsZiwgZ3JlZXRpbmc6IFN0cmluZykgLT4gU3RyaW5nOgogICAgcHJvdG8gMSAxCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weToyMAogICAgLy8gc2VsZi5ncmVldGluZyA9IGdyZWV0aW5nCiAgICBieXRlY18wIC8vICJncmVldGluZyIKICAgIGZyYW1lX2RpZyAtMQogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjIyCiAgICAvLyByZXR1cm4gZ3JlZXRpbmcgKyBTdHJpbmcoIl8iKSArIHNlbGYuaXRvYShzZWxmLnRpbWVzKQogICAgZnJhbWVfZGlnIC0xCiAgICBwdXNoYnl0ZXMgIl8iCiAgICBjb25jYXQKICAgIGludGNfMSAvLyAwCiAgICBieXRlY18xIC8vICJ0aW1lcyIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi50aW1lcyBleGlzdHMKICAgIGNhbGxzdWIgaXRvYQogICAgY29uY2F0CiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5CYXNlQVJDNENvbnRyYWN0Lml0b2EoaTogdWludDY0KSAtPiBieXRlczoKaXRvYToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjEyLTEzCiAgICAvLyBAc3Vicm91dGluZQogICAgLy8gZGVmIGl0b2Eoc2VsZiwgaTogVUludDY0KSAtPiBTdHJpbmc6CiAgICBwcm90byAxIDEKICAgIGJ5dGVjXzIgLy8gIiIKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjE0CiAgICAvLyBpZiBpID09IFVJbnQ2NCgwKToKICAgIGZyYW1lX2RpZyAtMQogICAgYm56IGl0b2FfZWxzZV9ib2R5QDIKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjE1CiAgICAvLyByZXR1cm4gU3RyaW5nKCIwIikKICAgIHB1c2hieXRlcyAiMCIKICAgIHN3YXAKICAgIHJldHN1YgoKaXRvYV9lbHNlX2JvZHlAMjoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjE3CiAgICAvLyByZXR1cm4gKHNlbGYuaXRvYShpIC8vIFVJbnQ2NCgxMCkpIGlmIChpIC8vIFVJbnQ2NCgxMCkpID4gVUludDY0KDApIGVsc2UgU3RyaW5nKCIiKSkgKyBTdHJpbmcuZnJvbV9ieXRlcygKICAgIGZyYW1lX2RpZyAtMQogICAgaW50Y18yIC8vIDEwCiAgICAvCiAgICBkdXAKICAgIGZyYW1lX2J1cnkgMAogICAgYnogaXRvYV90ZXJuYXJ5X2ZhbHNlQDQKICAgIGZyYW1lX2RpZyAwCiAgICBjYWxsc3ViIGl0b2EKCml0b2FfdGVybmFyeV9tZXJnZUA1OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MTgKICAgIC8vIFN0cmluZygiMDEyMzQ1Njc4OSIpLmJ5dGVzW2kgJSBVSW50NjQoMTApXQogICAgZnJhbWVfZGlnIC0xCiAgICBpbnRjXzIgLy8gMTAKICAgICUKICAgIHB1c2hieXRlcyAiMDEyMzQ1Njc4OSIKICAgIHN3YXAKICAgIGludGNfMCAvLyAxCiAgICBleHRyYWN0MwogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MTctMTkKICAgIC8vIHJldHVybiAoc2VsZi5pdG9hKGkgLy8gVUludDY0KDEwKSkgaWYgKGkgLy8gVUludDY0KDEwKSkgPiBVSW50NjQoMCkgZWxzZSBTdHJpbmcoIiIpKSArIFN0cmluZy5mcm9tX2J5dGVzKAogICAgLy8gICAgIFN0cmluZygiMDEyMzQ1Njc4OSIpLmJ5dGVzW2kgJSBVSW50NjQoMTApXQogICAgLy8gKQogICAgY29uY2F0CiAgICBzd2FwCiAgICByZXRzdWIKCml0b2FfdGVybmFyeV9mYWxzZUA0OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MTcKICAgIC8vIHJldHVybiAoc2VsZi5pdG9hKGkgLy8gVUludDY0KDEwKSkgaWYgKGkgLy8gVUludDY0KDEwKSkgPiBVSW50NjQoMCkgZWxzZSBTdHJpbmcoIiIpKSArIFN0cmluZy5mcm9tX2J5dGVzKAogICAgYnl0ZWNfMiAvLyAiIgogICAgYiBpdG9hX3Rlcm5hcnlfbWVyZ2VANQoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5saWZlX2N5Y2xlLmNvbnRyYWN0LkxpZmVDeWNsZS5jcmVhdGVfMmFyZyhncmVldGluZzogYnl0ZXMsIHRpbWVzOiBieXRlcykgLT4gdm9pZDoKY3JlYXRlXzJhcmc6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weToyNC0yNQogICAgLy8gQGFyYzQuYWJpbWV0aG9kKG5hbWU9ImNyZWF0ZSIsIGNyZWF0ZT0icmVxdWlyZSIpCiAgICAvLyBkZWYgY3JlYXRlXzJhcmcoc2VsZiwgZ3JlZXRpbmc6IFN0cmluZywgdGltZXM6IGFyYzQuVUludDMyKSAtPiBOb25lOgogICAgcHJvdG8gMiAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weToyNgogICAgLy8gc2VsZi5ncmVldGluZyA9IGdyZWV0aW5nCiAgICBieXRlY18wIC8vICJncmVldGluZyIKICAgIGZyYW1lX2RpZyAtMgogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjI3CiAgICAvLyBzZWxmLnRpbWVzID0gdGltZXMubmF0aXZlCiAgICBmcmFtZV9kaWcgLTEKICAgIGJ0b2kKICAgIGJ5dGVjXzEgLy8gInRpbWVzIgogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5saWZlX2N5Y2xlLmNvbnRyYWN0LkxpZmVDeWNsZS5oZWxsbyhuYW1lOiBieXRlcykgLT4gYnl0ZXM6CmhlbGxvOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6MjktMzAKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGhlbGxvKHNlbGYsIG5hbWU6IFN0cmluZykgLT4gU3RyaW5nOgogICAgcHJvdG8gMSAxCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTozMQogICAgLy8gcmVzdWx0ID0gU3RyaW5nKCIiKQogICAgYnl0ZWNfMiAvLyAiIgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6MzIKICAgIC8vIGZvciBpIGluIHVyYW5nZShzZWxmLnRpbWVzKTogICMgbm9xYTogQjAwNwogICAgaW50Y18xIC8vIDAKICAgIGJ5dGVjXzEgLy8gInRpbWVzIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnRpbWVzIGV4aXN0cwogICAgaW50Y18xIC8vIDAKCmhlbGxvX2Zvcl9oZWFkZXJAMToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjMyCiAgICAvLyBmb3IgaSBpbiB1cmFuZ2Uoc2VsZi50aW1lcyk6ICAjIG5vcWE6IEIwMDcKICAgIGZyYW1lX2RpZyAyCiAgICBmcmFtZV9kaWcgMQogICAgPAogICAgYnogaGVsbG9fYWZ0ZXJfZm9yQDQKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjMzCiAgICAvLyByZXN1bHQgKz0gc2VsZi5ncmVldGluZyArIFN0cmluZygiLCAiKSArIG5hbWUgKyBTdHJpbmcoIlxuIikKICAgIGludGNfMSAvLyAwCiAgICBieXRlY18wIC8vICJncmVldGluZyIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5ncmVldGluZyBleGlzdHMKICAgIHB1c2hieXRlcyAiLCAiCiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAtMQogICAgY29uY2F0CiAgICBwdXNoYnl0ZXMgIlxuIgogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgMAogICAgc3dhcAogICAgY29uY2F0CiAgICBmcmFtZV9idXJ5IDAKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9saWZlX2N5Y2xlL2NvbnRyYWN0LnB5OjMyCiAgICAvLyBmb3IgaSBpbiB1cmFuZ2Uoc2VsZi50aW1lcyk6ICAjIG5vcWE6IEIwMDcKICAgIGZyYW1lX2RpZyAyCiAgICBpbnRjXzAgLy8gMQogICAgKwogICAgZnJhbWVfYnVyeSAyCiAgICBiIGhlbGxvX2Zvcl9oZWFkZXJAMQoKaGVsbG9fYWZ0ZXJfZm9yQDQ6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTozNQogICAgLy8gcmV0dXJuIHJlc3VsdAogICAgcmV0c3ViCgoKLy8gZXhhbXBsZXMuc21hcnRfY29udHJhY3RzLmxpZmVfY3ljbGUuY29udHJhY3QuTGlmZUN5Y2xlLmhlbGxvX25vX2FyZygpIC0+IGJ5dGVzOgpoZWxsb19ub19hcmc6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTozNy0zOAogICAgLy8gQGFyYzQuYWJpbWV0aG9kKG5hbWU9ImhlbGxvIikKICAgIC8vIGRlZiBoZWxsb19ub19hcmcoc2VsZikgLT4gU3RyaW5nOgogICAgcHJvdG8gMCAxCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTozOQogICAgLy8gcmVzdWx0ID0gU3RyaW5nKCIiKQogICAgYnl0ZWNfMiAvLyAiIgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6NDAKICAgIC8vIGZvciBpIGluIHVyYW5nZShzZWxmLnRpbWVzKTogICMgbm9xYTogQjAwNwogICAgaW50Y18xIC8vIDAKICAgIGJ5dGVjXzEgLy8gInRpbWVzIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnRpbWVzIGV4aXN0cwogICAgaW50Y18xIC8vIDAKCmhlbGxvX25vX2FyZ19mb3JfaGVhZGVyQDE6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbGlmZV9jeWNsZS9jb250cmFjdC5weTo0MAogICAgLy8gZm9yIGkgaW4gdXJhbmdlKHNlbGYudGltZXMpOiAgIyBub3FhOiBCMDA3CiAgICBmcmFtZV9kaWcgMgogICAgZnJhbWVfZGlnIDEKICAgIDwKICAgIGJ6IGhlbGxvX25vX2FyZ19hZnRlcl9mb3JANAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6NDEKICAgIC8vIHJlc3VsdCArPSBzZWxmLmdyZWV0aW5nICsgU3RyaW5nKCIsIG15c3RlcnkgcGVyc29uXG4iKQogICAgaW50Y18xIC8vIDAKICAgIGJ5dGVjXzAgLy8gImdyZWV0aW5nIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmdyZWV0aW5nIGV4aXN0cwogICAgcHVzaGJ5dGVzICIsIG15c3RlcnkgcGVyc29uXG4iCiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAwCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGZyYW1lX2J1cnkgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6NDAKICAgIC8vIGZvciBpIGluIHVyYW5nZShzZWxmLnRpbWVzKTogICMgbm9xYTogQjAwNwogICAgZnJhbWVfZGlnIDIKICAgIGludGNfMCAvLyAxCiAgICArCiAgICBmcmFtZV9idXJ5IDIKICAgIGIgaGVsbG9fbm9fYXJnX2Zvcl9oZWFkZXJAMQoKaGVsbG9fbm9fYXJnX2FmdGVyX2ZvckA0OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2xpZmVfY3ljbGUvY29udHJhY3QucHk6NDMKICAgIC8vIHJldHVybiByZXN1bHQKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5iYXNlLmNvbnRyYWN0LkltbXV0YWJpbGl0eUNvbnRyb2xBUkM0Q29udHJhY3QudXBkYXRlKCkgLT4gdm9pZDoKdXBkYXRlOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MjMtMjQKICAgIC8vIEBhcmM0LmJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIlVwZGF0ZUFwcGxpY2F0aW9uIl0pCiAgICAvLyBkZWYgdXBkYXRlKHNlbGYpIC0+IE5vbmU6CiAgICBwcm90byAwIDAKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjI1CiAgICAvLyBhc3NlcnQgVGVtcGxhdGVWYXJbYm9vbF0oVVBEQVRBQkxFX1RFTVBMQVRFX05BTUUpLCAiQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZSIKICAgIGludGNfMyAvLyBUTVBMX1VQREFUQUJMRQogICAgYXNzZXJ0IC8vIENoZWNrIGFwcCBpcyB1cGRhdGFibGUKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjEwCiAgICAvLyBhc3NlcnQgVHhuLnNlbmRlciA9PSBHbG9iYWwuY3JlYXRvcl9hZGRyZXNzLCAidW5hdXRob3JpemVkIgogICAgdHhuIFNlbmRlcgogICAgZ2xvYmFsIENyZWF0b3JBZGRyZXNzCiAgICA9PQogICAgYXNzZXJ0IC8vIHVuYXV0aG9yaXplZAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"bareActions":{"create":["NoOp","OptIn"],"call":["UpdateApplication"]}} as unknown as Arc56Contract
 
@@ -206,16 +197,16 @@ export type GlobalKeysState = LifeCycleTypes['state']['global']['keys']
  * Defines supported create method params for this smart contract
  */
 export type LifeCycleCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC} & CreateSchema>
-  | Expand<CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & {method: 'create(string)string'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
-  | Expand<CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & {method: 'create(string,uint32)void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & {method: 'create(string)string'} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
+  | Expand<CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & {method: 'create(string,uint32)void'} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn } & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
 export type LifeCycleUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
   | Expand<CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & {method: 'update_test'}>
   | Expand<CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & {method: 'update_test()string'}>
+  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines supported delete method params for this smart contract
  */
@@ -266,7 +257,7 @@ export abstract class LifeCycleParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      "create(string)string"(params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      "create(string)string"(params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & { onComplete?: OnApplicationComplete.NoOp }): AppClientMethodCallParams & AppClientCompilationParams & { onComplete?: OnApplicationComplete.NoOp } {
         return {
           ...params,
           method: 'create(string)string' as const,
@@ -279,7 +270,7 @@ export abstract class LifeCycleParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      "create(string,uint32)void"(params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+      "create(string,uint32)void"(params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & { onComplete?: OnApplicationComplete.NoOp }): AppClientMethodCallParams & AppClientCompilationParams & { onComplete?: OnApplicationComplete.NoOp } {
         return {
           ...params,
           method: 'create(string,uint32)void' as const,
@@ -486,21 +477,12 @@ export class LifeCycleFactory {
      */
     create: {
       /**
-       * Creates a new instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The params for a create call
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) => {
-        return this.appFactory.params.bare.create(params)
-      },
-      /**
        * Creates a new instance of the LifeCycle smart contract using the create(string)string ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      "create(string)string": (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      "create(string)string": (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
         return this.appFactory.params.create(LifeCycleParamsFactory.create['create(string)string'](params))
       },
       /**
@@ -509,8 +491,17 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create params
        */
-      "create(string,uint32)void": (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      "create(string,uint32)void": (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
         return this.appFactory.params.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
+      },
+      /**
+       * Creates a new instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The params for a create call
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
+        return this.appFactory.params.bare.create(params)
       },
     },
 
@@ -519,15 +510,6 @@ export class LifeCycleFactory {
      */
     deployUpdate: {
       /**
-       * Updates an existing instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The params for a deployUpdate call
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
-        return this.appFactory.params.bare.deployUpdate(params)
-      },
-      /**
        * Updates an existing instance of the LifeCycle smart contract using the update_test()string ABI method.
        *
        * @param params The params for the smart contract call
@@ -535,6 +517,15 @@ export class LifeCycleFactory {
        */
       update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
         return this.appFactory.params.deployUpdate(LifeCycleParamsFactory.update.update_test(params))
+      },
+      /**
+       * Updates an existing instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The params for a deployUpdate call
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
+        return this.appFactory.params.bare.deployUpdate(params)
       },
     },
 
@@ -564,21 +555,12 @@ export class LifeCycleFactory {
      */
     create: {
       /**
-       * Creates a new instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The transaction for a create call
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) => {
-        return this.appFactory.createTransaction.bare.create(params)
-      },
-      /**
        * Creates a new instance of the LifeCycle smart contract using the create(string)string ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The create transaction
        */
-      "create(string)string": (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      "create(string)string": (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
         return this.appFactory.createTransaction.create(LifeCycleParamsFactory.create['create(string)string'](params))
       },
       /**
@@ -587,8 +569,17 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create transaction
        */
-      "create(string,uint32)void": (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      "create(string,uint32)void": (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
         return this.appFactory.createTransaction.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
+      },
+      /**
+       * Creates a new instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The transaction for a create call
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
+        return this.appFactory.createTransaction.bare.create(params)
       },
     },
 
@@ -603,22 +594,12 @@ export class LifeCycleFactory {
      */
     create: {
       /**
-       * Creates a new instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The create result
-       */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC}>) => {
-        const result = await this.appFactory.send.bare.create(params)
-        return { result: result.result, appClient: new LifeCycleClient(result.appClient) }
-      },
-      /**
        * Creates a new instance of the LifeCycle smart contract using an ABI method call using the create(string)string ABI method.
        *
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      "create(string)string": async (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      "create(string)string": async (params: CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
         const result = await this.appFactory.send.create(LifeCycleParamsFactory.create['create(string)string'](params))
         return { result: { ...result.result, return: result.result.return as unknown as (undefined | LifeCycleReturns['create(string)string']) }, appClient: new LifeCycleClient(result.appClient) }
       },
@@ -628,9 +609,19 @@ export class LifeCycleFactory {
        * @param params The params for the smart contract call
        * @returns The create result
        */
-      "create(string,uint32)void": async (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      "create(string,uint32)void": async (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
         const result = await this.appFactory.send.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
         return { result: { ...result.result, return: result.result.return as unknown as (undefined | LifeCycleReturns['create(string,uint32)void']) }, appClient: new LifeCycleClient(result.appClient) }
+      },
+      /**
+       * Creates a new instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The create result
+       */
+      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
+        const result = await this.appFactory.send.bare.create(params)
+        return { result: result.result, appClient: new LifeCycleClient(result.appClient) }
       },
     },
 
@@ -663,14 +654,6 @@ export class LifeCycleClient {
       ...appClientOrParams,
       appSpec: APP_SPEC,
     })
-  }
-
-  /**
-   * Checks for decode errors on the given return value and maps the return value to the return type for the given method
-   * @returns The typed return value or undefined if there was no value
-   */
-  decodeReturnValue<TSignature extends LifeCycleNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
-    return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
   }
 
   /**
@@ -729,6 +712,16 @@ export class LifeCycleClient {
      */
     update: {
       /**
+       * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The update params
+       */
+      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams & { onComplete?: OnApplicationComplete.UpdateApplication } = {args: []}) => {
+        return this.appClient.params.update(LifeCycleParamsFactory.update.update_test(params))
+      },
+
+      /**
        * Updates an existing instance of the LifeCycle smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
@@ -737,16 +730,6 @@ export class LifeCycleClient {
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
         return this.appClient.params.bare.update(params)
       },
-      /**
-       * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The update params
-       */
-      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
-        return this.appClient.params.update(LifeCycleParamsFactory.update.update_test(params))
-      },
-
     },
 
     /**
@@ -759,7 +742,7 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The delete params
        */
-      delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> = {args: []}) => {
+      delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> & { onComplete?: OnApplicationComplete.DeleteApplication } = {args: []}) => {
         return this.appClient.params.delete(LifeCycleParamsFactory.delete.delete_test(params))
       },
 
@@ -775,7 +758,7 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut params
        */
-      close_out_test: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> = {args: []}) => {
+      close_out_test: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & { onComplete?: OnApplicationComplete.CloseOut } = {args: []}) => {
         return this.appClient.params.closeOut(LifeCycleParamsFactory.closeOut.close_out_test(params))
       },
 
@@ -797,7 +780,7 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    "hello(string)string": (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    "hello(string)string": (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(LifeCycleParamsFactory['hello(string)string'](params))
     },
 
@@ -807,7 +790,7 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    "hello()string": (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    "hello()string": (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.params.call(LifeCycleParamsFactory['hello()string'](params))
     },
 
@@ -822,6 +805,16 @@ export class LifeCycleClient {
      */
     update: {
       /**
+       * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The update transaction
+       */
+      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams & { onComplete?: OnApplicationComplete.UpdateApplication } = {args: []}) => {
+        return this.appClient.createTransaction.update(LifeCycleParamsFactory.update.update_test(params))
+      },
+
+      /**
        * Updates an existing instance of the LifeCycle smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
@@ -830,16 +823,6 @@ export class LifeCycleClient {
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
         return this.appClient.createTransaction.bare.update(params)
       },
-      /**
-       * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The update transaction
-       */
-      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
-        return this.appClient.createTransaction.update(LifeCycleParamsFactory.update.update_test(params))
-      },
-
     },
 
     /**
@@ -852,7 +835,7 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The delete transaction
        */
-      delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> = {args: []}) => {
+      delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> & { onComplete?: OnApplicationComplete.DeleteApplication } = {args: []}) => {
         return this.appClient.createTransaction.delete(LifeCycleParamsFactory.delete.delete_test(params))
       },
 
@@ -868,7 +851,7 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut transaction
        */
-      close_out_test: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> = {args: []}) => {
+      close_out_test: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & { onComplete?: OnApplicationComplete.CloseOut } = {args: []}) => {
         return this.appClient.createTransaction.closeOut(LifeCycleParamsFactory.closeOut.close_out_test(params))
       },
 
@@ -890,7 +873,7 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    "hello(string)string": (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    "hello(string)string": (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(LifeCycleParamsFactory['hello(string)string'](params))
     },
 
@@ -900,7 +883,7 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    "hello()string": (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    "hello()string": (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.createTransaction.call(LifeCycleParamsFactory['hello()string'](params))
     },
 
@@ -915,6 +898,17 @@ export class LifeCycleClient {
      */
     update: {
       /**
+       * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The update result
+       */
+      update_test: async (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams & SendParams & { onComplete?: OnApplicationComplete.UpdateApplication } = {args: []}) => {
+        const result = await this.appClient.send.update(LifeCycleParamsFactory.update.update_test(params))
+        return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['update_test()string'])}
+      },
+
+      /**
        * Updates an existing instance of the LifeCycle smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
@@ -923,17 +917,6 @@ export class LifeCycleClient {
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) => {
         return this.appClient.send.bare.update(params)
       },
-      /**
-       * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The update result
-       */
-      update_test: async (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams & SendParams = {args: []}) => {
-        const result = await this.appClient.send.update(LifeCycleParamsFactory.update.update_test(params))
-        return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['update_test()string'])}
-      },
-
     },
 
     /**
@@ -946,7 +929,7 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The delete result
        */
-      delete_test: async (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> & SendParams = {args: []}) => {
+      delete_test: async (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']> & SendParams & { onComplete?: OnApplicationComplete.DeleteApplication } = {args: []}) => {
         const result = await this.appClient.send.delete(LifeCycleParamsFactory.delete.delete_test(params))
         return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['delete_test()string'])}
       },
@@ -963,7 +946,7 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut result
        */
-      close_out_test: async (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & SendParams = {args: []}) => {
+      close_out_test: async (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & SendParams & { onComplete?: OnApplicationComplete.CloseOut } = {args: []}) => {
         const result = await this.appClient.send.closeOut(LifeCycleParamsFactory.closeOut.close_out_test(params))
         return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['close_out_test()string'])}
       },
@@ -986,7 +969,7 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    "hello(string)string": async (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    "hello(string)string": async (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(LifeCycleParamsFactory['hello(string)string'](params))
       return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['hello(string)string'])}
     },
@@ -997,7 +980,7 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    "hello()string": async (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+    "hello()string": async (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       const result = await this.appClient.send.call(LifeCycleParamsFactory['hello()string'](params))
       return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['hello()string'])}
     },
@@ -1007,7 +990,7 @@ export class LifeCycleClient {
   /**
    * Clone this app client with different params
    *
-   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @param params The params to use for the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
    * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
@@ -1047,33 +1030,29 @@ export class LifeCycleClient {
     const client = this
     const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
-    const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a hello(string)string method call against the LifeCycle contract
        */
-      "hello(string)string"(params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      "hello(string)string"(params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params['hello(string)string'](params)))
-        resultMappers.push((v) => client.decodeReturnValue('hello(string)string', v))
         return this
       },
       /**
        * Add a hello()string method call against the LifeCycle contract
        */
-      "hello()string"(params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      "hello()string"(params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params['hello()string'](params)))
-        resultMappers.push((v) => client.decodeReturnValue('hello()string', v))
         return this
       },
       get update() {
         return {
-          bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
-            promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
-            return this
-          },
           update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams) => {
             promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.update_test(params)))
-            resultMappers.push((v) => client.decodeReturnValue('update_test()string', v))
+            return this
+          },
+          bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
             return this
           },
         }
@@ -1082,7 +1061,6 @@ export class LifeCycleClient {
         return {
           delete_test: (params: CallParams<LifeCycleArgs['obj']['delete_test()string'] | LifeCycleArgs['tuple']['delete_test()string']>) => {
             promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.delete_test(params)))
-            resultMappers.push((v) => client.decodeReturnValue('delete_test()string', v))
             return this
           },
         }
@@ -1091,7 +1069,6 @@ export class LifeCycleClient {
         return {
           close_out_test: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>) => {
             promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.closeOut.close_out_test(params)))
-            resultMappers.push((v) => client.decodeReturnValue('close_out_test()string', v))
             return this
           },
         }
@@ -1116,7 +1093,7 @@ export class LifeCycleClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
+          returns: result.returns?.map(val => val.returnValue)
         }
       },
       async send(params?: SendParams) {
@@ -1124,7 +1101,7 @@ export class LifeCycleClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
+          returns: result.returns?.map(val => val.returnValue)
         }
       }
     } as unknown as LifeCycleComposer
@@ -1134,7 +1111,6 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the hello(string)string ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -1143,7 +1119,6 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the hello()string ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -1154,20 +1129,19 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
    */
   readonly update: {
     /**
-     * Updates an existing instance of the LifeCycle smart contract using a bare call.
-     *
-     * @param args The arguments for the bare call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    bare(params?: AppClientBareCallParams ): LifeCycleComposer<[...TReturns, undefined]>
-    /**
      * Updates an existing instance of the LifeCycle smart contract using the update_test()string ABI method.
      *
-     * @param args The arguments for the smart contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     update_test(params?: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['update_test()string'] | undefined]>
+    /**
+     * Updates an existing instance of the LifeCycle smart contract using a bare call.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    bare(params?: AppClientBareCallParams ): LifeCycleComposer<TReturns>
   }
 
   /**
@@ -1177,7 +1151,6 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
     /**
      * Deletes an existing instance of the LifeCycle smart contract using the delete_test()string ABI method.
      *
-     * @param args The arguments for the smart contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
@@ -1191,7 +1164,6 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
     /**
      * Makes a close out call to an existing instance of the LifeCycle smart contract using the close_out_test()string ABI method.
      *
-     * @param args The arguments for the smart contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
@@ -1201,7 +1173,7 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
   /**
    * Makes a clear_state call to an existing instance of the LifeCycle smart contract.
    *
-   * @param args The arguments for the bare call
+   * @param params Any additional parameters for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
   clearState(params?: AppClientBareCallParams): LifeCycleComposer<[...TReturns, undefined]>
@@ -1220,15 +1192,15 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<LifeCycleComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
   send(params?: SendParams): Promise<LifeCycleComposerResults<TReturns>>
 }
-export type LifeCycleComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+export type LifeCycleComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
   returns: TReturns
 }>
 

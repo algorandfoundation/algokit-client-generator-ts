@@ -1,7 +1,6 @@
 import * as ed from '@noble/ed25519'
 import { webcrypto } from 'node:crypto'
 if (!globalThis.crypto) globalThis.crypto = webcrypto
-import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
 import { VotingPreconditions, VotingRoundFactory } from './client'
@@ -9,6 +8,7 @@ import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 import { expect, test, describe, beforeEach } from 'vitest'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
+import { ABIArrayDynamicType, ABIUintType } from '@algorandfoundation/algokit-utils/abi'
 const rndInt = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min
 
 describe('voting typed client', () => {
@@ -23,10 +23,11 @@ describe('voting typed client', () => {
 
   async function createRandomVotingRoundApp() {
     const { algorand, algod, testAccount } = localnet.context
-    const status = await algod.status().do()
+    const status = await algod.getStatus()
     const lastRound = status.lastRound
-    const round = await algod.block(Number(lastRound)).do()
+    const round = await algod.getBlock(Number(lastRound))
     const currentTime = round.block.header.timestamp
+    invariant(currentTime, 'Block must have currentTime')
 
     const quorum = rndInt(1, 1000)
     const questionCount = rndInt(1, 10)
@@ -122,7 +123,7 @@ describe('voting typed client', () => {
     expect(state.nftImageUrl?.asString()).toBe('ipfs://cid')
     expect(state.nftAssetId).toBe(0n)
     expect(state.totalOptions).toBe(BigInt(totalQuestionOptions))
-    const optionCountsType = new algosdk.ABIArrayDynamicType(new algosdk.ABIUintType(8))
+    const optionCountsType = new ABIArrayDynamicType(new ABIUintType(8))
     expect(optionCountsType.decode(state.optionCounts!.asByteArray()!).map(Number)).toEqual(questionCounts)
   })
 
@@ -219,7 +220,7 @@ describe('voting typed client', () => {
             note: 'hmmm',
           }),
         )
-        .execute()
+        .send()
 
       expect(result.returns).toBeDefined()
     })

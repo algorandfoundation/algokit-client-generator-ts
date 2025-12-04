@@ -5,23 +5,14 @@
  * requires: @algorandfoundation/algokit-utils: ^7
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, AppReturn, SendAppTransactionResult } from '@algorandfoundation/algokit-utils/types/app'
-import { Arc56Contract, getArc56ReturnValue, getABIStructFromABITuple } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import {
-  AppClient as _AppClient,
-  AppClientMethodCallParams,
-  AppClientParams,
-  AppClientBareCallParams,
-  CallOnComplete,
-  AppClientCompilationParams,
-  ResolveAppClientByCreatorAndName,
-  ResolveAppClientByNetwork,
-  CloneAppClientParams,
-} from '@algorandfoundation/algokit-utils/types/app-client'
-import { AppFactory as _AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
-import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
-import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
+import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
+import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
+import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { TransactionComposer, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const APP_SPEC: Arc56Contract = {"name":"Nested","structs":{},"methods":[{"name":"add","args":[{"type":"uint64","name":"a"},{"type":"uint64","name":"b"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"get_pay_txn_amount","args":[{"type":"pay","name":"pay_txn"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"nested_method_call","args":[{"type":"string","name":"_"},{"type":"pay","name":"_pay_txn"},{"type":"appl","name":"method_call"}],"returns":{"type":"byte[]"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[50,91,117],"errorMessage":"OnCompletion is not NoOp"},{"pc":[144],"errorMessage":"can only call when creating"},{"pc":[53,94,120],"errorMessage":"can only call when not creating"},{"pc":[78],"errorMessage":"transaction type is appl"},{"pc":[67,104],"errorMessage":"transaction type is pay"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxCiAgICBieXRlY2Jsb2NrIDB4MTUxZjdjNzUKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6NAogICAgLy8gY2xhc3MgTmVzdGVkKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdAOAogICAgcHVzaGJ5dGVzcyAweGZlNmJkZjY5IDB4OWZkODM1ZjggMHgzNGFmMzk0MiAvLyBtZXRob2QgImFkZCh1aW50NjQsdWludDY0KXVpbnQ2NCIsIG1ldGhvZCAiZ2V0X3BheV90eG5fYW1vdW50KHBheSl1aW50NjQiLCBtZXRob2QgIm5lc3RlZF9tZXRob2RfY2FsbChzdHJpbmcscGF5LGFwcGwpYnl0ZVtdIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9hZGRfcm91dGVAMyBtYWluX2dldF9wYXlfdHhuX2Ftb3VudF9yb3V0ZUA0IG1haW5fbmVzdGVkX21ldGhvZF9jYWxsX3JvdXRlQDUKCm1haW5fYWZ0ZXJfaWZfZWxzZUAxMjoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6NAogICAgLy8gY2xhc3MgTmVzdGVkKEFSQzRDb250cmFjdCk6CiAgICBwdXNoaW50IDAgLy8gMAogICAgcmV0dXJuCgptYWluX25lc3RlZF9tZXRob2RfY2FsbF9yb3V0ZUA1OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL25lc3RlZC9jb250cmFjdC5weToxMwogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6NAogICAgLy8gY2xhc3MgTmVzdGVkKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICB0eG4gR3JvdXBJbmRleAogICAgcHVzaGludCAyIC8vIDIKICAgIC0KICAgIGR1cAogICAgZ3R4bnMgVHlwZUVudW0KICAgIGludGNfMCAvLyBwYXkKICAgID09CiAgICBhc3NlcnQgLy8gdHJhbnNhY3Rpb24gdHlwZSBpcyBwYXkKICAgIHR4biBHcm91cEluZGV4CiAgICBpbnRjXzAgLy8gMQogICAgLQogICAgZHVwCiAgICBndHhucyBUeXBlRW51bQogICAgcHVzaGludCA2IC8vIGFwcGwKICAgID09CiAgICBhc3NlcnQgLy8gdHJhbnNhY3Rpb24gdHlwZSBpcyBhcHBsCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbmVzdGVkL2NvbnRyYWN0LnB5OjEzCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgbmVzdGVkX21ldGhvZF9jYWxsCiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2dldF9wYXlfdHhuX2Ftb3VudF9yb3V0ZUA0OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL25lc3RlZC9jb250cmFjdC5weTo5CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL25lc3RlZC9jb250cmFjdC5weTo0CiAgICAvLyBjbGFzcyBOZXN0ZWQoQVJDNENvbnRyYWN0KToKICAgIHR4biBHcm91cEluZGV4CiAgICBpbnRjXzAgLy8gMQogICAgLQogICAgZHVwCiAgICBndHhucyBUeXBlRW51bQogICAgaW50Y18wIC8vIHBheQogICAgPT0KICAgIGFzc2VydCAvLyB0cmFuc2FjdGlvbiB0eXBlIGlzIHBheQogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL25lc3RlZC9jb250cmFjdC5weTo5CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgZ2V0X3BheV90eG5fYW1vdW50CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2FkZF9yb3V0ZUAzOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL25lc3RlZC9jb250cmFjdC5weTo1CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL25lc3RlZC9jb250cmFjdC5weTo0CiAgICAvLyBjbGFzcyBOZXN0ZWQoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6NQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIGFkZAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9iYXJlX3JvdXRpbmdAODoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6NAogICAgLy8gY2xhc3MgTmVzdGVkKEFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDEyCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5uZXN0ZWQuY29udHJhY3QuTmVzdGVkLmFkZChhOiBieXRlcywgYjogYnl0ZXMpIC0+IGJ5dGVzOgphZGQ6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbmVzdGVkL2NvbnRyYWN0LnB5OjUtNgogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgYWRkKHNlbGYsIGE6IGFyYzQuVUludDY0LCBiOiBhcmM0LlVJbnQ2NCkgLT4gYXJjNC5VSW50NjQ6CiAgICBwcm90byAyIDEKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6NwogICAgLy8gcmV0dXJuIGFyYzQuVUludDY0KGEubmF0aXZlICsgYi5uYXRpdmUpCiAgICBmcmFtZV9kaWcgLTIKICAgIGJ0b2kKICAgIGZyYW1lX2RpZyAtMQogICAgYnRvaQogICAgKwogICAgaXRvYgogICAgcmV0c3ViCgoKLy8gZXhhbXBsZXMuc21hcnRfY29udHJhY3RzLm5lc3RlZC5jb250cmFjdC5OZXN0ZWQuZ2V0X3BheV90eG5fYW1vdW50KHBheV90eG46IHVpbnQ2NCkgLT4gYnl0ZXM6CmdldF9wYXlfdHhuX2Ftb3VudDoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6OS0xMAogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgZ2V0X3BheV90eG5fYW1vdW50KHNlbGYsIHBheV90eG46IGd0eG4uUGF5bWVudFRyYW5zYWN0aW9uKSAtPiBhcmM0LlVJbnQ2NDoKICAgIHByb3RvIDEgMQogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL25lc3RlZC9jb250cmFjdC5weToxMQogICAgLy8gcmV0dXJuIGFyYzQuVUludDY0KHBheV90eG4uYW1vdW50KQogICAgZnJhbWVfZGlnIC0xCiAgICBndHhucyBBbW91bnQKICAgIGl0b2IKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5uZXN0ZWQuY29udHJhY3QuTmVzdGVkLm5lc3RlZF9tZXRob2RfY2FsbChfOiBieXRlcywgX3BheV90eG46IHVpbnQ2NCwgbWV0aG9kX2NhbGw6IHVpbnQ2NCkgLT4gYnl0ZXM6Cm5lc3RlZF9tZXRob2RfY2FsbDoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6MTMtMTkKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIG5lc3RlZF9tZXRob2RfY2FsbCgKICAgIC8vICAgICBzZWxmLAogICAgLy8gICAgIF86IGFyYzQuU3RyaW5nLAogICAgLy8gICAgIF9wYXlfdHhuOiBndHhuLlBheW1lbnRUcmFuc2FjdGlvbiwKICAgIC8vICAgICBtZXRob2RfY2FsbDogZ3R4bi5BcHBsaWNhdGlvbkNhbGxUcmFuc2FjdGlvbiwKICAgIC8vICkgLT4gYXJjNC5EeW5hbWljQnl0ZXM6CiAgICBwcm90byAzIDEKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9uZXN0ZWQvY29udHJhY3QucHk6MjAKICAgIC8vIHJldHVybiBhcmM0LkR5bmFtaWNCeXRlcyhtZXRob2RfY2FsbC50eG5faWQpCiAgICBmcmFtZV9kaWcgLTEKICAgIGd0eG5zIFR4SUQKICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICByZXRzdWIK","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"byteCode":{"approval":"CiABASYBBBUffHUxG0EAeIIDBP5r32kEn9g1+AQ0rzlCNhoAjgMARgAsAAOBAEMxGRREMRhENhoBMRaBAglJOBAiEkQxFiIJSTgQgQYSRIgAVihMULAiQzEZFEQxGEQxFiIJSTgQIhJEiAAzKExQsCJDMRkURDEYRDYaATYaAogAEShMULAiQzEZQP+fMRgURCJDigIBi/4Xi/8XCBaJigEBi/84CBaJigMBi/84F0kVFlcGAkxQiQ==","clear":"CoEBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
@@ -159,7 +150,7 @@ export type MethodReturn<TSignature extends NestedSignatures> = NestedTypes['met
  * Defines supported create method params for this smart contract
  */
 export type NestedCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
 /**
  * Defines arguments required for the deploy method.
  */
@@ -306,7 +297,7 @@ export class NestedFactory {
        * @param params The params for the bare (raw) call
        * @returns The params for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
         return this.appFactory.params.bare.create(params)
       },
     },
@@ -327,7 +318,7 @@ export class NestedFactory {
        * @param params The params for the bare (raw) call
        * @returns The transaction for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
         return this.appFactory.createTransaction.bare.create(params)
       },
     },
@@ -348,7 +339,7 @@ export class NestedFactory {
        * @param params The params for the bare (raw) call
        * @returns The create result
        */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
+      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }>) => {
         const result = await this.appFactory.send.bare.create(params)
         return { result: result.result, appClient: new NestedClient(result.appClient) }
       },
@@ -383,14 +374,6 @@ export class NestedClient {
       ...appClientOrParams,
       appSpec: APP_SPEC,
     })
-  }
-
-  /**
-   * Checks for decode errors on the given return value and maps the return value to the return type for the given method
-   * @returns The typed return value or undefined if there was no value
-   */
-  decodeReturnValue<TSignature extends NestedNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
-    return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
   }
 
   /**
@@ -460,7 +443,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    add: (params: CallParams<NestedArgs['obj']['add(uint64,uint64)uint64'] | NestedArgs['tuple']['add(uint64,uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    add: (params: CallParams<NestedArgs['obj']['add(uint64,uint64)uint64'] | NestedArgs['tuple']['add(uint64,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(NestedParamsFactory.add(params))
     },
 
@@ -470,7 +453,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    getPayTxnAmount: (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    getPayTxnAmount: (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(NestedParamsFactory.getPayTxnAmount(params))
     },
 
@@ -480,7 +463,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    nestedMethodCall: (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    nestedMethodCall: (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(NestedParamsFactory.nestedMethodCall(params))
     },
 
@@ -506,7 +489,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    add: (params: CallParams<NestedArgs['obj']['add(uint64,uint64)uint64'] | NestedArgs['tuple']['add(uint64,uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    add: (params: CallParams<NestedArgs['obj']['add(uint64,uint64)uint64'] | NestedArgs['tuple']['add(uint64,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(NestedParamsFactory.add(params))
     },
 
@@ -516,7 +499,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    getPayTxnAmount: (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    getPayTxnAmount: (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(NestedParamsFactory.getPayTxnAmount(params))
     },
 
@@ -526,7 +509,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    nestedMethodCall: (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    nestedMethodCall: (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(NestedParamsFactory.nestedMethodCall(params))
     },
 
@@ -552,7 +535,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    add: async (params: CallParams<NestedArgs['obj']['add(uint64,uint64)uint64'] | NestedArgs['tuple']['add(uint64,uint64)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    add: async (params: CallParams<NestedArgs['obj']['add(uint64,uint64)uint64'] | NestedArgs['tuple']['add(uint64,uint64)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(NestedParamsFactory.add(params))
       return {...result, return: result.return as unknown as (undefined | NestedReturns['add(uint64,uint64)uint64'])}
     },
@@ -563,7 +546,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getPayTxnAmount: async (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    getPayTxnAmount: async (params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(NestedParamsFactory.getPayTxnAmount(params))
       return {...result, return: result.return as unknown as (undefined | NestedReturns['get_pay_txn_amount(pay)uint64'])}
     },
@@ -574,7 +557,7 @@ export class NestedClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    nestedMethodCall: async (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    nestedMethodCall: async (params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(NestedParamsFactory.nestedMethodCall(params))
       return {...result, return: result.return as unknown as (undefined | NestedReturns['nested_method_call(string,pay,appl)byte[]'])}
     },
@@ -584,7 +567,7 @@ export class NestedClient {
   /**
    * Clone this app client with different params
    *
-   * @param params The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
+   * @param params The params to use for the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.
    * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
@@ -601,30 +584,26 @@ export class NestedClient {
     const client = this
     const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
-    const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
        * Add a add(uint64,uint64)uint64 method call against the Nested contract
        */
-      add(params: CallParams<NestedArgs['obj']['add(uint64,uint64)uint64'] | NestedArgs['tuple']['add(uint64,uint64)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      add(params: CallParams<NestedArgs['obj']['add(uint64,uint64)uint64'] | NestedArgs['tuple']['add(uint64,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.add(params)))
-        resultMappers.push((v) => client.decodeReturnValue('add(uint64,uint64)uint64', v))
         return this
       },
       /**
        * Add a get_pay_txn_amount(pay)uint64 method call against the Nested contract
        */
-      getPayTxnAmount(params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      getPayTxnAmount(params: CallParams<NestedArgs['obj']['get_pay_txn_amount(pay)uint64'] | NestedArgs['tuple']['get_pay_txn_amount(pay)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getPayTxnAmount(params)))
-        resultMappers.push((v) => client.decodeReturnValue('get_pay_txn_amount(pay)uint64', v))
         return this
       },
       /**
        * Add a nested_method_call(string,pay,appl)byte[] method call against the Nested contract
        */
-      nestedMethodCall(params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      nestedMethodCall(params: CallParams<NestedArgs['obj']['nested_method_call(string,pay,appl)byte[]'] | NestedArgs['tuple']['nested_method_call(string,pay,appl)byte[]']> & { onComplete?: OnApplicationComplete.NoOp }) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.nestedMethodCall(params)))
-        resultMappers.push((v) => client.decodeReturnValue('nested_method_call(string,pay,appl)byte[]', v))
         return this
       },
       /**
@@ -647,7 +626,7 @@ export class NestedClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
+          returns: result.returns?.map(val => val.returnValue)
         }
       },
       async send(params?: SendParams) {
@@ -655,7 +634,7 @@ export class NestedClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
+          returns: result.returns?.map(val => val.returnValue)
         }
       }
     } as unknown as NestedComposer
@@ -665,7 +644,6 @@ export type NestedComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the add(uint64,uint64)uint64 ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -674,7 +652,6 @@ export type NestedComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the get_pay_txn_amount(pay)uint64 ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -683,7 +660,6 @@ export type NestedComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the nested_method_call(string,pay,appl)byte[] ABI method.
    *
-   * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
@@ -692,7 +668,7 @@ export type NestedComposer<TReturns extends [...any[]] = []> = {
   /**
    * Makes a clear_state call to an existing instance of the Nested smart contract.
    *
-   * @param args The arguments for the bare call
+   * @param params Any additional parameters for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
   clearState(params?: AppClientBareCallParams): NestedComposer<[...TReturns, undefined]>
@@ -711,15 +687,15 @@ export type NestedComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<NestedComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<NestedComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<NestedComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(): Promise<NestedComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<NestedComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<NestedComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
   send(params?: SendParams): Promise<NestedComposerResults<TReturns>>
 }
-export type NestedComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+export type NestedComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
   returns: TReturns
 }>
 

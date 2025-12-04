@@ -33,7 +33,7 @@ import * as zeroCouponBondFull from '../../examples/smart_contracts/artifacts/ze
 import * as zeroCouponBondMinimal from '../../examples/smart_contracts/artifacts/zero_coupon_bond/client.minimal'
 import * as voidFull from '../../examples/smart_contracts/artifacts/void/client'
 import * as voidMinimal from '../../examples/smart_contracts/artifacts/void/client.minimal'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
 const writeActual = process.env.TEST_ENV !== 'ci'
