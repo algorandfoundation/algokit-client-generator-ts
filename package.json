@@ -43,7 +43,6 @@
     "test:ci": "TEST_ENV=ci vitest run --coverage",
     "update-approvals": "tsx scripts/update-approvals.ts",
     "contract-build": "poetry run python -m examples",
-    "postinstall": "npx --yes patch-package",
     "pre-commit": "npm run lint:fix && npm run test && npm run audit && npm run build"
   },
   "bin": {
@@ -59,17 +58,15 @@
     "jsonschema": "^1.5.0"
   },
   "peerDependencies": {
-    "@algorandfoundation/algokit-utils": "^9.0.0",
-    "algosdk": "^3.2.0"
+    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.20"
   },
   "devDependencies": {
-    "@algorandfoundation/algokit-utils": "^9.0.0",
+    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.20",
     "@algorandfoundation/tealscript": "^0.107.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.32.0",
     "@makerx/prettier-config": "^2.0.1",
-    "@makerx/ts-config": "^1.0.1",
     "@noble/ed25519": "^2.3.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",

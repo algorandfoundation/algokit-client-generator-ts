@@ -1,7 +1,6 @@
-import { CallConfigSummary, getCallConfigSummary } from './helpers/get-call-config-summary'
 import { getSanitizer, Sanitizer } from '../util/sanitization'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { ABIMethod } from 'algosdk'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { AppClientContext, createAppClientContext } from './app-client-context'
 
 const GenerateMode = {
   FULL: 'full',
@@ -11,10 +10,8 @@ export type GenerateMode = (typeof GenerateMode)[keyof typeof GenerateMode]
 export const generateModes = Object.values(GenerateMode)
 
 export type GeneratorContext = {
-  app: Arc56Contract
   name: string
-  callConfig: CallConfigSummary
-  methodSignatureToUniqueName: Record<string, string>
+  app: AppClientContext
   sanitizer: Sanitizer
   mode: GenerateMode
 }
@@ -26,19 +23,11 @@ export type GeneratorOptions = {
 
 export const createGeneratorContext = (app: Arc56Contract, options: GeneratorOptions): GeneratorContext => {
   const sanitizer = getSanitizer(options)
+  const appCtx = createAppClientContext(app, sanitizer)
   return {
     sanitizer,
-    app,
-    name: sanitizer.makeSafeTypeIdentifier(app.name),
-    callConfig: getCallConfigSummary(app),
-    methodSignatureToUniqueName: app.methods.reduce(
-      (acc, cur) => {
-        const signature = new ABIMethod(cur).getSignature()
-        acc[signature] = app.methods.some((m) => m.name === cur.name && m !== cur) ? signature : cur.name
-        return acc
-      },
-      {} as Record<string, string>,
-    ),
+    name: appCtx.name.makeSafeTypeIdentifier,
+    app: appCtx,
     mode: options.mode,
   }
 }

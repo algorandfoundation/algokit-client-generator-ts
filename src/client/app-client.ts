@@ -1,12 +1,8 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, jsDoc, NewLine } from '../output/writer'
-import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
 import { GeneratorContext } from './generator-context'
-import { getCallOnCompleteOptions, getCreateOnCompleteOptions } from './deploy-types'
 import { composeMethod } from './call-composer'
-import { ABIMethod } from 'algosdk'
-import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { getEquivalentType } from './helpers/get-equivalent-type'
-import { containsNonVoidMethod } from './helpers/contains-non-void-method'
+
+import { AppClientMethodContext, AbiMethodClientContext, isAbiMethod } from './app-client-context'
 
 export function* appClient(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
@@ -37,17 +33,6 @@ export function* appClient(ctx: GeneratorContext): DocumentParts {
         appSpec: APP_SPEC,
       })
     }`
-
-  if (containsNonVoidMethod(app.methods)) {
-    yield `
-    /**
-     * Checks for decode errors on the given return value and maps the return value to the return type for the given method
-     * @returns The typed return value or undefined if there was no value
-     */
-    decodeReturnValue<TSignature extends ${name}NonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
-      return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
-    }`
-  }
 
   yield `
     /**
@@ -148,30 +133,17 @@ function* send(ctx: GeneratorContext): DocumentParts {
 }
 
 function* opMethods(ctx: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
-  const { app, callConfig } = ctx
+  const { app } = ctx
 
   if (ctx.mode === 'full') {
-    yield* operationMethods(
-      ctx,
-      `Updates an existing instance of the ${app.name} smart contract`,
-      callConfig.updateMethods,
-      'update',
-      type,
-      true,
-    )
-    yield* operationMethods(ctx, `Deletes an existing instance of the ${app.name} smart contract`, callConfig.deleteMethods, 'delete', type)
+    yield* operationMethods(ctx, `Updates an existing instance of the ${app.name} smart contract`, app.updateMethods, 'update', type, true)
+    yield* operationMethods(ctx, `Deletes an existing instance of the ${app.name} smart contract`, app.deleteMethods, 'delete', type)
   }
-  yield* operationMethods(
-    ctx,
-    `Opts the user into an existing instance of the ${app.name} smart contract`,
-    callConfig.optInMethods,
-    'optIn',
-    type,
-  )
+  yield* operationMethods(ctx, `Opts the user into an existing instance of the ${app.name} smart contract`, app.optInMethods, 'optIn', type)
   yield* operationMethods(
     ctx,
     `Makes a close out call to an existing instance of the ${app.name} smart contract`,
-    callConfig.closeOutMethods,
+    app.closeOutMethods,
     'closeOut',
     type,
   )
@@ -193,7 +165,7 @@ function* bareMethodCall({
   includeCompilation?: boolean
 }): DocumentParts {
   const onComplete =
-    verb === 'create' ? getCreateOnCompleteOptions(BARE_CALL, app) : verb === 'call' ? getCallOnCompleteOptions(BARE_CALL, app) : undefined
+    verb === 'create' ? app.bareMethod.createActions.inputType : verb === 'call' ? app.bareMethod.callActions.inputType : undefined
   yield* jsDoc({
     description: `${description}.`,
     params: {
@@ -203,13 +175,13 @@ function* bareMethodCall({
   })
   yield `${name}: (params?: Expand<AppClientBareCallParams${includeCompilation ? ' & AppClientCompilationParams' : ''}${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) => {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.typeLiteral ? ` & ${onComplete.typeLiteral}` : ''}>) => {`
   yield* indent(`return this.appClient.${type}.bare.${verb}(params)`)
   yield '},'
 }
 
 function* abiMethodCall({
-  generator: { app, methodSignatureToUniqueName, name, sanitizer },
+  generator: { sanitizer, name },
   method,
   description,
   verb,
@@ -218,21 +190,16 @@ function* abiMethodCall({
   readonly,
 }: {
   generator: GeneratorContext
-  method: Method
+  method: AbiMethodClientContext
   description: string
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete' | 'call'
   type: 'params' | 'createTransaction' | 'send'
   includeCompilation?: boolean
   readonly?: boolean
 }) {
-  const methodSig = new ABIMethod(method).getSignature()
-  const uniqueName = methodSignatureToUniqueName[methodSig]
-  const onComplete =
-    verb === 'create'
-      ? getCreateOnCompleteOptions(methodSig, app)
-      : verb === 'call' && !readonly
-        ? getCallOnCompleteOptions(methodSig, app)
-        : undefined
+  const methodSig = method.signature
+  const uniqueName = method.uniqueName.original
+  const onComplete = verb === 'create' ? method.createActions.inputType : method.callActions.inputType
   yield* jsDoc({
     description:
       verb === 'call' && method.readonly
@@ -255,7 +222,7 @@ function* abiMethodCall({
     includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
   }${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' && !readonly ? ' & SendParams' : ''}${onComplete?.type && !readonly ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''})${!readonly ? ' =>' : ''} {`
+  }${type === 'send' && !readonly ? ' & SendParams' : ''}${onComplete?.typeLiteral && !readonly ? ` & ${onComplete.typeLiteral}` : ''}${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''})${!readonly ? ' =>' : ''} {`
   if (type === 'send') {
     yield* indent(
       `const result = await this.appClient.${type}.${verb}(${name}ParamsFactory${verb !== 'call' ? `.${verb}` : ''}${methodNameAccessor}(params))`,
@@ -275,7 +242,7 @@ function* abiMethodCall({
 function* operationMethods(
   generator: GeneratorContext,
   description: string,
-  methods: MethodList,
+  methods: AppClientMethodContext[],
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
   type: 'params' | 'createTransaction' | 'send',
   includeCompilation?: boolean,
@@ -284,8 +251,8 @@ function* operationMethods(
     yield* jsDoc(`Gets available ${verb} methods`)
     yield `${verb}: {`
     yield IncIndent
-    for (const methodSig of methods) {
-      if (methodSig === BARE_CALL) {
+    for (const method of methods) {
+      if (!isAbiMethod(method)) {
         yield* bareMethodCall({
           generator,
           name: 'bare',
@@ -295,7 +262,6 @@ function* operationMethods(
           includeCompilation,
         })
       } else {
-        const method = generator.app.methods.find((m) => new ABIMethod(m).getSignature() === methodSig)!
         yield* abiMethodCall({
           generator,
           method,
@@ -324,7 +290,7 @@ function* clearState(generator: GeneratorContext, type: 'params' | 'createTransa
 }
 
 function* call(generator: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
-  if (generator.callConfig.callMethods.includes(BARE_CALL)) {
+  if (generator.app.bareMethod.callActions.noOp) {
     yield* bareMethodCall({
       generator,
       name: 'bare',
@@ -337,11 +303,10 @@ function* call(generator: GeneratorContext, type: 'params' | 'createTransaction'
 }
 
 function* readonlyMethods(generator: GeneratorContext): DocumentParts {
-  const { app, callConfig } = generator
-  for (const method of app.methods) {
-    const methodSignature = new ABIMethod(method).getSignature()
+  const { app } = generator
+  for (const method of app.abiMethods) {
     // Skip non readonly methods
-    if (!callConfig.callMethods.includes(methodSignature) || !method.readonly) continue
+    if (!method.readonly) continue
 
     yield* abiMethodCall({
       generator,
@@ -356,12 +321,9 @@ function* readonlyMethods(generator: GeneratorContext): DocumentParts {
 }
 
 function* noopMethods(generator: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
-  const { app, callConfig } = generator
-  for (const method of app.methods) {
-    const methodSignature = new ABIMethod(method).getSignature()
-    // Skip methods which don't support a no_op call config
-    if (!callConfig.callMethods.includes(methodSignature)) continue
-
+  const { app } = generator
+  for (const method of app.noOpMethods) {
+    if (!isAbiMethod(method)) continue
     yield* abiMethodCall({
       generator,
       description: `Makes a call to the ${generator.app.name} smart contract`,
@@ -402,7 +364,7 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
       `const result = await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getAll()`,
       `return {`,
       ...Object.keys(app.state.keys[storageType]).map((n) => {
-        return `  ${sanitizer.makeSafePropertyIdentifier(n)}: ${app.state.keys[storageType][n].valueType === 'AVMBytes' ? `new BinaryStateValue(result${sanitizer.getSafeMemberAccessor(n)})` : `result${sanitizer.getSafeMemberAccessor(n)}`},`
+        return `  ${sanitizer.makeSafePropertyIdentifier(n)}: ${app.state.keys[storageType][n].valueType.isAvmBytes ? `new BinaryStateValue(result${sanitizer.getSafeMemberAccessor(n)})` : `result${sanitizer.getSafeMemberAccessor(n)}`},`
       }),
       `}`,
     )
@@ -412,7 +374,7 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
       const name = sanitizer.makeSafePropertyIdentifier(n)
       const k = app.state.keys[storageType][n]
       yield* jsDoc(`Get the current value of the ${n} key in ${storageType} state`)
-      yield `${name}: async (): Promise<${k.valueType === 'AVMBytes' ? 'BinaryState' : `${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`}> => { return ${k.valueType === 'AVMBytes' ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getValue("${sanitizer.makeSafeStringTypeLiteral(n)}"))${k.valueType === 'AVMBytes' ? ' as Uint8Array | undefined)' : ` as ${getEquivalentType(k.valueType, 'output', { app, sanitizer })} | undefined`} },`
+      yield `${name}: async (): Promise<${k.valueType.isAvmBytes ? 'BinaryState' : `${k.valueType.tsOutType} | undefined`}> => { return ${k.valueType.isAvmBytes ? 'new BinaryStateValue(' : ''}(await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getValue("${sanitizer.makeSafeStringTypeLiteral(n)}"))${k.valueType.isAvmBytes ? ' as Uint8Array | undefined)' : ` as ${k.valueType.tsOutType} | undefined`} },`
     }
 
     for (const n of Object.keys(app.state.maps[storageType])) {
@@ -423,10 +385,10 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
       yield IncIndent
 
       yield* jsDoc(`Get all current values of the ${n} map in ${storageType} state`)
-      yield `getMap: async (): Promise<Map<${getEquivalentType(m.keyType, 'output', { app, sanitizer })}, ${getEquivalentType(m.valueType, 'output', { app, sanitizer })}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${getEquivalentType(m.keyType, 'output', { app, sanitizer })}, ${getEquivalentType(m.valueType, 'output', { app, sanitizer })}> },`
+      yield `getMap: async (): Promise<Map<${m.keyType.tsOutType}, ${m.valueType.tsOutType}>> => { return (await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getMap("${sanitizer.makeSafeStringTypeLiteral(n)}")) as Map<${m.keyType.tsOutType}, ${m.valueType.tsOutType}> },`
 
       yield* jsDoc(`Get a current value of the ${n} map by key from ${storageType} state`)
-      yield `value: async (key: ${getEquivalentType(m.keyType, 'input', { app, sanitizer })}): Promise<${getEquivalentType(m.valueType, 'output', { app, sanitizer })} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${getEquivalentType(m.valueType, 'output', { app, sanitizer })} | undefined },`
+      yield `value: async (key: ${m.keyType.tsInType}): Promise<${m.valueType.tsOutType} | undefined> => { return await this.appClient.state.${storageType}${storageType === 'local' ? '(encodedAddress)' : ''}.getMapValue("${sanitizer.makeSafeStringTypeLiteral(n)}", key) as ${m.valueType.tsOutType} | undefined },`
 
       yield DecIndent
       yield `},`
@@ -444,18 +406,18 @@ function* getStateMethods({ app, sanitizer }: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-function* cloneMethod({ name }: GeneratorContext): DocumentParts {
+function* cloneMethod({ app }: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Clone this app client with different params',
     params: {
       params:
-        'The params to use for the the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.',
+        'The params to use for the cloned app client. Omit a param to keep the original value. Set a param to override the original value. Setting to undefined will clear the original value.',
     },
     returns: 'A new app client with the altered params',
   })
   yield `public clone(params: CloneAppClientParams) {`
   yield IncIndent
-  yield `return new ${name}Client(this.appClient.clone(params))`
+  yield `return new ${app.name.makeSafeTypeIdentifier}Client(this.appClient.clone(params))`
   yield DecIndentAndCloseBlock
   yield NewLine
 }
