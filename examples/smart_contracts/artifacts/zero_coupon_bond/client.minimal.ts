@@ -381,21 +381,33 @@ export type ZeroCouponBondTypes = {
     & Record<'asset_transfer(address,address,uint64)uint64' | 'asset_transfer', {
       argsObj: ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64']
       argsTuple: ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']
+      /**
+       * Transferred actualized value in denomination asset
+       */
       returns: ZeroCouponBondReturns['asset_transfer(address,address,uint64)uint64']
     }>
     & Record<'pay_principal(address,byte[])(uint64,uint64,byte[])' | 'pay_principal', {
       argsObj: ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
       argsTuple: ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+      /**
+       * Paid amount in denomination asset, Payment timestamp, Payment context
+       */
       returns: ZeroCouponBondReturns['pay_principal(address,byte[])(uint64,uint64,byte[])']
     }>
     & Record<'get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))' | 'get_account_units_current_value', {
       argsObj: ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
       argsTuple: ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+      /**
+       * Units current value in denomination asset, Accrued interest in denomination asset
+       */
       returns: ZeroCouponBondReturns['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
     }>
     & Record<'get_payment_amount(address)(uint64,uint64)' | 'get_payment_amount', {
       argsObj: ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
       argsTuple: ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+      /**
+       * Interest amount in denomination asset, Principal amount in denomination asset
+       */
       returns: ZeroCouponBondReturns['get_payment_amount(address)(uint64,uint64)']
     }>
     & Record<'asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void' | 'asset_create', {
@@ -411,41 +423,65 @@ export type ZeroCouponBondTypes = {
     & Record<'set_secondary_time_events(uint64[])(uint64,uint64)' | 'set_secondary_time_events', {
       argsObj: ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
       argsTuple: ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
+      /**
+       * Secondary Market Opening Date, Secondary Market Closure Date
+       */
       returns: ZeroCouponBondReturns['set_secondary_time_events(uint64[])(uint64,uint64)']
     }>
     & Record<'assign_role(address,uint8,byte[])uint64' | 'assign_role', {
       argsObj: ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
       argsTuple: ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
+      /**
+       * Timestamp of the role assignment
+       */
       returns: ZeroCouponBondReturns['assign_role(address,uint8,byte[])uint64']
     }>
     & Record<'revoke_role(address,uint8)uint64' | 'revoke_role', {
       argsObj: ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64']
       argsTuple: ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
+      /**
+       * Timestamp of the role revocation
+       */
       returns: ZeroCouponBondReturns['revoke_role(address,uint8)uint64']
     }>
     & Record<'open_account(address,address)uint64' | 'open_account', {
       argsObj: ZeroCouponBondArgs['obj']['open_account(address,address)uint64']
       argsTuple: ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
+      /**
+       * Timestamp of the account opening
+       */
       returns: ZeroCouponBondReturns['open_account(address,address)uint64']
     }>
     & Record<'close_account(address)(uint64,uint64)' | 'close_account', {
       argsObj: ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
       argsTuple: ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
+      /**
+       * Closed units, Timestamp of the account closing
+       */
       returns: ZeroCouponBondReturns['close_account(address)(uint64,uint64)']
     }>
     & Record<'primary_distribution(address,uint64)uint64' | 'primary_distribution', {
       argsObj: ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
       argsTuple: ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
+      /**
+       * Remaining D-ASA units to be distributed
+       */
       returns: ZeroCouponBondReturns['primary_distribution(address,uint64)uint64']
     }>
     & Record<'set_asset_suspension(bool)uint64' | 'set_asset_suspension', {
       argsObj: ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64']
       argsTuple: ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
+      /**
+       * Timestamp of the set asset suspension status
+       */
       returns: ZeroCouponBondReturns['set_asset_suspension(bool)uint64']
     }>
     & Record<'set_account_suspension(address,bool)uint64' | 'set_account_suspension', {
       argsObj: ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
       argsTuple: ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
+      /**
+       * Timestamp of the set account suspension status
+       */
       returns: ZeroCouponBondReturns['set_account_suspension(address,bool)uint64']
     }>
     & Record<'set_default_status(bool)void' | 'set_default_status', {
@@ -456,26 +492,41 @@ export type ZeroCouponBondTypes = {
     & Record<'get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)' | 'get_asset_info', {
       argsObj: ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
       argsTuple: ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+      /**
+       * Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
+       */
       returns: ZeroCouponBondReturns['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
     }>
     & Record<'get_account_info(address)(address,uint64,uint64,uint64,bool)' | 'get_account_info', {
       argsObj: ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
       argsTuple: ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+      /**
+       * Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
+       */
       returns: ZeroCouponBondReturns['get_account_info(address)(address,uint64,uint64,uint64,bool)']
     }>
     & Record<'get_time_events()uint64[]' | 'get_time_events', {
       argsObj: ZeroCouponBondArgs['obj']['get_time_events()uint64[]']
       argsTuple: ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']
+      /**
+       * Time events
+       */
       returns: ZeroCouponBondReturns['get_time_events()uint64[]']
     }>
     & Record<'get_secondary_market_schedule()uint64[]' | 'get_secondary_market_schedule', {
       argsObj: ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
       argsTuple: ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+      /**
+       * Secondary market schedule
+       */
       returns: ZeroCouponBondReturns['get_secondary_market_schedule()uint64[]']
     }>
     & Record<'get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)' | 'get_asset_metadata', {
       argsObj: ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
       argsTuple: ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+      /**
+       * Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
+       */
       returns: ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
     }>
   /**
@@ -949,7 +1000,7 @@ export class ZeroCouponBondClient {
      * Transfer D-ASA units between accounts
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Transferred actualized value in denomination asset
      */
     assetTransfer: (params: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.assetTransfer(params))
@@ -961,7 +1012,7 @@ export class ZeroCouponBondClient {
      * Pay the outstanding principal and interest to an account
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Paid amount in denomination asset, Payment timestamp, Payment context
      */
     payPrincipal: (params: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.payPrincipal(params))
@@ -975,7 +1026,7 @@ export class ZeroCouponBondClient {
      * Get account's units current value and accrued interest
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Units current value in denomination asset, Accrued interest in denomination asset
      */
     getAccountUnitsCurrentValue: (params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getAccountUnitsCurrentValue(params))
@@ -989,7 +1040,7 @@ export class ZeroCouponBondClient {
      * Get the next payment amount
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Interest amount in denomination asset, Principal amount in denomination asset
      */
     getPaymentAmount: (params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getPaymentAmount(params))
@@ -1013,7 +1064,7 @@ export class ZeroCouponBondClient {
      * Set secondary market time schedule
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Secondary Market Opening Date, Secondary Market Closure Date
      */
     setSecondaryTimeEvents: (params: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.setSecondaryTimeEvents(params))
@@ -1025,7 +1076,7 @@ export class ZeroCouponBondClient {
      * Assign a role to an address
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Timestamp of the role assignment
      */
     assignRole: (params: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.assignRole(params))
@@ -1037,7 +1088,7 @@ export class ZeroCouponBondClient {
      * Revoke a role from an address
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Timestamp of the role revocation
      */
     revokeRole: (params: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.revokeRole(params))
@@ -1049,7 +1100,7 @@ export class ZeroCouponBondClient {
      * Open D-ASA account
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Timestamp of the account opening
      */
     openAccount: (params: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.openAccount(params))
@@ -1061,7 +1112,7 @@ export class ZeroCouponBondClient {
      * Close D-ASA account
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Closed units, Timestamp of the account closing
      */
     closeAccount: (params: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.closeAccount(params))
@@ -1073,7 +1124,7 @@ export class ZeroCouponBondClient {
      * Distribute D-ASA units to accounts according the primary market
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Remaining D-ASA units to be distributed
      */
     primaryDistribution: (params: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.primaryDistribution(params))
@@ -1085,7 +1136,7 @@ export class ZeroCouponBondClient {
      * Set asset suspension status
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Timestamp of the set asset suspension status
      */
     setAssetSuspension: (params: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.setAssetSuspension(params))
@@ -1097,7 +1148,7 @@ export class ZeroCouponBondClient {
      * Set account suspension status
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Timestamp of the set account suspension status
      */
     setAccountSuspension: (params: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.setAccountSuspension(params))
@@ -1123,7 +1174,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA info
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
      */
     getAssetInfo: (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getAssetInfo(params))
@@ -1137,7 +1188,7 @@ export class ZeroCouponBondClient {
      * Get account info
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
      */
     getAccountInfo: (params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getAccountInfo(params))
@@ -1151,7 +1202,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA time events
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Time events
      */
     getTimeEvents: (params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getTimeEvents(params))
@@ -1165,7 +1216,7 @@ export class ZeroCouponBondClient {
      * Get secondary market schedule
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Secondary market schedule
      */
     getSecondaryMarketSchedule: (params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getSecondaryMarketSchedule(params))
@@ -1179,7 +1230,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA metadata
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
      */
     getAssetMetadata: (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getAssetMetadata(params))
@@ -1207,7 +1258,7 @@ export class ZeroCouponBondClient {
      * Transfer D-ASA units between accounts
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Transferred actualized value in denomination asset
      */
     assetTransfer: (params: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.assetTransfer(params))
@@ -1219,7 +1270,7 @@ export class ZeroCouponBondClient {
      * Pay the outstanding principal and interest to an account
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Paid amount in denomination asset, Payment timestamp, Payment context
      */
     payPrincipal: (params: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.payPrincipal(params))
@@ -1233,7 +1284,7 @@ export class ZeroCouponBondClient {
      * Get account's units current value and accrued interest
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Units current value in denomination asset, Accrued interest in denomination asset
      */
     getAccountUnitsCurrentValue: (params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getAccountUnitsCurrentValue(params))
@@ -1247,7 +1298,7 @@ export class ZeroCouponBondClient {
      * Get the next payment amount
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Interest amount in denomination asset, Principal amount in denomination asset
      */
     getPaymentAmount: (params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getPaymentAmount(params))
@@ -1271,7 +1322,7 @@ export class ZeroCouponBondClient {
      * Set secondary market time schedule
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Secondary Market Opening Date, Secondary Market Closure Date
      */
     setSecondaryTimeEvents: (params: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.setSecondaryTimeEvents(params))
@@ -1283,7 +1334,7 @@ export class ZeroCouponBondClient {
      * Assign a role to an address
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Timestamp of the role assignment
      */
     assignRole: (params: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.assignRole(params))
@@ -1295,7 +1346,7 @@ export class ZeroCouponBondClient {
      * Revoke a role from an address
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Timestamp of the role revocation
      */
     revokeRole: (params: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.revokeRole(params))
@@ -1307,7 +1358,7 @@ export class ZeroCouponBondClient {
      * Open D-ASA account
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Timestamp of the account opening
      */
     openAccount: (params: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.openAccount(params))
@@ -1319,7 +1370,7 @@ export class ZeroCouponBondClient {
      * Close D-ASA account
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Closed units, Timestamp of the account closing
      */
     closeAccount: (params: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.closeAccount(params))
@@ -1331,7 +1382,7 @@ export class ZeroCouponBondClient {
      * Distribute D-ASA units to accounts according the primary market
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Remaining D-ASA units to be distributed
      */
     primaryDistribution: (params: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.primaryDistribution(params))
@@ -1343,7 +1394,7 @@ export class ZeroCouponBondClient {
      * Set asset suspension status
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Timestamp of the set asset suspension status
      */
     setAssetSuspension: (params: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.setAssetSuspension(params))
@@ -1355,7 +1406,7 @@ export class ZeroCouponBondClient {
      * Set account suspension status
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Timestamp of the set account suspension status
      */
     setAccountSuspension: (params: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.setAccountSuspension(params))
@@ -1381,7 +1432,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA info
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
      */
     getAssetInfo: (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getAssetInfo(params))
@@ -1395,7 +1446,7 @@ export class ZeroCouponBondClient {
      * Get account info
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
      */
     getAccountInfo: (params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getAccountInfo(params))
@@ -1409,7 +1460,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA time events
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Time events
      */
     getTimeEvents: (params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getTimeEvents(params))
@@ -1423,7 +1474,7 @@ export class ZeroCouponBondClient {
      * Get secondary market schedule
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Secondary market schedule
      */
     getSecondaryMarketSchedule: (params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getSecondaryMarketSchedule(params))
@@ -1437,7 +1488,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA metadata
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
      */
     getAssetMetadata: (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getAssetMetadata(params))
@@ -1465,7 +1516,7 @@ export class ZeroCouponBondClient {
      * Transfer D-ASA units between accounts
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Transferred actualized value in denomination asset
      */
     assetTransfer: async (params: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.assetTransfer(params))
@@ -1478,7 +1529,7 @@ export class ZeroCouponBondClient {
      * Pay the outstanding principal and interest to an account
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Paid amount in denomination asset, Payment timestamp, Payment context
      */
     payPrincipal: async (params: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.payPrincipal(params))
@@ -1493,7 +1544,7 @@ export class ZeroCouponBondClient {
      * Get account's units current value and accrued interest
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Units current value in denomination asset, Accrued interest in denomination asset
      */
     getAccountUnitsCurrentValue: async (params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAccountUnitsCurrentValue(params))
@@ -1508,7 +1559,7 @@ export class ZeroCouponBondClient {
      * Get the next payment amount
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Interest amount in denomination asset, Principal amount in denomination asset
      */
     getPaymentAmount: async (params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getPaymentAmount(params))
@@ -1534,7 +1585,7 @@ export class ZeroCouponBondClient {
      * Set secondary market time schedule
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Secondary Market Opening Date, Secondary Market Closure Date
      */
     setSecondaryTimeEvents: async (params: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.setSecondaryTimeEvents(params))
@@ -1547,7 +1598,7 @@ export class ZeroCouponBondClient {
      * Assign a role to an address
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Timestamp of the role assignment
      */
     assignRole: async (params: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.assignRole(params))
@@ -1560,7 +1611,7 @@ export class ZeroCouponBondClient {
      * Revoke a role from an address
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Timestamp of the role revocation
      */
     revokeRole: async (params: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.revokeRole(params))
@@ -1573,7 +1624,7 @@ export class ZeroCouponBondClient {
      * Open D-ASA account
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Timestamp of the account opening
      */
     openAccount: async (params: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.openAccount(params))
@@ -1586,7 +1637,7 @@ export class ZeroCouponBondClient {
      * Close D-ASA account
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Closed units, Timestamp of the account closing
      */
     closeAccount: async (params: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.closeAccount(params))
@@ -1599,7 +1650,7 @@ export class ZeroCouponBondClient {
      * Distribute D-ASA units to accounts according the primary market
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Remaining D-ASA units to be distributed
      */
     primaryDistribution: async (params: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.primaryDistribution(params))
@@ -1612,7 +1663,7 @@ export class ZeroCouponBondClient {
      * Set asset suspension status
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Timestamp of the set asset suspension status
      */
     setAssetSuspension: async (params: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.setAssetSuspension(params))
@@ -1625,7 +1676,7 @@ export class ZeroCouponBondClient {
      * Set account suspension status
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Timestamp of the set account suspension status
      */
     setAccountSuspension: async (params: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.setAccountSuspension(params))
@@ -1653,7 +1704,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA info
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
      */
     getAssetInfo: async (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAssetInfo(params))
@@ -1668,7 +1719,7 @@ export class ZeroCouponBondClient {
      * Get account info
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
      */
     getAccountInfo: async (params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAccountInfo(params))
@@ -1683,7 +1734,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA time events
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Time events
      */
     getTimeEvents: async (params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getTimeEvents(params))
@@ -1698,7 +1749,7 @@ export class ZeroCouponBondClient {
      * Get secondary market schedule
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Secondary market schedule
      */
     getSecondaryMarketSchedule: async (params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getSecondaryMarketSchedule(params))
@@ -1713,7 +1764,7 @@ export class ZeroCouponBondClient {
      * Get D-ASA metadata
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
      */
     getAssetMetadata: async (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAssetMetadata(params))
@@ -1740,7 +1791,7 @@ export class ZeroCouponBondClient {
    * Get account's units current value and accrued interest
    *
    * @param params The params for the smart contract call
-   * @returns The call result
+   * @returns The call result: Units current value in denomination asset, Accrued interest in denomination asset
    */
   async getAccountUnitsCurrentValue(params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']>) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAccountUnitsCurrentValue(params))
@@ -1755,7 +1806,7 @@ export class ZeroCouponBondClient {
    * Get the next payment amount
    *
    * @param params The params for the smart contract call
-   * @returns The call result
+   * @returns The call result: Interest amount in denomination asset, Principal amount in denomination asset
    */
   async getPaymentAmount(params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']>) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getPaymentAmount(params))
@@ -1770,7 +1821,7 @@ export class ZeroCouponBondClient {
    * Get D-ASA info
    *
    * @param params The params for the smart contract call
-   * @returns The call result
+   * @returns The call result: Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
    */
   async getAssetInfo(params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> = {args: []}) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAssetInfo(params))
@@ -1785,7 +1836,7 @@ export class ZeroCouponBondClient {
    * Get account info
    *
    * @param params The params for the smart contract call
-   * @returns The call result
+   * @returns The call result: Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
    */
   async getAccountInfo(params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']>) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAccountInfo(params))
@@ -1800,7 +1851,7 @@ export class ZeroCouponBondClient {
    * Get D-ASA time events
    *
    * @param params The params for the smart contract call
-   * @returns The call result
+   * @returns The call result: Time events
    */
   async getTimeEvents(params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> = {args: []}) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getTimeEvents(params))
@@ -1815,7 +1866,7 @@ export class ZeroCouponBondClient {
    * Get secondary market schedule
    *
    * @param params The params for the smart contract call
-   * @returns The call result
+   * @returns The call result: Secondary market schedule
    */
   async getSecondaryMarketSchedule(params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> = {args: []}) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getSecondaryMarketSchedule(params))
@@ -1830,7 +1881,7 @@ export class ZeroCouponBondClient {
    * Get D-ASA metadata
    *
    * @param params The params for the smart contract call
-   * @returns The call result
+   * @returns The call result: Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
    */
   async getAssetMetadata(params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> = {args: []}) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAssetMetadata(params))

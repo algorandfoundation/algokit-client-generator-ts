@@ -618,6 +618,9 @@ export type ValidatorRegistryTypes = {
     & Record<'addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64' | 'addValidator', {
       argsObj: ValidatorRegistryArgs['obj']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64']
       argsTuple: ValidatorRegistryArgs['tuple']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64']
+      /**
+       * uint64 validator id
+       */
       returns: ValidatorRegistryReturns['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64']
     }>
     & Record<'changeValidatorManager(uint64,address)void' | 'changeValidatorManager', {
@@ -648,16 +651,25 @@ export type ValidatorRegistryTypes = {
     & Record<'addPool(pay,uint64,uint64)(uint64,uint64,uint64)' | 'addPool', {
       argsObj: ValidatorRegistryArgs['obj']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)']
       argsTuple: ValidatorRegistryArgs['tuple']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)']
+      /**
+       * ValidatorPoolKey pool key to created pool
+       */
       returns: ValidatorRegistryReturns['addPool(pay,uint64,uint64)(uint64,uint64,uint64)']
     }>
     & Record<'addStake(pay,uint64,uint64)(uint64,uint64,uint64)' | 'addStake', {
       argsObj: ValidatorRegistryArgs['obj']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)']
       argsTuple: ValidatorRegistryArgs['tuple']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)']
+      /**
+       * ValidatorPoolKey - The key of the validator pool.
+       */
       returns: ValidatorRegistryReturns['addStake(pay,uint64,uint64)(uint64,uint64,uint64)']
     }>
     & Record<'setTokenPayoutRatio(uint64)(uint64[24],uint64)' | 'setTokenPayoutRatio', {
       argsObj: ValidatorRegistryArgs['obj']['setTokenPayoutRatio(uint64)(uint64[24],uint64)']
       argsTuple: ValidatorRegistryArgs['tuple']['setTokenPayoutRatio(uint64)(uint64[24],uint64)']
+      /**
+       * PoolTokenPayoutRatio - the finished ratio data
+       */
       returns: ValidatorRegistryReturns['setTokenPayoutRatio(uint64)(uint64[24],uint64)']
     }>
     & Record<'stakeUpdatedViaRewards((uint64,uint64,uint64),uint64,uint64,uint64,uint64)void' | 'stakeUpdatedViaRewards', {
@@ -673,6 +685,11 @@ export type ValidatorRegistryTypes = {
     & Record<'findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)' | 'findPoolForStaker', {
       argsObj: ValidatorRegistryArgs['obj']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']
       argsTuple: ValidatorRegistryArgs['tuple']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']
+      /**
+      * ValidatorPoolKey, boolean, boolean - The pool for the staker, true/false on whether the staker is 'new'
+      to this VALIDATOR, and true/false if staker is new to the protocol.
+
+       */
       returns: ValidatorRegistryReturns['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']
     }>
     & Record<'movePoolToNode(uint64,uint64,uint64)void' | 'movePoolToNode', {
@@ -683,6 +700,9 @@ export type ValidatorRegistryTypes = {
     & Record<'emptyTokenRewards(uint64,address)uint64' | 'emptyTokenRewards', {
       argsObj: ValidatorRegistryArgs['obj']['emptyTokenRewards(uint64,address)uint64']
       argsTuple: ValidatorRegistryArgs['tuple']['emptyTokenRewards(uint64,address)uint64']
+      /**
+       * uint64 the amount of reward token sent
+       */
       returns: ValidatorRegistryReturns['emptyTokenRewards(uint64,address)uint64']
     }>
   /**
@@ -1835,7 +1855,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: uint64 validator id
      */
     addValidator: (params: CallParams<ValidatorRegistryArgs['obj']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64'] | ValidatorRegistryArgs['tuple']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ValidatorRegistryParamsFactory.addValidator(params))
@@ -1922,7 +1942,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: ValidatorPoolKey pool key to created pool
      */
     addPool: (params: CallParams<ValidatorRegistryArgs['obj']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ValidatorRegistryParamsFactory.addPool(params))
@@ -1934,7 +1954,7 @@ export class ValidatorRegistryClient {
      * Adds stake to a validator pool.
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: ValidatorPoolKey - The key of the validator pool.
      */
     addStake: (params: CallParams<ValidatorRegistryArgs['obj']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ValidatorRegistryParamsFactory.addStake(params))
@@ -1957,7 +1977,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: PoolTokenPayoutRatio - the finished ratio data
      */
     setTokenPayoutRatio: (params: CallParams<ValidatorRegistryArgs['obj']['setTokenPayoutRatio(uint64)(uint64[24],uint64)'] | ValidatorRegistryArgs['tuple']['setTokenPayoutRatio(uint64)(uint64[24],uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ValidatorRegistryParamsFactory.setTokenPayoutRatio(params))
@@ -2005,7 +2025,9 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+    * @returns The call params: ValidatorPoolKey, boolean, boolean - The pool for the staker, true/false on whether the staker is 'new'
+    to this VALIDATOR, and true/false if staker is new to the protocol.
+
      */
     findPoolForStaker: (params: CallParams<ValidatorRegistryArgs['obj']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)'] | ValidatorRegistryArgs['tuple']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ValidatorRegistryParamsFactory.findPoolForStaker(params))
@@ -2039,7 +2061,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: uint64 the amount of reward token sent
      */
     emptyTokenRewards: (params: CallParams<ValidatorRegistryArgs['obj']['emptyTokenRewards(uint64,address)uint64'] | ValidatorRegistryArgs['tuple']['emptyTokenRewards(uint64,address)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(ValidatorRegistryParamsFactory.emptyTokenRewards(params))
@@ -2324,7 +2346,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: uint64 validator id
      */
     addValidator: (params: CallParams<ValidatorRegistryArgs['obj']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64'] | ValidatorRegistryArgs['tuple']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.addValidator(params))
@@ -2411,7 +2433,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: ValidatorPoolKey pool key to created pool
      */
     addPool: (params: CallParams<ValidatorRegistryArgs['obj']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.addPool(params))
@@ -2423,7 +2445,7 @@ export class ValidatorRegistryClient {
      * Adds stake to a validator pool.
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: ValidatorPoolKey - The key of the validator pool.
      */
     addStake: (params: CallParams<ValidatorRegistryArgs['obj']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.addStake(params))
@@ -2446,7 +2468,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: PoolTokenPayoutRatio - the finished ratio data
      */
     setTokenPayoutRatio: (params: CallParams<ValidatorRegistryArgs['obj']['setTokenPayoutRatio(uint64)(uint64[24],uint64)'] | ValidatorRegistryArgs['tuple']['setTokenPayoutRatio(uint64)(uint64[24],uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.setTokenPayoutRatio(params))
@@ -2494,7 +2516,9 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+    * @returns The call transaction: ValidatorPoolKey, boolean, boolean - The pool for the staker, true/false on whether the staker is 'new'
+    to this VALIDATOR, and true/false if staker is new to the protocol.
+
      */
     findPoolForStaker: (params: CallParams<ValidatorRegistryArgs['obj']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)'] | ValidatorRegistryArgs['tuple']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.findPoolForStaker(params))
@@ -2528,7 +2552,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: uint64 the amount of reward token sent
      */
     emptyTokenRewards: (params: CallParams<ValidatorRegistryArgs['obj']['emptyTokenRewards(uint64,address)uint64'] | ValidatorRegistryArgs['tuple']['emptyTokenRewards(uint64,address)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(ValidatorRegistryParamsFactory.emptyTokenRewards(params))
@@ -2832,7 +2856,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: uint64 validator id
      */
     addValidator: async (params: CallParams<ValidatorRegistryArgs['obj']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64'] | ValidatorRegistryArgs['tuple']['addValidator(pay,string,(uint64,address,address,uint64,uint8,address,uint64[4],uint64,uint64,uint64,uint32,uint32,address,uint64,uint64,uint8,uint64,uint64))uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.addValidator(params))
@@ -2925,7 +2949,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: ValidatorPoolKey pool key to created pool
      */
     addPool: async (params: CallParams<ValidatorRegistryArgs['obj']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['addPool(pay,uint64,uint64)(uint64,uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.addPool(params))
@@ -2938,7 +2962,7 @@ export class ValidatorRegistryClient {
      * Adds stake to a validator pool.
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: ValidatorPoolKey - The key of the validator pool.
      */
     addStake: async (params: CallParams<ValidatorRegistryArgs['obj']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)'] | ValidatorRegistryArgs['tuple']['addStake(pay,uint64,uint64)(uint64,uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.addStake(params))
@@ -2962,7 +2986,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: PoolTokenPayoutRatio - the finished ratio data
      */
     setTokenPayoutRatio: async (params: CallParams<ValidatorRegistryArgs['obj']['setTokenPayoutRatio(uint64)(uint64[24],uint64)'] | ValidatorRegistryArgs['tuple']['setTokenPayoutRatio(uint64)(uint64[24],uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.setTokenPayoutRatio(params))
@@ -3013,7 +3037,9 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+    * @returns The call result: ValidatorPoolKey, boolean, boolean - The pool for the staker, true/false on whether the staker is 'new'
+    to this VALIDATOR, and true/false if staker is new to the protocol.
+
      */
     findPoolForStaker: async (params: CallParams<ValidatorRegistryArgs['obj']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)'] | ValidatorRegistryArgs['tuple']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.findPoolForStaker(params))
@@ -3049,7 +3075,7 @@ export class ValidatorRegistryClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: uint64 the amount of reward token sent
      */
     emptyTokenRewards: async (params: CallParams<ValidatorRegistryArgs['obj']['emptyTokenRewards(uint64,address)uint64'] | ValidatorRegistryArgs['tuple']['emptyTokenRewards(uint64,address)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.emptyTokenRewards(params))
@@ -3307,7 +3333,9 @@ export class ValidatorRegistryClient {
 
    *
    * @param params The params for the smart contract call
-   * @returns The call result
+  * @returns The call result: ValidatorPoolKey, boolean, boolean - The pool for the staker, true/false on whether the staker is 'new'
+  to this VALIDATOR, and true/false if staker is new to the protocol.
+
    */
   async findPoolForStaker(params: CallParams<ValidatorRegistryArgs['obj']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)'] | ValidatorRegistryArgs['tuple']['findPoolForStaker(uint64,address,uint64)((uint64,uint64,uint64),bool,bool)']>) {
     const result = await this.appClient.send.call(ValidatorRegistryParamsFactory.findPoolForStaker(params))

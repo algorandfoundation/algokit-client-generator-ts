@@ -396,6 +396,9 @@ export type NFDInstanceTypes = {
     & Record<'registryAddingVerifiedAddress(string,string)bool' | 'registryAddingVerifiedAddress', {
       argsObj: NFDInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
       argsTuple: NFDInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
+      /**
+       * true if added or already present, false otherwise
+       */
       returns: NFDInstanceReturns['registryAddingVerifiedAddress(string,string)bool']
     }>
     & Record<'registryRemovingVerifiedAddress(string,address,address)bool' | 'registryRemovingVerifiedAddress', {
@@ -1406,7 +1409,7 @@ export class NFDInstanceClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call params
+     * @returns The call params: true if added or already present, false otherwise
      */
     registryAddingVerifiedAddress: (params: CallParams<NFDInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NFDInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.params.call(NFDInstanceParamsFactory.registryAddingVerifiedAddress(params))
@@ -1710,7 +1713,7 @@ export class NFDInstanceClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction
+     * @returns The call transaction: true if added or already present, false otherwise
      */
     registryAddingVerifiedAddress: (params: CallParams<NFDInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NFDInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & { onComplete?: OnApplicationComplete.NoOp }) => {
       return this.appClient.createTransaction.call(NFDInstanceParamsFactory.registryAddingVerifiedAddress(params))
@@ -2037,7 +2040,7 @@ export class NFDInstanceClient {
 
      *
      * @param params The params for the smart contract call
-     * @returns The call result
+     * @returns The call result: true if added or already present, false otherwise
      */
     registryAddingVerifiedAddress: async (params: CallParams<NFDInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NFDInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
       const result = await this.appClient.send.call(NFDInstanceParamsFactory.registryAddingVerifiedAddress(params))
