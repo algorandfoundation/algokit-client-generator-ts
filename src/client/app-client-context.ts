@@ -12,7 +12,6 @@ import {
 } from '@algorandfoundation/algokit-utils/abi'
 import { Sanitizer } from '../util/sanitization'
 import { abiTypeToTs, getEquivalentType } from './helpers/get-equivalent-type'
-import invariant from 'tiny-invariant'
 
 export type AppClientContext = {
   name: SanitizableString
@@ -237,7 +236,9 @@ function buildStructCtx(name: string, appSpec: Arc56Contract, sanitizer: Sanitiz
   const typeCtx = buildTypeContext(name, appSpec, sanitizer)
 
   const abiType = typeCtx.type
-  invariant(abiType instanceof ABIStructType)
+  if (!(abiType instanceof ABIStructType)) {
+    throw new Error(`Expected abiType to be ABIStructType`)
+  }
 
   return {
     type: typeCtx,
