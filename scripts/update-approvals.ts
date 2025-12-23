@@ -5,7 +5,7 @@ import { pascalCase } from 'change-case'
 
 async function updateApprovals() {
   const arc32Examples = ['duplicate_structs', 'hello_world', 'life_cycle', 'minimal', 'state', 'voting_round']
-  const arc56Examples = ['reti', 'arc56_test', 'nested', 'nfd', 'structs', 'zero_coupon_bond']
+  const arc56Examples = ['reti', 'arc56_test', 'nested', 'nfd', 'structs', 'zero_coupon_bond', 'void']
 
   const arc32Dirs = arc32Examples.map((app) => [app, 'arc32'])
   const arc56Dirs = arc56Examples.map((app) => [app, 'arc56'])

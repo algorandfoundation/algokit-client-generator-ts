@@ -99,8 +99,8 @@ describe('state typed client', () => {
       .addAppCallMethodCall(await anotherAppClient.params.foo({ staticFee: microAlgos(0), args: { inputs } }))
       .send()
 
-    const { sum: firstSum } = appClient.decodeReturnValue('foo', result.returns![0])!
-    const { sum: secondSum } = appClient.decodeReturnValue('foo', result.returns![1])!
+    const { sum: firstSum } = result.returns?.[0].returnValue as full.Outputs
+    const { sum: secondSum } = result.returns?.[1].returnValue as full.Outputs
 
     expect(firstSum).toBe(3n)
     expect(secondSum).toBe(3n)

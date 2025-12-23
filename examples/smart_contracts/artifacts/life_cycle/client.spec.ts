@@ -1,9 +1,9 @@
 import { expect, test, describe, beforeEach } from 'vitest'
-import { OnApplicationComplete } from 'algosdk'
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
 import { LifeCycleFactory } from './client'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 
 describe('lifecycle typed client', () => {
   const localnet = algorandFixture()
@@ -20,7 +20,8 @@ describe('lifecycle typed client', () => {
 
   test('create_bare', async () => {
     const { result, appClient: client } = await factory.send.create.bare({ updatable: true })
-    expect(result.transaction.applicationCall?.onComplete).toBe(OnApplicationComplete.NoOpOC)
+
+    expect(result.transaction.appCall?.onComplete).toBe(OnApplicationComplete.NoOp)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
     expectType<string | undefined>(response.return)
@@ -28,8 +29,8 @@ describe('lifecycle typed client', () => {
   })
 
   test('create_bare_optin', async () => {
-    const { result, appClient: client } = await factory.send.create.bare({ updatable: true, onComplete: OnApplicationComplete.OptInOC })
-    expect(result.transaction.applicationCall?.onComplete).toBe(OnApplicationComplete.OptInOC)
+    const { result, appClient: client } = await factory.send.create.bare({ updatable: true, onComplete: OnApplicationComplete.OptIn })
+    expect(result.transaction.appCall?.onComplete).toBe(OnApplicationComplete.OptIn)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
     expectType<string | undefined>(response.return)
@@ -40,7 +41,7 @@ describe('lifecycle typed client', () => {
     const { result: createResult, appClient: client } = await factory.deploy()
     invariant(createResult.operationPerformed === 'create')
     expect(createResult.return).toBe(undefined)
-    expect(createResult.transaction.applicationCall?.onComplete).toBe(OnApplicationComplete.NoOpOC)
+    expect(createResult.transaction.appCall?.onComplete).toBe(OnApplicationComplete.NoOp)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
     expectType<string | undefined>(response.return)
@@ -49,11 +50,11 @@ describe('lifecycle typed client', () => {
 
   test('deploy_bare_opt_in', async () => {
     const { result: createResult, appClient: client } = await factory.deploy({
-      createParams: { onComplete: OnApplicationComplete.OptInOC },
+      createParams: { onComplete: OnApplicationComplete.OptIn },
     })
     invariant(createResult.operationPerformed === 'create')
     expect(createResult.return).toBe(undefined)
-    expect(createResult.transaction.applicationCall?.onComplete).toBe(OnApplicationComplete.OptInOC)
+    expect(createResult.transaction.appCall?.onComplete).toBe(OnApplicationComplete.OptIn)
 
     const response = await client.send.helloStringString({ args: ['Bare'] })
     expectType<string | undefined>(response.return)
