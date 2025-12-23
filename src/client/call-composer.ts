@@ -5,11 +5,11 @@ import { AppClientMethodContext, isAbiMethod } from './app-client-context'
 export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   const { name, app } = ctx
   // todo: Patrick feedback - allow common params to be passed in here so they propagate to all params calls e.g. firstValid
-  yield `public newGroup(): ${name}Composer {`
+  yield `public newGroup(composerConfig?: TransactionComposerConfig): ${name}Composer {`
   yield IncIndent
 
   yield `const client = this`
-  yield `const composer = this.algorand.newGroup()`
+  yield `const composer = this.algorand.newGroup(composerConfig)`
   yield `let promiseChain:Promise<unknown> = Promise.resolve()`
   yield `return {`
   yield IncIndent

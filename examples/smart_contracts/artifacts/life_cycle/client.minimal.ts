@@ -12,7 +12,7 @@ import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
 import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
 import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { TransactionComposer, TransactionComposerConfig, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"LifeCycle","structs":{},"methods":[{"name":"create","args":[{"name":"greeting","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"create","args":[{"name":"greeting","type":"string"},{"name":"times","type":"uint32"}],"returns":{"type":"void"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"close_out_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["CloseOut"]}},{"name":"delete_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["DeleteApplication"]}},{"name":"update_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["UpdateApplication"]}}],"state":{"schema":{"global":{"ints":1,"bytes":1},"local":{"ints":0,"bytes":0}},"keys":{"global":{"greeting":{"key":"Z3JlZXRpbmc=","keyType":"AVMString","valueType":"AVMBytes"},"times":{"key":"dGltZXM=","keyType":"AVMString","valueType":"AVMUint64"}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp","OptIn"],"call":["UpdateApplication"]}} as unknown as Arc56Contract
 
@@ -520,9 +520,9 @@ export class LifeCycleClient {
     },
   }
 
-  public newGroup(): LifeCycleComposer {
+  public newGroup(composerConfig?: TransactionComposerConfig): LifeCycleComposer {
     const client = this
-    const composer = this.algorand.newGroup()
+    const composer = this.algorand.newGroup(composerConfig)
     let promiseChain:Promise<unknown> = Promise.resolve()
     return {
       /**

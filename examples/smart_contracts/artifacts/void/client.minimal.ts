@@ -12,7 +12,7 @@ import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
 import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
 import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { TransactionComposer, TransactionComposerConfig, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const APP_SPEC: Arc56Contract = {"name":"Void","structs":{},"methods":[{"name":"do_nothing","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[78],"errorMessage":"Check app is deletable"},{"pc":[72],"errorMessage":"Check app is updatable"},{"pc":[24],"errorMessage":"OnCompletion is not NoOp"},{"pc":[68],"errorMessage":"can only call when creating"},{"pc":[27,51,59],"errorMessage":"can only call when not creating"},{"pc":[88],"errorMessage":"unauthorized"}],"pcOffsetMethod":"cblocks"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"events":[]} as unknown as Arc56Contract
 
@@ -307,9 +307,9 @@ export class VoidClient {
   state = {
   }
 
-  public newGroup(): VoidComposer {
+  public newGroup(composerConfig?: TransactionComposerConfig): VoidComposer {
     const client = this
-    const composer = this.algorand.newGroup()
+    const composer = this.algorand.newGroup(composerConfig)
     let promiseChain:Promise<unknown> = Promise.resolve()
     return {
       /**
