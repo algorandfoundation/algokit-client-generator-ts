@@ -7,14 +7,14 @@ import invariant from 'tiny-invariant'
 import { generateModes } from '../../../../src/client/generator-context'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
-describe('state typed client', { timeout: 1000_000 }, () => {
+describe('state typed client', () => {
   const localnet = algorandFixture()
 
   beforeEach(async () => {
     await localnet.newScope()
   }, 10_000)
 
-  test.each(generateModes)('Demo works with %s client', { timeout: 1000_000 }, async (clientType) => {
+  test.each(generateModes)('Demo works with %s client', async (clientType) => {
     const { algorand } = localnet.context
 
     const defaultSender = (await algorand.account.localNetDispenser()).addr

@@ -2,7 +2,7 @@ import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, js
 
 import { GeneratorContext } from './generator-context'
 
-import { AppClientMethodContext, AbiMethodClientContext } from './app-client-context'
+import { AppClientMethodContext, AbiMethodClientContext, isAbiMethod } from './app-client-context'
 
 export function* appFactory(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
@@ -117,7 +117,7 @@ function* createMethods(generator: GeneratorContext): DocumentParts {
     yield `create: {`
     yield IncIndent
     for (const method of generator.app.createMethods) {
-      if (method.isBare) {
+      if (!isAbiMethod(method)) {
         yield* bareMethodCallParams({
           generator,
           name: 'bare',
@@ -280,7 +280,7 @@ function* operationMethods(
     yield `${verb}: {`
     yield IncIndent
     for (const method of methods) {
-      if (method.isBare) {
+      if (!isAbiMethod(method)) {
         yield* bareMethodCallParams({
           generator,
           name: 'bare',

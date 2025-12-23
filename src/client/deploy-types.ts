@@ -1,5 +1,6 @@
 import { DecIndent, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
 import { GeneratorContext } from './generator-context'
+import { isAbiMethod } from './app-client-context'
 
 export function* deployTypes({ app, sanitizer }: GeneratorContext): DocumentParts {
   const name = app.name.makeSafeTypeIdentifier
@@ -11,7 +12,7 @@ export function* deployTypes({ app, sanitizer }: GeneratorContext): DocumentPart
 
     for (const method of app.createMethods) {
       const onComplete = method.createActions.inputType
-      if (method.isBare) {
+      if (!isAbiMethod(method)) {
         yield `| Expand<AppClientBareCallParams & {method?: never} & ${onComplete.typeLiteral} & CreateSchema>`
       } else {
         const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method.signature)
@@ -31,7 +32,7 @@ export function* deployTypes({ app, sanitizer }: GeneratorContext): DocumentPart
     yield IncIndent
 
     for (const method of app.updateMethods) {
-      if (method.isBare) {
+      if (!isAbiMethod(method)) {
         yield `| Expand<AppClientBareCallParams> & {method?: never}`
       } else {
         const uniqueName = method.uniqueName.original
@@ -51,7 +52,7 @@ export function* deployTypes({ app, sanitizer }: GeneratorContext): DocumentPart
     yield `export type ${name}DeleteCallParams =`
     yield IncIndent
     for (const method of app.deleteMethods) {
-      if (method.isBare) {
+      if (!isAbiMethod(method)) {
         yield `| Expand<AppClientBareCallParams> & {method?: never}`
       } else {
         const uniqueName = method.uniqueName.original

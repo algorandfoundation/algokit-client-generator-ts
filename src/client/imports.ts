@@ -1,7 +1,6 @@
 import { DocumentParts } from '../output/writer'
-import { GeneratorContext } from './generator-context'
 
-export function* imports(ctx: GeneratorContext): DocumentParts {
+export function* imports(): DocumentParts {
   yield `
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
 import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'

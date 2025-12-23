@@ -63,6 +63,10 @@ export type AppClientContext = {
 
 export type AppClientMethodContext = AbiMethodClientContext | BareMethodClientContext
 
+export function isAbiMethod(method: AppClientMethodContext): method is AbiMethodClientContext {
+  return !method.isBare
+}
+
 export type StructContext = {
   type: TypeContext
   tsObjDef: string
@@ -205,7 +209,7 @@ export function createAppClientContext(appSpec: Arc56Contract, sanitizer: Saniti
     optInMethods: methods.filter((m) => m.callActions.optIn),
     closeOutMethods: methods.filter((m) => m.callActions.closeOut),
     clearStateMethods: methods.filter((m) => m.callActions.clearState),
-    abiMethods: methods.filter((m) => !m.isBare),
+    abiMethods: methods.filter(isAbiMethod),
 
     state: {
       maps: {

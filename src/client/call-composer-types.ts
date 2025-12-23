@@ -1,7 +1,7 @@
 import { DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
 import { GeneratorContext } from './generator-context'
 
-import { AppClientMethodContext } from './app-client-context'
+import { AppClientMethodContext, isAbiMethod } from './app-client-context'
 
 export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   const { name, app } = ctx
@@ -87,7 +87,7 @@ function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentP
 
 function* callComposerTypeNoops({ app, name, sanitizer }: GeneratorContext): DocumentParts {
   for (const method of app.noOpMethods) {
-    if (method.isBare) continue
+    if (!isAbiMethod(method)) continue
     const methodSig = method.signature
     const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
     const methodName = method.uniqueName.makeSafeMethodIdentifier
@@ -119,7 +119,7 @@ function* callComposerOperationMethodType(
     yield IncIndent
     for (const method of methods) {
       const onComplete = verb === 'create' ? method.createActions.inputType : undefined
-      if (method.isBare) {
+      if (!isAbiMethod(method)) {
         yield* jsDoc({
           description: `${description} using a bare call.`,
           params: {

@@ -1,6 +1,6 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc } from '../output/writer'
 import { GeneratorContext } from './generator-context'
-import { AppClientMethodContext } from './app-client-context'
+import { AppClientMethodContext, isAbiMethod } from './app-client-context'
 
 export function* composeMethod(ctx: GeneratorContext): DocumentParts {
   const { name, app } = ctx
@@ -115,7 +115,7 @@ function* callComposerOperationMethods(
     yield `return {`
     yield IncIndent
     for (const method of methods) {
-      if (method.isBare) {
+      if (!isAbiMethod(method)) {
         yield `bare: (params?: AppClientBareCallParams ${includeCompilation ? '& AppClientCompilationParams ' : ''}) => {`
         yield IncIndent
         yield `promiseChain = promiseChain.then(${verb === 'update' ? 'async ' : ''}() => composer.addApp${callType}(${verb === 'update' ? 'await ' : ''}client.params.${verb}.bare(params)))`

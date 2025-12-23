@@ -23,9 +23,9 @@ describe('voting typed client', () => {
 
   async function createRandomVotingRoundApp() {
     const { algorand, algod, testAccount } = localnet.context
-    const status = await algod.getStatus()
+    const status = await algod.status()
     const lastRound = status.lastRound
-    const round = await algod.getBlock(Number(lastRound))
+    const round = await algod.block(Number(lastRound))
     const currentTime = round.block.header.timestamp
     invariant(currentTime, 'Block must have currentTime')
 

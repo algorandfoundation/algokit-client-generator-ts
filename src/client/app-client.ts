@@ -1,9 +1,8 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, jsDoc, NewLine } from '../output/writer'
 import { GeneratorContext } from './generator-context'
 import { composeMethod } from './call-composer'
-import { containsNonVoidMethod } from './helpers/contains-non-void-method'
 
-import { AppClientMethodContext, AbiMethodClientContext } from './app-client-context'
+import { AppClientMethodContext, AbiMethodClientContext, isAbiMethod } from './app-client-context'
 
 export function* appClient(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
@@ -253,7 +252,7 @@ function* operationMethods(
     yield `${verb}: {`
     yield IncIndent
     for (const method of methods) {
-      if (method.isBare) {
+      if (!isAbiMethod(method)) {
         yield* bareMethodCall({
           generator,
           name: 'bare',
@@ -324,7 +323,7 @@ function* readonlyMethods(generator: GeneratorContext): DocumentParts {
 function* noopMethods(generator: GeneratorContext, type: 'params' | 'createTransaction' | 'send'): DocumentParts {
   const { app } = generator
   for (const method of app.noOpMethods) {
-    if (method.isBare) continue // TODO CHECK THIS OK?
+    if (!isAbiMethod(method)) continue
     yield* abiMethodCall({
       generator,
       description: `Makes a call to the ${generator.app.name} smart contract`,

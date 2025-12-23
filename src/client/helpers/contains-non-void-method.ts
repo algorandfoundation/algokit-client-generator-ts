@@ -1,7 +1,7 @@
-import { AppClientMethodContext } from '../app-client-context'
+import { AppClientMethodContext, isAbiMethod } from '../app-client-context'
 
 export const containsNonVoidMethod = (methods: AppClientMethodContext[]) => {
   return methods.some((method) => {
-    return !method.isBare && method.returns.tsOutType !== 'void'
+    return isAbiMethod(method) && method.returns.tsOutType !== 'void'
   })
 }

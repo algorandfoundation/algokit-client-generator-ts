@@ -1,7 +1,7 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, jsDoc, NewLine } from '../output/writer'
 import { GeneratorContext } from './generator-context'
 import { Sanitizer } from '../util/sanitization'
-import { AppClientMethodContext, MethodArgClientContext } from './app-client-context'
+import { AppClientMethodContext, MethodArgClientContext, isAbiMethod } from './app-client-context'
 
 export function* paramsFactory(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc(`Exposes methods for constructing \`AppClient\` params objects for ABI calls to the ${ctx.app.name.original} smart contract`)
@@ -54,7 +54,7 @@ function* operationMethod(
       yield IncIndent
 
       for (const method of methods) {
-        if (method.isBare) continue
+        if (!isAbiMethod(method)) continue
         if (method.baseNameIsUnique) {
           yield `case '${method.name.makeSafeStringTypeLiteral}':`
         }
@@ -73,7 +73,7 @@ function* operationMethod(
     }
 
     for (const method of methods) {
-      if (method.isBare) continue
+      if (!isAbiMethod(method)) continue
       const onComplete = verb === 'create' ? method.createActions.inputType : undefined
 
       const uniqueName = method.uniqueName.original
@@ -103,7 +103,7 @@ function* operationMethod(
 }
 
 function* callFactoryMethod({ sanitizer, name }: GeneratorContext, method: AppClientMethodContext) {
-  if (!method.callActions.any || method.isBare) return
+  if (!method.callActions.any || !isAbiMethod(method)) return
 
   yield* jsDoc({
     description: `Constructs a no op call for the ${method.signature} ABI method`,
