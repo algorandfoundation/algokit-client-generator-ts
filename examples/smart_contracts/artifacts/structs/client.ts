@@ -55,11 +55,21 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type NestedStruct = { content: Vector }
+export type NestedStruct = {
+  content: Vector
+}
 
-export type RootStruct = { nested: NestedStruct }
 
-export type Vector = { x: string, y: string }
+export type RootStruct = {
+  nested: NestedStruct
+}
+
+
+export type Vector = {
+  x: string,
+  y: string
+}
+
 
 /**
  * The argument types for the Structs contract

@@ -55,23 +55,82 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type AccountInfo = { paymentAddress: string, units: bigint, unitValue: bigint, paidCoupons: bigint, suspended: boolean }
+export type AccountInfo = {
+  paymentAddress: string,
+  units: bigint,
+  unitValue: bigint,
+  paidCoupons: bigint,
+  suspended: boolean
+}
 
-export type AssetInfo = { denominationAssetId: bigint, settlementAssetId: bigint, outstandingPrincipal: bigint, unitValue: bigint, dayCountConvention: number, interestRate: number, totalSupply: bigint, circulatingSupply: bigint, primaryDistributionOpeningDate: bigint, primaryDistributionClosureDate: bigint, issuanceDate: bigint, maturityDate: bigint, suspended: boolean, performance: number }
 
-export type AssetMetadata = { contractType: number, calendar: number, businessDayConvention: number, endOfMonthConvention: number, prepaymentEffect: number, penaltyType: number, prospectusHash: Uint8Array, prospectusUrl: string }
+export type AssetInfo = {
+  denominationAssetId: bigint,
+  settlementAssetId: bigint,
+  outstandingPrincipal: bigint,
+  unitValue: bigint,
+  dayCountConvention: number,
+  interestRate: number,
+  totalSupply: bigint,
+  circulatingSupply: bigint,
+  primaryDistributionOpeningDate: bigint,
+  primaryDistributionClosureDate: bigint,
+  issuanceDate: bigint,
+  maturityDate: bigint,
+  suspended: boolean,
+  performance: number
+}
 
-export type CurrentUnitsValue = { unitsValue: bigint, accruedInterest: bigint, dayCountFactor: DayCountFactor }
 
-export type DayCountFactor = { numerator: bigint, denominator: bigint }
+export type AssetMetadata = {
+  contractType: number,
+  calendar: number,
+  businessDayConvention: number,
+  endOfMonthConvention: number,
+  prepaymentEffect: number,
+  penaltyType: number,
+  prospectusHash: Uint8Array,
+  prospectusUrl: string
+}
 
-export type PaymentAmounts = { interest: bigint, principal: bigint }
 
-export type PaymentResult = { amount: bigint, timestamp: bigint, context: Uint8Array }
+export type CurrentUnitsValue = {
+  unitsValue: bigint,
+  accruedInterest: bigint,
+  dayCountFactor: DayCountFactor
+}
 
-export type RoleConfig = { roleValidityStart: bigint, roleValidityEnd: bigint }
 
-export type SecondaryMarketSchedule = { secondaryMarketOpeningDate: bigint, secondaryMarketClosureDate: bigint }
+export type DayCountFactor = {
+  numerator: bigint,
+  denominator: bigint
+}
+
+
+export type PaymentAmounts = {
+  interest: bigint,
+  principal: bigint
+}
+
+
+export type PaymentResult = {
+  amount: bigint,
+  timestamp: bigint,
+  context: Uint8Array
+}
+
+
+export type RoleConfig = {
+  roleValidityStart: bigint,
+  roleValidityEnd: bigint
+}
+
+
+export type SecondaryMarketSchedule = {
+  secondaryMarketOpeningDate: bigint,
+  secondaryMarketClosureDate: bigint
+}
+
 
 /**
  * The argument types for the ZeroCouponBond contract

@@ -55,9 +55,17 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type Input = { name: string, age: bigint }
+export type Input = {
+  name: string,
+  age: bigint
+}
 
-export type Output = { message: string, result: bigint }
+
+export type Output = {
+  message: string,
+  result: bigint
+}
+
 
 /**
  * The argument types for the State contract

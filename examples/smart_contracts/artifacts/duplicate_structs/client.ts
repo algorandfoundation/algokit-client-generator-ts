@@ -55,7 +55,11 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type SomeStruct = { a: bigint, b: bigint }
+export type SomeStruct = {
+  a: bigint,
+  b: bigint
+}
+
 
 /**
  * The argument types for the DuplicateStructs contract

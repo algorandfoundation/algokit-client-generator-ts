@@ -55,7 +55,14 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type PayoutInfo = { amountToSeller: bigint, commissionAddress: string, amountToCommission: bigint, segmentRootOwner: string, amountToSegmentRoot: bigint }
+export type PayoutInfo = {
+  amountToSeller: bigint,
+  commissionAddress: string,
+  amountToCommission: bigint,
+  segmentRootOwner: string,
+  amountToSegmentRoot: bigint
+}
+
 
 /**
  * Deploy-time template variables

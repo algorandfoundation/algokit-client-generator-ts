@@ -55,7 +55,13 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type VotingPreconditions = { isVotingOpen: bigint, isAllowedToVote: bigint, hasAlreadyVoted: bigint, currentTime: bigint }
+export type VotingPreconditions = {
+  isVotingOpen: bigint,
+  isAllowedToVote: bigint,
+  hasAlreadyVoted: bigint,
+  currentTime: bigint
+}
+
 
 /**
  * The argument types for the VotingRound contract

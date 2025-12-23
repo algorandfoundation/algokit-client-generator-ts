@@ -204,9 +204,6 @@ function* structTypes(ctx: GeneratorContext): DocumentParts {
 
   for (const [structName, structCtx] of Object.entries(app.structs)) {
     // Emit the struct type
-
-    //yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(getStructAsObject(app.structs[structName],
-    // ctx), null, 2).replace(/"/g, '')}`
     yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${structCtx.tsObjDef}`
     yield NewLine
   }

@@ -55,11 +55,29 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type _foo_uint16_bar_uint16_ = { foo: number, bar: number }
+export type _foo_uint16_bar_uint16_ = {
+  foo: number,
+  bar: number
+}
 
-export type Outputs = { sum: bigint, difference: bigint }
 
-export type Inputs = { add: {a: bigint, b: bigint}, subtract: {a: bigint, b: bigint} }
+export type Outputs = {
+  sum: bigint,
+  difference: bigint
+}
+
+
+export type Inputs = {
+  add: {
+    a: bigint,
+    b: bigint
+  },
+  subtract: {
+    a: bigint,
+    b: bigint
+  }
+}
+
 
 /**
  * Deploy-time template variables

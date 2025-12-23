@@ -241,21 +241,24 @@ function buildStructCtx(name: string, appSpec: Arc56Contract, sanitizer: Sanitiz
 
   return {
     type: typeCtx,
-    tsObjDef: `{ ${Array.from(buildStructObjDef(abiType.structFields, appSpec, sanitizer)).join(', ')} }`,
+    tsObjDef: buildStructObjDef(abiType.structFields, appSpec, sanitizer, 1),
     tsTupDef: `[${Array.from(buildStructTupleDef(abiType.structFields, appSpec, sanitizer)).join(', ')}]`,
   }
 }
 
-function* buildStructObjDef(fields: ABIStructField[], appSpec: Arc56Contract, sanitizer: Sanitizer) {
+function buildStructObjDef(fields: ABIStructField[], appSpec: Arc56Contract, sanitizer: Sanitizer, indent: number): string {
+  const indentStr = '  '.repeat(indent)
+  const closingIndent = '  '.repeat(indent - 1)
+  const lines: string[] = []
+
   for (const field of fields) {
-    let typeDef: string
-    if (Array.isArray(field.type)) {
-      typeDef = `{${Array.from(buildStructObjDef(field.type, appSpec, sanitizer)).join(', ')}}`
-    } else {
-      typeDef = abiTypeToTs(field.type, 'output', sanitizer)
-    }
-    yield `${sanitizer.makeSafePropertyIdentifier(field.name)}: ${typeDef}`
+    const typeDef = Array.isArray(field.type)
+      ? buildStructObjDef(field.type, appSpec, sanitizer, indent + 1)
+      : abiTypeToTs(field.type, 'output', sanitizer)
+    lines.push(`${indentStr}${sanitizer.makeSafePropertyIdentifier(field.name)}: ${typeDef}`)
   }
+
+  return `{\n${lines.join(',\n')}\n${closingIndent}}`
 }
 function* buildStructTupleDef(fields: ABIStructField[], appSpec: Arc56Contract, sanitizer: Sanitizer) {
   for (const field of fields) {

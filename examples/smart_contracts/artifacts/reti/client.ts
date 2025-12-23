@@ -55,23 +55,121 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // Type definitions for ARC-56 structs
 
-export type ValidatorInfo = { config: {id: bigint, owner: string, manager: string, nfdForInfo: bigint, entryGatingType: number, entryGatingAddress: string, entryGatingAssets: [bigint, bigint, bigint, bigint], gatingAssetMinBalance: bigint, rewardTokenId: bigint, rewardPerPayout: bigint, epochRoundLength: number, percentToValidator: number, validatorCommissionAddress: string, minEntryStake: bigint, maxAlgoPerPool: bigint, poolsPerNode: number, sunsettingOn: bigint, sunsettingTo: bigint}, state: {numPools: number, totalStakers: bigint, totalAlgoStaked: bigint, rewardTokenHeldBack: bigint}, pools: [[bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint]], tokenPayoutRatio: {poolPctOfWhole: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint], updatedForPayout: bigint}, nodePoolAssignments: {nodes: [[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]} }
+export type ValidatorInfo = {
+  config: {
+    id: bigint,
+    owner: string,
+    manager: string,
+    nfdForInfo: bigint,
+    entryGatingType: number,
+    entryGatingAddress: string,
+    entryGatingAssets: [bigint, bigint, bigint, bigint],
+    gatingAssetMinBalance: bigint,
+    rewardTokenId: bigint,
+    rewardPerPayout: bigint,
+    epochRoundLength: number,
+    percentToValidator: number,
+    validatorCommissionAddress: string,
+    minEntryStake: bigint,
+    maxAlgoPerPool: bigint,
+    poolsPerNode: number,
+    sunsettingOn: bigint,
+    sunsettingTo: bigint
+  },
+  state: {
+    numPools: number,
+    totalStakers: bigint,
+    totalAlgoStaked: bigint,
+    rewardTokenHeldBack: bigint
+  },
+  pools: [[bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint]],
+  tokenPayoutRatio: {
+    poolPctOfWhole: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint],
+    updatedForPayout: bigint
+  },
+  nodePoolAssignments: {
+    nodes: [[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]
+  }
+}
 
-export type MbrAmounts = { addValidatorMbr: bigint, addPoolMbr: bigint, poolInitMbr: bigint, addStakerMbr: bigint }
 
-export type Constraints = { epochPayoutRoundsMin: bigint, epochPayoutRoundsMax: bigint, minPctToValidatorWFourDecimals: bigint, maxPctToValidatorWFourDecimals: bigint, minEntryStake: bigint, maxAlgoPerPool: bigint, maxAlgoPerValidator: bigint, amtConsideredSaturated: bigint, maxNodes: bigint, maxPoolsPerNode: bigint, maxStakersPerPool: bigint }
+export type MbrAmounts = {
+  addValidatorMbr: bigint,
+  addPoolMbr: bigint,
+  poolInitMbr: bigint,
+  addStakerMbr: bigint
+}
 
-export type ValidatorConfig = { id: bigint, owner: string, manager: string, nfdForInfo: bigint, entryGatingType: number, entryGatingAddress: string, entryGatingAssets: [bigint, bigint, bigint, bigint], gatingAssetMinBalance: bigint, rewardTokenId: bigint, rewardPerPayout: bigint, epochRoundLength: number, percentToValidator: number, validatorCommissionAddress: string, minEntryStake: bigint, maxAlgoPerPool: bigint, poolsPerNode: number, sunsettingOn: bigint, sunsettingTo: bigint }
 
-export type ValidatorCurState = { numPools: number, totalStakers: bigint, totalAlgoStaked: bigint, rewardTokenHeldBack: bigint }
+export type Constraints = {
+  epochPayoutRoundsMin: bigint,
+  epochPayoutRoundsMax: bigint,
+  minPctToValidatorWFourDecimals: bigint,
+  maxPctToValidatorWFourDecimals: bigint,
+  minEntryStake: bigint,
+  maxAlgoPerPool: bigint,
+  maxAlgoPerValidator: bigint,
+  amtConsideredSaturated: bigint,
+  maxNodes: bigint,
+  maxPoolsPerNode: bigint,
+  maxStakersPerPool: bigint
+}
 
-export type PoolInfo = { poolAppId: bigint, totalStakers: number, totalAlgoStaked: bigint }
 
-export type ValidatorPoolKey = { id: bigint, poolId: bigint, poolAppId: bigint }
+export type ValidatorConfig = {
+  id: bigint,
+  owner: string,
+  manager: string,
+  nfdForInfo: bigint,
+  entryGatingType: number,
+  entryGatingAddress: string,
+  entryGatingAssets: [bigint, bigint, bigint, bigint],
+  gatingAssetMinBalance: bigint,
+  rewardTokenId: bigint,
+  rewardPerPayout: bigint,
+  epochRoundLength: number,
+  percentToValidator: number,
+  validatorCommissionAddress: string,
+  minEntryStake: bigint,
+  maxAlgoPerPool: bigint,
+  poolsPerNode: number,
+  sunsettingOn: bigint,
+  sunsettingTo: bigint
+}
 
-export type PoolTokenPayoutRatio = { poolPctOfWhole: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint], updatedForPayout: bigint }
 
-export type NodePoolAssignmentConfig = { nodes: [[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]] }
+export type ValidatorCurState = {
+  numPools: number,
+  totalStakers: bigint,
+  totalAlgoStaked: bigint,
+  rewardTokenHeldBack: bigint
+}
+
+
+export type PoolInfo = {
+  poolAppId: bigint,
+  totalStakers: number,
+  totalAlgoStaked: bigint
+}
+
+
+export type ValidatorPoolKey = {
+  id: bigint,
+  poolId: bigint,
+  poolAppId: bigint
+}
+
+
+export type PoolTokenPayoutRatio = {
+  poolPctOfWhole: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint],
+  updatedForPayout: bigint
+}
+
+
+export type NodePoolAssignmentConfig = {
+  nodes: [[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]
+}
+
 
 /**
  * Deploy-time template variables
