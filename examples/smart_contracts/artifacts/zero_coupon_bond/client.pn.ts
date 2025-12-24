@@ -5,8 +5,8 @@
  * requires: @algorandfoundation/algokit-utils: ^10
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
 import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -64,6 +64,14 @@ export type AccountInfo = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a AccountInfo to the struct representation
+ */
+export function AccountInfoFromTuple(abiTuple: [string, bigint, bigint, bigint, boolean]) {
+  const abiStructType = ABIStructType.fromStruct('AccountInfo', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as AccountInfo
+}
+
 export type AssetInfo = {
   denomination_asset_id: bigint,
   settlement_asset_id: bigint,
@@ -82,6 +90,14 @@ export type AssetInfo = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a AssetInfo to the struct representation
+ */
+export function AssetInfoFromTuple(abiTuple: [bigint, bigint, bigint, bigint, number, number, bigint, bigint, bigint, bigint, bigint, bigint, boolean, number]) {
+  const abiStructType = ABIStructType.fromStruct('AssetInfo', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as AssetInfo
+}
+
 export type AssetMetadata = {
   contract_type: number,
   calendar: number,
@@ -94,6 +110,14 @@ export type AssetMetadata = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a AssetMetadata to the struct representation
+ */
+export function AssetMetadataFromTuple(abiTuple: [number, number, number, number, number, number, Uint8Array, string]) {
+  const abiStructType = ABIStructType.fromStruct('AssetMetadata', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as AssetMetadata
+}
+
 export type CurrentUnitsValue = {
   units_value: bigint,
   accrued_interest: bigint,
@@ -101,17 +125,41 @@ export type CurrentUnitsValue = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a CurrentUnitsValue to the struct representation
+ */
+export function CurrentUnitsValueFromTuple(abiTuple: [bigint, bigint, DayCountFactor]) {
+  const abiStructType = ABIStructType.fromStruct('CurrentUnitsValue', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as CurrentUnitsValue
+}
+
 export type DayCountFactor = {
   numerator: bigint,
   denominator: bigint
 }
 
 
+/**
+ * Converts the ABI tuple representation of a DayCountFactor to the struct representation
+ */
+export function DayCountFactorFromTuple(abiTuple: [bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('DayCountFactor', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as DayCountFactor
+}
+
 export type PaymentAmounts = {
   interest: bigint,
   principal: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a PaymentAmounts to the struct representation
+ */
+export function PaymentAmountsFromTuple(abiTuple: [bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('PaymentAmounts', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as PaymentAmounts
+}
 
 export type PaymentResult = {
   amount: bigint,
@@ -120,17 +168,41 @@ export type PaymentResult = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a PaymentResult to the struct representation
+ */
+export function PaymentResultFromTuple(abiTuple: [bigint, bigint, Uint8Array]) {
+  const abiStructType = ABIStructType.fromStruct('PaymentResult', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as PaymentResult
+}
+
 export type RoleConfig = {
   role_validity_start: bigint,
   role_validity_end: bigint
 }
 
 
+/**
+ * Converts the ABI tuple representation of a RoleConfig to the struct representation
+ */
+export function RoleConfigFromTuple(abiTuple: [bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('RoleConfig', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as RoleConfig
+}
+
 export type SecondaryMarketSchedule = {
   secondary_market_opening_date: bigint,
   secondary_market_closure_date: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a SecondaryMarketSchedule to the struct representation
+ */
+export function SecondaryMarketScheduleFromTuple(abiTuple: [bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('SecondaryMarketSchedule', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as SecondaryMarketSchedule
+}
 
 /**
  * The argument types for the ZeroCouponBond contract

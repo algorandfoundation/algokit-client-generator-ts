@@ -3,8 +3,8 @@ import { DocumentParts } from '../output/writer'
 export function* imports(): DocumentParts {
   yield `
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
 import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
