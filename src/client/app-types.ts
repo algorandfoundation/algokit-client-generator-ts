@@ -1,5 +1,5 @@
 import { GeneratorContext } from './generator-context'
-import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, inline, jsDoc, NewLine } from '../output/writer'
+import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
 import { argTypeIsTransaction, ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
 import { Sanitizer } from '../util/sanitization'
 import { Expand } from '@algorandfoundation/algokit-utils/types/expand'
@@ -205,6 +205,14 @@ function* structTypes(ctx: GeneratorContext): DocumentParts {
   for (const [structName, structCtx] of Object.entries(app.structs)) {
     // Emit the struct type
     yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${structCtx.tsObjDef}`
+    yield NewLine
+
+    // Emit method that converts ABI tuple to the struct object
+    yield* jsDoc(`Converts the ABI tuple representation of a ${structName} to the struct representation`)
+    yield* inline(`export function ${sanitizer.makeSafeTypeIdentifier(structName)}FromTuple(`, `abiTuple: ${structCtx.tsTupDef}`, `) {`)
+    yield* indent(`const abiStructType = ABIStructType.fromStruct('${sanitizer.makeSafeTypeIdentifier(structName)}', APP_SPEC.structs)`)
+    yield* indent(`return getStructValueFromTupleValue(abiStructType, abiTuple) as ${sanitizer.makeSafeTypeIdentifier(structName)}`)
+    yield '}'
     yield NewLine
   }
 }

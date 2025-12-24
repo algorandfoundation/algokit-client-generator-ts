@@ -5,8 +5,8 @@
  * requires: @algorandfoundation/algokit-utils: ^10
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
 import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -61,11 +61,27 @@ export type FooUint16BarUint16 = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a { foo: uint16; bar: uint16 } to the struct representation
+ */
+export function FooUint16BarUint16FromTuple(abiTuple: [number, number]) {
+  const abiStructType = ABIStructType.fromStruct('FooUint16BarUint16', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as FooUint16BarUint16
+}
+
 export type Outputs = {
   sum: bigint,
   difference: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a Outputs to the struct representation
+ */
+export function OutputsFromTuple(abiTuple: [bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('Outputs', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as Outputs
+}
 
 export type Inputs = {
   add: {
@@ -78,6 +94,14 @@ export type Inputs = {
   }
 }
 
+
+/**
+ * Converts the ABI tuple representation of a Inputs to the struct representation
+ */
+export function InputsFromTuple(abiTuple: [[bigint, bigint], [bigint, bigint]]) {
+  const abiStructType = ABIStructType.fromStruct('Inputs', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as Inputs
+}
 
 /**
  * The argument types for the Arc56Test contract
