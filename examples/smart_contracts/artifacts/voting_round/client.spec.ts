@@ -3,7 +3,7 @@ import { webcrypto } from 'node:crypto'
 if (!globalThis.crypto) globalThis.crypto = webcrypto
 import invariant from 'tiny-invariant'
 import { expectType } from 'tsd'
-import { VotingPreconditions, VotingRoundFactory } from './client'
+import { VotingPreconditions, VotingPreconditionsFromTuple, VotingRoundFactory } from './client'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 import { expect, test, describe, beforeEach } from 'vitest'
@@ -269,6 +269,19 @@ describe('voting typed client', () => {
 
       expect(result.returns[0]?.hasAlreadyVoted).toBe(0n)
       expect(result.returns[3]?.hasAlreadyVoted).toBe(1n)
+    })
+  })
+
+  test('VotingPreconditionsFromTuple', () => {
+    const tuple: [bigint, bigint, bigint, bigint] = [1n, 0n, 1n, 1234567890n]
+    const result = VotingPreconditionsFromTuple(tuple)
+
+    expectType<VotingPreconditions>(result)
+    expect(result).toEqual({
+      isVotingOpen: 1n,
+      isAllowedToVote: 0n,
+      hasAlreadyVoted: 1n,
+      currentTime: 1234567890n,
     })
   })
 })
