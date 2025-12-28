@@ -5,8 +5,8 @@
  * requires: @algorandfoundation/algokit-utils: ^10
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
 import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -61,11 +61,27 @@ export type Input = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a Input to the struct representation
+ */
+export function InputFromTuple(abiTuple: [string, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('Input', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as Input
+}
+
 export type Output = {
   message: string,
   result: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a Output to the struct representation
+ */
+export function OutputFromTuple(abiTuple: [string, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('Output', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as Output
+}
 
 /**
  * The argument types for the State contract

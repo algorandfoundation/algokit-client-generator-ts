@@ -5,8 +5,8 @@
  * requires: @algorandfoundation/algokit-utils: ^10
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
 import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -63,6 +63,14 @@ export type PayoutInfo = {
   amountToSegmentRoot: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a PayoutInfo to the struct representation
+ */
+export function PayoutInfoFromTuple(abiTuple: [bigint, string, bigint, string, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('PayoutInfo', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as PayoutInfo
+}
 
 /**
  * Deploy-time template variables
