@@ -5,8 +5,8 @@
  * requires: @algorandfoundation/algokit-utils: ^10
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
 import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -60,16 +60,40 @@ export type NestedStruct = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a NestedStruct to the struct representation
+ */
+export function NestedStructFromTuple(abiTuple: [Vector]) {
+  const abiStructType = ABIStructType.fromStruct('NestedStruct', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as NestedStruct
+}
+
 export type RootStruct = {
   nested: NestedStruct
 }
 
+
+/**
+ * Converts the ABI tuple representation of a RootStruct to the struct representation
+ */
+export function RootStructFromTuple(abiTuple: [NestedStruct]) {
+  const abiStructType = ABIStructType.fromStruct('RootStruct', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as RootStruct
+}
 
 export type Vector = {
   x: string,
   y: string
 }
 
+
+/**
+ * Converts the ABI tuple representation of a Vector to the struct representation
+ */
+export function VectorFromTuple(abiTuple: [string, string]) {
+  const abiStructType = ABIStructType.fromStruct('Vector', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as Vector
+}
 
 /**
  * The argument types for the Structs contract

@@ -5,8 +5,8 @@
  * requires: @algorandfoundation/algokit-utils: ^10
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
 import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -93,6 +93,14 @@ export type ValidatorInfo = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a ValidatorInfo to the struct representation
+ */
+export function ValidatorInfoFromTuple(abiTuple: [[bigint, string, string, bigint, number, string, [bigint, bigint, bigint, bigint], bigint, bigint, bigint, number, number, string, bigint, bigint, number, bigint, bigint], [number, bigint, bigint, bigint], [[bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint], [bigint, number, bigint]], [[bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint], bigint], [[[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]]]) {
+  const abiStructType = ABIStructType.fromStruct('ValidatorInfo', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as ValidatorInfo
+}
+
 export type MbrAmounts = {
   addValidatorMbr: bigint,
   addPoolMbr: bigint,
@@ -100,6 +108,14 @@ export type MbrAmounts = {
   addStakerMbr: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a MbrAmounts to the struct representation
+ */
+export function MbrAmountsFromTuple(abiTuple: [bigint, bigint, bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('MbrAmounts', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as MbrAmounts
+}
 
 export type Constraints = {
   epochPayoutRoundsMin: bigint,
@@ -115,6 +131,14 @@ export type Constraints = {
   maxStakersPerPool: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a Constraints to the struct representation
+ */
+export function ConstraintsFromTuple(abiTuple: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('Constraints', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as Constraints
+}
 
 export type ValidatorConfig = {
   id: bigint,
@@ -138,6 +162,14 @@ export type ValidatorConfig = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a ValidatorConfig to the struct representation
+ */
+export function ValidatorConfigFromTuple(abiTuple: [bigint, string, string, bigint, number, string, [bigint, bigint, bigint, bigint], bigint, bigint, bigint, number, number, string, bigint, bigint, number, bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('ValidatorConfig', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as ValidatorConfig
+}
+
 export type ValidatorCurState = {
   numPools: number,
   totalStakers: bigint,
@@ -146,12 +178,28 @@ export type ValidatorCurState = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a ValidatorCurState to the struct representation
+ */
+export function ValidatorCurStateFromTuple(abiTuple: [number, bigint, bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('ValidatorCurState', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as ValidatorCurState
+}
+
 export type PoolInfo = {
   poolAppId: bigint,
   totalStakers: number,
   totalAlgoStaked: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a PoolInfo to the struct representation
+ */
+export function PoolInfoFromTuple(abiTuple: [bigint, number, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('PoolInfo', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as PoolInfo
+}
 
 export type ValidatorPoolKey = {
   id: bigint,
@@ -160,16 +208,40 @@ export type ValidatorPoolKey = {
 }
 
 
+/**
+ * Converts the ABI tuple representation of a ValidatorPoolKey to the struct representation
+ */
+export function ValidatorPoolKeyFromTuple(abiTuple: [bigint, bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('ValidatorPoolKey', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as ValidatorPoolKey
+}
+
 export type PoolTokenPayoutRatio = {
   poolPctOfWhole: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint],
   updatedForPayout: bigint
 }
 
 
+/**
+ * Converts the ABI tuple representation of a PoolTokenPayoutRatio to the struct representation
+ */
+export function PoolTokenPayoutRatioFromTuple(abiTuple: [[bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint], bigint]) {
+  const abiStructType = ABIStructType.fromStruct('PoolTokenPayoutRatio', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as PoolTokenPayoutRatio
+}
+
 export type NodePoolAssignmentConfig = {
   nodes: [[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]
 }
 
+
+/**
+ * Converts the ABI tuple representation of a NodePoolAssignmentConfig to the struct representation
+ */
+export function NodePoolAssignmentConfigFromTuple(abiTuple: [[[[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]], [[bigint, bigint, bigint]]]]) {
+  const abiStructType = ABIStructType.fromStruct('NodePoolAssignmentConfig', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as NodePoolAssignmentConfig
+}
 
 /**
  * The argument types for the ValidatorRegistry contract

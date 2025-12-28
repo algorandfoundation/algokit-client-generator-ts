@@ -5,8 +5,8 @@
  * requires: @algorandfoundation/algokit-utils: ^10
  */
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
-import { ABIReturn, Arc56Contract  } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete, TransactionSigner, Transaction   } from '@algorandfoundation/algokit-utils/transact'
+import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
 import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
 import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -62,6 +62,14 @@ export type VotingPreconditions = {
   currentTime: bigint
 }
 
+
+/**
+ * Converts the ABI tuple representation of a VotingPreconditions to the struct representation
+ */
+export function VotingPreconditionsFromTuple(abiTuple: [bigint, bigint, bigint, bigint]) {
+  const abiStructType = ABIStructType.fromStruct('VotingPreconditions', APP_SPEC.structs)
+  return getStructValueFromTupleValue(abiStructType, abiTuple) as VotingPreconditions
+}
 
 /**
  * The argument types for the VotingRound contract
