@@ -7,6 +7,35 @@ import invariant from 'tiny-invariant'
 import { generateModes } from '../../../../src/client/generator-context'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 
+describe('struct FromTuple functions', () => {
+  test('FooUint16BarUint16FromTuple converts tuple to struct correctly', () => {
+    const tuple: [number, number] = [13, 37]
+    const result = full.FooUint16BarUint16FromTuple(tuple)
+
+    expect(result).toEqual({ foo: 13, bar: 37 })
+  })
+
+  test('OutputsFromTuple converts tuple to struct correctly', () => {
+    const tuple: [bigint, bigint] = [100n, 50n]
+    const result = full.OutputsFromTuple(tuple)
+
+    expect(result).toEqual({ sum: 100n, difference: 50n })
+  })
+
+  test('InputsFromTuple converts tuple to struct correctly', () => {
+    const tuple: [[bigint, bigint], [bigint, bigint]] = [
+      [1n, 2n],
+      [10n, 5n],
+    ]
+    const result = full.InputsFromTuple(tuple)
+
+    expect(result).toEqual({
+      add: { a: 1n, b: 2n },
+      subtract: { a: 10n, b: 5n },
+    })
+  })
+})
+
 describe('state typed client', () => {
   const localnet = algorandFixture()
 

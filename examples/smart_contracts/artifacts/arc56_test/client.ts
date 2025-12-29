@@ -65,7 +65,7 @@ export type FooUint16BarUint16 = {
  * Converts the ABI tuple representation of a { foo: uint16; bar: uint16 } to the struct representation
  */
 export function FooUint16BarUint16FromTuple(abiTuple: [number, number]) {
-  const abiStructType = ABIStructType.fromStruct('FooUint16BarUint16', APP_SPEC.structs)
+  const abiStructType = ABIStructType.fromStruct('{ foo: uint16; bar: uint16 }', APP_SPEC.structs)
   return getStructValueFromTupleValue(abiStructType, abiTuple) as FooUint16BarUint16
 }
 
