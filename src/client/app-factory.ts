@@ -1,9 +1,8 @@
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, jsDoc, NewLine } from '../output/writer'
-import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
+
 import { GeneratorContext } from './generator-context'
-import { getCreateOnCompleteOptions } from './deploy-types'
-import { ABIMethod } from 'algosdk'
-import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+
+import { AppClientMethodContext, AbiMethodClientContext, isAbiMethod } from './app-client-context'
 
 export function* appFactory(ctx: GeneratorContext): DocumentParts {
   const { app, name } = ctx
@@ -113,12 +112,12 @@ function* send(ctx: GeneratorContext): DocumentParts {
 
 function* createMethods(generator: GeneratorContext): DocumentParts {
   const { app } = generator
-  if (generator.callConfig.createMethods.length) {
+  if (app.createMethods.length) {
     yield* jsDoc(`Gets available create methods`)
     yield `create: {`
     yield IncIndent
-    for (const methodSig of generator.callConfig.createMethods) {
-      if (methodSig === BARE_CALL) {
+    for (const method of generator.app.createMethods) {
+      if (!isAbiMethod(method)) {
         yield* bareMethodCallParams({
           generator,
           name: 'bare',
@@ -128,7 +127,6 @@ function* createMethods(generator: GeneratorContext): DocumentParts {
           includeCompilation: true,
         })
       } else {
-        const method = generator.app.methods.find((m) => new ABIMethod(m).getSignature() === methodSig)!
         yield* abiMethodCallParams({
           generator,
           method,
@@ -146,21 +144,14 @@ function* createMethods(generator: GeneratorContext): DocumentParts {
 }
 
 function* paramMethods(ctx: GeneratorContext): DocumentParts {
-  const { app, callConfig } = ctx
+  const { app } = ctx
 
-  yield* operationMethods(
-    ctx,
-    `Creates a new instance of the ${app.name} smart contract`,
-    callConfig.createMethods,
-    'create',
-    'params',
-    true,
-  )
+  yield* operationMethods(ctx, `Creates a new instance of the ${app.name} smart contract`, app.createMethods, 'create', 'params', true)
 
   yield* operationMethods(
     ctx,
     `Updates an existing instance of the ${app.name} smart contract`,
-    callConfig.updateMethods,
+    app.updateMethods,
     'deployUpdate',
     'params',
     true,
@@ -168,19 +159,19 @@ function* paramMethods(ctx: GeneratorContext): DocumentParts {
   yield* operationMethods(
     ctx,
     `Deletes an existing instance of the ${app.name} smart contract`,
-    callConfig.deleteMethods,
+    app.deleteMethods,
     'deployDelete',
     'params',
   )
 }
 
 function* createTransactionMethods(ctx: GeneratorContext): DocumentParts {
-  const { app, callConfig } = ctx
+  const { app } = ctx
 
   yield* operationMethods(
     ctx,
     `Creates a new instance of the ${app.name} smart contract`,
-    callConfig.createMethods,
+    app.createMethods,
     'create',
     'createTransaction',
     true,
@@ -202,7 +193,7 @@ function* bareMethodCallParams({
   type: 'params' | 'createTransaction' | 'send'
   includeCompilation?: boolean
 }): DocumentParts {
-  const onComplete = verb === 'create' ? getCreateOnCompleteOptions(BARE_CALL, app) : undefined
+  const onComplete = verb === 'create' ? app.bareMethod.createActions.inputType : undefined
   yield* jsDoc({
     description: `${description}.`,
     params: {
@@ -217,7 +208,7 @@ function* bareMethodCallParams({
     includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
   }${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}>) => {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.typeLiteral ? ` & ${onComplete.typeLiteral}` : ''}>) => {`
   if (type === 'params' || type === 'createTransaction') {
     yield* indent(`return this.appFactory.${type}.bare.${verb}(params)`)
   } else {
@@ -230,7 +221,7 @@ function* bareMethodCallParams({
 }
 
 function* abiMethodCallParams({
-  generator: { app, methodSignatureToUniqueName, name, sanitizer },
+  generator: { name, sanitizer },
   method,
   description,
   verb,
@@ -238,15 +229,15 @@ function* abiMethodCallParams({
   includeCompilation,
 }: {
   generator: GeneratorContext
-  method: Method
+  method: AbiMethodClientContext
   description: string
   verb: 'create' | 'deployUpdate' | 'deployDelete'
   type: 'params' | 'createTransaction' | 'send'
   includeCompilation?: boolean
 }) {
-  const methodSig = new ABIMethod(method).getSignature()
-  const uniqueName = methodSignatureToUniqueName[methodSig]
-  const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
+  const methodSig = method.signature
+  const uniqueName = method.uniqueName.original
+  const onComplete = verb === 'create' ? method.createActions.inputType : undefined
   yield* jsDoc({
     description: `${description} using the ${methodSig} ABI method.`,
     abiDescription: method?.desc,
@@ -262,7 +253,7 @@ function* abiMethodCallParams({
     includeCompilation ? ' &' + ' AppClientCompilationParams' : ''
   }${
     verb === 'create' ? ' & CreateSchema' : ''
-  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.type ? ` & ${onComplete.type}` : ''}${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) => {`
+  }${type === 'send' ? ' & SendParams' : ''}${onComplete?.typeLiteral ? ` & ${onComplete.typeLiteral}` : ''}${onComplete?.isOptional !== false && (method.args.length === 0 || !method.args.some((a) => !a.defaultValue)) ? ` = {args: [${method.args.map((_) => 'undefined').join(', ')}]}` : ''}) => {`
   if (type === 'params' || type === 'createTransaction') {
     yield* indent(
       `return this.appFactory.${type}.${verb}(${name}ParamsFactory.${verb == 'deployDelete' ? 'delete' : verb === 'deployUpdate' ? 'update' : verb}${methodNameAccessor}(params))`,
@@ -279,7 +270,7 @@ function* abiMethodCallParams({
 function* operationMethods(
   generator: GeneratorContext,
   description: string,
-  methods: MethodList,
+  methods: AppClientMethodContext[],
   verb: 'create' | 'deployUpdate' | 'deployDelete',
   type: 'params' | 'createTransaction',
   includeCompilation?: boolean,
@@ -288,8 +279,8 @@ function* operationMethods(
     yield* jsDoc(`Gets available ${verb} methods`)
     yield `${verb}: {`
     yield IncIndent
-    for (const methodSig of methods) {
-      if (methodSig === BARE_CALL) {
+    for (const method of methods) {
+      if (!isAbiMethod(method)) {
         yield* bareMethodCallParams({
           generator,
           name: 'bare',
@@ -299,7 +290,6 @@ function* operationMethods(
           includeCompilation,
         })
       } else {
-        const method = generator.app.methods.find((m) => new ABIMethod(m).getSignature() === methodSig)!
         yield* abiMethodCallParams({
           generator,
           method,
@@ -317,7 +307,7 @@ function* operationMethods(
 }
 
 function* deployMethod(ctx: GeneratorContext): DocumentParts {
-  const { app, callConfig, name } = ctx
+  const { app, name } = ctx
   yield* jsDoc({
     description: `Idempotently deploys the ${app.name} smart contract.`,
     params: {
@@ -331,13 +321,13 @@ function* deployMethod(ctx: GeneratorContext): DocumentParts {
   yield `const result = await this.appFactory.deploy({`
   yield IncIndent
   yield `...params,`
-  if (callConfig.createMethods.filter((m) => m !== BARE_CALL).length) {
+  if (app.createMethods.some((m) => !m.isBare)) {
     yield `createParams: params.createParams?.method ? ${name}ParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (${name}CreateCallParams & { args: Uint8Array[] }) : undefined,`
   }
-  if (callConfig.updateMethods.filter((m) => m !== BARE_CALL).length) {
+  if (app.updateMethods.some((m) => !m.isBare)) {
     yield `updateParams: params.updateParams?.method ? ${name}ParamsFactory.update._resolveByMethod(params.updateParams) : params.updateParams ? params.updateParams as (${name}UpdateCallParams & { args: Uint8Array[] }) : undefined,`
   }
-  if (callConfig.deleteMethods.filter((m) => m !== BARE_CALL).length) {
+  if (app.deleteMethods.some((m) => !m.isBare)) {
     yield `deleteParams: params.deleteParams?.method ? ${name}ParamsFactory.delete._resolveByMethod(params.deleteParams) : params.deleteParams ? params.deleteParams as (${name}DeleteCallParams & { args: Uint8Array[] }) : undefined,`
   }
   yield DecIndent

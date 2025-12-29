@@ -1,12 +1,10 @@
 import { DecIndentAndCloseBlock, DocumentParts, IncIndent, jsDoc, NewLine } from '../output/writer'
 import { GeneratorContext } from './generator-context'
 
-import { BARE_CALL, MethodList } from './helpers/get-call-config-summary'
-import { getCreateOnCompleteOptions } from './deploy-types'
-import { ABIMethod } from 'algosdk'
+import { AppClientMethodContext, isAbiMethod } from './app-client-context'
 
 export function* callComposerType(ctx: GeneratorContext): DocumentParts {
-  const { name, callConfig, app } = ctx
+  const { name, app } = ctx
   yield `export type ${name}Composer<TReturns extends [...any[]] = []> = {`
   yield IncIndent
 
@@ -15,26 +13,26 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
     yield* callComposerOperationMethodType(
       ctx,
       `Updates an existing instance of the ${app.name} smart contract`,
-      callConfig.updateMethods,
+      app.updateMethods,
       'update',
     )
     yield* callComposerOperationMethodType(
       ctx,
       `Deletes an existing instance of the ${app.name} smart contract`,
-      callConfig.deleteMethods,
+      app.deleteMethods,
       'delete',
     )
   }
   yield* callComposerOperationMethodType(
     ctx,
     `Opts the user into an existing instance of the ${app.name} smart contract`,
-    callConfig.optInMethods,
+    app.optInMethods,
     'optIn',
   )
   yield* callComposerOperationMethodType(
     ctx,
     `Makes a close out call to an existing instance of the ${app.name} smart contract`,
-    callConfig.closeOutMethods,
+    app.closeOutMethods,
     'closeOut',
   )
 
@@ -57,9 +55,9 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc({
     description: 'Simulates the transaction group and returns the result',
   })
-  yield `simulate(): Promise<${name}ComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>`
-  yield `simulate(options: SkipSignaturesSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>`
-  yield `simulate(options: RawSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>`
+  yield `simulate(): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
+  yield `simulate(options: SkipSignaturesSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
+  yield `simulate(options: RawSimulateOptions): Promise<${name}ComposerResults<TReturns> & { simulateResponse: SimulateResponse }>`
 
   yield* jsDoc({
     description: 'Sends the transaction group to the network and returns the results',
@@ -69,7 +67,7 @@ export function* callComposerType(ctx: GeneratorContext): DocumentParts {
   yield DecIndentAndCloseBlock
 
   yield `
-  export type ${name}ComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+  export type ${name}ComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
     returns: TReturns
   }>
   `
@@ -79,7 +77,7 @@ function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentP
   yield* jsDoc({
     description: `Makes a clear_state call to an existing instance of the ${app.name} smart contract.`,
     params: {
-      args: `The arguments for the bare call`,
+      params: `Any additional parameters for the bare call`,
     },
     returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
   })
@@ -87,32 +85,31 @@ function* callComposerTypeClearState({ app, name }: GeneratorContext): DocumentP
   yield NewLine
 }
 
-function* callComposerTypeNoops({ app, name, callConfig, methodSignatureToUniqueName, sanitizer }: GeneratorContext): DocumentParts {
-  for (const method of app.methods) {
-    const methodSig = new ABIMethod(method).getSignature()
+function* callComposerTypeNoops({ app, name, sanitizer }: GeneratorContext): DocumentParts {
+  for (const method of app.noOpMethods) {
+    if (!isAbiMethod(method)) continue
+    const methodSig = method.signature
     const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
-    const methodName = sanitizer.makeSafeMethodIdentifier(methodSignatureToUniqueName[methodSig])
-    // Skip methods which don't support a no_op call config
-    if (!callConfig.callMethods.includes(methodSig)) continue
+    const methodName = method.uniqueName.makeSafeMethodIdentifier
 
     yield* jsDoc({
-      description: `Calls the ${new ABIMethod(method).getSignature()} ABI method.`,
+      description: `Calls the ${methodSig} ABI method.`,
       abiDescription: method.desc,
       params: {
-        args: `The arguments for the contract call`,
         params: `Any additional parameters for the call`,
       },
       returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
     })
-    yield `${methodName}(params?: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']>): ${name}Composer<[...TReturns, ${name}Returns['${methodSigSafe}'] | undefined]>`
+    const updatedReturnType = `[...TReturns, ${name}Returns['${methodSigSafe}'] | undefined]`
+    yield `${methodName}(params?: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']>): ${name}Composer<${updatedReturnType}>`
     yield NewLine
   }
 }
 
 function* callComposerOperationMethodType(
-  { app, methodSignatureToUniqueName, name, sanitizer }: GeneratorContext,
+  { name, sanitizer }: GeneratorContext,
   description: string,
-  methods: MethodList,
+  methods: AppClientMethodContext[],
   verb: 'create' | 'update' | 'optIn' | 'closeOut' | 'delete',
   includeCompilation?: boolean,
 ): DocumentParts {
@@ -120,35 +117,36 @@ function* callComposerOperationMethodType(
     yield* jsDoc(`Gets available ${verb} methods`)
     yield `readonly ${verb}: {`
     yield IncIndent
-    for (const methodSig of methods) {
-      const onComplete = verb === 'create' ? getCreateOnCompleteOptions(methodSig, app) : undefined
-      if (methodSig === BARE_CALL) {
+    for (const method of methods) {
+      const onComplete = verb === 'create' ? method.createActions.inputType : undefined
+      if (!isAbiMethod(method)) {
         yield* jsDoc({
           description: `${description} using a bare call.`,
           params: {
-            args: `The arguments for the bare call`,
+            params: `Any additional parameters for the call`,
           },
           returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
         })
         yield `bare(params${onComplete?.isOptional !== false ? '?' : ''}: AppClientBareCallParams ${
           includeCompilation ? '& AppClientCompilationParams' : ''
-        }): ${name}Composer<[...TReturns, undefined]>`
+        }): ${name}Composer<TReturns>`
       } else {
-        const uniqueName = methodSignatureToUniqueName[methodSig]
+        const uniqueName = method.uniqueName.original
         yield* jsDoc({
-          description: `${description} using the ${methodSig} ABI method.`,
+          description: `${description} using the ${method.signature} ABI method.`,
           params: {
-            args: `The arguments for the smart contract call`,
             params: `Any additional parameters for the call`,
           },
           returns: `The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions`,
         })
-        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(methodSig)
+        const methodSigSafe = sanitizer.makeSafeStringTypeLiteral(method.signature)
+
+        const updatedReturnType = `[...TReturns, ${name}Returns['${methodSigSafe}'] | undefined]`
         yield `${sanitizer.makeSafeMethodIdentifier(uniqueName)}(params${
           onComplete?.isOptional !== false ? '?' : ''
         }: CallParams<${name}Args['obj']['${methodSigSafe}'] | ${name}Args['tuple']['${methodSigSafe}']>${includeCompilation ? ' & AppClientCompilationParams' : ''}${
-          onComplete?.type ? ` & ${onComplete.type}` : ''
-        }): ${name}Composer<[...TReturns, ${name}Returns['${methodSigSafe}'] | undefined]>`
+          onComplete?.typeLiteral ? ` & ${onComplete.typeLiteral}` : ''
+        }): ${name}Composer<${updatedReturnType}>`
       }
     }
     yield DecIndentAndCloseBlock
