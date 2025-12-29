@@ -210,7 +210,7 @@ function* structTypes(ctx: GeneratorContext): DocumentParts {
     // Emit method that converts ABI tuple to the struct object
     yield* jsDoc(`Converts the ABI tuple representation of a ${structName} to the struct representation`)
     yield* inline(`export function ${sanitizer.makeSafeTypeIdentifier(structName)}FromTuple(`, `abiTuple: ${structCtx.tsTupDef}`, `) {`)
-    yield* indent(`const abiStructType = ABIStructType.fromStruct('${sanitizer.makeSafeTypeIdentifier(structName)}', APP_SPEC.structs)`)
+    yield* indent(`const abiStructType = ABIStructType.fromStruct('${structName}', APP_SPEC.structs)`)
     yield* indent(`return getStructValueFromTupleValue(abiStructType, abiTuple) as ${sanitizer.makeSafeTypeIdentifier(structName)}`)
     yield '}'
     yield NewLine
