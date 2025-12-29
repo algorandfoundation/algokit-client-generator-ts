@@ -158,6 +158,17 @@ export type SanitizableString = {
 export function createAppClientContext(appSpec: Arc56Contract, sanitizer: Sanitizer): AppClientContext {
   const methods: AppClientMethodContext[] = []
 
+  // Add bare method first to maintain consistent ordering (bare before ABI methods)
+  const bareMethod: BareMethodClientContext = {
+    isBare: true,
+    createActions: buildOcas(appSpec.bareActions.create),
+    callActions: buildOcas(appSpec.bareActions.call),
+  }
+  if (bareMethod.createActions.any || bareMethod.callActions.any) {
+    methods.push(bareMethod)
+  }
+
+  // Then add ABI methods
   for (const m of appSpec.methods) {
     const abiMethod = arc56MethodToABIMethod(m, appSpec)
     const baseNameIsUnique = appSpec.methods.filter((o) => o.name === m.name).length === 1
@@ -186,15 +197,6 @@ export function createAppClientContext(appSpec: Arc56Contract, sanitizer: Saniti
         desc: abiMethod.returns.description,
       },
     })
-  }
-
-  const bareMethod: BareMethodClientContext = {
-    isBare: true,
-    createActions: buildOcas(appSpec.bareActions.create),
-    callActions: buildOcas(appSpec.bareActions.call),
-  }
-  if (bareMethod.createActions.any || bareMethod.callActions.any) {
-    methods.push(bareMethod)
   }
 
   return {
