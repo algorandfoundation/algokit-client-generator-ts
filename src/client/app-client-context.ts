@@ -293,7 +293,7 @@ function buildStorageKey(
   return mapRecord(keys, (v) => ({
     desc: v.desc,
     valueType: buildTypeContext(v.valueType, appSpec, sanitizer),
-    keyType: buildTypeContext(v.valueType, appSpec, sanitizer),
+    keyType: buildTypeContext(v.keyType, appSpec, sanitizer),
     key: v.key,
   }))
 }
