@@ -197,16 +197,16 @@ export type GlobalKeysState = LifeCycleTypes['state']['global']['keys']
  * Defines supported create method params for this smart contract
  */
 export type LifeCycleCreateCallParams =
+  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn } & CreateSchema>
   | Expand<CallParams<LifeCycleArgs['obj']['create(string)string'] | LifeCycleArgs['tuple']['create(string)string']> & {method: 'create(string)string'} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
   | Expand<CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & {method: 'create(string,uint32)void'} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
-  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn } & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
 export type LifeCycleUpdateCallParams =
+  | Expand<AppClientBareCallParams> & {method?: never}
   | Expand<CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & {method: 'update_test'}>
   | Expand<CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & {method: 'update_test()string'}>
-  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines supported delete method params for this smart contract
  */
@@ -477,6 +477,15 @@ export class LifeCycleFactory {
      */
     create: {
       /**
+       * Creates a new instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The params for a create call
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
+        return this.appFactory.params.bare.create(params)
+      },
+      /**
        * Creates a new instance of the LifeCycle smart contract using the create(string)string ABI method.
        *
        * @param params The params for the smart contract call
@@ -494,30 +503,12 @@ export class LifeCycleFactory {
       "create(string,uint32)void": (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
         return this.appFactory.params.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
       },
-      /**
-       * Creates a new instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The params for a create call
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
-        return this.appFactory.params.bare.create(params)
-      },
     },
 
     /**
      * Gets available deployUpdate methods
      */
     deployUpdate: {
-      /**
-       * Updates an existing instance of the LifeCycle smart contract using the update_test()string ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The deployUpdate params
-       */
-      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
-        return this.appFactory.params.deployUpdate(LifeCycleParamsFactory.update.update_test(params))
-      },
       /**
        * Updates an existing instance of the LifeCycle smart contract using a bare call.
        *
@@ -526,6 +517,15 @@ export class LifeCycleFactory {
        */
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
         return this.appFactory.params.bare.deployUpdate(params)
+      },
+      /**
+       * Updates an existing instance of the LifeCycle smart contract using the update_test()string ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The deployUpdate params
+       */
+      update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams = {args: []}) => {
+        return this.appFactory.params.deployUpdate(LifeCycleParamsFactory.update.update_test(params))
       },
     },
 
@@ -555,6 +555,15 @@ export class LifeCycleFactory {
      */
     create: {
       /**
+       * Creates a new instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The transaction for a create call
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
+        return this.appFactory.createTransaction.bare.create(params)
+      },
+      /**
        * Creates a new instance of the LifeCycle smart contract using the create(string)string ABI method.
        *
        * @param params The params for the smart contract call
@@ -572,15 +581,6 @@ export class LifeCycleFactory {
       "create(string,uint32)void": (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
         return this.appFactory.createTransaction.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
       },
-      /**
-       * Creates a new instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The transaction for a create call
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
-        return this.appFactory.createTransaction.bare.create(params)
-      },
     },
 
   }
@@ -593,6 +593,16 @@ export class LifeCycleFactory {
      * Gets available create methods
      */
     create: {
+      /**
+       * Creates a new instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The create result
+       */
+      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
+        const result = await this.appFactory.send.bare.create(params)
+        return { result: result.result, appClient: new LifeCycleClient(result.appClient) }
+      },
       /**
        * Creates a new instance of the LifeCycle smart contract using an ABI method call using the create(string)string ABI method.
        *
@@ -612,16 +622,6 @@ export class LifeCycleFactory {
       "create(string,uint32)void": async (params: CallParams<LifeCycleArgs['obj']['create(string,uint32)void'] | LifeCycleArgs['tuple']['create(string,uint32)void']> & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
         const result = await this.appFactory.send.create(LifeCycleParamsFactory.create['create(string,uint32)void'](params))
         return { result: { ...result.result, return: result.result.return as unknown as (undefined | LifeCycleReturns['create(string,uint32)void']) }, appClient: new LifeCycleClient(result.appClient) }
-      },
-      /**
-       * Creates a new instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The create result
-       */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
-        const result = await this.appFactory.send.bare.create(params)
-        return { result: result.result, appClient: new LifeCycleClient(result.appClient) }
       },
     },
 
@@ -712,6 +712,15 @@ export class LifeCycleClient {
      */
     update: {
       /**
+       * Updates an existing instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The update result
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
+        return this.appClient.params.bare.update(params)
+      },
+      /**
        * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
        *
        * @param params The params for the smart contract call
@@ -721,15 +730,6 @@ export class LifeCycleClient {
         return this.appClient.params.update(LifeCycleParamsFactory.update.update_test(params))
       },
 
-      /**
-       * Updates an existing instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
-        return this.appClient.params.bare.update(params)
-      },
     },
 
     /**
@@ -805,6 +805,15 @@ export class LifeCycleClient {
      */
     update: {
       /**
+       * Updates an existing instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The update result
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
+        return this.appClient.createTransaction.bare.update(params)
+      },
+      /**
        * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
        *
        * @param params The params for the smart contract call
@@ -814,15 +823,6 @@ export class LifeCycleClient {
         return this.appClient.createTransaction.update(LifeCycleParamsFactory.update.update_test(params))
       },
 
-      /**
-       * Updates an existing instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
-        return this.appClient.createTransaction.bare.update(params)
-      },
     },
 
     /**
@@ -898,6 +898,15 @@ export class LifeCycleClient {
      */
     update: {
       /**
+       * Updates an existing instance of the LifeCycle smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The update result
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) => {
+        return this.appClient.send.bare.update(params)
+      },
+      /**
        * Updates an existing instance of the LifeCycle smart contract using the `update_test()string` ABI method.
        *
        * @param params The params for the smart contract call
@@ -908,15 +917,6 @@ export class LifeCycleClient {
         return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['update_test()string'])}
       },
 
-      /**
-       * Updates an existing instance of the LifeCycle smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) => {
-        return this.appClient.send.bare.update(params)
-      },
     },
 
     /**
@@ -1047,12 +1047,12 @@ export class LifeCycleClient {
       },
       get update() {
         return {
-          update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams) => {
-            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.update_test(params)))
-            return this
-          },
           bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
             promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
+            return this
+          },
+          update_test: (params: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']> & AppClientCompilationParams) => {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.update_test(params)))
             return this
           },
         }
@@ -1129,19 +1129,19 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
    */
   readonly update: {
     /**
-     * Updates an existing instance of the LifeCycle smart contract using the update_test()string ABI method.
-     *
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    update_test(params?: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['update_test()string'] | undefined]>
-    /**
      * Updates an existing instance of the LifeCycle smart contract using a bare call.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     bare(params?: AppClientBareCallParams ): LifeCycleComposer<TReturns>
+    /**
+     * Updates an existing instance of the LifeCycle smart contract using the update_test()string ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    update_test(params?: CallParams<LifeCycleArgs['obj']['update_test()string'] | LifeCycleArgs['tuple']['update_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['update_test()string'] | undefined]>
   }
 
   /**

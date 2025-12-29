@@ -397,23 +397,23 @@ export type LocalKeysState = StateTypes['state']['local']['keys']
  * Defines supported create method params for this smart contract
  */
 export type StateCreateCallParams =
+  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn } & CreateSchema>
   | Expand<CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & {method: 'create_abi'} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
   | Expand<CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & {method: 'create_abi(string)string'} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
-  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn } & CreateSchema>
 /**
  * Defines supported update method params for this smart contract
  */
 export type StateUpdateCallParams =
+  | Expand<AppClientBareCallParams> & {method?: never}
   | Expand<CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & {method: 'update_abi'}>
   | Expand<CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & {method: 'update_abi(string)string'}>
-  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines supported delete method params for this smart contract
  */
 export type StateDeleteCallParams =
+  | Expand<AppClientBareCallParams> & {method?: never}
   | Expand<CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']> & {method: 'delete_abi'}>
   | Expand<CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']> & {method: 'delete_abi(string)string'}>
-  | Expand<AppClientBareCallParams> & {method?: never}
 /**
  * Defines arguments required for the deploy method.
  */
@@ -859,15 +859,6 @@ export class StateFactory {
      */
     create: {
       /**
-       * Creates a new instance of the State smart contract using the create_abi(string)string ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The create params
-       */
-      createAbi: (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
-        return this.appFactory.params.create(StateParamsFactory.create.createAbi(params))
-      },
-      /**
        * Creates a new instance of the State smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
@@ -876,21 +867,21 @@ export class StateFactory {
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
         return this.appFactory.params.bare.create(params)
       },
+      /**
+       * Creates a new instance of the State smart contract using the create_abi(string)string ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The create params
+       */
+      createAbi: (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
+        return this.appFactory.params.create(StateParamsFactory.create.createAbi(params))
+      },
     },
 
     /**
      * Gets available deployUpdate methods
      */
     deployUpdate: {
-      /**
-       * Updates an existing instance of the State smart contract using the update_abi(string)string ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The deployUpdate params
-       */
-      updateAbi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
-        return this.appFactory.params.deployUpdate(StateParamsFactory.update.updateAbi(params))
-      },
       /**
        * Updates an existing instance of the State smart contract using a bare call.
        *
@@ -900,21 +891,21 @@ export class StateFactory {
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
         return this.appFactory.params.bare.deployUpdate(params)
       },
+      /**
+       * Updates an existing instance of the State smart contract using the update_abi(string)string ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The deployUpdate params
+       */
+      updateAbi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
+        return this.appFactory.params.deployUpdate(StateParamsFactory.update.updateAbi(params))
+      },
     },
 
     /**
      * Gets available deployDelete methods
      */
     deployDelete: {
-      /**
-       * Deletes an existing instance of the State smart contract using the delete_abi(string)string ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The deployDelete params
-       */
-      deleteAbi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
-        return this.appFactory.params.deployDelete(StateParamsFactory.delete.deleteAbi(params))
-      },
       /**
        * Deletes an existing instance of the State smart contract using a bare call.
        *
@@ -923,6 +914,15 @@ export class StateFactory {
        */
       bare: (params?: Expand<AppClientBareCallParams>) => {
         return this.appFactory.params.bare.deployDelete(params)
+      },
+      /**
+       * Deletes an existing instance of the State smart contract using the delete_abi(string)string ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The deployDelete params
+       */
+      deleteAbi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
+        return this.appFactory.params.deployDelete(StateParamsFactory.delete.deleteAbi(params))
       },
     },
 
@@ -937,15 +937,6 @@ export class StateFactory {
      */
     create: {
       /**
-       * Creates a new instance of the State smart contract using the create_abi(string)string ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The create transaction
-       */
-      createAbi: (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
-        return this.appFactory.createTransaction.create(StateParamsFactory.create.createAbi(params))
-      },
-      /**
        * Creates a new instance of the State smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
@@ -953,6 +944,15 @@ export class StateFactory {
        */
       bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
         return this.appFactory.createTransaction.bare.create(params)
+      },
+      /**
+       * Creates a new instance of the State smart contract using the create_abi(string)string ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The create transaction
+       */
+      createAbi: (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }) => {
+        return this.appFactory.createTransaction.create(StateParamsFactory.create.createAbi(params))
       },
     },
 
@@ -967,16 +967,6 @@ export class StateFactory {
      */
     create: {
       /**
-       * Creates a new instance of the State smart contract using an ABI method call using the create_abi(string)string ABI method.
-       *
-       * @param params The params for the smart contract call
-       * @returns The create result
-       */
-      createAbi: async (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
-        const result = await this.appFactory.send.create(StateParamsFactory.create.createAbi(params))
-        return { result: { ...result.result, return: result.result.return as unknown as (undefined | StateReturns['create_abi(string)string']) }, appClient: new StateClient(result.appClient) }
-      },
-      /**
        * Creates a new instance of the State smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
@@ -985,6 +975,16 @@ export class StateFactory {
       bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn }>) => {
         const result = await this.appFactory.send.bare.create(params)
         return { result: result.result, appClient: new StateClient(result.appClient) }
+      },
+      /**
+       * Creates a new instance of the State smart contract using an ABI method call using the create_abi(string)string ABI method.
+       *
+       * @param params The params for the smart contract call
+       * @returns The create result
+       */
+      createAbi: async (params: CallParams<StateArgs['obj']['create_abi(string)string'] | StateArgs['tuple']['create_abi(string)string']> & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+        const result = await this.appFactory.send.create(StateParamsFactory.create.createAbi(params))
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | StateReturns['create_abi(string)string']) }, appClient: new StateClient(result.appClient) }
       },
     },
 
@@ -1075,6 +1075,15 @@ export class StateClient {
      */
     update: {
       /**
+       * Updates an existing instance of the State smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The update result
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
+        return this.appClient.params.bare.update(params)
+      },
+      /**
        * Updates an existing instance of the State smart contract using the `update_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
@@ -1084,21 +1093,21 @@ export class StateClient {
         return this.appClient.params.update(StateParamsFactory.update.updateAbi(params))
       },
 
-      /**
-       * Updates an existing instance of the State smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
-        return this.appClient.params.bare.update(params)
-      },
     },
 
     /**
      * Gets available delete methods
      */
     delete: {
+      /**
+       * Deletes an existing instance of the State smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The delete result
+       */
+      bare: (params?: Expand<AppClientBareCallParams>) => {
+        return this.appClient.params.bare.delete(params)
+      },
       /**
        * Deletes an existing instance of the State smart contract using the `delete_abi(string)string` ABI method.
        *
@@ -1109,15 +1118,6 @@ export class StateClient {
         return this.appClient.params.delete(StateParamsFactory.delete.deleteAbi(params))
       },
 
-      /**
-       * Deletes an existing instance of the State smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The delete result
-       */
-      bare: (params?: Expand<AppClientBareCallParams>) => {
-        return this.appClient.params.bare.delete(params)
-      },
     },
 
     /**
@@ -1347,6 +1347,15 @@ export class StateClient {
      */
     update: {
       /**
+       * Updates an existing instance of the State smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The update result
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
+        return this.appClient.createTransaction.bare.update(params)
+      },
+      /**
        * Updates an existing instance of the State smart contract using the `update_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
@@ -1356,21 +1365,21 @@ export class StateClient {
         return this.appClient.createTransaction.update(StateParamsFactory.update.updateAbi(params))
       },
 
-      /**
-       * Updates an existing instance of the State smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams>) => {
-        return this.appClient.createTransaction.bare.update(params)
-      },
     },
 
     /**
      * Gets available delete methods
      */
     delete: {
+      /**
+       * Deletes an existing instance of the State smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The delete result
+       */
+      bare: (params?: Expand<AppClientBareCallParams>) => {
+        return this.appClient.createTransaction.bare.delete(params)
+      },
       /**
        * Deletes an existing instance of the State smart contract using the `delete_abi(string)string` ABI method.
        *
@@ -1381,15 +1390,6 @@ export class StateClient {
         return this.appClient.createTransaction.delete(StateParamsFactory.delete.deleteAbi(params))
       },
 
-      /**
-       * Deletes an existing instance of the State smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The delete result
-       */
-      bare: (params?: Expand<AppClientBareCallParams>) => {
-        return this.appClient.createTransaction.bare.delete(params)
-      },
     },
 
     /**
@@ -1619,6 +1619,15 @@ export class StateClient {
      */
     update: {
       /**
+       * Updates an existing instance of the State smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The update result
+       */
+      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) => {
+        return this.appClient.send.bare.update(params)
+      },
+      /**
        * Updates an existing instance of the State smart contract using the `update_abi(string)string` ABI method.
        *
        * @param params The params for the smart contract call
@@ -1629,21 +1638,21 @@ export class StateClient {
         return {...result, return: result.return as unknown as (undefined | StateReturns['update_abi(string)string'])}
       },
 
-      /**
-       * Updates an existing instance of the State smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The update result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & SendParams>) => {
-        return this.appClient.send.bare.update(params)
-      },
     },
 
     /**
      * Gets available delete methods
      */
     delete: {
+      /**
+       * Deletes an existing instance of the State smart contract using a bare call.
+       *
+       * @param params The params for the bare (raw) call
+       * @returns The delete result
+       */
+      bare: (params?: Expand<AppClientBareCallParams & SendParams>) => {
+        return this.appClient.send.bare.delete(params)
+      },
       /**
        * Deletes an existing instance of the State smart contract using the `delete_abi(string)string` ABI method.
        *
@@ -1655,15 +1664,6 @@ export class StateClient {
         return {...result, return: result.return as unknown as (undefined | StateReturns['delete_abi(string)string'])}
       },
 
-      /**
-       * Deletes an existing instance of the State smart contract using a bare call.
-       *
-       * @param params The params for the bare (raw) call
-       * @returns The delete result
-       */
-      bare: (params?: Expand<AppClientBareCallParams & SendParams>) => {
-        return this.appClient.send.bare.delete(params)
-      },
     },
 
     /**
@@ -2248,24 +2248,24 @@ export class StateClient {
       },
       get update() {
         return {
-          updateAbi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
-            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.updateAbi(params)))
-            return this
-          },
           bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
             promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
+            return this
+          },
+          updateAbi: (params: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']> & AppClientCompilationParams) => {
+            promiseChain = promiseChain.then(async () => composer.addAppUpdateMethodCall(await client.params.update.updateAbi(params)))
             return this
           },
         }
       },
       get delete() {
         return {
-          deleteAbi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
-            promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.deleteAbi(params)))
-            return this
-          },
           bare: (params?: AppClientBareCallParams ) => {
             promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
+            return this
+          },
+          deleteAbi: (params: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>) => {
+            promiseChain = promiseChain.then(async () => composer.addAppDeleteMethodCall(await client.params.delete.deleteAbi(params)))
             return this
           },
         }
@@ -2454,19 +2454,19 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    */
   readonly update: {
     /**
-     * Updates an existing instance of the State smart contract using the update_abi(string)string ABI method.
-     *
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    updateAbi(params?: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']>): StateComposer<[...TReturns, StateReturns['update_abi(string)string'] | undefined]>
-    /**
      * Updates an existing instance of the State smart contract using a bare call.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     bare(params?: AppClientBareCallParams ): StateComposer<TReturns>
+    /**
+     * Updates an existing instance of the State smart contract using the update_abi(string)string ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateAbi(params?: CallParams<StateArgs['obj']['update_abi(string)string'] | StateArgs['tuple']['update_abi(string)string']>): StateComposer<[...TReturns, StateReturns['update_abi(string)string'] | undefined]>
   }
 
   /**
@@ -2474,19 +2474,19 @@ export type StateComposer<TReturns extends [...any[]] = []> = {
    */
   readonly delete: {
     /**
-     * Deletes an existing instance of the State smart contract using the delete_abi(string)string ABI method.
-     *
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    deleteAbi(params?: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>): StateComposer<[...TReturns, StateReturns['delete_abi(string)string'] | undefined]>
-    /**
      * Deletes an existing instance of the State smart contract using a bare call.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     bare(params?: AppClientBareCallParams ): StateComposer<TReturns>
+    /**
+     * Deletes an existing instance of the State smart contract using the delete_abi(string)string ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    deleteAbi(params?: CallParams<StateArgs['obj']['delete_abi(string)string'] | StateArgs['tuple']['delete_abi(string)string']>): StateComposer<[...TReturns, StateReturns['delete_abi(string)string'] | undefined]>
   }
 
   /**
