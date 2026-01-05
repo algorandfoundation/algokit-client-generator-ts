@@ -7,13 +7,41 @@
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
 import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
-import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
-import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
-import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
-import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
-import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, TransactionComposerConfig, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress } from '@algorandfoundation/algokit-utils'
+import {
+  AppClientMethodCallParams,
+  AppClientCompilationParams,
+  AppClientDeployParams,
+  CallOnComplete,
+  AppClient as _AppClient,
+  AppClientParams,
+  ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
+  AppClientBareCallParams,
+  CloneAppClientParams,
+} from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams, SendTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import {
+  AppFactoryCreateMethodCallParams,
+  AppFactoryAppClientParams,
+  AppFactoryDeployParams,
+  AppFactoryParams,
+  AppFactory as _AppFactory,
+  AppFactoryResolveAppClientByCreatorAndNameParams,
+  CreateSchema,
+} from '@algorandfoundation/algokit-utils/types/app-factory'
+import {
+  TransactionComposer,
+  TransactionComposerConfig,
+  SkipSignaturesSimulateOptions,
+  RawSimulateOptions,
+  SimulateOptions,
+  AppMethodCallTransactionArgument,
+} from '@algorandfoundation/algokit-utils/types/composer'
 
+/* Don't format the app spec json */
+/* prettier-ignore */
 export const APP_SPEC: Arc56Contract = {"name":"Void","structs":{},"methods":[{"name":"do_nothing","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[78],"errorMessage":"Check app is deletable"},{"pc":[72],"errorMessage":"Check app is updatable"},{"pc":[24],"errorMessage":"OnCompletion is not NoOp"},{"pc":[68],"errorMessage":"can only call when creating"},{"pc":[27,51,59],"errorMessage":"can only call when not creating"},{"pc":[88],"errorMessage":"unauthorized"}],"pcOffsetMethod":"cblocks"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvdm9pZC9jb250cmFjdC5weTo2CiAgICAvLyBjbGFzcyBWb2lkKEV4YW1wbGVBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fYmFyZV9yb3V0aW5nQDYKICAgIHB1c2hieXRlcyAweDM0MTUwYzhmIC8vIG1ldGhvZCAiZG9fbm90aGluZygpdm9pZCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fZG9fbm90aGluZ19yb3V0ZUAzCgptYWluX2FmdGVyX2lmX2Vsc2VAMTI6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvdm9pZC9jb250cmFjdC5weTo2CiAgICAvLyBjbGFzcyBWb2lkKEV4YW1wbGVBUkM0Q29udHJhY3QpOgogICAgcHVzaGludCAwIC8vIDAKICAgIHJldHVybgoKbWFpbl9kb19ub3RoaW5nX3JvdXRlQDM6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvdm9pZC9jb250cmFjdC5weTo3CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9iYXJlX3JvdXRpbmdANjoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy92b2lkL2NvbnRyYWN0LnB5OjYKICAgIC8vIGNsYXNzIFZvaWQoRXhhbXBsZUFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBzd2l0Y2ggbWFpbl9fX2FsZ29weV9kZWZhdWx0X2NyZWF0ZUA3IG1haW5fYWZ0ZXJfaWZfZWxzZUAxMiBtYWluX2FmdGVyX2lmX2Vsc2VAMTIgbWFpbl9hZnRlcl9pZl9lbHNlQDEyIG1haW5fdXBkYXRlQDggbWFpbl9kZWxldGVAOQogICAgYiBtYWluX2FmdGVyX2lmX2Vsc2VAMTIKCm1haW5fZGVsZXRlQDk6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMAogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiRGVsZXRlQXBwbGljYXRpb24iXSkKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgY2FsbHN1YiBkZWxldGUKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fdXBkYXRlQDg6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyMwogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiVXBkYXRlQXBwbGljYXRpb24iXSkKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgY2FsbHN1YiB1cGRhdGUKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fX19hbGdvcHlfZGVmYXVsdF9jcmVhdGVANzoKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgoKLy8gZXhhbXBsZXMuc21hcnRfY29udHJhY3RzLmJhc2UuY29udHJhY3QuSW1tdXRhYmlsaXR5Q29udHJvbEFSQzRDb250cmFjdC51cGRhdGUoKSAtPiB2b2lkOgp1cGRhdGU6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyNQogICAgLy8gYXNzZXJ0IFRlbXBsYXRlVmFyW2Jvb2xdKFVQREFUQUJMRV9URU1QTEFURV9OQU1FKSwgIkNoZWNrIGFwcCBpcyB1cGRhdGFibGUiCiAgICBpbnRjXzEgLy8gVE1QTF9VUERBVEFCTEUKICAgIGFzc2VydCAvLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyNgogICAgLy8gc2VsZi5hdXRob3JpemVfY3JlYXRvcigpCiAgICBjYWxsc3ViIGF1dGhvcml6ZV9jcmVhdG9yCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5QZXJtYW5lbmNlQ29udHJvbEFSQzRDb250cmFjdC5kZWxldGUoKSAtPiB2b2lkOgpkZWxldGU6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMgogICAgLy8gYXNzZXJ0IFRlbXBsYXRlVmFyW2Jvb2xdKERFTEVUQUJMRV9URU1QTEFURV9OQU1FKSwgIkNoZWNrIGFwcCBpcyBkZWxldGFibGUiCiAgICBpbnRjXzIgLy8gVE1QTF9ERUxFVEFCTEUKICAgIGFzc2VydCAvLyBDaGVjayBhcHAgaXMgZGVsZXRhYmxlCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMwogICAgLy8gc2VsZi5hdXRob3JpemVfY3JlYXRvcigpCiAgICBjYWxsc3ViIGF1dGhvcml6ZV9jcmVhdG9yCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5CYXNlQVJDNENvbnRyYWN0LmF1dGhvcml6ZV9jcmVhdG9yKCkgLT4gdm9pZDoKYXV0aG9yaXplX2NyZWF0b3I6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToxMAogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIgPT0gR2xvYmFsLmNyZWF0b3JfYWRkcmVzcywgInVuYXV0aG9yaXplZCIKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyB1bmF1dGhvcml6ZWQKICAgIHJldHN1Ygo=","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"byteCode":{"approval":"CiADAQAAMRtBABmABDQVDI82GgCOAQADgQBDMRkURDEYRCJDMRmNBgAT/+T/5P/kAAsAA0L/4TEYRIgAFiJDMRhEiAAIIkMxGBREIkMjRIgAB4kkRIgAAYkxADIJEkSJ","clear":"CoEBQw=="},"events":[],"templateVariables":{"UPDATABLE":{"type":"AVMUint64"},"DELETABLE":{"type":"AVMUint64"}}} as unknown as Arc56Contract
 
 /**
@@ -52,13 +80,12 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     ? { [K in keyof O]: O[K] }
     : never
 
-
 /**
  * Deploy-time template variables
  */
 export type TemplateVariables = {
-  UPDATABLE: bigint,
-  DELETABLE: bigint,
+  UPDATABLE: bigint
+  DELETABLE: bigint
 }
 
 /**
@@ -93,12 +120,14 @@ export type VoidTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
-  methods:
-    & Record<'do_nothing()void' | 'do_nothing', {
+  methods: Record<
+    'do_nothing()void' | 'do_nothing',
+    {
       argsObj: VoidArgs['obj']['do_nothing()void']
       argsTuple: VoidArgs['tuple']['do_nothing()void']
       returns: VoidReturns['do_nothing()void']
-    }>
+    }
+  >
 }
 
 /**
@@ -109,11 +138,10 @@ export type VoidSignatures = keyof VoidTypes['methods']
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
 export type CallParams<TArgs> = Expand<
-  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
-    {
-      /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<TArgs>
-    }
+  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> & {
+    /** The args for the ABI method call, either as an ordered array or an object */
+    args: Expand<TArgs>
+  }
 >
 /**
  * Maps a method signature from the Void smart contract to the method's arguments in either tuple or struct form
@@ -124,40 +152,39 @@ export type MethodArgs<TSignature extends VoidSignatures> = VoidTypes['methods']
  */
 export type MethodReturn<TSignature extends VoidSignatures> = VoidTypes['methods'][TSignature]['returns']
 
-
 /**
  * Defines supported create method params for this smart contract
  */
-export type VoidCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
+export type VoidCreateCallParams = Expand<
+  AppClientBareCallParams & { method?: never } & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema
+>
 /**
  * Defines supported update method params for this smart contract
  */
-export type VoidUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
+export type VoidUpdateCallParams = Expand<AppClientBareCallParams> & { method?: never }
 /**
  * Defines supported delete method params for this smart contract
  */
-export type VoidDeleteCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
+export type VoidDeleteCallParams = Expand<AppClientBareCallParams> & { method?: never }
 /**
  * Defines arguments required for the deploy method.
  */
-export type VoidDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
-  /**
-   * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  createParams?: VoidCreateCallParams
-  /**
-   * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  updateParams?: VoidUpdateCallParams
-  /**
-   * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  deleteParams?: VoidDeleteCallParams
-}>
-
+export type VoidDeployParams = Expand<
+  Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
+    /**
+     * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    createParams?: VoidCreateCallParams
+    /**
+     * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    updateParams?: VoidUpdateCallParams
+    /**
+     * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    deleteParams?: VoidDeleteCallParams
+  }
+>
 
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the Void smart contract
@@ -169,7 +196,9 @@ export abstract class VoidParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static doNothing(params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static doNothing(
+    params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'do_nothing()void' as const,
@@ -198,22 +227,22 @@ export class VoidFactory {
       appSpec: APP_SPEC,
     })
   }
-  
+
   /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
   public get appName() {
     return this.appFactory.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   get appSpec() {
     return APP_SPEC
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app factory is using. */
   public get algorand(): AlgorandClient {
     return this.appFactory.algorand
   }
-  
+
   /**
    * Returns a new `AppClient` client for an app instance of the given ID.
    *
@@ -225,7 +254,7 @@ export class VoidFactory {
   public getAppClientById(params: AppFactoryAppClientParams) {
     return new VoidClient(this.appFactory.getAppClientById(params))
   }
-  
+
   /**
    * Returns a new `AppClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
@@ -235,9 +264,7 @@ export class VoidFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public async getAppClientByCreatorAndName(
-    params: AppFactoryResolveAppClientByCreatorAndNameParams,
-  ) {
+  public async getAppClientByCreatorAndName(params: AppFactoryResolveAppClientByCreatorAndNameParams) {
     return new VoidClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
@@ -268,7 +295,9 @@ export class VoidFactory {
        * @param params The params for the bare (raw) call
        * @returns The params for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: (
+        params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>,
+      ) => {
         return this.appFactory.params.bare.create(params)
       },
     },
@@ -302,7 +331,6 @@ export class VoidFactory {
         return this.appFactory.params.bare.deployDelete(params)
       },
     },
-
   }
 
   /**
@@ -319,11 +347,12 @@ export class VoidFactory {
        * @param params The params for the bare (raw) call
        * @returns The transaction for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: (
+        params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>,
+      ) => {
         return this.appFactory.createTransaction.bare.create(params)
       },
     },
-
   }
 
   /**
@@ -340,14 +369,16 @@ export class VoidFactory {
        * @param params The params for the bare (raw) call
        * @returns The create result
        */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: async (
+        params?: Expand<
+          AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }
+        >,
+      ) => {
         const result = await this.appFactory.send.bare.create(params)
         return { result: result.result, appClient: new VoidClient(result.appClient) }
       },
     },
-
   }
-
 }
 /**
  * A client to make calls to the Void smart contract
@@ -371,10 +402,13 @@ export class VoidClient {
    */
   constructor(params: Omit<AppClientParams, 'appSpec'>)
   constructor(appClientOrParams: _AppClient | Omit<AppClientParams, 'appSpec'>) {
-    this.appClient = appClientOrParams instanceof _AppClient ? appClientOrParams : new _AppClient({
-      ...appClientOrParams,
-      appSpec: APP_SPEC,
-    })
+    this.appClient =
+      appClientOrParams instanceof _AppClient
+        ? appClientOrParams
+        : new _AppClient({
+            ...appClientOrParams,
+            appSpec: APP_SPEC,
+          })
   }
 
   /**
@@ -383,9 +417,9 @@ export class VoidClient {
    * @param params The parameters to create the app client
    */
   public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<VoidClient> {
-    return new VoidClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+    return new VoidClient(await _AppClient.fromCreatorAndName({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /**
    * Returns an `VoidClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
@@ -393,32 +427,30 @@ export class VoidClient {
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
    * @param params The parameters to create the app client
    */
-  static async fromNetwork(
-    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<VoidClient> {
-    return new VoidClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  static async fromNetwork(params: Omit<ResolveAppClientByNetwork, 'appSpec'>): Promise<VoidClient> {
+    return new VoidClient(await _AppClient.fromNetwork({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /** The ID of the app instance this client is linked to. */
   public get appId() {
     return this.appClient.appId
   }
-  
+
   /** The app address of the app instance this client is linked to. */
   public get appAddress() {
     return this.appClient.appAddress
   }
-  
+
   /** The name of the app. */
   public get appName() {
     return this.appClient.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   public get appSpec() {
     return this.appClient.appSpec
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app client is using. */
   public get algorand(): AlgorandClient {
     return this.appClient.algorand
@@ -474,10 +506,13 @@ export class VoidClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    doNothing: (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    doNothing: (
+      params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.params.call(VoidParamsFactory.doNothing(params))
     },
-
   }
 
   /**
@@ -530,10 +565,13 @@ export class VoidClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    doNothing: (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    doNothing: (
+      params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(VoidParamsFactory.doNothing(params))
     },
-
   }
 
   /**
@@ -586,11 +624,13 @@ export class VoidClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    doNothing: async (params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    doNothing: async (
+      params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(VoidParamsFactory.doNothing(params))
-      return {...result, return: result.return as unknown as (undefined | VoidReturns['do_nothing()void'])}
+      return { ...result, return: result.return as unknown as undefined | VoidReturns['do_nothing()void'] }
     },
-
   }
 
   /**
@@ -606,24 +646,27 @@ export class VoidClient {
   /**
    * Methods to access state for the current Void app
    */
-  state = {
-  }
+  state = {}
 
   public newGroup(composerConfig?: TransactionComposerConfig): VoidComposer {
     const client = this
     const composer = this.algorand.newGroup(composerConfig)
-    let promiseChain:Promise<unknown> = Promise.resolve()
+    let promiseChain: Promise<unknown> = Promise.resolve()
     return {
       /**
        * Add a do_nothing()void method call against the Void contract
        */
-      doNothing(params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      doNothing(
+        params: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.doNothing(params)))
         return this
       },
       get update() {
         return {
-          bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
+          bare: (params?: AppClientBareCallParams & AppClientCompilationParams) => {
             promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
             return this
           },
@@ -631,7 +674,7 @@ export class VoidClient {
       },
       get delete() {
         return {
-          bare: (params?: AppClientBareCallParams ) => {
+          bare: (params?: AppClientBareCallParams) => {
             promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
             return this
           },
@@ -657,7 +700,7 @@ export class VoidClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
       },
       async send(params?: SendParams) {
@@ -665,9 +708,9 @@ export class VoidClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
-      }
+      },
     } as unknown as VoidComposer
   }
 }
@@ -678,7 +721,9 @@ export type VoidComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  doNothing(params?: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']>): VoidComposer<[...TReturns, VoidReturns['do_nothing()void'] | undefined]>
+  doNothing(
+    params?: CallParams<VoidArgs['obj']['do_nothing()void'] | VoidArgs['tuple']['do_nothing()void']>,
+  ): VoidComposer<[...TReturns, VoidReturns['do_nothing()void'] | undefined]>
 
   /**
    * Gets available update methods
@@ -690,7 +735,7 @@ export type VoidComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(params?: AppClientBareCallParams ): VoidComposer<TReturns>
+    bare(params?: AppClientBareCallParams): VoidComposer<TReturns>
   }
 
   /**
@@ -703,7 +748,7 @@ export type VoidComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(params?: AppClientBareCallParams ): VoidComposer<TReturns>
+    bare(params?: AppClientBareCallParams): VoidComposer<TReturns>
   }
 
   /**
@@ -736,7 +781,8 @@ export type VoidComposer<TReturns extends [...any[]] = []> = {
    */
   send(params?: SendParams): Promise<VoidComposerResults<TReturns>>
 }
-export type VoidComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
-  returns: TReturns
-}>
-
+export type VoidComposerResults<TReturns extends [...any[]]> = Expand<
+  SendTransactionComposerResults & {
+    returns: TReturns
+  }
+>

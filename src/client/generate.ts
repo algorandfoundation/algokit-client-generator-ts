@@ -90,6 +90,8 @@ export function* generate(app: Arc56Contract, options?: Partial<GeneratorOptions
   reduceAppSpec.structs = Object.fromEntries(
     Object.keys(reduceAppSpec.structs).map((key) => [key, convertStructs(reduceAppSpec.structs[key], ctx.sanitizer)]),
   )
+  yield "/* Don't format the app spec json */"
+  yield '/* prettier-ignore */'
   yield* inline('export const APP_SPEC: Arc56Contract = ', JSON.stringify(reduceAppSpec), ' as unknown as Arc56Contract')
   yield NewLine
 

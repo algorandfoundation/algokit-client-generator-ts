@@ -7,13 +7,41 @@
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
 import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
-import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
-import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
-import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
-import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
-import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, TransactionComposerConfig, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress } from '@algorandfoundation/algokit-utils'
+import {
+  AppClientMethodCallParams,
+  AppClientCompilationParams,
+  AppClientDeployParams,
+  CallOnComplete,
+  AppClient as _AppClient,
+  AppClientParams,
+  ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
+  AppClientBareCallParams,
+  CloneAppClientParams,
+} from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams, SendTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import {
+  AppFactoryCreateMethodCallParams,
+  AppFactoryAppClientParams,
+  AppFactoryDeployParams,
+  AppFactoryParams,
+  AppFactory as _AppFactory,
+  AppFactoryResolveAppClientByCreatorAndNameParams,
+  CreateSchema,
+} from '@algorandfoundation/algokit-utils/types/app-factory'
+import {
+  TransactionComposer,
+  TransactionComposerConfig,
+  SkipSignaturesSimulateOptions,
+  RawSimulateOptions,
+  SimulateOptions,
+  AppMethodCallTransactionArgument,
+} from '@algorandfoundation/algokit-utils/types/composer'
 
+/* Don't format the app spec json */
+/* prettier-ignore */
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"Minimal","structs":{},"methods":[],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvbWluaW1hbC9jb250cmFjdC5weTo0CiAgICAvLyBjbGFzcyBNaW5pbWFsKEV4YW1wbGVBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAOQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgc3dpdGNoIG1haW5fX19hbGdvcHlfZGVmYXVsdF9jcmVhdGVANCBtYWluX2FmdGVyX2lmX2Vsc2VAOSBtYWluX2FmdGVyX2lmX2Vsc2VAOSBtYWluX2FmdGVyX2lmX2Vsc2VAOSBtYWluX3VwZGF0ZUA1IG1haW5fZGVsZXRlQDYKCm1haW5fYWZ0ZXJfaWZfZWxzZUA5OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL21pbmltYWwvY29udHJhY3QucHk6NAogICAgLy8gY2xhc3MgTWluaW1hbChFeGFtcGxlQVJDNENvbnRyYWN0KToKICAgIHB1c2hpbnQgMCAvLyAwCiAgICByZXR1cm4KCm1haW5fZGVsZXRlQDY6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMAogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiRGVsZXRlQXBwbGljYXRpb24iXSkKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MzAtMzEKICAgIC8vIEBhcmM0LmJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIkRlbGV0ZUFwcGxpY2F0aW9uIl0pCiAgICAvLyBkZWYgZGVsZXRlKHNlbGYpIC0+IE5vbmU6CiAgICBjYWxsc3ViIGRlbGV0ZQogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl91cGRhdGVANToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjIzCiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJVcGRhdGVBcHBsaWNhdGlvbiJdKQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyMy0yNAogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiVXBkYXRlQXBwbGljYXRpb24iXSkKICAgIC8vIGRlZiB1cGRhdGUoc2VsZikgLT4gTm9uZToKICAgIGNhbGxzdWIgdXBkYXRlCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX19fYWxnb3B5X2RlZmF1bHRfY3JlYXRlQDQ6CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5iYXNlLmNvbnRyYWN0LkltbXV0YWJpbGl0eUNvbnRyb2xBUkM0Q29udHJhY3QudXBkYXRlKCkgLT4gdm9pZDoKdXBkYXRlOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MjMtMjQKICAgIC8vIEBhcmM0LmJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIlVwZGF0ZUFwcGxpY2F0aW9uIl0pCiAgICAvLyBkZWYgdXBkYXRlKHNlbGYpIC0+IE5vbmU6CiAgICBwcm90byAwIDAKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjI1CiAgICAvLyBhc3NlcnQgVGVtcGxhdGVWYXJbYm9vbF0oVVBEQVRBQkxFX1RFTVBMQVRFX05BTUUpLCAiQ2hlY2sgYXBwIGlzIHVwZGF0YWJsZSIKICAgIGludGNfMSAvLyBUTVBMX1VQREFUQUJMRQogICAgYXNzZXJ0IC8vIENoZWNrIGFwcCBpcyB1cGRhdGFibGUKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjI2CiAgICAvLyBzZWxmLmF1dGhvcml6ZV9jcmVhdG9yKCkKICAgIGNhbGxzdWIgYXV0aG9yaXplX2NyZWF0b3IKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5iYXNlLmNvbnRyYWN0LkJhc2VBUkM0Q29udHJhY3QuYXV0aG9yaXplX2NyZWF0b3IoKSAtPiB2b2lkOgphdXRob3JpemVfY3JlYXRvcjoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjgtOQogICAgLy8gQHN1YnJvdXRpbmUKICAgIC8vIGRlZiBhdXRob3JpemVfY3JlYXRvcihzZWxmKSAtPiBOb25lOgogICAgcHJvdG8gMCAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToxMAogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIgPT0gR2xvYmFsLmNyZWF0b3JfYWRkcmVzcywgInVuYXV0aG9yaXplZCIKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyB1bmF1dGhvcml6ZWQKICAgIHJldHN1YgoKCi8vIGV4YW1wbGVzLnNtYXJ0X2NvbnRyYWN0cy5iYXNlLmNvbnRyYWN0LlBlcm1hbmVuY2VDb250cm9sQVJDNENvbnRyYWN0LmRlbGV0ZSgpIC0+IHZvaWQ6CmRlbGV0ZToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjMwLTMxCiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJEZWxldGVBcHBsaWNhdGlvbiJdKQogICAgLy8gZGVmIGRlbGV0ZShzZWxmKSAtPiBOb25lOgogICAgcHJvdG8gMCAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMgogICAgLy8gYXNzZXJ0IFRlbXBsYXRlVmFyW2Jvb2xdKERFTEVUQUJMRV9URU1QTEFURV9OQU1FKSwgIkNoZWNrIGFwcCBpcyBkZWxldGFibGUiCiAgICBpbnRjXzIgLy8gVE1QTF9ERUxFVEFCTEUKICAgIGFzc2VydCAvLyBDaGVjayBhcHAgaXMgZGVsZXRhYmxlCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMwogICAgLy8gc2VsZi5hdXRob3JpemVfY3JlYXRvcigpCiAgICBjYWxsc3ViIGF1dGhvcml6ZV9jcmVhdG9yCiAgICByZXRzdWIK","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
 
 /**
@@ -52,7 +80,6 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     ? { [K in keyof O]: O[K] }
     : never
 
-
 /**
  * The argument types for the Minimal contract
  */
@@ -60,20 +87,17 @@ export type MinimalArgs = {
   /**
    * The object representation of the arguments for each method
    */
-  obj: {
-  }
+  obj: {}
   /**
    * The tuple representation of the arguments for each method
    */
-  tuple: {
-  }
+  tuple: {}
 }
 
 /**
  * The return type for each method
  */
-export type MinimalReturns = {
-}
+export type MinimalReturns = {}
 
 /**
  * Defines the types of available calls and state of the Minimal smart contract.
@@ -93,11 +117,10 @@ export type MinimalSignatures = keyof MinimalTypes['methods']
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
 export type CallParams<TArgs> = Expand<
-  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
-    {
-      /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<TArgs>
-    }
+  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> & {
+    /** The args for the ABI method call, either as an ordered array or an object */
+    args: Expand<TArgs>
+  }
 >
 /**
  * Maps a method signature from the Minimal smart contract to the method's arguments in either tuple or struct form
@@ -108,46 +131,44 @@ export type MethodArgs<TSignature extends MinimalSignatures> = MinimalTypes['met
  */
 export type MethodReturn<TSignature extends MinimalSignatures> = MinimalTypes['methods'][TSignature]['returns']
 
-
 /**
  * Defines supported create method params for this smart contract
  */
-export type MinimalCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
+export type MinimalCreateCallParams = Expand<
+  AppClientBareCallParams & { method?: never } & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema
+>
 /**
  * Defines supported update method params for this smart contract
  */
-export type MinimalUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
+export type MinimalUpdateCallParams = Expand<AppClientBareCallParams> & { method?: never }
 /**
  * Defines supported delete method params for this smart contract
  */
-export type MinimalDeleteCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
+export type MinimalDeleteCallParams = Expand<AppClientBareCallParams> & { method?: never }
 /**
  * Defines arguments required for the deploy method.
  */
-export type MinimalDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
-  /**
-   * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  createParams?: MinimalCreateCallParams
-  /**
-   * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  updateParams?: MinimalUpdateCallParams
-  /**
-   * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  deleteParams?: MinimalDeleteCallParams
-}>
-
+export type MinimalDeployParams = Expand<
+  Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
+    /**
+     * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    createParams?: MinimalCreateCallParams
+    /**
+     * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    updateParams?: MinimalUpdateCallParams
+    /**
+     * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    deleteParams?: MinimalDeleteCallParams
+  }
+>
 
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the Minimal smart contract
  */
-export abstract class MinimalParamsFactory {
-}
+export abstract class MinimalParamsFactory {}
 
 /**
  * A factory to create and deploy one or more instance of the Minimal smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -169,22 +190,22 @@ export class MinimalFactory {
       appSpec: APP_SPEC,
     })
   }
-  
+
   /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
   public get appName() {
     return this.appFactory.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   get appSpec() {
     return APP_SPEC
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app factory is using. */
   public get algorand(): AlgorandClient {
     return this.appFactory.algorand
   }
-  
+
   /**
    * Returns a new `AppClient` client for an app instance of the given ID.
    *
@@ -196,7 +217,7 @@ export class MinimalFactory {
   public getAppClientById(params: AppFactoryAppClientParams) {
     return new MinimalClient(this.appFactory.getAppClientById(params))
   }
-  
+
   /**
    * Returns a new `AppClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
@@ -206,9 +227,7 @@ export class MinimalFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public async getAppClientByCreatorAndName(
-    params: AppFactoryResolveAppClientByCreatorAndNameParams,
-  ) {
+  public async getAppClientByCreatorAndName(params: AppFactoryResolveAppClientByCreatorAndNameParams) {
     return new MinimalClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
@@ -239,7 +258,9 @@ export class MinimalFactory {
        * @param params The params for the bare (raw) call
        * @returns The params for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: (
+        params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>,
+      ) => {
         return this.appFactory.params.bare.create(params)
       },
     },
@@ -273,7 +294,6 @@ export class MinimalFactory {
         return this.appFactory.params.bare.deployDelete(params)
       },
     },
-
   }
 
   /**
@@ -290,11 +310,12 @@ export class MinimalFactory {
        * @param params The params for the bare (raw) call
        * @returns The transaction for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: (
+        params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>,
+      ) => {
         return this.appFactory.createTransaction.bare.create(params)
       },
     },
-
   }
 
   /**
@@ -311,14 +332,16 @@ export class MinimalFactory {
        * @param params The params for the bare (raw) call
        * @returns The create result
        */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: async (
+        params?: Expand<
+          AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }
+        >,
+      ) => {
         const result = await this.appFactory.send.bare.create(params)
         return { result: result.result, appClient: new MinimalClient(result.appClient) }
       },
     },
-
   }
-
 }
 /**
  * A client to make calls to the Minimal smart contract
@@ -342,10 +365,13 @@ export class MinimalClient {
    */
   constructor(params: Omit<AppClientParams, 'appSpec'>)
   constructor(appClientOrParams: _AppClient | Omit<AppClientParams, 'appSpec'>) {
-    this.appClient = appClientOrParams instanceof _AppClient ? appClientOrParams : new _AppClient({
-      ...appClientOrParams,
-      appSpec: APP_SPEC,
-    })
+    this.appClient =
+      appClientOrParams instanceof _AppClient
+        ? appClientOrParams
+        : new _AppClient({
+            ...appClientOrParams,
+            appSpec: APP_SPEC,
+          })
   }
 
   /**
@@ -354,9 +380,9 @@ export class MinimalClient {
    * @param params The parameters to create the app client
    */
   public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<MinimalClient> {
-    return new MinimalClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+    return new MinimalClient(await _AppClient.fromCreatorAndName({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /**
    * Returns an `MinimalClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
@@ -364,32 +390,30 @@ export class MinimalClient {
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
    * @param params The parameters to create the app client
    */
-  static async fromNetwork(
-    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<MinimalClient> {
-    return new MinimalClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  static async fromNetwork(params: Omit<ResolveAppClientByNetwork, 'appSpec'>): Promise<MinimalClient> {
+    return new MinimalClient(await _AppClient.fromNetwork({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /** The ID of the app instance this client is linked to. */
   public get appId() {
     return this.appClient.appId
   }
-  
+
   /** The app address of the app instance this client is linked to. */
   public get appAddress() {
     return this.appClient.appAddress
   }
-  
+
   /** The name of the app. */
   public get appName() {
     return this.appClient.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   public get appSpec() {
     return this.appClient.appSpec
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app client is using. */
   public get algorand(): AlgorandClient {
     return this.appClient.algorand
@@ -438,7 +462,6 @@ export class MinimalClient {
     clearState: (params?: Expand<AppClientBareCallParams>) => {
       return this.appClient.params.bare.clearState(params)
     },
-
   }
 
   /**
@@ -484,7 +507,6 @@ export class MinimalClient {
     clearState: (params?: Expand<AppClientBareCallParams>) => {
       return this.appClient.createTransaction.bare.clearState(params)
     },
-
   }
 
   /**
@@ -530,7 +552,6 @@ export class MinimalClient {
     clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => {
       return this.appClient.send.bare.clearState(params)
     },
-
   }
 
   /**
@@ -546,17 +567,16 @@ export class MinimalClient {
   /**
    * Methods to access state for the current Minimal app
    */
-  state = {
-  }
+  state = {}
 
   public newGroup(composerConfig?: TransactionComposerConfig): MinimalComposer {
     const client = this
     const composer = this.algorand.newGroup(composerConfig)
-    let promiseChain:Promise<unknown> = Promise.resolve()
+    let promiseChain: Promise<unknown> = Promise.resolve()
     return {
       get update() {
         return {
-          bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
+          bare: (params?: AppClientBareCallParams & AppClientCompilationParams) => {
             promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
             return this
           },
@@ -564,7 +584,7 @@ export class MinimalClient {
       },
       get delete() {
         return {
-          bare: (params?: AppClientBareCallParams ) => {
+          bare: (params?: AppClientBareCallParams) => {
             promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
             return this
           },
@@ -590,7 +610,7 @@ export class MinimalClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
       },
       async send(params?: SendParams) {
@@ -598,9 +618,9 @@ export class MinimalClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
-      }
+      },
     } as unknown as MinimalComposer
   }
 }
@@ -615,7 +635,7 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(params?: AppClientBareCallParams ): MinimalComposer<TReturns>
+    bare(params?: AppClientBareCallParams): MinimalComposer<TReturns>
   }
 
   /**
@@ -628,7 +648,7 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(params?: AppClientBareCallParams ): MinimalComposer<TReturns>
+    bare(params?: AppClientBareCallParams): MinimalComposer<TReturns>
   }
 
   /**
@@ -661,7 +681,8 @@ export type MinimalComposer<TReturns extends [...any[]] = []> = {
    */
   send(params?: SendParams): Promise<MinimalComposerResults<TReturns>>
 }
-export type MinimalComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
-  returns: TReturns
-}>
-
+export type MinimalComposerResults<TReturns extends [...any[]]> = Expand<
+  SendTransactionComposerResults & {
+    returns: TReturns
+  }
+>

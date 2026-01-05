@@ -7,13 +7,41 @@
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
 import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
-import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
-import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
-import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
-import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
-import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, TransactionComposerConfig, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress } from '@algorandfoundation/algokit-utils'
+import {
+  AppClientMethodCallParams,
+  AppClientCompilationParams,
+  AppClientDeployParams,
+  CallOnComplete,
+  AppClient as _AppClient,
+  AppClientParams,
+  ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
+  AppClientBareCallParams,
+  CloneAppClientParams,
+} from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams, SendTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import {
+  AppFactoryCreateMethodCallParams,
+  AppFactoryAppClientParams,
+  AppFactoryDeployParams,
+  AppFactoryParams,
+  AppFactory as _AppFactory,
+  AppFactoryResolveAppClientByCreatorAndNameParams,
+  CreateSchema,
+} from '@algorandfoundation/algokit-utils/types/app-factory'
+import {
+  TransactionComposer,
+  TransactionComposerConfig,
+  SkipSignaturesSimulateOptions,
+  RawSimulateOptions,
+  SimulateOptions,
+  AppMethodCallTransactionArgument,
+} from '@algorandfoundation/algokit-utils/types/composer'
 
+/* Don't format the app spec json */
+/* prettier-ignore */
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"LifeCycle","structs":{},"methods":[{"name":"create","args":[{"name":"greeting","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"create","args":[{"name":"greeting","type":"string"},{"name":"times","type":"uint32"}],"returns":{"type":"void"},"events":[],"actions":{"create":["NoOp"],"call":[]}},{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"close_out_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["CloseOut"]}},{"name":"delete_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["DeleteApplication"]}},{"name":"update_test","args":[],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["UpdateApplication"]}}],"state":{"schema":{"global":{"ints":1,"bytes":1},"local":{"ints":0,"bytes":0}},"keys":{"global":{"greeting":{"key":"Z3JlZXRpbmc=","keyType":"AVMString","valueType":"AVMBytes"},"times":{"key":"dGltZXM=","keyType":"AVMString","valueType":"AVMUint64"}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp","OptIn"],"call":["UpdateApplication"]}} as unknown as Arc56Contract
 
 /**
@@ -51,7 +79,6 @@ export type Expand<T> = T extends (...args: infer A) => infer R
   : T extends infer O
     ? { [K in keyof O]: O[K] }
     : never
-
 
 /**
  * The argument types for the LifeCycle contract
@@ -110,42 +137,62 @@ export type LifeCycleTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
-  methods:
-    & Record<'create(string)string', {
+  methods: Record<
+    'create(string)string',
+    {
       argsObj: LifeCycleArgs['obj']['create(string)string']
       argsTuple: LifeCycleArgs['tuple']['create(string)string']
       returns: LifeCycleReturns['create(string)string']
-    }>
-    & Record<'create(string,uint32)void', {
-      argsObj: LifeCycleArgs['obj']['create(string,uint32)void']
-      argsTuple: LifeCycleArgs['tuple']['create(string,uint32)void']
-      returns: LifeCycleReturns['create(string,uint32)void']
-    }>
-    & Record<'hello(string)string', {
-      argsObj: LifeCycleArgs['obj']['hello(string)string']
-      argsTuple: LifeCycleArgs['tuple']['hello(string)string']
-      returns: LifeCycleReturns['hello(string)string']
-    }>
-    & Record<'hello()string', {
-      argsObj: LifeCycleArgs['obj']['hello()string']
-      argsTuple: LifeCycleArgs['tuple']['hello()string']
-      returns: LifeCycleReturns['hello()string']
-    }>
-    & Record<'close_out_test()string' | 'close_out_test', {
-      argsObj: LifeCycleArgs['obj']['close_out_test()string']
-      argsTuple: LifeCycleArgs['tuple']['close_out_test()string']
-      returns: LifeCycleReturns['close_out_test()string']
-    }>
-    & Record<'delete_test()string' | 'delete_test', {
-      argsObj: LifeCycleArgs['obj']['delete_test()string']
-      argsTuple: LifeCycleArgs['tuple']['delete_test()string']
-      returns: LifeCycleReturns['delete_test()string']
-    }>
-    & Record<'update_test()string' | 'update_test', {
-      argsObj: LifeCycleArgs['obj']['update_test()string']
-      argsTuple: LifeCycleArgs['tuple']['update_test()string']
-      returns: LifeCycleReturns['update_test()string']
-    }>
+    }
+  > &
+    Record<
+      'create(string,uint32)void',
+      {
+        argsObj: LifeCycleArgs['obj']['create(string,uint32)void']
+        argsTuple: LifeCycleArgs['tuple']['create(string,uint32)void']
+        returns: LifeCycleReturns['create(string,uint32)void']
+      }
+    > &
+    Record<
+      'hello(string)string',
+      {
+        argsObj: LifeCycleArgs['obj']['hello(string)string']
+        argsTuple: LifeCycleArgs['tuple']['hello(string)string']
+        returns: LifeCycleReturns['hello(string)string']
+      }
+    > &
+    Record<
+      'hello()string',
+      {
+        argsObj: LifeCycleArgs['obj']['hello()string']
+        argsTuple: LifeCycleArgs['tuple']['hello()string']
+        returns: LifeCycleReturns['hello()string']
+      }
+    > &
+    Record<
+      'close_out_test()string' | 'close_out_test',
+      {
+        argsObj: LifeCycleArgs['obj']['close_out_test()string']
+        argsTuple: LifeCycleArgs['tuple']['close_out_test()string']
+        returns: LifeCycleReturns['close_out_test()string']
+      }
+    > &
+    Record<
+      'delete_test()string' | 'delete_test',
+      {
+        argsObj: LifeCycleArgs['obj']['delete_test()string']
+        argsTuple: LifeCycleArgs['tuple']['delete_test()string']
+        returns: LifeCycleReturns['delete_test()string']
+      }
+    > &
+    Record<
+      'update_test()string' | 'update_test',
+      {
+        argsObj: LifeCycleArgs['obj']['update_test()string']
+        argsTuple: LifeCycleArgs['tuple']['update_test()string']
+        returns: LifeCycleReturns['update_test()string']
+      }
+    >
   /**
    * Defines the shape of the state of the application.
    */
@@ -167,16 +214,21 @@ export type LifeCycleSignatures = keyof LifeCycleTypes['methods']
 /**
  * Defines the possible abi call signatures for methods that return a non-void value.
  */
-export type LifeCycleNonVoidMethodSignatures = keyof LifeCycleTypes['methods'] extends infer T ? T extends keyof LifeCycleTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
+export type LifeCycleNonVoidMethodSignatures = keyof LifeCycleTypes['methods'] extends infer T
+  ? T extends keyof LifeCycleTypes['methods']
+    ? MethodReturn<T> extends void
+      ? never
+      : T
+    : never
+  : never
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
 export type CallParams<TArgs> = Expand<
-  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
-    {
-      /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<TArgs>
-    }
+  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> & {
+    /** The args for the ABI method call, either as an ordered array or an object */
+    args: Expand<TArgs>
+  }
 >
 /**
  * Maps a method signature from the LifeCycle smart contract to the method's arguments in either tuple or struct form
@@ -191,8 +243,6 @@ export type MethodReturn<TSignature extends LifeCycleSignatures> = LifeCycleType
  * Defines the shape of the keyed global state of the application.
  */
 export type GlobalKeysState = LifeCycleTypes['state']['global']['keys']
-
-
 
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the LifeCycle smart contract
@@ -209,7 +259,9 @@ export abstract class LifeCycleParamsFactory {
        * @param params Parameters for the call
        * @returns An `AppClientMethodCallParams` object for the call
        */
-      closeOutTest(params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>): AppClientMethodCallParams {
+      closeOutTest(
+        params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>,
+      ): AppClientMethodCallParams {
         return {
           ...params,
           method: 'close_out_test()string' as const,
@@ -225,7 +277,9 @@ export abstract class LifeCycleParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloStringString(params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static helloStringString(
+    params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello(string)string' as const,
@@ -238,7 +292,9 @@ export abstract class LifeCycleParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloString(params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static helloString(
+    params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello()string' as const,
@@ -269,10 +325,13 @@ export class LifeCycleClient {
    */
   constructor(params: Omit<AppClientParams, 'appSpec'>)
   constructor(appClientOrParams: _AppClient | Omit<AppClientParams, 'appSpec'>) {
-    this.appClient = appClientOrParams instanceof _AppClient ? appClientOrParams : new _AppClient({
-      ...appClientOrParams,
-      appSpec: APP_SPEC,
-    })
+    this.appClient =
+      appClientOrParams instanceof _AppClient
+        ? appClientOrParams
+        : new _AppClient({
+            ...appClientOrParams,
+            appSpec: APP_SPEC,
+          })
   }
 
   /**
@@ -281,9 +340,9 @@ export class LifeCycleClient {
    * @param params The parameters to create the app client
    */
   public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<LifeCycleClient> {
-    return new LifeCycleClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+    return new LifeCycleClient(await _AppClient.fromCreatorAndName({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /**
    * Returns an `LifeCycleClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
@@ -291,32 +350,30 @@ export class LifeCycleClient {
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
    * @param params The parameters to create the app client
    */
-  static async fromNetwork(
-    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<LifeCycleClient> {
-    return new LifeCycleClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  static async fromNetwork(params: Omit<ResolveAppClientByNetwork, 'appSpec'>): Promise<LifeCycleClient> {
+    return new LifeCycleClient(await _AppClient.fromNetwork({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /** The ID of the app instance this client is linked to. */
   public get appId() {
     return this.appClient.appId
   }
-  
+
   /** The app address of the app instance this client is linked to. */
   public get appAddress() {
     return this.appClient.appAddress
   }
-  
+
   /** The name of the app. */
   public get appName() {
     return this.appClient.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   public get appSpec() {
     return this.appClient.appSpec
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app client is using. */
   public get algorand(): AlgorandClient {
     return this.appClient.algorand
@@ -336,10 +393,13 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut params
        */
-      closeOutTest: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & { onComplete?: OnApplicationComplete.CloseOut } = {args: []}) => {
+      closeOutTest: (
+        params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & {
+          onComplete?: OnApplicationComplete.CloseOut
+        } = { args: [] },
+      ) => {
         return this.appClient.params.closeOut(LifeCycleParamsFactory.closeOut.closeOutTest(params))
       },
-
     },
 
     /**
@@ -358,7 +418,11 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloStringString: (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    helloStringString: (
+      params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(LifeCycleParamsFactory.helloStringString(params))
     },
 
@@ -368,10 +432,13 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloString: (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    helloString: (
+      params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.params.call(LifeCycleParamsFactory.helloString(params))
     },
-
   }
 
   /**
@@ -388,10 +455,13 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut transaction
        */
-      closeOutTest: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & { onComplete?: OnApplicationComplete.CloseOut } = {args: []}) => {
+      closeOutTest: (
+        params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & {
+          onComplete?: OnApplicationComplete.CloseOut
+        } = { args: [] },
+      ) => {
         return this.appClient.createTransaction.closeOut(LifeCycleParamsFactory.closeOut.closeOutTest(params))
       },
-
     },
 
     /**
@@ -410,7 +480,11 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloStringString: (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    helloStringString: (
+      params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(LifeCycleParamsFactory.helloStringString(params))
     },
 
@@ -420,10 +494,13 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloString: (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    helloString: (
+      params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(LifeCycleParamsFactory.helloString(params))
     },
-
   }
 
   /**
@@ -440,11 +517,13 @@ export class LifeCycleClient {
        * @param params The params for the smart contract call
        * @returns The closeOut result
        */
-      closeOutTest: async (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> & SendParams & { onComplete?: OnApplicationComplete.CloseOut } = {args: []}) => {
+      closeOutTest: async (
+        params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']> &
+          SendParams & { onComplete?: OnApplicationComplete.CloseOut } = { args: [] },
+      ) => {
         const result = await this.appClient.send.closeOut(LifeCycleParamsFactory.closeOut.closeOutTest(params))
-        return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['close_out_test()string'])}
+        return { ...result, return: result.return as unknown as undefined | LifeCycleReturns['close_out_test()string'] }
       },
-
     },
 
     /**
@@ -463,9 +542,12 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloStringString: async (params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    helloStringString: async (
+      params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(LifeCycleParamsFactory.helloStringString(params))
-      return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['hello(string)string'])}
+      return { ...result, return: result.return as unknown as undefined | LifeCycleReturns['hello(string)string'] }
     },
 
     /**
@@ -474,11 +556,13 @@ export class LifeCycleClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloString: async (params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    helloString: async (
+      params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(LifeCycleParamsFactory.helloString(params))
-      return {...result, return: result.return as unknown as (undefined | LifeCycleReturns['hello()string'])}
+      return { ...result, return: result.return as unknown as undefined | LifeCycleReturns['hello()string'] }
     },
-
   }
 
   /**
@@ -512,36 +596,50 @@ export class LifeCycleClient {
       /**
        * Get the current value of the greeting key in global state
        */
-      greeting: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("greeting")) as Uint8Array | undefined) },
+      greeting: async (): Promise<BinaryState> => {
+        return new BinaryStateValue((await this.appClient.state.global.getValue('greeting')) as Uint8Array | undefined)
+      },
       /**
        * Get the current value of the times key in global state
        */
-      times: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("times")) as bigint | undefined },
+      times: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('times')) as bigint | undefined
+      },
     },
   }
 
   public newGroup(composerConfig?: TransactionComposerConfig): LifeCycleComposer {
     const client = this
     const composer = this.algorand.newGroup(composerConfig)
-    let promiseChain:Promise<unknown> = Promise.resolve()
+    let promiseChain: Promise<unknown> = Promise.resolve()
     return {
       /**
        * Add a hello(string)string method call against the LifeCycle contract
        */
-      helloStringString(params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      helloStringString(
+        params: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloStringString(params)))
         return this
       },
       /**
        * Add a hello()string method call against the LifeCycle contract
        */
-      helloString(params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      helloString(
+        params: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloString(params)))
         return this
       },
       get closeOut() {
         return {
-          closeOutTest: (params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>) => {
+          closeOutTest: (
+            params: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>,
+          ) => {
             promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.closeOut.closeOutTest(params)))
             return this
           },
@@ -567,7 +665,7 @@ export class LifeCycleClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
       },
       async send(params?: SendParams) {
@@ -575,9 +673,9 @@ export class LifeCycleClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
-      }
+      },
     } as unknown as LifeCycleComposer
   }
 }
@@ -588,7 +686,9 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloStringString(params?: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello(string)string'] | undefined]>
+  helloStringString(
+    params?: CallParams<LifeCycleArgs['obj']['hello(string)string'] | LifeCycleArgs['tuple']['hello(string)string']>,
+  ): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello(string)string'] | undefined]>
 
   /**
    * Calls the hello()string ABI method.
@@ -596,7 +696,9 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloString(params?: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello()string'] | undefined]>
+  helloString(
+    params?: CallParams<LifeCycleArgs['obj']['hello()string'] | LifeCycleArgs['tuple']['hello()string']>,
+  ): LifeCycleComposer<[...TReturns, LifeCycleReturns['hello()string'] | undefined]>
 
   /**
    * Gets available closeOut methods
@@ -608,7 +710,9 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    closeOutTest(params?: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>): LifeCycleComposer<[...TReturns, LifeCycleReturns['close_out_test()string'] | undefined]>
+    closeOutTest(
+      params?: CallParams<LifeCycleArgs['obj']['close_out_test()string'] | LifeCycleArgs['tuple']['close_out_test()string']>,
+    ): LifeCycleComposer<[...TReturns, LifeCycleReturns['close_out_test()string'] | undefined]>
   }
 
   /**
@@ -641,7 +745,8 @@ export type LifeCycleComposer<TReturns extends [...any[]] = []> = {
    */
   send(params?: SendParams): Promise<LifeCycleComposerResults<TReturns>>
 }
-export type LifeCycleComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
-  returns: TReturns
-}>
-
+export type LifeCycleComposerResults<TReturns extends [...any[]]> = Expand<
+  SendTransactionComposerResults & {
+    returns: TReturns
+  }
+>

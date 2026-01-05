@@ -7,13 +7,41 @@
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
 import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
-import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
-import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
-import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
-import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
-import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, TransactionComposerConfig, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress } from '@algorandfoundation/algokit-utils'
+import {
+  AppClientMethodCallParams,
+  AppClientCompilationParams,
+  AppClientDeployParams,
+  CallOnComplete,
+  AppClient as _AppClient,
+  AppClientParams,
+  ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
+  AppClientBareCallParams,
+  CloneAppClientParams,
+} from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams, SendTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import {
+  AppFactoryCreateMethodCallParams,
+  AppFactoryAppClientParams,
+  AppFactoryDeployParams,
+  AppFactoryParams,
+  AppFactory as _AppFactory,
+  AppFactoryResolveAppClientByCreatorAndNameParams,
+  CreateSchema,
+} from '@algorandfoundation/algokit-utils/types/app-factory'
+import {
+  TransactionComposer,
+  TransactionComposerConfig,
+  SkipSignaturesSimulateOptions,
+  RawSimulateOptions,
+  SimulateOptions,
+  AppMethodCallTransactionArgument,
+} from '@algorandfoundation/algokit-utils/types/composer'
 
+/* Don't format the app spec json */
+/* prettier-ignore */
 export const APP_SPEC: Arc56Contract = {"arcs":[],"name":"HelloWorld","structs":{},"methods":[{"name":"hello","args":[{"name":"name","type":"string"}],"returns":{"type":"string"},"events":[],"actions":{"create":[],"call":["NoOp"]}},{"name":"hello_world_check","args":[{"name":"name","type":"string"}],"returns":{"type":"void"},"events":[],"actions":{"create":[],"call":["NoOp"]}}],"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIFRNUExfVVBEQVRBQkxFIFRNUExfREVMRVRBQkxFCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6NgogICAgLy8gY2xhc3MgSGVsbG9Xb3JsZChFeGFtcGxlQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX2JhcmVfcm91dGluZ0A3CiAgICBwdXNoYnl0ZXNzIDB4MDJiZWNlMTEgMHhiZjljMWVkZiAvLyBtZXRob2QgImhlbGxvKHN0cmluZylzdHJpbmciLCBtZXRob2QgImhlbGxvX3dvcmxkX2NoZWNrKHN0cmluZyl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9oZWxsb19yb3V0ZUAzIG1haW5faGVsbG9fd29ybGRfY2hlY2tfcm91dGVANAoKbWFpbl9hZnRlcl9pZl9lbHNlQDEzOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2hlbGxvX3dvcmxkL2NvbnRyYWN0LnB5OjYKICAgIC8vIGNsYXNzIEhlbGxvV29ybGQoRXhhbXBsZUFSQzRDb250cmFjdCk6CiAgICBwdXNoaW50IDAgLy8gMAogICAgcmV0dXJuCgptYWluX2hlbGxvX3dvcmxkX2NoZWNrX3JvdXRlQDQ6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6MTEKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6NgogICAgLy8gY2xhc3MgSGVsbG9Xb3JsZChFeGFtcGxlQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6MTEKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgY2FsbHN1YiBoZWxsb193b3JsZF9jaGVjawogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9oZWxsb19yb3V0ZUAzOgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2hlbGxvX3dvcmxkL2NvbnRyYWN0LnB5OjcKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6NgogICAgLy8gY2xhc3MgSGVsbG9Xb3JsZChFeGFtcGxlQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6NwogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIGhlbGxvCiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A3OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2hlbGxvX3dvcmxkL2NvbnRyYWN0LnB5OjYKICAgIC8vIGNsYXNzIEhlbGxvV29ybGQoRXhhbXBsZUFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBzd2l0Y2ggbWFpbl9fX2FsZ29weV9kZWZhdWx0X2NyZWF0ZUA4IG1haW5fYWZ0ZXJfaWZfZWxzZUAxMyBtYWluX2FmdGVyX2lmX2Vsc2VAMTMgbWFpbl9hZnRlcl9pZl9lbHNlQDEzIG1haW5fdXBkYXRlQDkgbWFpbl9kZWxldGVAMTAKICAgIGIgbWFpbl9hZnRlcl9pZl9lbHNlQDEzCgptYWluX2RlbGV0ZUAxMDoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjMwCiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJEZWxldGVBcHBsaWNhdGlvbiJdKQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMC0zMQogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiRGVsZXRlQXBwbGljYXRpb24iXSkKICAgIC8vIGRlZiBkZWxldGUoc2VsZikgLT4gTm9uZToKICAgIGNhbGxzdWIgZGVsZXRlCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3VwZGF0ZUA5OgogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MjMKICAgIC8vIEBhcmM0LmJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIlVwZGF0ZUFwcGxpY2F0aW9uIl0pCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjIzLTI0CiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJVcGRhdGVBcHBsaWNhdGlvbiJdKQogICAgLy8gZGVmIHVwZGF0ZShzZWxmKSAtPiBOb25lOgogICAgY2FsbHN1YiB1cGRhdGUKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fX19hbGdvcHlfZGVmYXVsdF9jcmVhdGVAODoKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgoKLy8gZXhhbXBsZXMuc21hcnRfY29udHJhY3RzLmhlbGxvX3dvcmxkLmNvbnRyYWN0LkhlbGxvV29ybGQuaGVsbG8obmFtZTogYnl0ZXMpIC0+IGJ5dGVzOgpoZWxsbzoKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9oZWxsb193b3JsZC9jb250cmFjdC5weTo3LTgKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGhlbGxvKHNlbGYsIG5hbWU6IFN0cmluZykgLT4gU3RyaW5nOgogICAgcHJvdG8gMSAxCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6OQogICAgLy8gcmV0dXJuICJIZWxsbywgIiArIG5hbWUKICAgIHB1c2hieXRlcyAiSGVsbG8sICIKICAgIGZyYW1lX2RpZyAtMQogICAgY29uY2F0CiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuaGVsbG9fd29ybGQuY29udHJhY3QuSGVsbG9Xb3JsZC5oZWxsb193b3JsZF9jaGVjayhuYW1lOiBieXRlcykgLT4gdm9pZDoKaGVsbG9fd29ybGRfY2hlY2s6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvaGVsbG9fd29ybGQvY29udHJhY3QucHk6MTEtMTIKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGhlbGxvX3dvcmxkX2NoZWNrKHNlbGYsIG5hbWU6IFN0cmluZykgLT4gTm9uZToKICAgIHByb3RvIDEgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2hlbGxvX3dvcmxkL2NvbnRyYWN0LnB5OjEzCiAgICAvLyBhc3NlcnQgbmFtZSA9PSAiV29ybGQiCiAgICBmcmFtZV9kaWcgLTEKICAgIHB1c2hieXRlcyAiV29ybGQiCiAgICA9PQogICAgYXNzZXJ0CiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5JbW11dGFiaWxpdHlDb250cm9sQVJDNENvbnRyYWN0LnVwZGF0ZSgpIC0+IHZvaWQ6CnVwZGF0ZToKICAgIC8vIGV4YW1wbGVzL3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2NvbnRyYWN0LnB5OjIzLTI0CiAgICAvLyBAYXJjNC5iYXJlbWV0aG9kKGFsbG93X2FjdGlvbnM9WyJVcGRhdGVBcHBsaWNhdGlvbiJdKQogICAgLy8gZGVmIHVwZGF0ZShzZWxmKSAtPiBOb25lOgogICAgcHJvdG8gMCAwCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyNQogICAgLy8gYXNzZXJ0IFRlbXBsYXRlVmFyW2Jvb2xdKFVQREFUQUJMRV9URU1QTEFURV9OQU1FKSwgIkNoZWNrIGFwcCBpcyB1cGRhdGFibGUiCiAgICBpbnRjXzEgLy8gVE1QTF9VUERBVEFCTEUKICAgIGFzc2VydCAvLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weToyNgogICAgLy8gc2VsZi5hdXRob3JpemVfY3JlYXRvcigpCiAgICBjYWxsc3ViIGF1dGhvcml6ZV9jcmVhdG9yCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5CYXNlQVJDNENvbnRyYWN0LmF1dGhvcml6ZV9jcmVhdG9yKCkgLT4gdm9pZDoKYXV0aG9yaXplX2NyZWF0b3I6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTo4LTkKICAgIC8vIEBzdWJyb3V0aW5lCiAgICAvLyBkZWYgYXV0aG9yaXplX2NyZWF0b3Ioc2VsZikgLT4gTm9uZToKICAgIHByb3RvIDAgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MTAKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyID09IEdsb2JhbC5jcmVhdG9yX2FkZHJlc3MsICJ1bmF1dGhvcml6ZWQiCiAgICB0eG4gU2VuZGVyCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgID09CiAgICBhc3NlcnQgLy8gdW5hdXRob3JpemVkCiAgICByZXRzdWIKCgovLyBleGFtcGxlcy5zbWFydF9jb250cmFjdHMuYmFzZS5jb250cmFjdC5QZXJtYW5lbmNlQ29udHJvbEFSQzRDb250cmFjdC5kZWxldGUoKSAtPiB2b2lkOgpkZWxldGU6CiAgICAvLyBleGFtcGxlcy9zbWFydF9jb250cmFjdHMvYmFzZS9jb250cmFjdC5weTozMC0zMQogICAgLy8gQGFyYzQuYmFyZW1ldGhvZChhbGxvd19hY3Rpb25zPVsiRGVsZXRlQXBwbGljYXRpb24iXSkKICAgIC8vIGRlZiBkZWxldGUoc2VsZikgLT4gTm9uZToKICAgIHByb3RvIDAgMAogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MzIKICAgIC8vIGFzc2VydCBUZW1wbGF0ZVZhcltib29sXShERUxFVEFCTEVfVEVNUExBVEVfTkFNRSksICJDaGVjayBhcHAgaXMgZGVsZXRhYmxlIgogICAgaW50Y18yIC8vIFRNUExfREVMRVRBQkxFCiAgICBhc3NlcnQgLy8gQ2hlY2sgYXBwIGlzIGRlbGV0YWJsZQogICAgLy8gZXhhbXBsZXMvc21hcnRfY29udHJhY3RzL2Jhc2UvY29udHJhY3QucHk6MzMKICAgIC8vIHNlbGYuYXV0aG9yaXplX2NyZWF0b3IoKQogICAgY2FsbHN1YiBhdXRob3JpemVfY3JlYXRvcgogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"bareActions":{"create":["NoOp"],"call":["DeleteApplication","UpdateApplication"]}} as unknown as Arc56Contract
 
 /**
@@ -51,7 +79,6 @@ export type Expand<T> = T extends (...args: infer A) => infer R
   : T extends infer O
     ? { [K in keyof O]: O[K] }
     : never
-
 
 /**
  * The argument types for the HelloWorld contract
@@ -92,17 +119,22 @@ export type HelloWorldTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
-  methods:
-    & Record<'hello(string)string' | 'hello', {
+  methods: Record<
+    'hello(string)string' | 'hello',
+    {
       argsObj: HelloWorldArgs['obj']['hello(string)string']
       argsTuple: HelloWorldArgs['tuple']['hello(string)string']
       returns: HelloWorldReturns['hello(string)string']
-    }>
-    & Record<'hello_world_check(string)void' | 'hello_world_check', {
-      argsObj: HelloWorldArgs['obj']['hello_world_check(string)void']
-      argsTuple: HelloWorldArgs['tuple']['hello_world_check(string)void']
-      returns: HelloWorldReturns['hello_world_check(string)void']
-    }>
+    }
+  > &
+    Record<
+      'hello_world_check(string)void' | 'hello_world_check',
+      {
+        argsObj: HelloWorldArgs['obj']['hello_world_check(string)void']
+        argsTuple: HelloWorldArgs['tuple']['hello_world_check(string)void']
+        returns: HelloWorldReturns['hello_world_check(string)void']
+      }
+    >
 }
 
 /**
@@ -112,16 +144,21 @@ export type HelloWorldSignatures = keyof HelloWorldTypes['methods']
 /**
  * Defines the possible abi call signatures for methods that return a non-void value.
  */
-export type HelloWorldNonVoidMethodSignatures = keyof HelloWorldTypes['methods'] extends infer T ? T extends keyof HelloWorldTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
+export type HelloWorldNonVoidMethodSignatures = keyof HelloWorldTypes['methods'] extends infer T
+  ? T extends keyof HelloWorldTypes['methods']
+    ? MethodReturn<T> extends void
+      ? never
+      : T
+    : never
+  : never
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
 export type CallParams<TArgs> = Expand<
-  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
-    {
-      /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<TArgs>
-    }
+  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> & {
+    /** The args for the ABI method call, either as an ordered array or an object */
+    args: Expand<TArgs>
+  }
 >
 /**
  * Maps a method signature from the HelloWorld smart contract to the method's arguments in either tuple or struct form
@@ -132,40 +169,39 @@ export type MethodArgs<TSignature extends HelloWorldSignatures> = HelloWorldType
  */
 export type MethodReturn<TSignature extends HelloWorldSignatures> = HelloWorldTypes['methods'][TSignature]['returns']
 
-
 /**
  * Defines supported create method params for this smart contract
  */
-export type HelloWorldCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: never} & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema>
+export type HelloWorldCreateCallParams = Expand<
+  AppClientBareCallParams & { method?: never } & { onComplete?: OnApplicationComplete.NoOp } & CreateSchema
+>
 /**
  * Defines supported update method params for this smart contract
  */
-export type HelloWorldUpdateCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
+export type HelloWorldUpdateCallParams = Expand<AppClientBareCallParams> & { method?: never }
 /**
  * Defines supported delete method params for this smart contract
  */
-export type HelloWorldDeleteCallParams =
-  | Expand<AppClientBareCallParams> & {method?: never}
+export type HelloWorldDeleteCallParams = Expand<AppClientBareCallParams> & { method?: never }
 /**
  * Defines arguments required for the deploy method.
  */
-export type HelloWorldDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
-  /**
-   * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  createParams?: HelloWorldCreateCallParams
-  /**
-   * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  updateParams?: HelloWorldUpdateCallParams
-  /**
-   * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
-   */
-  deleteParams?: HelloWorldDeleteCallParams
-}>
-
+export type HelloWorldDeployParams = Expand<
+  Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
+    /**
+     * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    createParams?: HelloWorldCreateCallParams
+    /**
+     * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    updateParams?: HelloWorldUpdateCallParams
+    /**
+     * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    deleteParams?: HelloWorldDeleteCallParams
+  }
+>
 
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the HelloWorld smart contract
@@ -177,7 +213,9 @@ export abstract class HelloWorldParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static hello(params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static hello(
+    params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello(string)string' as const,
@@ -190,7 +228,10 @@ export abstract class HelloWorldParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static helloWorldCheck(params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static helloWorldCheck(
+    params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello_world_check(string)void' as const,
@@ -219,22 +260,22 @@ export class HelloWorldFactory {
       appSpec: APP_SPEC,
     })
   }
-  
+
   /** The name of the app (from the ARC-32 / ARC-56 app spec or override). */
   public get appName() {
     return this.appFactory.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   get appSpec() {
     return APP_SPEC
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app factory is using. */
   public get algorand(): AlgorandClient {
     return this.appFactory.algorand
   }
-  
+
   /**
    * Returns a new `AppClient` client for an app instance of the given ID.
    *
@@ -246,7 +287,7 @@ export class HelloWorldFactory {
   public getAppClientById(params: AppFactoryAppClientParams) {
     return new HelloWorldClient(this.appFactory.getAppClientById(params))
   }
-  
+
   /**
    * Returns a new `AppClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
@@ -256,9 +297,7 @@ export class HelloWorldFactory {
    * @param params The parameters to create the app client
    * @returns The `AppClient`
    */
-  public async getAppClientByCreatorAndName(
-    params: AppFactoryResolveAppClientByCreatorAndNameParams,
-  ) {
+  public async getAppClientByCreatorAndName(params: AppFactoryResolveAppClientByCreatorAndNameParams) {
     return new HelloWorldClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
@@ -289,7 +328,9 @@ export class HelloWorldFactory {
        * @param params The params for the bare (raw) call
        * @returns The params for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: (
+        params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>,
+      ) => {
         return this.appFactory.params.bare.create(params)
       },
     },
@@ -323,7 +364,6 @@ export class HelloWorldFactory {
         return this.appFactory.params.bare.deployDelete(params)
       },
     },
-
   }
 
   /**
@@ -340,11 +380,12 @@ export class HelloWorldFactory {
        * @param params The params for the bare (raw) call
        * @returns The transaction for a create call
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: (
+        params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & { onComplete?: OnApplicationComplete.NoOp }>,
+      ) => {
         return this.appFactory.createTransaction.bare.create(params)
       },
     },
-
   }
 
   /**
@@ -361,14 +402,16 @@ export class HelloWorldFactory {
        * @param params The params for the bare (raw) call
        * @returns The create result
        */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }>) => {
+      bare: async (
+        params?: Expand<
+          AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & { onComplete?: OnApplicationComplete.NoOp }
+        >,
+      ) => {
         const result = await this.appFactory.send.bare.create(params)
         return { result: result.result, appClient: new HelloWorldClient(result.appClient) }
       },
     },
-
   }
-
 }
 /**
  * A client to make calls to the HelloWorld smart contract
@@ -392,10 +435,13 @@ export class HelloWorldClient {
    */
   constructor(params: Omit<AppClientParams, 'appSpec'>)
   constructor(appClientOrParams: _AppClient | Omit<AppClientParams, 'appSpec'>) {
-    this.appClient = appClientOrParams instanceof _AppClient ? appClientOrParams : new _AppClient({
-      ...appClientOrParams,
-      appSpec: APP_SPEC,
-    })
+    this.appClient =
+      appClientOrParams instanceof _AppClient
+        ? appClientOrParams
+        : new _AppClient({
+            ...appClientOrParams,
+            appSpec: APP_SPEC,
+          })
   }
 
   /**
@@ -404,9 +450,9 @@ export class HelloWorldClient {
    * @param params The parameters to create the app client
    */
   public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<HelloWorldClient> {
-    return new HelloWorldClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+    return new HelloWorldClient(await _AppClient.fromCreatorAndName({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /**
    * Returns an `HelloWorldClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
@@ -414,32 +460,30 @@ export class HelloWorldClient {
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
    * @param params The parameters to create the app client
    */
-  static async fromNetwork(
-    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<HelloWorldClient> {
-    return new HelloWorldClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  static async fromNetwork(params: Omit<ResolveAppClientByNetwork, 'appSpec'>): Promise<HelloWorldClient> {
+    return new HelloWorldClient(await _AppClient.fromNetwork({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /** The ID of the app instance this client is linked to. */
   public get appId() {
     return this.appClient.appId
   }
-  
+
   /** The app address of the app instance this client is linked to. */
   public get appAddress() {
     return this.appClient.appAddress
   }
-  
+
   /** The name of the app. */
   public get appName() {
     return this.appClient.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   public get appSpec() {
     return this.appClient.appSpec
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app client is using. */
   public get algorand(): AlgorandClient {
     return this.appClient.algorand
@@ -495,7 +539,11 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    hello: (params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    hello: (
+      params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(HelloWorldParamsFactory.hello(params))
     },
 
@@ -505,10 +553,13 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    helloWorldCheck: (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    helloWorldCheck: (
+      params: CallParams<
+        HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(HelloWorldParamsFactory.helloWorldCheck(params))
     },
-
   }
 
   /**
@@ -561,7 +612,11 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    hello: (params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    hello: (
+      params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(HelloWorldParamsFactory.hello(params))
     },
 
@@ -571,10 +626,13 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    helloWorldCheck: (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    helloWorldCheck: (
+      params: CallParams<
+        HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(HelloWorldParamsFactory.helloWorldCheck(params))
     },
-
   }
 
   /**
@@ -627,9 +685,12 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    hello: async (params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    hello: async (
+      params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(HelloWorldParamsFactory.hello(params))
-      return {...result, return: result.return as unknown as (undefined | HelloWorldReturns['hello(string)string'])}
+      return { ...result, return: result.return as unknown as undefined | HelloWorldReturns['hello(string)string'] }
     },
 
     /**
@@ -638,11 +699,15 @@ export class HelloWorldClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    helloWorldCheck: async (params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    helloWorldCheck: async (
+      params: CallParams<
+        HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(HelloWorldParamsFactory.helloWorldCheck(params))
-      return {...result, return: result.return as unknown as (undefined | HelloWorldReturns['hello_world_check(string)void'])}
+      return { ...result, return: result.return as unknown as undefined | HelloWorldReturns['hello_world_check(string)void'] }
     },
-
   }
 
   /**
@@ -658,31 +723,38 @@ export class HelloWorldClient {
   /**
    * Methods to access state for the current HelloWorld app
    */
-  state = {
-  }
+  state = {}
 
   public newGroup(composerConfig?: TransactionComposerConfig): HelloWorldComposer {
     const client = this
     const composer = this.algorand.newGroup(composerConfig)
-    let promiseChain:Promise<unknown> = Promise.resolve()
+    let promiseChain: Promise<unknown> = Promise.resolve()
     return {
       /**
        * Add a hello(string)string method call against the HelloWorld contract
        */
-      hello(params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      hello(
+        params: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.hello(params)))
         return this
       },
       /**
        * Add a hello_world_check(string)void method call against the HelloWorld contract
        */
-      helloWorldCheck(params: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      helloWorldCheck(
+        params: CallParams<
+          HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.helloWorldCheck(params)))
         return this
       },
       get update() {
         return {
-          bare: (params?: AppClientBareCallParams & AppClientCompilationParams ) => {
+          bare: (params?: AppClientBareCallParams & AppClientCompilationParams) => {
             promiseChain = promiseChain.then(async () => composer.addAppUpdate(await client.params.update.bare(params)))
             return this
           },
@@ -690,7 +762,7 @@ export class HelloWorldClient {
       },
       get delete() {
         return {
-          bare: (params?: AppClientBareCallParams ) => {
+          bare: (params?: AppClientBareCallParams) => {
             promiseChain = promiseChain.then(() => composer.addAppDelete(client.params.delete.bare(params)))
             return this
           },
@@ -716,7 +788,7 @@ export class HelloWorldClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
       },
       async send(params?: SendParams) {
@@ -724,9 +796,9 @@ export class HelloWorldClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
-      }
+      },
     } as unknown as HelloWorldComposer
   }
 }
@@ -737,7 +809,9 @@ export type HelloWorldComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  hello(params?: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']>): HelloWorldComposer<[...TReturns, HelloWorldReturns['hello(string)string'] | undefined]>
+  hello(
+    params?: CallParams<HelloWorldArgs['obj']['hello(string)string'] | HelloWorldArgs['tuple']['hello(string)string']>,
+  ): HelloWorldComposer<[...TReturns, HelloWorldReturns['hello(string)string'] | undefined]>
 
   /**
    * Calls the hello_world_check(string)void ABI method.
@@ -745,7 +819,9 @@ export type HelloWorldComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  helloWorldCheck(params?: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']>): HelloWorldComposer<[...TReturns, HelloWorldReturns['hello_world_check(string)void'] | undefined]>
+  helloWorldCheck(
+    params?: CallParams<HelloWorldArgs['obj']['hello_world_check(string)void'] | HelloWorldArgs['tuple']['hello_world_check(string)void']>,
+  ): HelloWorldComposer<[...TReturns, HelloWorldReturns['hello_world_check(string)void'] | undefined]>
 
   /**
    * Gets available update methods
@@ -757,7 +833,7 @@ export type HelloWorldComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(params?: AppClientBareCallParams ): HelloWorldComposer<TReturns>
+    bare(params?: AppClientBareCallParams): HelloWorldComposer<TReturns>
   }
 
   /**
@@ -770,7 +846,7 @@ export type HelloWorldComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(params?: AppClientBareCallParams ): HelloWorldComposer<TReturns>
+    bare(params?: AppClientBareCallParams): HelloWorldComposer<TReturns>
   }
 
   /**
@@ -803,7 +879,8 @@ export type HelloWorldComposer<TReturns extends [...any[]] = []> = {
    */
   send(params?: SendParams): Promise<HelloWorldComposerResults<TReturns>>
 }
-export type HelloWorldComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
-  returns: TReturns
-}>
-
+export type HelloWorldComposerResults<TReturns extends [...any[]]> = Expand<
+  SendTransactionComposerResults & {
+    returns: TReturns
+  }
+>
