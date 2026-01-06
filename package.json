@@ -61,7 +61,7 @@
     "@algorandfoundation/algokit-utils": "^10.0.0-alpha.25"
   },
   "devDependencies": {
-    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.25",
+    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.29",
     "@algorandfoundation/tealscript": "^0.107.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
