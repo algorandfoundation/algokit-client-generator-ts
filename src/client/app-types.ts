@@ -1,16 +1,14 @@
 import { GeneratorContext } from './generator-context'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
-import { getEquivalentType } from './helpers/get-equivalent-type'
-import algosdk, { ABIMethod } from 'algosdk'
-import { Arc56Contract, Method, StorageKey, StorageMap, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { argTypeIsTransaction, ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
 import { Sanitizer } from '../util/sanitization'
 import { Expand } from '@algorandfoundation/algokit-utils/types/expand'
 import { containsNonVoidMethod } from './helpers/contains-non-void-method'
+import { AbiMethodClientContext, StorageKeyContext, StorageMapContext } from './app-client-context'
 
-function getMethodMetadata(method: Method, ctx: GeneratorContext) {
-  const { methodSignatureToUniqueName } = ctx
-  const methodSig = new ABIMethod(method).getSignature()
-  const uniqueName = methodSignatureToUniqueName[methodSig]
+function getMethodMetadata(method: AbiMethodClientContext) {
+  const methodSig = method.signature
+  const uniqueName = method.uniqueName.original
 
   let hasAppCallArgToTheRight = false
   const argsMeta = new Array<Expand<Omit<(typeof method.args)[0], 'name'> & { name: string; isOptional: boolean; tsType: string }>>()
@@ -20,15 +18,15 @@ function getMethodMetadata(method: Method, ctx: GeneratorContext) {
 
     argsMeta.push({
       ...arg,
-      name: arg.name ?? `arg${i + 1}`,
-      isOptional: !!arg.defaultValue || (hasAppCallArgToTheRight && algosdk.abiTypeIsTransaction(arg.type)),
-      tsType: getEquivalentType(arg.struct ?? arg.type, 'input', ctx),
+      name: arg.name?.original ?? `arg${i + 1}`,
+      isOptional: !!arg.defaultValue || (hasAppCallArgToTheRight && argTypeIsTransaction(arg.type)),
+      tsType: arg.tsInType,
     })
 
     if (
       !hasAppCallArgToTheRight &&
-      algosdk.abiTypeIsTransaction(arg.type) &&
-      [algosdk.ABITransactionType.appl, algosdk.ABITransactionType.any].includes(arg.type)
+      argTypeIsTransaction(arg.type) &&
+      [ABITransactionType.AppCall, ABITransactionType.Txn].includes(arg.type)
     ) {
       hasAppCallArgToTheRight = true
     }
@@ -50,8 +48,8 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc('The object representation of the arguments for each method')
   yield 'obj: {'
   yield IncIndent
-  for (const method of app.methods) {
-    const { methodSig, argsMeta } = getMethodMetadata(method, ctx)
+  for (const method of app.abiMethods) {
+    const { methodSig, argsMeta } = getMethodMetadata(method)
     if (argsMeta.length) {
       yield `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': {`
       yield IncIndent
@@ -69,8 +67,8 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc('The tuple representation of the arguments for each method')
   yield 'tuple: {'
   yield IncIndent
-  for (const method of app.methods) {
-    const { methodSig, argsMeta } = getMethodMetadata(method, ctx)
+  for (const method of app.abiMethods) {
+    const { methodSig, argsMeta } = getMethodMetadata(method)
     yield* inline(
       `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': [`,
       argsMeta
@@ -87,11 +85,9 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield* jsDoc('The return type for each method')
   yield `export type ${name}Returns = {`
   yield IncIndent
-  for (const method of app.methods) {
-    const { methodSig } = getMethodMetadata(method, ctx)
-    yield* inline(
-      `'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': ${getEquivalentType(method.returns.struct ?? method.returns.type ?? 'void', 'output', ctx)}`,
-    )
+  for (const method of app.abiMethods) {
+    const { methodSig } = getMethodMetadata(method)
+    yield* inline(`'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}': ${method.returns.tsOutType}`)
   }
   yield DecIndentAndCloseBlock
   yield NewLine
@@ -100,15 +96,15 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield `export type ${name}Types = {`
   yield IncIndent
   yield* jsDoc('Maps method signatures / names to their argument and return types.')
-  if (app.methods.length == 0) {
+  if (app.abiMethods.length == 0) {
     yield 'methods: {}'
   } else {
     yield 'methods:'
   }
   yield IncIndent
-  for (const method of app.methods) {
-    const { methodSig, uniqueName } = getMethodMetadata(method, ctx)
-    yield `& Record<'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}'${methodSig !== uniqueName ? ` | '${ctx.sanitizer.makeSafeStringTypeLiteral(uniqueName)}'` : ''}, {`
+  for (const method of app.abiMethods) {
+    const { methodSig } = getMethodMetadata(method)
+    yield `& Record<'${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}'${method.baseNameIsUnique ? ` | '${method.name.makeSafeStringTypeLiteral}'` : ''}, {`
     yield IncIndent
     yield `argsObj: ${name}Args['obj']['${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}']`
     yield `argsTuple: ${name}Args['tuple']['${ctx.sanitizer.makeSafeStringTypeLiteral(methodSig)}']`
@@ -199,30 +195,6 @@ export function* appTypes(ctx: GeneratorContext): DocumentParts {
   yield NewLine
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function getStructAsObject(struct: StructField[], ctx: GeneratorContext): Record<string, any> {
-  return Object.fromEntries(
-    struct.map((s) => [s.name, typeof s.type === 'string' ? getEquivalentType(s.type, 'output', ctx) : getStructAsObject(s.type, ctx)]),
-  )
-}
-
-function getStructAsTupleTypes(struct: StructField[], ctx: GeneratorContext): string {
-  return `[${struct
-    .map((s) => {
-      // Field is an inline nested struct (array of StructField)
-      if (Array.isArray(s.type)) {
-        return getStructAsTupleTypes(s.type, ctx)
-      }
-      // Field references a named struct defined elsewhere
-      if (Object.keys(ctx.app.structs).includes(s.type)) {
-        return getStructAsTupleTypes(ctx.app.structs[s.type], ctx)
-      }
-      // Field is a primitive type (string, uint64, etc.)
-      return getEquivalentType(s.type, 'output', ctx)
-    })
-    .join(', ')}]`
-}
-
 function* structTypes(ctx: GeneratorContext): DocumentParts {
   const { app, sanitizer } = ctx
   if (Object.keys(app.structs).length === 0) return
@@ -230,22 +202,16 @@ function* structTypes(ctx: GeneratorContext): DocumentParts {
   yield '// Type definitions for ARC-56 structs'
   yield NewLine
 
-  for (const structName of Object.keys(app.structs)) {
+  for (const [structName, structCtx] of Object.entries(app.structs)) {
     // Emit the struct type
-
-    yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${JSON.stringify(getStructAsObject(app.structs[structName], ctx), null, 2).replace(/"/g, '')}`
+    yield `export type ${sanitizer.makeSafeTypeIdentifier(structName)} = ${structCtx.tsObjDef}`
     yield NewLine
 
     // Emit method that converts ABI tuple to the struct object
     yield* jsDoc(`Converts the ABI tuple representation of a ${structName} to the struct representation`)
-    yield* inline(
-      `export function ${sanitizer.makeSafeTypeIdentifier(structName)}FromTuple(`,
-      `abiTuple: ${getStructAsTupleTypes(app.structs[structName], ctx)}`,
-      `) {`,
-    )
-    yield* indent(
-      `return getABIStructFromABITuple(abiTuple, APP_SPEC.structs${sanitizer.getSafeMemberAccessor(structName)}, APP_SPEC.structs) as ${sanitizer.makeSafeTypeIdentifier(structName)}`,
-    )
+    yield* inline(`export function ${sanitizer.makeSafeTypeIdentifier(structName)}FromTuple(`, `abiTuple: ${structCtx.tsTupDef}`, `) {`)
+    yield* indent(`const abiStructType = ABIStructType.fromStruct('${structName}', APP_SPEC.structs)`)
+    yield* indent(`return getStructValueFromTupleValue(abiStructType, abiTuple) as ${sanitizer.makeSafeTypeIdentifier(structName)}`)
     yield '}'
     yield NewLine
   }
@@ -260,8 +226,8 @@ function* templateVariableTypes(ctx: GeneratorContext): DocumentParts {
   yield 'export type TemplateVariables = {'
   yield IncIndent
 
-  for (const name of Object.keys(ctx.app.templateVariables ?? {})) {
-    yield `${name}: ${getEquivalentType(ctx.app.templateVariables![name].type, 'output', ctx)},`
+  for (const [name, def] of Object.entries(ctx.app.templateVariables ?? {})) {
+    yield `${name}: ${def.type.tsInType},`
   }
 
   yield DecIndentAndCloseBlock
@@ -269,26 +235,24 @@ function* templateVariableTypes(ctx: GeneratorContext): DocumentParts {
 }
 
 function* keysAndMaps(
-  app: Arc56Contract,
   sanitizer: Sanitizer,
   keys: {
-    [name: string]: StorageKey
+    [name: string]: StorageKeyContext
   },
   maps: {
-    [name: string]: StorageMap
+    [name: string]: StorageMapContext
   },
 ): DocumentParts {
   if (keys && Object.keys(keys).length) {
     yield 'keys: {'
     yield IncIndent
-    for (const name of Object.keys(keys)) {
-      const prop = keys[name]
+    for (const [name, prop] of Object.entries(keys)) {
       if (prop.desc) {
         yield* jsDoc(prop.desc)
       }
       const keySafe = sanitizer.makeSafePropertyIdentifier(name)
-
-      yield `${keySafe}: ${prop.valueType === 'AVMBytes' ? 'BinaryState' : getEquivalentType(prop.valueType, 'output', { app, sanitizer })}`
+      prop.valueType
+      yield `${keySafe}: ${prop.valueType.isAvmBytes ? 'BinaryState' : prop.valueType.tsOutType}`
     }
     yield DecIndentAndCloseBlock
   } else {
@@ -305,7 +269,7 @@ function* keysAndMaps(
       }
       const keySafe = sanitizer.makeSafePropertyIdentifier(name)
 
-      yield `${keySafe}: Map<${getEquivalentType(prop.keyType, 'input', { app, sanitizer })}, ${getEquivalentType(prop.valueType, 'output', { app, sanitizer })}>`
+      yield `${keySafe}: Map<${prop.keyType.tsInType}, ${prop.valueType.tsOutType}>`
     }
     yield DecIndentAndCloseBlock
   } else {
@@ -326,19 +290,19 @@ function* appState(
     if (hasGlobal) {
       yield 'global: {'
       yield IncIndent
-      yield* keysAndMaps(app, sanitizer, app.state.keys.global, app.state.maps.global)
+      yield* keysAndMaps(sanitizer, app.state.keys.global, app.state.maps.global)
       yield DecIndentAndCloseBlock
     }
     if (hasLocal) {
       yield 'local: {'
       yield IncIndent
-      yield* keysAndMaps(app, sanitizer, app.state.keys.local, app.state.maps.local)
+      yield* keysAndMaps(sanitizer, app.state.keys.local, app.state.maps.local)
       yield DecIndentAndCloseBlock
     }
     if (hasBox) {
       yield 'box: {'
       yield IncIndent
-      yield* keysAndMaps(app, sanitizer, app.state.keys.box, app.state.maps.box)
+      yield* keysAndMaps(sanitizer, app.state.keys.box, app.state.maps.box)
       yield DecIndentAndCloseBlock
     }
     yield DecIndentAndCloseBlock
