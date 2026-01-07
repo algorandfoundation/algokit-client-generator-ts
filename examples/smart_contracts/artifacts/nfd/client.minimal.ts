@@ -7,13 +7,41 @@
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
 import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
-import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
-import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
-import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
-import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
-import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, TransactionComposerConfig, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress } from '@algorandfoundation/algokit-utils'
+import {
+  AppClientMethodCallParams,
+  AppClientCompilationParams,
+  AppClientDeployParams,
+  CallOnComplete,
+  AppClient as _AppClient,
+  AppClientParams,
+  ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
+  AppClientBareCallParams,
+  CloneAppClientParams,
+} from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams, SendTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import {
+  AppFactoryCreateMethodCallParams,
+  AppFactoryAppClientParams,
+  AppFactoryDeployParams,
+  AppFactoryParams,
+  AppFactory as _AppFactory,
+  AppFactoryResolveAppClientByCreatorAndNameParams,
+  CreateSchema,
+} from '@algorandfoundation/algokit-utils/types/app-factory'
+import {
+  TransactionComposer,
+  TransactionComposerConfig,
+  SkipSignaturesSimulateOptions,
+  RawSimulateOptions,
+  SimulateOptions,
+  AppMethodCallTransactionArgument,
+} from '@algorandfoundation/algokit-utils/types/composer'
 
+/* Don't format the app spec json */
+/* prettier-ignore */
 export const APP_SPEC: Arc56Contract = {"name":"NFDInstance","desc":"","methods":[{"name":"createApplication","args":[{"name":"nfdName","type":"string"},{"name":"seller","type":"address"},{"name":"buyer","type":"address"},{"name":"purchaseAmount","type":"uint64"},{"name":"expTime","type":"uint64"},{"name":"commission1Addr","type":"address"},{"name":"commission1Pct","type":"uint64"},{"name":"commission2Addr","type":"address"},{"name":"commission2Pct","type":"uint64"},{"name":"segmentRootAppId","type":"uint64"},{"name":"segmentRootCommissionAddr","type":"address"}],"returns":{"type":"void"},"actions":{"create":["NoOp"],"call":[]}},{"name":"updateApplication","args":[{"name":"versionNum","type":"string"}],"returns":{"type":"void"},"actions":{"create":[],"call":["UpdateApplication"]}},{"name":"gas","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"mintAsa","args":[{"name":"nfdName","type":"string"},{"name":"url","type":"string"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"deleteFields","args":[{"name":"fieldNames","type":"byte[][]"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"updateSegmentCount","args":[{"name":"childNfdName","type":"string"},{"name":"childNfdAppID","type":"uint64"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"getFieldUpdateCost","readonly":true,"args":[{"name":"fieldAndVals","type":"byte[][]"}],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]}},{"name":"updateFields","args":[{"name":"fieldAndVals","type":"byte[][]"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"readField","readonly":true,"args":[{"name":"fieldName","type":"byte[]"}],"returns":{"type":"byte[]"},"actions":{"create":[],"call":["NoOp"]}},{"name":"offerForSale","args":[{"name":"sellAmount","type":"uint64"},{"name":"reservedFor","type":"address"}],"returns":{"type":"void"},"events":[{"name":"nfd_offerForSale","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"seller","type":"address"},{"name":"amount","type":"uint64"},{"name":"reservedFor","type":"address"}],"desc":""}],"actions":{"create":[],"call":["NoOp"]}},{"name":"cancelSale","args":[],"returns":{"type":"void"},"events":[{"name":"nfd_saleCancelled","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"}],"desc":""}],"actions":{"create":[],"call":["NoOp"]}},{"name":"postOffer","args":[{"name":"offer","type":"uint64"},{"name":"note","type":"string"}],"returns":{"type":"void"},"events":[{"name":"nfd_postedOffer","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"sender","type":"address"},{"name":"amount","type":"uint64"},{"name":"note","type":"string"}],"desc":""}],"actions":{"create":[],"call":["NoOp"]}},{"name":"mintPayout","args":[{"name":"oneYearPrice","type":"uint64"},{"name":"segmentPlatformCostInAlgo","type":"uint64"}],"returns":{"type":"(uint64,address,uint64,address,uint64)","struct":"PayoutInfo"},"actions":{"create":[],"call":["NoOp"]}},{"name":"purchase","args":[{"name":"payment","type":"pay"}],"returns":{"type":"void"},"events":[{"name":"nfd_purchased","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"seller","type":"address"},{"name":"buyer","type":"address"},{"name":"sellAmount","type":"uint64"},{"name":"offerAmount","type":"uint64"},{"name":"overpaymentRefund","type":"uint64"},{"name":"convFeeAddr","type":"address"},{"name":"convFeeAmount","type":"uint64"}],"desc":""}],"actions":{"create":[],"call":["NoOp"]}},{"name":"isAddressInField","readonly":true,"args":[{"name":"fieldName","type":"string"},{"name":"address","type":"address"}],"returns":{"type":"bool"},"actions":{"create":[],"call":["NoOp"]}},{"name":"getRenewPrice","readonly":true,"args":[],"returns":{"type":"uint64"},"actions":{"create":[],"call":["NoOp"]}},{"name":"updateHash","args":[{"name":"hash","type":"byte[]"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"contractLock","args":[{"name":"lock","type":"bool"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"segmentLock","args":[{"name":"lock","type":"bool"},{"name":"usdPrice","type":"uint64"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"vaultOptInLock","args":[{"name":"lock","type":"bool"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"vaultOptIn","args":[{"name":"assets","type":"uint64[]"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"vaultSend","args":[{"name":"amount","type":"uint64"},{"name":"receiver","type":"address"},{"name":"note","type":"string"},{"name":"asset","type":"uint64"},{"name":"otherAssets","type":"uint64[]"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"renew","desc":"Renew adds more time to an existing NFDs expiration, or renews it if expired.\n\n\nAs part of v2-v3 upgrade, the NFDs are converted from lifetime NFDs to renewal NFDs. The v2 contract is upgraded\nto v3, then renew is called on the (now v3) nfd to turn it into a renewal (note the if curExpiration === 0 check)\n\n\nIf already renewal, then it extends the current expiration time by the time specified (minimum 1 yr) (365 / price paid * mint price)\nExpirations can never be more than NFD_MAX_EXPIRATION_DAYS days in the future.\n\n\nIF the NFD is expired:\n    x The current owner can take it back over at base price - and NFD metadata doesn't have to be cleared - they\n    get it back as-is.\n    x If not current owner, then the price goes from high of base price * 10,000 down to base price over 24 hrs where\n    'buyer' has to pay at least that price.  The NFD MUST ALREADY HAVE ITS METADATA CLEARED!","args":[{"name":"payment","type":"pay","desc":"The payment transaction from which the renewal period is determined.."}],"returns":{"type":"void"},"events":[{"name":"nfd_saleCancelled","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"}],"desc":""},{"name":"nfd_renewed","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"origOwner","type":"address"},{"name":"buyer","type":"address"},{"name":"priceOneYear","type":"uint64"},{"name":"renewAmount","type":"uint64"},{"name":"expTime","type":"uint64"}],"desc":""}],"actions":{"create":[],"call":["NoOp"]}},{"name":"setPrimaryAddress","args":[{"name":"fieldName","type":"string"},{"name":"address","type":"address"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]}},{"name":"registryAddingVerifiedAddress","desc":"Approved call from registry instructing us to move the specified u.cav.xx field and add to the specified\nverified field.","args":[{"name":"fieldBeingVerified","type":"string","desc":"- MUST START with u.cav. (!)\ngets 'added' to 'set' in next arg - must be fixed-sized bytes"},{"name":"fieldSetName","type":"string","desc":"(must BE v.ca[...].as)"}],"returns":{"type":"bool","desc":"true if added or already present, false otherwise"},"events":[{"name":"nfd_addressLinked","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"address","type":"address"}],"desc":""}],"actions":{"create":[],"call":["NoOp"]}},{"name":"registryRemovingVerifiedAddress","desc":"Approved call from registry instructing us to REMOVE an address from the specified verified address set","args":[{"name":"fieldBeingChanged","type":"string","desc":"The field being changed in the address registry."},{"name":"address","type":"address","desc":"The address to be removed from the field."},{"name":"mbrRefundDest","type":"address","desc":"the address to send reclaimed MBR (if any)\n boolean - true if valid removed"}],"returns":{"type":"bool"},"events":[{"name":"nfd_addressUnlinked","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"address","type":"address"}],"desc":""}],"actions":{"create":[],"call":["NoOp"]}}],"events":[{"name":"nfd_offerForSale","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"seller","type":"address"},{"name":"amount","type":"uint64"},{"name":"reservedFor","type":"address"}],"desc":""},{"name":"nfd_saleCancelled","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"}],"desc":""},{"name":"nfd_postedOffer","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"sender","type":"address"},{"name":"amount","type":"uint64"},{"name":"note","type":"string"}],"desc":""},{"name":"nfd_purchased","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"seller","type":"address"},{"name":"buyer","type":"address"},{"name":"sellAmount","type":"uint64"},{"name":"offerAmount","type":"uint64"},{"name":"overpaymentRefund","type":"uint64"},{"name":"convFeeAddr","type":"address"},{"name":"convFeeAmount","type":"uint64"}],"desc":""},{"name":"nfd_renewed","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"origOwner","type":"address"},{"name":"buyer","type":"address"},{"name":"priceOneYear","type":"uint64"},{"name":"renewAmount","type":"uint64"},{"name":"expTime","type":"uint64"}],"desc":""},{"name":"nfd_addressLinked","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"address","type":"address"}],"desc":""},{"name":"nfd_addressUnlinked","args":[{"name":"appId","type":"uint64"},{"name":"name","type":"string"},{"name":"address","type":"address"}],"desc":""}],"arcs":[4,56],"structs":{"PayoutInfo":[{"name":"amountToSeller","type":"uint64"},{"name":"commissionAddress","type":"address"},{"name":"amountToCommission","type":"uint64"},{"name":"segmentRootOwner","type":"address"},{"name":"amountToSegmentRoot","type":"uint64"}]},"state":{"schema":{"global":{"bytes":30,"ints":0},"local":{"bytes":0,"ints":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{"globalState":{"keyType":"AVMBytes","valueType":"AVMBytes"}},"local":{},"box":{"boxes":{"keyType":"AVMBytes","valueType":"AVMBytes"}}}},"bareActions":{"create":[],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[36],"errorMessage":"The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?","teal":25},{"pc":[44],"errorMessage":"argument 0 (segmentRootCommissionAddr) for createApplication must be a address","teal":37},{"pc":[60],"errorMessage":"argument 3 (commission2Addr) for createApplication must be a address","teal":55},{"pc":[72],"errorMessage":"argument 5 (commission1Addr) for createApplication must be a address","teal":69},{"pc":[88],"errorMessage":"argument 8 (buyer) for createApplication must be a address","teal":87},{"pc":[96],"errorMessage":"argument 9 (seller) for createApplication must be a address","teal":97},{"pc":[117],"errorMessage":"caller must be NFD registry!","teal":122},{"pc":[217],"errorMessage":"commission must be between 1 and 50%","teal":224},{"pc":[251],"errorMessage":"commission must be between 1 and 50%","teal":262},{"pc":[382],"errorMessage":"parent commission address must be set if parent app id is set and parent is unlocked","teal":370},{"pc":[393],"errorMessage":"the segment commission agent should be the parent nfd's seller","teal":384},{"pc":[420],"errorMessage":"contract must be unlocked to upgrade","teal":420},{"pc":[426],"errorMessage":"caller must be NFD registry!","teal":429},{"pc":[449],"errorMessage":"can't still be in minting state","teal":459},{"pc":[467],"errorMessage":"NFD can't be expired for these v1/v2 operations","teal":481},{"pc":[731],"errorMessage":"unknown method","teal":677},{"pc":[768],"errorMessage":"caller must be NFD registry!","teal":721},{"pc":[959],"errorMessage":"field not removable or no permissions to remove","teal":942},{"pc":[963],"errorMessage":"box value does not exist: this.boxes(name).size","teal":950},{"pc":[1067],"errorMessage":"field not removable or no permissions to remove","teal":1075},{"pc":[1111],"errorMessage":"caller must be NFD registry!","teal":1130},{"pc":[1121],"errorMessage":"child NFD MUST still be in pre-claim state!","teal":1144},{"pc":[1144],"errorMessage":"passed in child name must match name in created nfd state","teal":1172},{"pc":[1177],"errorMessage":"parent must be suffix of child","teal":1209},{"pc":[1346],"errorMessage":"box value does not exist: this.boxes(name).size","teal":1381},{"pc":[1386],"errorMessage":"box value does not exist: this.boxes(name).size","teal":1423},{"pc":[1487],"errorMessage":"can't update fields if NFD expired","teal":1537},{"pc":[1615],"errorMessage":"invalid update call by registry","teal":1644},{"pc":[1717],"errorMessage":"field not updatable or no permissions to update","teal":1738},{"pc":[1763],"errorMessage":"can't update fields if NFD expired","teal":1799},{"pc":[1803],"errorMessage":"field not updatable or no permissions to update","teal":1844},{"pc":[1902],"errorMessage":"must be user-defined or verified field to fetch","teal":1953},{"pc":[1914],"errorMessage":"box value does not exist: this.boxes(fieldName).value","teal":1971},{"pc":[1944],"errorMessage":"box value does not exist: this.boxes(boxName).value","teal":2005},{"pc":[1994],"errorMessage":"box value does not exist: this.boxes(boxName).value","teal":2057},{"pc":[2021],"errorMessage":"argument 0 (reservedFor) for offerForSale must be a address","teal":2093},{"pc":[2039],"errorMessage":"can't sell if NFD expired","teal":2117},{"pc":[2089],"errorMessage":"can only be sold if no user-defined or verified properties remain","teal":2165},{"pc":[2106],"errorMessage":"must be sold for at least MIN amount","teal":2185},{"pc":[2252],"errorMessage":"can't update fields if NFD expired","teal":2323},{"pc":[2265],"errorMessage":"must be for sale","teal":2340},{"pc":[2420],"errorMessage":"caller must be NFD registry!","teal":2484},{"pc":[2652],"errorMessage":"argument 0 (payment) for purchase must be a pay transaction","teal":2751},{"pc":[2677],"errorMessage":"can't be expired","teal":2782},{"pc":[2681],"errorMessage":"must be for sale","teal":2789},{"pc":[2733],"errorMessage":"payment sender must be same as purchase caller","teal":2830},{"pc":[2749],"errorMessage":"Reserved owner set, but sender isn't the reserved address","teal":2853},{"pc":[2795],"errorMessage":"offer must be at least min amount","teal":2900},{"pc":[2801],"errorMessage":"offer must be at least sell amount","teal":2910},{"pc":[2823],"errorMessage":"transaction verification failed: {\"txn\":\"payment\",\"field\":\"amount\",\"expected\":\"origOfferamt\"}","teal":2935},{"pc":[2831],"errorMessage":"transaction verification failed: {\"txn\":\"payment\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}","teal":2944},{"pc":[3291],"errorMessage":"argument 0 (address) for isAddressInField must be a address","teal":3406},{"pc":[3336],"errorMessage":"box value does not exist: this.boxes(fieldName).value","teal":3458},{"pc":[3553],"errorMessage":"must pass 32-byte hash that isn't 0","teal":3711},{"pc":[3567],"errorMessage":"only txnlab or owner can request an nfd nft hash update","teal":3729},{"pc":[3603],"errorMessage":"argument 0 (lock) for contractLock must be a bool","teal":3782},{"pc":[3649],"errorMessage":"argument 1 (lock) for segmentLock must be a bool","teal":3835},{"pc":[3732],"errorMessage":"amount must be at least NFD_MIN_SEGMENT_USD dollars in algo","teal":3930},{"pc":[3747],"errorMessage":"argument 0 (lock) for vaultOptInLock must be a bool","teal":3952},{"pc":[3812],"errorMessage":"sender must be owner when vault locked","teal":4032},{"pc":[3817],"errorMessage":"part of opt-in for new asset, must have prior txn paying MBR","teal":4042},{"pc":[3830],"errorMessage":"transaction verification failed: {\"txn\":\"this.txnGroup[this.txn.groupIndex - 1]\",\"field\":\"typeEnum\",\"expected\":\"pay\"}","teal":4061},{"pc":[3838],"errorMessage":"transaction verification failed: {\"txn\":\"this.txnGroup[this.txn.groupIndex - 1]\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}","teal":4070},{"pc":[3853],"errorMessage":"transaction verification failed: {\"txn\":\"this.txnGroup[this.txn.groupIndex - 1]\",\"field\":\"amount\",\"expected\":\"100_000 * assets.length\"}","teal":4084},{"pc":[3954],"errorMessage":"argument 3 (receiver) for vaultSend must be a address","teal":4198},{"pc":[3994],"errorMessage":"can't specify other assets if sending algo from vault","teal":4247},{"pc":[4061],"errorMessage":"can only send one asset if amount == 0","teal":4329},{"pc":[4128],"errorMessage":"receiver must be owner","teal":4402},{"pc":[4246],"errorMessage":"argument 0 (payment) for renew must be a pay transaction","teal":4545},{"pc":[4265],"errorMessage":"transaction verification failed: {\"txn\":\"payment\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}","teal":4585},{"pc":[4395],"errorMessage":"can't claim expired nfd unless all metadata is cleared","teal":4714},{"pc":[4403],"errorMessage":"must pay at least minimum renewal price","teal":4727},{"pc":[4559],"errorMessage":"global state value does not exist: parentAppId.globalState(NFD_KEY_OWNER)","teal":4900},{"pc":[4725],"errorMessage":"argument 0 (address) for setPrimaryAddress must be a address","teal":5047},{"pc":[4811],"errorMessage":"caller must be NFD registry!","teal":5134},{"pc":[4829],"errorMessage":"field being verified MUST START with u.cav","teal":5148},{"pc":[4838],"errorMessage":"destination field MUST START with v.ca[....]","teal":5158},{"pc":[4853],"errorMessage":"destination field must end END with .as","teal":5173},{"pc":[4859],"errorMessage":"referenced field to add as verified address must have value in box storage","teal":5186},{"pc":[4868],"errorMessage":"box value does not exist: this.boxes(fieldBeingVerified).value","teal":5201},{"pc":[4933],"errorMessage":"argument 0 (mbrRefundDest) for registryRemovingVerifiedAddress must be a address","teal":5261},{"pc":[4941],"errorMessage":"argument 1 (address) for registryRemovingVerifiedAddress must be a address","teal":5271},{"pc":[4971],"errorMessage":"caller must be NFD registry!","teal":5310},{"pc":[4983],"errorMessage":"can't be for sale","teal":5326},{"pc":[4992],"errorMessage":"verified field MUST START with v.ca[....]","teal":5337},{"pc":[5007],"errorMessage":"verified field must end END with .as","teal":5355},{"pc":[5016],"errorMessage":"box value does not exist: this.boxes(fieldBeingChanged).size","teal":5370},{"pc":[5184],"errorMessage":"sender must be owner","teal":5550},{"pc":[5189],"errorMessage":"part of opt-in for new asset, must have prior txn paying MBR","teal":5560},{"pc":[5202],"errorMessage":"transaction verification failed: {\"txn\":\"this.txnGroup[this.txn.groupIndex - 1]\",\"field\":\"typeEnum\",\"expected\":\"pay\"}","teal":5579},{"pc":[5210],"errorMessage":"transaction verification failed: {\"txn\":\"this.txnGroup[this.txn.groupIndex - 1]\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}","teal":5588},{"pc":[5223],"errorMessage":"transaction verification failed: {\"txn\":\"this.txnGroup[this.txn.groupIndex - 1]\",\"field\":\"amount\",\"expected\":\"100_000 * (this.txn.numAppArgs - 1)\"}","teal":5601},{"pc":[5326],"errorMessage":"global state value does not exist: AppID.fromUint64(appId).globalState(key)","teal":5738},{"pc":[5380],"errorMessage":"internal fields can never be deleted","teal":5804},{"pc":[5397],"errorMessage":"must be owned","teal":5828},{"pc":[5409],"errorMessage":"can't be for sale","teal":5844},{"pc":[5466],"errorMessage":"internal fields can never be updated","teal":5906},{"pc":[5521],"errorMessage":"must be owned","teal":5963},{"pc":[5526],"errorMessage":"can't be for sale","teal":5971},{"pc":[5532],"errorMessage":"sender must be owner","teal":5981},{"pc":[5562],"errorMessage":"updating v.caAlgo field isn't allowed via regular field update","teal":6017},{"pc":[5683],"errorMessage":"can't be for sale","teal":6162},{"pc":[5688],"errorMessage":"can't be expired","teal":6170},{"pc":[5773],"errorMessage":"max expiration exceeded parameters defined by registry","teal":6282},{"pc":[5941],"errorMessage":"box value does not exist: this.boxes(key).value","teal":6515},{"pc":[5956],"errorMessage":"address 'set' should already have at least two values","teal":6533},{"pc":[6024],"errorMessage":"address must be found in set in order to move it","teal":6615},{"pc":[6090],"errorMessage":"box value does not exist: this.boxes(key).value","teal":6698},{"pc":[6109],"errorMessage":"existing set must be multiple of key being added","teal":6719},{"pc":[6216],"errorMessage":"box value does not exist: this.boxes(key).value","teal":6855},{"pc":[6385],"errorMessage":"sender must be owner","teal":7064},{"pc":[6400],"errorMessage":"this contract does not implement the given ABI method for create NoOp","teal":7073},{"pc":[6616],"errorMessage":"this contract does not implement the given ABI method for call UpdateApplication","teal":7114}],"pcOffsetMethod":"cblocks"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}}} as unknown as Arc56Contract
 
 /**
@@ -52,17 +80,15 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     ? { [K in keyof O]: O[K] }
     : never
 
-
 // Type definitions for ARC-56 structs
 
 export type PayoutInfo = {
-  amountToSeller: bigint,
-  commissionAddress: string,
-  amountToCommission: bigint,
-  segmentRootOwner: string,
+  amountToSeller: bigint
+  commissionAddress: string
+  amountToCommission: bigint
+  segmentRootOwner: string
   amountToSegmentRoot: bigint
 }
-
 
 /**
  * Converts the ABI tuple representation of a PayoutInfo to the struct representation
@@ -204,7 +230,19 @@ export type NfdInstanceArgs = {
    * The tuple representation of the arguments for each method
    */
   tuple: {
-    'createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void': [nfdName: string, seller: string, buyer: string, purchaseAmount: bigint | number, expTime: bigint | number, commission1Addr: string, commission1Pct: bigint | number, commission2Addr: string, commission2Pct: bigint | number, segmentRootAppId: bigint | number, segmentRootCommissionAddr: string]
+    'createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void': [
+      nfdName: string,
+      seller: string,
+      buyer: string,
+      purchaseAmount: bigint | number,
+      expTime: bigint | number,
+      commission1Addr: string,
+      commission1Pct: bigint | number,
+      commission2Addr: string,
+      commission2Pct: bigint | number,
+      segmentRootAppId: bigint | number,
+      segmentRootCommissionAddr: string,
+    ]
     'updateApplication(string)void': [versionNum: string]
     'gas()void': []
     'mintAsa(string,string)void': [nfdName: string, url: string]
@@ -216,7 +254,10 @@ export type NfdInstanceArgs = {
     'offerForSale(uint64,address)void': [sellAmount: bigint | number, reservedFor: string]
     'cancelSale()void': []
     'postOffer(uint64,string)void': [offer: bigint | number, note: string]
-    'mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)': [oneYearPrice: bigint | number, segmentPlatformCostInAlgo: bigint | number]
+    'mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)': [
+      oneYearPrice: bigint | number,
+      segmentPlatformCostInAlgo: bigint | number,
+    ]
     'purchase(pay)void': [payment: AppMethodCallTransactionArgument]
     'isAddressInField(string,address)bool': [fieldName: string, address: string]
     'getRenewPrice()uint64': []
@@ -225,7 +266,13 @@ export type NfdInstanceArgs = {
     'segmentLock(bool,uint64)void': [lock: boolean, usdPrice: bigint | number]
     'vaultOptInLock(bool)void': [lock: boolean]
     'vaultOptIn(uint64[])void': [assets: bigint[] | number[]]
-    'vaultSend(uint64,address,string,uint64,uint64[])void': [amount: bigint | number, receiver: string, note: string, asset: bigint | number, otherAssets: bigint[] | number[]]
+    'vaultSend(uint64,address,string,uint64,uint64[])void': [
+      amount: bigint | number,
+      receiver: string,
+      note: string,
+      asset: bigint | number,
+      otherAssets: bigint[] | number[],
+    ]
     'renew(pay)void': [payment: AppMethodCallTransactionArgument]
     'setPrimaryAddress(string,address)void': [fieldName: string, address: string]
     'registryAddingVerifiedAddress(string,string)bool': [fieldBeingVerified: string, fieldSetName: string]
@@ -272,140 +319,217 @@ export type NfdInstanceTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
-  methods:
-    & Record<'createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void' | 'createApplication', {
+  methods: Record<
+    'createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void' | 'createApplication',
+    {
       argsObj: NfdInstanceArgs['obj']['createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void']
       argsTuple: NfdInstanceArgs['tuple']['createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void']
       returns: NfdInstanceReturns['createApplication(string,address,address,uint64,uint64,address,uint64,address,uint64,uint64,address)void']
-    }>
-    & Record<'updateApplication(string)void' | 'updateApplication', {
-      argsObj: NfdInstanceArgs['obj']['updateApplication(string)void']
-      argsTuple: NfdInstanceArgs['tuple']['updateApplication(string)void']
-      returns: NfdInstanceReturns['updateApplication(string)void']
-    }>
-    & Record<'gas()void' | 'gas', {
-      argsObj: NfdInstanceArgs['obj']['gas()void']
-      argsTuple: NfdInstanceArgs['tuple']['gas()void']
-      returns: NfdInstanceReturns['gas()void']
-    }>
-    & Record<'mintAsa(string,string)void' | 'mintAsa', {
-      argsObj: NfdInstanceArgs['obj']['mintAsa(string,string)void']
-      argsTuple: NfdInstanceArgs['tuple']['mintAsa(string,string)void']
-      returns: NfdInstanceReturns['mintAsa(string,string)void']
-    }>
-    & Record<'deleteFields(byte[][])void' | 'deleteFields', {
-      argsObj: NfdInstanceArgs['obj']['deleteFields(byte[][])void']
-      argsTuple: NfdInstanceArgs['tuple']['deleteFields(byte[][])void']
-      returns: NfdInstanceReturns['deleteFields(byte[][])void']
-    }>
-    & Record<'updateSegmentCount(string,uint64)void' | 'updateSegmentCount', {
-      argsObj: NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void']
-      argsTuple: NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']
-      returns: NfdInstanceReturns['updateSegmentCount(string,uint64)void']
-    }>
-    & Record<'getFieldUpdateCost(byte[][])uint64' | 'getFieldUpdateCost', {
-      argsObj: NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64']
-      argsTuple: NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
-      returns: NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64']
-    }>
-    & Record<'updateFields(byte[][])void' | 'updateFields', {
-      argsObj: NfdInstanceArgs['obj']['updateFields(byte[][])void']
-      argsTuple: NfdInstanceArgs['tuple']['updateFields(byte[][])void']
-      returns: NfdInstanceReturns['updateFields(byte[][])void']
-    }>
-    & Record<'readField(byte[])byte[]' | 'readField', {
-      argsObj: NfdInstanceArgs['obj']['readField(byte[])byte[]']
-      argsTuple: NfdInstanceArgs['tuple']['readField(byte[])byte[]']
-      returns: NfdInstanceReturns['readField(byte[])byte[]']
-    }>
-    & Record<'offerForSale(uint64,address)void' | 'offerForSale', {
-      argsObj: NfdInstanceArgs['obj']['offerForSale(uint64,address)void']
-      argsTuple: NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']
-      returns: NfdInstanceReturns['offerForSale(uint64,address)void']
-    }>
-    & Record<'cancelSale()void' | 'cancelSale', {
-      argsObj: NfdInstanceArgs['obj']['cancelSale()void']
-      argsTuple: NfdInstanceArgs['tuple']['cancelSale()void']
-      returns: NfdInstanceReturns['cancelSale()void']
-    }>
-    & Record<'postOffer(uint64,string)void' | 'postOffer', {
-      argsObj: NfdInstanceArgs['obj']['postOffer(uint64,string)void']
-      argsTuple: NfdInstanceArgs['tuple']['postOffer(uint64,string)void']
-      returns: NfdInstanceReturns['postOffer(uint64,string)void']
-    }>
-    & Record<'mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)' | 'mintPayout', {
-      argsObj: NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
-      argsTuple: NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
-      returns: NfdInstanceReturns['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
-    }>
-    & Record<'purchase(pay)void' | 'purchase', {
-      argsObj: NfdInstanceArgs['obj']['purchase(pay)void']
-      argsTuple: NfdInstanceArgs['tuple']['purchase(pay)void']
-      returns: NfdInstanceReturns['purchase(pay)void']
-    }>
-    & Record<'isAddressInField(string,address)bool' | 'isAddressInField', {
-      argsObj: NfdInstanceArgs['obj']['isAddressInField(string,address)bool']
-      argsTuple: NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
-      returns: NfdInstanceReturns['isAddressInField(string,address)bool']
-    }>
-    & Record<'getRenewPrice()uint64' | 'getRenewPrice', {
-      argsObj: NfdInstanceArgs['obj']['getRenewPrice()uint64']
-      argsTuple: NfdInstanceArgs['tuple']['getRenewPrice()uint64']
-      returns: NfdInstanceReturns['getRenewPrice()uint64']
-    }>
-    & Record<'updateHash(byte[])void' | 'updateHash', {
-      argsObj: NfdInstanceArgs['obj']['updateHash(byte[])void']
-      argsTuple: NfdInstanceArgs['tuple']['updateHash(byte[])void']
-      returns: NfdInstanceReturns['updateHash(byte[])void']
-    }>
-    & Record<'contractLock(bool)void' | 'contractLock', {
-      argsObj: NfdInstanceArgs['obj']['contractLock(bool)void']
-      argsTuple: NfdInstanceArgs['tuple']['contractLock(bool)void']
-      returns: NfdInstanceReturns['contractLock(bool)void']
-    }>
-    & Record<'segmentLock(bool,uint64)void' | 'segmentLock', {
-      argsObj: NfdInstanceArgs['obj']['segmentLock(bool,uint64)void']
-      argsTuple: NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']
-      returns: NfdInstanceReturns['segmentLock(bool,uint64)void']
-    }>
-    & Record<'vaultOptInLock(bool)void' | 'vaultOptInLock', {
-      argsObj: NfdInstanceArgs['obj']['vaultOptInLock(bool)void']
-      argsTuple: NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']
-      returns: NfdInstanceReturns['vaultOptInLock(bool)void']
-    }>
-    & Record<'vaultOptIn(uint64[])void' | 'vaultOptIn', {
-      argsObj: NfdInstanceArgs['obj']['vaultOptIn(uint64[])void']
-      argsTuple: NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']
-      returns: NfdInstanceReturns['vaultOptIn(uint64[])void']
-    }>
-    & Record<'vaultSend(uint64,address,string,uint64,uint64[])void' | 'vaultSend', {
-      argsObj: NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void']
-      argsTuple: NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']
-      returns: NfdInstanceReturns['vaultSend(uint64,address,string,uint64,uint64[])void']
-    }>
-    & Record<'renew(pay)void' | 'renew', {
-      argsObj: NfdInstanceArgs['obj']['renew(pay)void']
-      argsTuple: NfdInstanceArgs['tuple']['renew(pay)void']
-      returns: NfdInstanceReturns['renew(pay)void']
-    }>
-    & Record<'setPrimaryAddress(string,address)void' | 'setPrimaryAddress', {
-      argsObj: NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void']
-      argsTuple: NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']
-      returns: NfdInstanceReturns['setPrimaryAddress(string,address)void']
-    }>
-    & Record<'registryAddingVerifiedAddress(string,string)bool' | 'registryAddingVerifiedAddress', {
-      argsObj: NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
-      argsTuple: NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
-      /**
-       * true if added or already present, false otherwise
-       */
-      returns: NfdInstanceReturns['registryAddingVerifiedAddress(string,string)bool']
-    }>
-    & Record<'registryRemovingVerifiedAddress(string,address,address)bool' | 'registryRemovingVerifiedAddress', {
-      argsObj: NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool']
-      argsTuple: NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']
-      returns: NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool']
-    }>
+    }
+  > &
+    Record<
+      'updateApplication(string)void' | 'updateApplication',
+      {
+        argsObj: NfdInstanceArgs['obj']['updateApplication(string)void']
+        argsTuple: NfdInstanceArgs['tuple']['updateApplication(string)void']
+        returns: NfdInstanceReturns['updateApplication(string)void']
+      }
+    > &
+    Record<
+      'gas()void' | 'gas',
+      {
+        argsObj: NfdInstanceArgs['obj']['gas()void']
+        argsTuple: NfdInstanceArgs['tuple']['gas()void']
+        returns: NfdInstanceReturns['gas()void']
+      }
+    > &
+    Record<
+      'mintAsa(string,string)void' | 'mintAsa',
+      {
+        argsObj: NfdInstanceArgs['obj']['mintAsa(string,string)void']
+        argsTuple: NfdInstanceArgs['tuple']['mintAsa(string,string)void']
+        returns: NfdInstanceReturns['mintAsa(string,string)void']
+      }
+    > &
+    Record<
+      'deleteFields(byte[][])void' | 'deleteFields',
+      {
+        argsObj: NfdInstanceArgs['obj']['deleteFields(byte[][])void']
+        argsTuple: NfdInstanceArgs['tuple']['deleteFields(byte[][])void']
+        returns: NfdInstanceReturns['deleteFields(byte[][])void']
+      }
+    > &
+    Record<
+      'updateSegmentCount(string,uint64)void' | 'updateSegmentCount',
+      {
+        argsObj: NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void']
+        argsTuple: NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']
+        returns: NfdInstanceReturns['updateSegmentCount(string,uint64)void']
+      }
+    > &
+    Record<
+      'getFieldUpdateCost(byte[][])uint64' | 'getFieldUpdateCost',
+      {
+        argsObj: NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64']
+        argsTuple: NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
+        returns: NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64']
+      }
+    > &
+    Record<
+      'updateFields(byte[][])void' | 'updateFields',
+      {
+        argsObj: NfdInstanceArgs['obj']['updateFields(byte[][])void']
+        argsTuple: NfdInstanceArgs['tuple']['updateFields(byte[][])void']
+        returns: NfdInstanceReturns['updateFields(byte[][])void']
+      }
+    > &
+    Record<
+      'readField(byte[])byte[]' | 'readField',
+      {
+        argsObj: NfdInstanceArgs['obj']['readField(byte[])byte[]']
+        argsTuple: NfdInstanceArgs['tuple']['readField(byte[])byte[]']
+        returns: NfdInstanceReturns['readField(byte[])byte[]']
+      }
+    > &
+    Record<
+      'offerForSale(uint64,address)void' | 'offerForSale',
+      {
+        argsObj: NfdInstanceArgs['obj']['offerForSale(uint64,address)void']
+        argsTuple: NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']
+        returns: NfdInstanceReturns['offerForSale(uint64,address)void']
+      }
+    > &
+    Record<
+      'cancelSale()void' | 'cancelSale',
+      {
+        argsObj: NfdInstanceArgs['obj']['cancelSale()void']
+        argsTuple: NfdInstanceArgs['tuple']['cancelSale()void']
+        returns: NfdInstanceReturns['cancelSale()void']
+      }
+    > &
+    Record<
+      'postOffer(uint64,string)void' | 'postOffer',
+      {
+        argsObj: NfdInstanceArgs['obj']['postOffer(uint64,string)void']
+        argsTuple: NfdInstanceArgs['tuple']['postOffer(uint64,string)void']
+        returns: NfdInstanceReturns['postOffer(uint64,string)void']
+      }
+    > &
+    Record<
+      'mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)' | 'mintPayout',
+      {
+        argsObj: NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+        argsTuple: NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+        returns: NfdInstanceReturns['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+      }
+    > &
+    Record<
+      'purchase(pay)void' | 'purchase',
+      {
+        argsObj: NfdInstanceArgs['obj']['purchase(pay)void']
+        argsTuple: NfdInstanceArgs['tuple']['purchase(pay)void']
+        returns: NfdInstanceReturns['purchase(pay)void']
+      }
+    > &
+    Record<
+      'isAddressInField(string,address)bool' | 'isAddressInField',
+      {
+        argsObj: NfdInstanceArgs['obj']['isAddressInField(string,address)bool']
+        argsTuple: NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
+        returns: NfdInstanceReturns['isAddressInField(string,address)bool']
+      }
+    > &
+    Record<
+      'getRenewPrice()uint64' | 'getRenewPrice',
+      {
+        argsObj: NfdInstanceArgs['obj']['getRenewPrice()uint64']
+        argsTuple: NfdInstanceArgs['tuple']['getRenewPrice()uint64']
+        returns: NfdInstanceReturns['getRenewPrice()uint64']
+      }
+    > &
+    Record<
+      'updateHash(byte[])void' | 'updateHash',
+      {
+        argsObj: NfdInstanceArgs['obj']['updateHash(byte[])void']
+        argsTuple: NfdInstanceArgs['tuple']['updateHash(byte[])void']
+        returns: NfdInstanceReturns['updateHash(byte[])void']
+      }
+    > &
+    Record<
+      'contractLock(bool)void' | 'contractLock',
+      {
+        argsObj: NfdInstanceArgs['obj']['contractLock(bool)void']
+        argsTuple: NfdInstanceArgs['tuple']['contractLock(bool)void']
+        returns: NfdInstanceReturns['contractLock(bool)void']
+      }
+    > &
+    Record<
+      'segmentLock(bool,uint64)void' | 'segmentLock',
+      {
+        argsObj: NfdInstanceArgs['obj']['segmentLock(bool,uint64)void']
+        argsTuple: NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']
+        returns: NfdInstanceReturns['segmentLock(bool,uint64)void']
+      }
+    > &
+    Record<
+      'vaultOptInLock(bool)void' | 'vaultOptInLock',
+      {
+        argsObj: NfdInstanceArgs['obj']['vaultOptInLock(bool)void']
+        argsTuple: NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']
+        returns: NfdInstanceReturns['vaultOptInLock(bool)void']
+      }
+    > &
+    Record<
+      'vaultOptIn(uint64[])void' | 'vaultOptIn',
+      {
+        argsObj: NfdInstanceArgs['obj']['vaultOptIn(uint64[])void']
+        argsTuple: NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']
+        returns: NfdInstanceReturns['vaultOptIn(uint64[])void']
+      }
+    > &
+    Record<
+      'vaultSend(uint64,address,string,uint64,uint64[])void' | 'vaultSend',
+      {
+        argsObj: NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void']
+        argsTuple: NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']
+        returns: NfdInstanceReturns['vaultSend(uint64,address,string,uint64,uint64[])void']
+      }
+    > &
+    Record<
+      'renew(pay)void' | 'renew',
+      {
+        argsObj: NfdInstanceArgs['obj']['renew(pay)void']
+        argsTuple: NfdInstanceArgs['tuple']['renew(pay)void']
+        returns: NfdInstanceReturns['renew(pay)void']
+      }
+    > &
+    Record<
+      'setPrimaryAddress(string,address)void' | 'setPrimaryAddress',
+      {
+        argsObj: NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void']
+        argsTuple: NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']
+        returns: NfdInstanceReturns['setPrimaryAddress(string,address)void']
+      }
+    > &
+    Record<
+      'registryAddingVerifiedAddress(string,string)bool' | 'registryAddingVerifiedAddress',
+      {
+        argsObj: NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
+        argsTuple: NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
+        /**
+         * true if added or already present, false otherwise
+         */
+        returns: NfdInstanceReturns['registryAddingVerifiedAddress(string,string)bool']
+      }
+    > &
+    Record<
+      'registryRemovingVerifiedAddress(string,address,address)bool' | 'registryRemovingVerifiedAddress',
+      {
+        argsObj: NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool']
+        argsTuple: NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']
+        returns: NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool']
+      }
+    >
   /**
    * Defines the shape of the state of the application.
    */
@@ -432,16 +556,21 @@ export type NfdInstanceSignatures = keyof NfdInstanceTypes['methods']
 /**
  * Defines the possible abi call signatures for methods that return a non-void value.
  */
-export type NfdInstanceNonVoidMethodSignatures = keyof NfdInstanceTypes['methods'] extends infer T ? T extends keyof NfdInstanceTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
+export type NfdInstanceNonVoidMethodSignatures = keyof NfdInstanceTypes['methods'] extends infer T
+  ? T extends keyof NfdInstanceTypes['methods']
+    ? MethodReturn<T> extends void
+      ? never
+      : T
+    : never
+  : never
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
 export type CallParams<TArgs> = Expand<
-  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
-    {
-      /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<TArgs>
-    }
+  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> & {
+    /** The args for the ABI method call, either as an ordered array or an object */
+    args: Expand<TArgs>
+  }
 >
 /**
  * Maps a method signature from the NfdInstance smart contract to the method's arguments in either tuple or struct form
@@ -462,8 +591,6 @@ export type GlobalKeysState = NfdInstanceTypes['state']['global']['keys']
  */
 export type BoxKeysState = NfdInstanceTypes['state']['box']['keys']
 
-
-
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the NFDInstance smart contract
  */
@@ -474,7 +601,9 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static gas(params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static gas(
+    params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'gas()void' as const,
@@ -487,7 +616,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static mintAsa(params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static mintAsa(
+    params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'mintAsa(string,string)void' as const,
@@ -500,7 +632,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static deleteFields(params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static deleteFields(
+    params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'deleteFields(byte[][])void' as const,
@@ -513,7 +648,12 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static updateSegmentCount(params: CallParams<NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static updateSegmentCount(
+    params: CallParams<
+      NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'updateSegmentCount(string,uint64)void' as const,
@@ -526,7 +666,12 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getFieldUpdateCost(params: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getFieldUpdateCost(
+    params: CallParams<
+      NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'getFieldUpdateCost(byte[][])uint64' as const,
@@ -539,7 +684,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static updateFields(params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static updateFields(
+    params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'updateFields(byte[][])void' as const,
@@ -552,7 +700,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static readField(params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static readField(
+    params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'readField(byte[])byte[]' as const,
@@ -565,7 +716,12 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static offerForSale(params: CallParams<NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static offerForSale(
+    params: CallParams<
+      NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'offerForSale(uint64,address)void' as const,
@@ -578,7 +734,9 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static cancelSale(params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static cancelSale(
+    params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'cancelSale()void' as const,
@@ -591,7 +749,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static postOffer(params: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static postOffer(
+    params: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'postOffer(uint64,string)void' as const,
@@ -604,7 +765,13 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static mintPayout(params: CallParams<NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static mintPayout(
+    params: CallParams<
+      | NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+      | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)' as const,
@@ -617,7 +784,9 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static purchase(params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static purchase(
+    params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'purchase(pay)void' as const,
@@ -630,7 +799,12 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static isAddressInField(params: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static isAddressInField(
+    params: CallParams<
+      NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'isAddressInField(string,address)bool' as const,
@@ -643,7 +817,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getRenewPrice(params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getRenewPrice(
+    params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'getRenewPrice()uint64' as const,
@@ -656,7 +833,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static updateHash(params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static updateHash(
+    params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'updateHash(byte[])void' as const,
@@ -669,7 +849,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static contractLock(params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static contractLock(
+    params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'contractLock(bool)void' as const,
@@ -682,7 +865,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static segmentLock(params: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static segmentLock(
+    params: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'segmentLock(bool,uint64)void' as const,
@@ -695,7 +881,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static vaultOptInLock(params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static vaultOptInLock(
+    params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'vaultOptInLock(bool)void' as const,
@@ -708,7 +897,10 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static vaultOptIn(params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static vaultOptIn(
+    params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'vaultOptIn(uint64[])void' as const,
@@ -721,11 +913,19 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static vaultSend(params: CallParams<NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void'] | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static vaultSend(
+    params: CallParams<
+      | NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void']
+      | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'vaultSend(uint64,address,string,uint64,uint64[])void' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.amount, params.args.receiver, params.args.note, params.args.asset, params.args.otherAssets],
+      args: Array.isArray(params.args)
+        ? params.args
+        : [params.args.amount, params.args.receiver, params.args.note, params.args.asset, params.args.otherAssets],
     }
   }
   /**
@@ -752,7 +952,9 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static renew(params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static renew(
+    params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'renew(pay)void' as const,
@@ -765,7 +967,12 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setPrimaryAddress(params: CallParams<NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setPrimaryAddress(
+    params: CallParams<
+      NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'setPrimaryAddress(string,address)void' as const,
@@ -782,7 +989,13 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static registryAddingVerifiedAddress(params: CallParams<NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static registryAddingVerifiedAddress(
+    params: CallParams<
+      | NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
+      | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'registryAddingVerifiedAddress(string,string)bool' as const,
@@ -797,7 +1010,13 @@ export abstract class NfdInstanceParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static registryRemovingVerifiedAddress(params: CallParams<NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool'] | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static registryRemovingVerifiedAddress(
+    params: CallParams<
+      | NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool']
+      | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'registryRemovingVerifiedAddress(string,address,address)bool' as const,
@@ -828,10 +1047,13 @@ export class NfdInstanceClient {
    */
   constructor(params: Omit<AppClientParams, 'appSpec'>)
   constructor(appClientOrParams: _AppClient | Omit<AppClientParams, 'appSpec'>) {
-    this.appClient = appClientOrParams instanceof _AppClient ? appClientOrParams : new _AppClient({
-      ...appClientOrParams,
-      appSpec: APP_SPEC,
-    })
+    this.appClient =
+      appClientOrParams instanceof _AppClient
+        ? appClientOrParams
+        : new _AppClient({
+            ...appClientOrParams,
+            appSpec: APP_SPEC,
+          })
   }
 
   /**
@@ -840,9 +1062,9 @@ export class NfdInstanceClient {
    * @param params The parameters to create the app client
    */
   public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<NfdInstanceClient> {
-    return new NfdInstanceClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+    return new NfdInstanceClient(await _AppClient.fromCreatorAndName({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /**
    * Returns an `NfdInstanceClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
@@ -850,32 +1072,30 @@ export class NfdInstanceClient {
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
    * @param params The parameters to create the app client
    */
-  static async fromNetwork(
-    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<NfdInstanceClient> {
-    return new NfdInstanceClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  static async fromNetwork(params: Omit<ResolveAppClientByNetwork, 'appSpec'>): Promise<NfdInstanceClient> {
+    return new NfdInstanceClient(await _AppClient.fromNetwork({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /** The ID of the app instance this client is linked to. */
   public get appId() {
     return this.appClient.appId
   }
-  
+
   /** The app address of the app instance this client is linked to. */
   public get appAddress() {
     return this.appClient.appAddress
   }
-  
+
   /** The name of the app. */
   public get appName() {
     return this.appClient.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   public get appSpec() {
     return this.appClient.appSpec
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app client is using. */
   public get algorand(): AlgorandClient {
     return this.appClient.algorand
@@ -901,7 +1121,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    gas: (params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    gas: (
+      params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.gas(params))
     },
 
@@ -911,7 +1135,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    mintAsa: (params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    mintAsa: (
+      params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.mintAsa(params))
     },
 
@@ -921,7 +1149,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    deleteFields: (params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    deleteFields: (
+      params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.deleteFields(params))
     },
 
@@ -931,19 +1163,27 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    updateSegmentCount: (params: CallParams<NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateSegmentCount: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.updateSegmentCount(params))
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `getFieldUpdateCost(byte[][])uint64` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    getFieldUpdateCost: (params: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getFieldUpdateCost: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.getFieldUpdateCost(params))
     },
 
@@ -953,19 +1193,27 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    updateFields: (params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateFields: (
+      params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.updateFields(params))
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `readField(byte[])byte[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    readField: (params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    readField: (
+      params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.readField(params))
     },
 
@@ -975,7 +1223,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    offerForSale: (params: CallParams<NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    offerForSale: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.offerForSale(params))
     },
 
@@ -985,7 +1237,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    cancelSale: (params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    cancelSale: (
+      params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.cancelSale(params))
     },
 
@@ -995,7 +1251,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    postOffer: (params: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    postOffer: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.postOffer(params))
     },
 
@@ -1005,7 +1265,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    mintPayout: (params: CallParams<NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    mintPayout: (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+        | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.mintPayout(params))
     },
 
@@ -1015,31 +1280,43 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    purchase: (params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    purchase: (
+      params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.purchase(params))
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `isAddressInField(string,address)bool` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    isAddressInField: (params: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    isAddressInField: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.isAddressInField(params))
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `getRenewPrice()uint64` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    getRenewPrice: (params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getRenewPrice: (
+      params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.getRenewPrice(params))
     },
 
@@ -1049,7 +1326,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    updateHash: (params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateHash: (
+      params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.updateHash(params))
     },
 
@@ -1059,7 +1340,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    contractLock: (params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    contractLock: (
+      params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.contractLock(params))
     },
 
@@ -1069,7 +1354,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    segmentLock: (params: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    segmentLock: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.segmentLock(params))
     },
 
@@ -1079,7 +1368,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    vaultOptInLock: (params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultOptInLock: (
+      params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.vaultOptInLock(params))
     },
 
@@ -1089,7 +1382,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    vaultOptIn: (params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultOptIn: (
+      params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.vaultOptIn(params))
     },
 
@@ -1099,7 +1396,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    vaultSend: (params: CallParams<NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void'] | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultSend: (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void']
+        | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.vaultSend(params))
     },
 
@@ -1127,7 +1429,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    renew: (params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    renew: (
+      params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.renew(params))
     },
 
@@ -1137,7 +1443,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setPrimaryAddress: (params: CallParams<NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setPrimaryAddress: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.setPrimaryAddress(params))
     },
 
@@ -1151,7 +1461,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params: true if added or already present, false otherwise
      */
-    registryAddingVerifiedAddress: (params: CallParams<NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    registryAddingVerifiedAddress: (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
+        | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.registryAddingVerifiedAddress(params))
     },
 
@@ -1163,10 +1478,14 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    registryRemovingVerifiedAddress: (params: CallParams<NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool'] | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    registryRemovingVerifiedAddress: (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool']
+        | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(NfdInstanceParamsFactory.registryRemovingVerifiedAddress(params))
     },
-
   }
 
   /**
@@ -1189,7 +1508,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    gas: (params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    gas: (
+      params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.gas(params))
     },
 
@@ -1199,7 +1522,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    mintAsa: (params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    mintAsa: (
+      params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.mintAsa(params))
     },
 
@@ -1209,7 +1536,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    deleteFields: (params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    deleteFields: (
+      params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.deleteFields(params))
     },
 
@@ -1219,19 +1550,27 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    updateSegmentCount: (params: CallParams<NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateSegmentCount: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.updateSegmentCount(params))
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `getFieldUpdateCost(byte[][])uint64` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    getFieldUpdateCost: (params: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getFieldUpdateCost: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.getFieldUpdateCost(params))
     },
 
@@ -1241,19 +1580,27 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    updateFields: (params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateFields: (
+      params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.updateFields(params))
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `readField(byte[])byte[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    readField: (params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    readField: (
+      params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.readField(params))
     },
 
@@ -1263,7 +1610,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    offerForSale: (params: CallParams<NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    offerForSale: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.offerForSale(params))
     },
 
@@ -1273,7 +1624,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    cancelSale: (params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    cancelSale: (
+      params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.cancelSale(params))
     },
 
@@ -1283,7 +1638,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    postOffer: (params: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    postOffer: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.postOffer(params))
     },
 
@@ -1293,7 +1652,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    mintPayout: (params: CallParams<NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    mintPayout: (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+        | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.mintPayout(params))
     },
 
@@ -1303,31 +1667,43 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    purchase: (params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    purchase: (
+      params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.purchase(params))
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `isAddressInField(string,address)bool` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    isAddressInField: (params: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    isAddressInField: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.isAddressInField(params))
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `getRenewPrice()uint64` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    getRenewPrice: (params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getRenewPrice: (
+      params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.getRenewPrice(params))
     },
 
@@ -1337,7 +1713,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    updateHash: (params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateHash: (
+      params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.updateHash(params))
     },
 
@@ -1347,7 +1727,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    contractLock: (params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    contractLock: (
+      params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.contractLock(params))
     },
 
@@ -1357,7 +1741,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    segmentLock: (params: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    segmentLock: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.segmentLock(params))
     },
 
@@ -1367,7 +1755,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    vaultOptInLock: (params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultOptInLock: (
+      params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.vaultOptInLock(params))
     },
 
@@ -1377,7 +1769,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    vaultOptIn: (params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultOptIn: (
+      params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.vaultOptIn(params))
     },
 
@@ -1387,7 +1783,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    vaultSend: (params: CallParams<NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void'] | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultSend: (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void']
+        | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.vaultSend(params))
     },
 
@@ -1415,7 +1816,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    renew: (params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    renew: (
+      params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & {
+        onComplete?: OnApplicationComplete.NoOp
+      },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.renew(params))
     },
 
@@ -1425,7 +1830,11 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setPrimaryAddress: (params: CallParams<NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setPrimaryAddress: (
+      params: CallParams<
+        NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.setPrimaryAddress(params))
     },
 
@@ -1439,7 +1848,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: true if added or already present, false otherwise
      */
-    registryAddingVerifiedAddress: (params: CallParams<NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    registryAddingVerifiedAddress: (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
+        | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.registryAddingVerifiedAddress(params))
     },
 
@@ -1451,10 +1865,14 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    registryRemovingVerifiedAddress: (params: CallParams<NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool'] | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    registryRemovingVerifiedAddress: (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool']
+        | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(NfdInstanceParamsFactory.registryRemovingVerifiedAddress(params))
     },
-
   }
 
   /**
@@ -1477,9 +1895,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    gas: async (params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    gas: async (
+      params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.gas(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['gas()void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['gas()void'] }
     },
 
     /**
@@ -1488,9 +1909,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    mintAsa: async (params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    mintAsa: async (
+      params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.mintAsa(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['mintAsa(string,string)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['mintAsa(string,string)void'] }
     },
 
     /**
@@ -1499,9 +1923,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    deleteFields: async (params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    deleteFields: async (
+      params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.deleteFields(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['deleteFields(byte[][])void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['deleteFields(byte[][])void'] }
     },
 
     /**
@@ -1510,22 +1937,32 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    updateSegmentCount: async (params: CallParams<NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateSegmentCount: async (
+      params: CallParams<
+        NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.updateSegmentCount(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['updateSegmentCount(string,uint64)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['updateSegmentCount(string,uint64)void'] }
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `getFieldUpdateCost(byte[][])uint64` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getFieldUpdateCost: async (params: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getFieldUpdateCost: async (
+      params: CallParams<
+        NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.getFieldUpdateCost(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64'] }
     },
 
     /**
@@ -1534,22 +1971,28 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    updateFields: async (params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateFields: async (
+      params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.updateFields(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['updateFields(byte[][])void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['updateFields(byte[][])void'] }
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `readField(byte[])byte[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    readField: async (params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    readField: async (
+      params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.readField(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['readField(byte[])byte[]'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['readField(byte[])byte[]'] }
     },
 
     /**
@@ -1558,9 +2001,14 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    offerForSale: async (params: CallParams<NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    offerForSale: async (
+      params: CallParams<
+        NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.offerForSale(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['offerForSale(uint64,address)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['offerForSale(uint64,address)void'] }
     },
 
     /**
@@ -1569,9 +2017,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    cancelSale: async (params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    cancelSale: async (
+      params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.cancelSale(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['cancelSale()void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['cancelSale()void'] }
     },
 
     /**
@@ -1580,9 +2031,14 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    postOffer: async (params: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    postOffer: async (
+      params: CallParams<
+        NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.postOffer(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['postOffer(uint64,string)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['postOffer(uint64,string)void'] }
     },
 
     /**
@@ -1591,9 +2047,20 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    mintPayout: async (params: CallParams<NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    mintPayout: async (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+        | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.mintPayout(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'])}
+      return {
+        ...result,
+        return: result.return as unknown as
+          | undefined
+          | NfdInstanceReturns['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'],
+      }
     },
 
     /**
@@ -1602,35 +2069,46 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    purchase: async (params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    purchase: async (
+      params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.purchase(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['purchase(pay)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['purchase(pay)void'] }
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `isAddressInField(string,address)bool` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    isAddressInField: async (params: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    isAddressInField: async (
+      params: CallParams<
+        NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.isAddressInField(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['isAddressInField(string,address)bool'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['isAddressInField(string,address)bool'] }
     },
 
     /**
      * Makes a call to the NFDInstance smart contract using the `getRenewPrice()uint64` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getRenewPrice: async (params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getRenewPrice: async (
+      params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.getRenewPrice(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['getRenewPrice()uint64'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['getRenewPrice()uint64'] }
     },
 
     /**
@@ -1639,9 +2117,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    updateHash: async (params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    updateHash: async (
+      params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.updateHash(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['updateHash(byte[])void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['updateHash(byte[])void'] }
     },
 
     /**
@@ -1650,9 +2131,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    contractLock: async (params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    contractLock: async (
+      params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.contractLock(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['contractLock(bool)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['contractLock(bool)void'] }
     },
 
     /**
@@ -1661,9 +2145,14 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    segmentLock: async (params: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    segmentLock: async (
+      params: CallParams<
+        NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.segmentLock(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['segmentLock(bool,uint64)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['segmentLock(bool,uint64)void'] }
     },
 
     /**
@@ -1672,9 +2161,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    vaultOptInLock: async (params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultOptInLock: async (
+      params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.vaultOptInLock(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['vaultOptInLock(bool)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['vaultOptInLock(bool)void'] }
     },
 
     /**
@@ -1683,9 +2175,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    vaultOptIn: async (params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultOptIn: async (
+      params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.vaultOptIn(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['vaultOptIn(uint64[])void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['vaultOptIn(uint64[])void'] }
     },
 
     /**
@@ -1694,9 +2189,18 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    vaultSend: async (params: CallParams<NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void'] | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    vaultSend: async (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void']
+        | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.vaultSend(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['vaultSend(uint64,address,string,uint64,uint64[])void'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | NfdInstanceReturns['vaultSend(uint64,address,string,uint64,uint64[])void'],
+      }
     },
 
     /**
@@ -1723,9 +2227,12 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    renew: async (params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    renew: async (
+      params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.renew(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['renew(pay)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['renew(pay)void'] }
     },
 
     /**
@@ -1734,9 +2241,14 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setPrimaryAddress: async (params: CallParams<NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setPrimaryAddress: async (
+      params: CallParams<
+        NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.setPrimaryAddress(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['setPrimaryAddress(string,address)void'])}
+      return { ...result, return: result.return as unknown as undefined | NfdInstanceReturns['setPrimaryAddress(string,address)void'] }
     },
 
     /**
@@ -1749,9 +2261,18 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result: true if added or already present, false otherwise
      */
-    registryAddingVerifiedAddress: async (params: CallParams<NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    registryAddingVerifiedAddress: async (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
+        | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.registryAddingVerifiedAddress(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['registryAddingVerifiedAddress(string,string)bool'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | NfdInstanceReturns['registryAddingVerifiedAddress(string,string)bool'],
+      }
     },
 
     /**
@@ -1762,11 +2283,19 @@ export class NfdInstanceClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    registryRemovingVerifiedAddress: async (params: CallParams<NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool'] | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    registryRemovingVerifiedAddress: async (
+      params: CallParams<
+        | NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool']
+        | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(NfdInstanceParamsFactory.registryRemovingVerifiedAddress(params))
-      return {...result, return: result.return as unknown as (undefined | NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool'],
+      }
     },
-
   }
 
   /**
@@ -1781,52 +2310,64 @@ export class NfdInstanceClient {
 
   /**
    * Makes a readonly (simulated) call to the NFDInstance smart contract using the `getFieldUpdateCost(byte[][])uint64` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async getFieldUpdateCost(params: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']>) {
+  async getFieldUpdateCost(
+    params: CallParams<
+      NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
+    >,
+  ) {
     const result = await this.appClient.send.call(NfdInstanceParamsFactory.getFieldUpdateCost(params))
     return result.return as unknown as NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64']
   }
 
   /**
    * Makes a readonly (simulated) call to the NFDInstance smart contract using the `readField(byte[])byte[]` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async readField(params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']>) {
+  async readField(
+    params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']>,
+  ) {
     const result = await this.appClient.send.call(NfdInstanceParamsFactory.readField(params))
     return result.return as unknown as NfdInstanceReturns['readField(byte[])byte[]']
   }
 
   /**
    * Makes a readonly (simulated) call to the NFDInstance smart contract using the `isAddressInField(string,address)bool` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async isAddressInField(params: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']>) {
+  async isAddressInField(
+    params: CallParams<
+      NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
+    >,
+  ) {
     const result = await this.appClient.send.call(NfdInstanceParamsFactory.isAddressInField(params))
     return result.return as unknown as NfdInstanceReturns['isAddressInField(string,address)bool']
   }
 
   /**
    * Makes a readonly (simulated) call to the NFDInstance smart contract using the `getRenewPrice()uint64` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * @param params The params for the smart contract call
    * @returns The call result
    */
-  async getRenewPrice(params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> = {args: []}) {
+  async getRenewPrice(
+    params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> = { args: [] },
+  ) {
     const result = await this.appClient.send.call(NfdInstanceParamsFactory.getRenewPrice(params))
     return result.return as unknown as NfdInstanceReturns['getRenewPrice()uint64']
   }
@@ -1844,8 +2385,7 @@ export class NfdInstanceClient {
        */
       getAll: async (): Promise<Partial<Expand<GlobalKeysState>>> => {
         const result = await this.appClient.state.global.getAll()
-        return {
-        }
+        return {}
       },
       /**
        * Get values from the globalState map in global state
@@ -1854,11 +2394,15 @@ export class NfdInstanceClient {
         /**
          * Get all current values of the globalState map in global state
          */
-        getMap: async (): Promise<Map<Uint8Array, Uint8Array>> => { return (await this.appClient.state.global.getMap("globalState")) as Map<Uint8Array, Uint8Array> },
+        getMap: async (): Promise<Map<Uint8Array, Uint8Array>> => {
+          return (await this.appClient.state.global.getMap('globalState')) as Map<Uint8Array, Uint8Array>
+        },
         /**
          * Get a current value of the globalState map by key from global state
          */
-        value: async (key: Uint8Array | string): Promise<Uint8Array | undefined> => { return await this.appClient.state.global.getMapValue("globalState", key) as Uint8Array | undefined },
+        value: async (key: Uint8Array | string): Promise<Uint8Array | undefined> => {
+          return (await this.appClient.state.global.getMapValue('globalState', key)) as Uint8Array | undefined
+        },
       },
     },
     /**
@@ -1870,8 +2414,7 @@ export class NfdInstanceClient {
        */
       getAll: async (): Promise<Partial<Expand<BoxKeysState>>> => {
         const result = await this.appClient.state.box.getAll()
-        return {
-        }
+        return {}
       },
       /**
        * Get values from the boxes map in box state
@@ -1880,11 +2423,15 @@ export class NfdInstanceClient {
         /**
          * Get all current values of the boxes map in box state
          */
-        getMap: async (): Promise<Map<Uint8Array, Uint8Array>> => { return (await this.appClient.state.box.getMap("boxes")) as Map<Uint8Array, Uint8Array> },
+        getMap: async (): Promise<Map<Uint8Array, Uint8Array>> => {
+          return (await this.appClient.state.box.getMap('boxes')) as Map<Uint8Array, Uint8Array>
+        },
         /**
          * Get a current value of the boxes map by key from box state
          */
-        value: async (key: Uint8Array | string): Promise<Uint8Array | undefined> => { return await this.appClient.state.box.getMapValue("boxes", key) as Uint8Array | undefined },
+        value: async (key: Uint8Array | string): Promise<Uint8Array | undefined> => {
+          return (await this.appClient.state.box.getMapValue('boxes', key)) as Uint8Array | undefined
+        },
       },
     },
   }
@@ -1892,174 +2439,280 @@ export class NfdInstanceClient {
   public newGroup(composerConfig?: TransactionComposerConfig): NfdInstanceComposer {
     const client = this
     const composer = this.algorand.newGroup(composerConfig)
-    let promiseChain:Promise<unknown> = Promise.resolve()
+    let promiseChain: Promise<unknown> = Promise.resolve()
     return {
       /**
        * Add a gas()void method call against the NFDInstance contract
        */
-      gas(params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      gas(
+        params: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.gas(params)))
         return this
       },
       /**
        * Add a mintAsa(string,string)void method call against the NFDInstance contract
        */
-      mintAsa(params: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      mintAsa(
+        params: CallParams<
+          NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.mintAsa(params)))
         return this
       },
       /**
        * Add a deleteFields(byte[][])void method call against the NFDInstance contract
        */
-      deleteFields(params: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      deleteFields(
+        params: CallParams<
+          NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.deleteFields(params)))
         return this
       },
       /**
        * Add a updateSegmentCount(string,uint64)void method call against the NFDInstance contract
        */
-      updateSegmentCount(params: CallParams<NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      updateSegmentCount(
+        params: CallParams<
+          | NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void']
+          | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.updateSegmentCount(params)))
         return this
       },
       /**
        * Add a getFieldUpdateCost(byte[][])uint64 method call against the NFDInstance contract
        */
-      getFieldUpdateCost(params: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getFieldUpdateCost(
+        params: CallParams<
+          NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getFieldUpdateCost(params)))
         return this
       },
       /**
        * Add a updateFields(byte[][])void method call against the NFDInstance contract
        */
-      updateFields(params: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      updateFields(
+        params: CallParams<
+          NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.updateFields(params)))
         return this
       },
       /**
        * Add a readField(byte[])byte[] method call against the NFDInstance contract
        */
-      readField(params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      readField(
+        params: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.readField(params)))
         return this
       },
       /**
        * Add a offerForSale(uint64,address)void method call against the NFDInstance contract
        */
-      offerForSale(params: CallParams<NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      offerForSale(
+        params: CallParams<
+          NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.offerForSale(params)))
         return this
       },
       /**
        * Add a cancelSale()void method call against the NFDInstance contract
        */
-      cancelSale(params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      cancelSale(
+        params: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.cancelSale(params)))
         return this
       },
       /**
        * Add a postOffer(uint64,string)void method call against the NFDInstance contract
        */
-      postOffer(params: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      postOffer(
+        params: CallParams<
+          NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.postOffer(params)))
         return this
       },
       /**
        * Add a mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64) method call against the NFDInstance contract
        */
-      mintPayout(params: CallParams<NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      mintPayout(
+        params: CallParams<
+          | NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+          | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.mintPayout(params)))
         return this
       },
       /**
        * Add a purchase(pay)void method call against the NFDInstance contract
        */
-      purchase(params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      purchase(
+        params: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.purchase(params)))
         return this
       },
       /**
        * Add a isAddressInField(string,address)bool method call against the NFDInstance contract
        */
-      isAddressInField(params: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      isAddressInField(
+        params: CallParams<
+          NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.isAddressInField(params)))
         return this
       },
       /**
        * Add a getRenewPrice()uint64 method call against the NFDInstance contract
        */
-      getRenewPrice(params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getRenewPrice(
+        params: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getRenewPrice(params)))
         return this
       },
       /**
        * Add a updateHash(byte[])void method call against the NFDInstance contract
        */
-      updateHash(params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      updateHash(
+        params: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.updateHash(params)))
         return this
       },
       /**
        * Add a contractLock(bool)void method call against the NFDInstance contract
        */
-      contractLock(params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      contractLock(
+        params: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.contractLock(params)))
         return this
       },
       /**
        * Add a segmentLock(bool,uint64)void method call against the NFDInstance contract
        */
-      segmentLock(params: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      segmentLock(
+        params: CallParams<
+          NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.segmentLock(params)))
         return this
       },
       /**
        * Add a vaultOptInLock(bool)void method call against the NFDInstance contract
        */
-      vaultOptInLock(params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      vaultOptInLock(
+        params: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.vaultOptInLock(params)))
         return this
       },
       /**
        * Add a vaultOptIn(uint64[])void method call against the NFDInstance contract
        */
-      vaultOptIn(params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      vaultOptIn(
+        params: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.vaultOptIn(params)))
         return this
       },
       /**
        * Add a vaultSend(uint64,address,string,uint64,uint64[])void method call against the NFDInstance contract
        */
-      vaultSend(params: CallParams<NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void'] | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      vaultSend(
+        params: CallParams<
+          | NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void']
+          | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.vaultSend(params)))
         return this
       },
       /**
        * Add a renew(pay)void method call against the NFDInstance contract
        */
-      renew(params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      renew(
+        params: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']> & {
+          onComplete?: OnApplicationComplete.NoOp
+        },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.renew(params)))
         return this
       },
       /**
        * Add a setPrimaryAddress(string,address)void method call against the NFDInstance contract
        */
-      setPrimaryAddress(params: CallParams<NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      setPrimaryAddress(
+        params: CallParams<
+          | NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void']
+          | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setPrimaryAddress(params)))
         return this
       },
       /**
        * Add a registryAddingVerifiedAddress(string,string)bool method call against the NFDInstance contract
        */
-      registryAddingVerifiedAddress(params: CallParams<NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']> & { onComplete?: OnApplicationComplete.NoOp }) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.registryAddingVerifiedAddress(params)))
+      registryAddingVerifiedAddress(
+        params: CallParams<
+          | NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
+          | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
+        promiseChain = promiseChain.then(async () =>
+          composer.addAppCallMethodCall(await client.params.registryAddingVerifiedAddress(params)),
+        )
         return this
       },
       /**
        * Add a registryRemovingVerifiedAddress(string,address,address)bool method call against the NFDInstance contract
        */
-      registryRemovingVerifiedAddress(params: CallParams<NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool'] | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']> & { onComplete?: OnApplicationComplete.NoOp }) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.registryRemovingVerifiedAddress(params)))
+      registryRemovingVerifiedAddress(
+        params: CallParams<
+          | NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool']
+          | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
+        promiseChain = promiseChain.then(async () =>
+          composer.addAppCallMethodCall(await client.params.registryRemovingVerifiedAddress(params)),
+        )
         return this
       },
       /**
@@ -2082,7 +2735,7 @@ export class NfdInstanceClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
       },
       async send(params?: SendParams) {
@@ -2090,9 +2743,9 @@ export class NfdInstanceClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
-      }
+      },
     } as unknown as NfdInstanceComposer
   }
 }
@@ -2103,7 +2756,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  gas(params?: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['gas()void'] | undefined]>
+  gas(
+    params?: CallParams<NfdInstanceArgs['obj']['gas()void'] | NfdInstanceArgs['tuple']['gas()void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['gas()void'] | undefined]>
 
   /**
    * Calls the mintAsa(string,string)void ABI method.
@@ -2111,7 +2766,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  mintAsa(params?: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['mintAsa(string,string)void'] | undefined]>
+  mintAsa(
+    params?: CallParams<NfdInstanceArgs['obj']['mintAsa(string,string)void'] | NfdInstanceArgs['tuple']['mintAsa(string,string)void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['mintAsa(string,string)void'] | undefined]>
 
   /**
    * Calls the deleteFields(byte[][])void ABI method.
@@ -2119,7 +2776,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  deleteFields(params?: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['deleteFields(byte[][])void'] | undefined]>
+  deleteFields(
+    params?: CallParams<NfdInstanceArgs['obj']['deleteFields(byte[][])void'] | NfdInstanceArgs['tuple']['deleteFields(byte[][])void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['deleteFields(byte[][])void'] | undefined]>
 
   /**
    * Calls the updateSegmentCount(string,uint64)void ABI method.
@@ -2127,7 +2786,11 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  updateSegmentCount(params?: CallParams<NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['updateSegmentCount(string,uint64)void'] | undefined]>
+  updateSegmentCount(
+    params?: CallParams<
+      NfdInstanceArgs['obj']['updateSegmentCount(string,uint64)void'] | NfdInstanceArgs['tuple']['updateSegmentCount(string,uint64)void']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['updateSegmentCount(string,uint64)void'] | undefined]>
 
   /**
    * Calls the getFieldUpdateCost(byte[][])uint64 ABI method.
@@ -2135,7 +2798,11 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getFieldUpdateCost(params?: CallParams<NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64'] | undefined]>
+  getFieldUpdateCost(
+    params?: CallParams<
+      NfdInstanceArgs['obj']['getFieldUpdateCost(byte[][])uint64'] | NfdInstanceArgs['tuple']['getFieldUpdateCost(byte[][])uint64']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['getFieldUpdateCost(byte[][])uint64'] | undefined]>
 
   /**
    * Calls the updateFields(byte[][])void ABI method.
@@ -2143,7 +2810,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  updateFields(params?: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['updateFields(byte[][])void'] | undefined]>
+  updateFields(
+    params?: CallParams<NfdInstanceArgs['obj']['updateFields(byte[][])void'] | NfdInstanceArgs['tuple']['updateFields(byte[][])void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['updateFields(byte[][])void'] | undefined]>
 
   /**
    * Calls the readField(byte[])byte[] ABI method.
@@ -2151,7 +2820,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  readField(params?: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['readField(byte[])byte[]'] | undefined]>
+  readField(
+    params?: CallParams<NfdInstanceArgs['obj']['readField(byte[])byte[]'] | NfdInstanceArgs['tuple']['readField(byte[])byte[]']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['readField(byte[])byte[]'] | undefined]>
 
   /**
    * Calls the offerForSale(uint64,address)void ABI method.
@@ -2159,7 +2830,11 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  offerForSale(params?: CallParams<NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['offerForSale(uint64,address)void'] | undefined]>
+  offerForSale(
+    params?: CallParams<
+      NfdInstanceArgs['obj']['offerForSale(uint64,address)void'] | NfdInstanceArgs['tuple']['offerForSale(uint64,address)void']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['offerForSale(uint64,address)void'] | undefined]>
 
   /**
    * Calls the cancelSale()void ABI method.
@@ -2167,7 +2842,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  cancelSale(params?: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['cancelSale()void'] | undefined]>
+  cancelSale(
+    params?: CallParams<NfdInstanceArgs['obj']['cancelSale()void'] | NfdInstanceArgs['tuple']['cancelSale()void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['cancelSale()void'] | undefined]>
 
   /**
    * Calls the postOffer(uint64,string)void ABI method.
@@ -2175,7 +2852,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  postOffer(params?: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['postOffer(uint64,string)void'] | undefined]>
+  postOffer(
+    params?: CallParams<NfdInstanceArgs['obj']['postOffer(uint64,string)void'] | NfdInstanceArgs['tuple']['postOffer(uint64,string)void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['postOffer(uint64,string)void'] | undefined]>
 
   /**
    * Calls the mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64) ABI method.
@@ -2183,7 +2862,12 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  mintPayout(params?: CallParams<NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | undefined]>
+  mintPayout(
+    params?: CallParams<
+      | NfdInstanceArgs['obj']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+      | NfdInstanceArgs['tuple']['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['mintPayout(uint64,uint64)(uint64,address,uint64,address,uint64)'] | undefined]>
 
   /**
    * Calls the purchase(pay)void ABI method.
@@ -2191,7 +2875,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  purchase(params?: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['purchase(pay)void'] | undefined]>
+  purchase(
+    params?: CallParams<NfdInstanceArgs['obj']['purchase(pay)void'] | NfdInstanceArgs['tuple']['purchase(pay)void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['purchase(pay)void'] | undefined]>
 
   /**
    * Calls the isAddressInField(string,address)bool ABI method.
@@ -2199,7 +2885,11 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  isAddressInField(params?: CallParams<NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['isAddressInField(string,address)bool'] | undefined]>
+  isAddressInField(
+    params?: CallParams<
+      NfdInstanceArgs['obj']['isAddressInField(string,address)bool'] | NfdInstanceArgs['tuple']['isAddressInField(string,address)bool']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['isAddressInField(string,address)bool'] | undefined]>
 
   /**
    * Calls the getRenewPrice()uint64 ABI method.
@@ -2207,7 +2897,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getRenewPrice(params?: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['getRenewPrice()uint64'] | undefined]>
+  getRenewPrice(
+    params?: CallParams<NfdInstanceArgs['obj']['getRenewPrice()uint64'] | NfdInstanceArgs['tuple']['getRenewPrice()uint64']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['getRenewPrice()uint64'] | undefined]>
 
   /**
    * Calls the updateHash(byte[])void ABI method.
@@ -2215,7 +2907,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  updateHash(params?: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['updateHash(byte[])void'] | undefined]>
+  updateHash(
+    params?: CallParams<NfdInstanceArgs['obj']['updateHash(byte[])void'] | NfdInstanceArgs['tuple']['updateHash(byte[])void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['updateHash(byte[])void'] | undefined]>
 
   /**
    * Calls the contractLock(bool)void ABI method.
@@ -2223,7 +2917,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  contractLock(params?: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['contractLock(bool)void'] | undefined]>
+  contractLock(
+    params?: CallParams<NfdInstanceArgs['obj']['contractLock(bool)void'] | NfdInstanceArgs['tuple']['contractLock(bool)void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['contractLock(bool)void'] | undefined]>
 
   /**
    * Calls the segmentLock(bool,uint64)void ABI method.
@@ -2231,7 +2927,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  segmentLock(params?: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['segmentLock(bool,uint64)void'] | undefined]>
+  segmentLock(
+    params?: CallParams<NfdInstanceArgs['obj']['segmentLock(bool,uint64)void'] | NfdInstanceArgs['tuple']['segmentLock(bool,uint64)void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['segmentLock(bool,uint64)void'] | undefined]>
 
   /**
    * Calls the vaultOptInLock(bool)void ABI method.
@@ -2239,7 +2937,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  vaultOptInLock(params?: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['vaultOptInLock(bool)void'] | undefined]>
+  vaultOptInLock(
+    params?: CallParams<NfdInstanceArgs['obj']['vaultOptInLock(bool)void'] | NfdInstanceArgs['tuple']['vaultOptInLock(bool)void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['vaultOptInLock(bool)void'] | undefined]>
 
   /**
    * Calls the vaultOptIn(uint64[])void ABI method.
@@ -2247,7 +2947,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  vaultOptIn(params?: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['vaultOptIn(uint64[])void'] | undefined]>
+  vaultOptIn(
+    params?: CallParams<NfdInstanceArgs['obj']['vaultOptIn(uint64[])void'] | NfdInstanceArgs['tuple']['vaultOptIn(uint64[])void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['vaultOptIn(uint64[])void'] | undefined]>
 
   /**
    * Calls the vaultSend(uint64,address,string,uint64,uint64[])void ABI method.
@@ -2255,7 +2957,12 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  vaultSend(params?: CallParams<NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void'] | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['vaultSend(uint64,address,string,uint64,uint64[])void'] | undefined]>
+  vaultSend(
+    params?: CallParams<
+      | NfdInstanceArgs['obj']['vaultSend(uint64,address,string,uint64,uint64[])void']
+      | NfdInstanceArgs['tuple']['vaultSend(uint64,address,string,uint64,uint64[])void']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['vaultSend(uint64,address,string,uint64,uint64[])void'] | undefined]>
 
   /**
    * Calls the renew(pay)void ABI method.
@@ -2281,7 +2988,9 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  renew(params?: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['renew(pay)void'] | undefined]>
+  renew(
+    params?: CallParams<NfdInstanceArgs['obj']['renew(pay)void'] | NfdInstanceArgs['tuple']['renew(pay)void']>,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['renew(pay)void'] | undefined]>
 
   /**
    * Calls the setPrimaryAddress(string,address)void ABI method.
@@ -2289,7 +2998,11 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setPrimaryAddress(params?: CallParams<NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['setPrimaryAddress(string,address)void'] | undefined]>
+  setPrimaryAddress(
+    params?: CallParams<
+      NfdInstanceArgs['obj']['setPrimaryAddress(string,address)void'] | NfdInstanceArgs['tuple']['setPrimaryAddress(string,address)void']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['setPrimaryAddress(string,address)void'] | undefined]>
 
   /**
    * Calls the registryAddingVerifiedAddress(string,string)bool ABI method.
@@ -2301,7 +3014,12 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  registryAddingVerifiedAddress(params?: CallParams<NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool'] | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['registryAddingVerifiedAddress(string,string)bool'] | undefined]>
+  registryAddingVerifiedAddress(
+    params?: CallParams<
+      | NfdInstanceArgs['obj']['registryAddingVerifiedAddress(string,string)bool']
+      | NfdInstanceArgs['tuple']['registryAddingVerifiedAddress(string,string)bool']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['registryAddingVerifiedAddress(string,string)bool'] | undefined]>
 
   /**
    * Calls the registryRemovingVerifiedAddress(string,address,address)bool ABI method.
@@ -2311,7 +3029,12 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  registryRemovingVerifiedAddress(params?: CallParams<NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool'] | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']>): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool'] | undefined]>
+  registryRemovingVerifiedAddress(
+    params?: CallParams<
+      | NfdInstanceArgs['obj']['registryRemovingVerifiedAddress(string,address,address)bool']
+      | NfdInstanceArgs['tuple']['registryRemovingVerifiedAddress(string,address,address)bool']
+    >,
+  ): NfdInstanceComposer<[...TReturns, NfdInstanceReturns['registryRemovingVerifiedAddress(string,address,address)bool'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the NFDInstance smart contract.
@@ -2343,7 +3066,8 @@ export type NfdInstanceComposer<TReturns extends [...any[]] = []> = {
    */
   send(params?: SendParams): Promise<NfdInstanceComposerResults<TReturns>>
 }
-export type NfdInstanceComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
-  returns: TReturns
-}>
-
+export type NfdInstanceComposerResults<TReturns extends [...any[]]> = Expand<
+  SendTransactionComposerResults & {
+    returns: TReturns
+  }
+>

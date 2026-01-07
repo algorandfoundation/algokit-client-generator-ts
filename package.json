@@ -55,7 +55,8 @@
     "chalk": "^5.4.1",
     "change-case": "^5.4.4",
     "commander": "^14.0.0",
-    "jsonschema": "^1.5.0"
+    "jsonschema": "^1.5.0",
+    "prettier": "^3.6.2"
   },
   "peerDependencies": {
     "@algorandfoundation/algokit-utils": "^10.0.0-alpha.25"
@@ -78,7 +79,6 @@
     "hi-base32": "^0.5.1",
     "json-schema-to-typescript": "^15.0.4",
     "npm-run-all2": "^8.0.4",
-    "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "rollup": "^4.46.2",
     "semantic-release": "^25.0.2",

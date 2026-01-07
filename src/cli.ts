@@ -2,9 +2,10 @@ import { Command, Option } from 'commander'
 import { loadApplicationJson } from './schema/load'
 import * as path from 'path'
 import { generate } from './client/generate'
-import { writeDocumentPartsToStream } from './output/writer'
+import { writeDocumentPartsToString } from './output/writer'
 import { colorConsole } from './util/color-console'
 import { GenerateMode, generateModes, GeneratorOptions } from './client/generator-context'
+import { formatFile } from './output/formatter'
 
 export function cli(workingDirectory: string, args: string[]) {
   // Pre 13 commander allowed `-pn` however the latest version doesn't. Rewrite it to `--pn` for backwards compatibility.
@@ -90,7 +91,7 @@ export async function generateClientCommand({
   }
   colorConsole.info`Writing TS client to ${resolvedOutPath}`
   const file = await createAwaitableWriteStream(resolvedOutPath)
-  writeDocumentPartsToStream(parts, file)
+  file.write(await formatFile({ fileSource: writeDocumentPartsToString(parts), filePath: resolvedOutPath }))
   await file.finish()
 }
 

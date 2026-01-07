@@ -7,13 +7,41 @@
 import { type AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client'
 import { ABIReturn, ABIStructType, Arc56Contract, getStructValueFromTupleValue } from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete, TransactionSigner, Transaction } from '@algorandfoundation/algokit-utils/transact'
-import { SimulateResponse  } from '@algorandfoundation/algokit-utils/algod-client'
-import { Address, encodeAddress  } from '@algorandfoundation/algokit-utils'
-import { AppClientMethodCallParams, AppClientCompilationParams, AppClientDeployParams, CallOnComplete, AppClient as _AppClient, AppClientParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, AppClientBareCallParams, CloneAppClientParams  } from '@algorandfoundation/algokit-utils/types/app-client'
-import { SendParams,SendTransactionComposerResults  } from '@algorandfoundation/algokit-utils/types/transaction'
-import { AppFactoryCreateMethodCallParams, AppFactoryAppClientParams, AppFactoryDeployParams, AppFactoryParams, AppFactory as _AppFactory, AppFactoryResolveAppClientByCreatorAndNameParams, CreateSchema  } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionComposer, TransactionComposerConfig, SkipSignaturesSimulateOptions, RawSimulateOptions, SimulateOptions, AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import { Address, encodeAddress } from '@algorandfoundation/algokit-utils'
+import {
+  AppClientMethodCallParams,
+  AppClientCompilationParams,
+  AppClientDeployParams,
+  CallOnComplete,
+  AppClient as _AppClient,
+  AppClientParams,
+  ResolveAppClientByCreatorAndName,
+  ResolveAppClientByNetwork,
+  AppClientBareCallParams,
+  CloneAppClientParams,
+} from '@algorandfoundation/algokit-utils/types/app-client'
+import { SendParams, SendTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import {
+  AppFactoryCreateMethodCallParams,
+  AppFactoryAppClientParams,
+  AppFactoryDeployParams,
+  AppFactoryParams,
+  AppFactory as _AppFactory,
+  AppFactoryResolveAppClientByCreatorAndNameParams,
+  CreateSchema,
+} from '@algorandfoundation/algokit-utils/types/app-factory'
+import {
+  TransactionComposer,
+  TransactionComposerConfig,
+  SkipSignaturesSimulateOptions,
+  RawSimulateOptions,
+  SimulateOptions,
+  AppMethodCallTransactionArgument,
+} from '@algorandfoundation/algokit-utils/types/composer'
 
+/* Don't format the app spec json */
+/* prettier-ignore */
 export const APP_SPEC: Arc56Contract = {"name":"ZeroCouponBond","structs":{"AccountInfo":[{"name":"paymentAddress","type":"address"},{"name":"units","type":"uint64"},{"name":"unitValue","type":"uint64"},{"name":"paidCoupons","type":"uint64"},{"name":"suspended","type":"bool"}],"AssetInfo":[{"name":"denominationAssetId","type":"uint64"},{"name":"settlementAssetId","type":"uint64"},{"name":"outstandingPrincipal","type":"uint64"},{"name":"unitValue","type":"uint64"},{"name":"dayCountConvention","type":"uint8"},{"name":"interestRate","type":"uint16"},{"name":"totalSupply","type":"uint64"},{"name":"circulatingSupply","type":"uint64"},{"name":"primaryDistributionOpeningDate","type":"uint64"},{"name":"primaryDistributionClosureDate","type":"uint64"},{"name":"issuanceDate","type":"uint64"},{"name":"maturityDate","type":"uint64"},{"name":"suspended","type":"bool"},{"name":"performance","type":"uint8"}],"AssetMetadata":[{"name":"contractType","type":"uint8"},{"name":"calendar","type":"uint8"},{"name":"businessDayConvention","type":"uint8"},{"name":"endOfMonthConvention","type":"uint8"},{"name":"prepaymentEffect","type":"uint8"},{"name":"penaltyType","type":"uint8"},{"name":"prospectusHash","type":"byte[32]"},{"name":"prospectusUrl","type":"string"}],"CurrentUnitsValue":[{"name":"unitsValue","type":"uint64"},{"name":"accruedInterest","type":"uint64"},{"name":"dayCountFactor","type":"DayCountFactor"}],"DayCountFactor":[{"name":"numerator","type":"uint64"},{"name":"denominator","type":"uint64"}],"PaymentAmounts":[{"name":"interest","type":"uint64"},{"name":"principal","type":"uint64"}],"PaymentResult":[{"name":"amount","type":"uint64"},{"name":"timestamp","type":"uint64"},{"name":"context","type":"byte[]"}],"RoleConfig":[{"name":"roleValidityStart","type":"uint64"},{"name":"roleValidityEnd","type":"uint64"}],"SecondaryMarketSchedule":[{"name":"secondaryMarketOpeningDate","type":"uint64"},{"name":"secondaryMarketClosureDate","type":"uint64"}]},"methods":[{"name":"asset_transfer","args":[{"type":"address","name":"sender_holding_address","desc":"Sender Account Holding Address"},{"type":"address","name":"receiver_holding_address","desc":"Receiver Account Holding Address"},{"type":"uint64","name":"units","desc":"Amount of D-ASA units to transfer"}],"returns":{"type":"uint64","desc":"Transferred actualized value in denomination asset"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Transfer D-ASA units between accounts","events":[],"recommendations":{}},{"name":"pay_principal","args":[{"type":"address","name":"holding_address","desc":"Account Holding Address"},{"type":"byte[]","name":"payment_info","desc":"Additional payment information (Optional)"}],"returns":{"type":"(uint64,uint64,byte[])","struct":"PaymentResult","desc":"Paid amount in denomination asset, Payment timestamp, Payment context"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Pay the outstanding principal and interest to an account","events":[],"recommendations":{}},{"name":"get_account_units_current_value","args":[{"type":"address","name":"holding_address","desc":"Account Holding Address"},{"type":"uint64","name":"units","desc":"Account's units for the current value calculation"}],"returns":{"type":"(uint64,uint64,(uint64,uint64))","struct":"CurrentUnitsValue","desc":"Units current value in denomination asset, Accrued interest in denomination asset"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get account's units current value and accrued interest","events":[],"recommendations":{}},{"name":"get_payment_amount","args":[{"type":"address","name":"holding_address","desc":"Account Holding Address"}],"returns":{"type":"(uint64,uint64)","struct":"PaymentAmounts","desc":"Interest amount in denomination asset, Principal amount in denomination asset"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get the next payment amount","events":[],"recommendations":{}},{"name":"asset_create","args":[{"type":"address","name":"arranger","desc":"D-ASA Arranger Address"},{"type":"(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)","struct":"AssetMetadata","name":"metadata","desc":"D-ASA metadata"}],"returns":{"type":"void"},"actions":{"create":["NoOp"],"call":[]},"readonly":false,"desc":"Create a new D-ASA","events":[],"recommendations":{}},{"name":"asset_config","args":[{"type":"uint64","name":"denomination_asset_id","desc":"Denomination asset identifier"},{"type":"uint64","name":"settlement_asset_id","desc":"Settlement asset identifier"},{"type":"uint64","name":"principal","desc":"Principal, expressed in denomination asset"},{"type":"uint64","name":"minimum_denomination","desc":"Minimum denomination, expressed in denomination asset"},{"type":"uint8","name":"day_count_convention","desc":"Day-count convention for interests calculation"},{"type":"uint16","name":"interest_rate","desc":"Interest rate in bps"},{"type":"uint16[]","name":"coupon_rates","desc":"Coupon interest rates in bps"},{"type":"uint64[]","name":"time_events","desc":"Time events (strictly ascending order)"},{"type":"(uint64,uint64)[]","name":"time_periods","desc":"Time periods of recurring time events"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Configure the Debt Algorand Standard Application","events":[],"recommendations":{}},{"name":"set_secondary_time_events","args":[{"type":"uint64[]","name":"secondary_market_time_events","desc":"Secondary market time events (strictly ascending order)"}],"returns":{"type":"(uint64,uint64)","struct":"SecondaryMarketSchedule","desc":"Secondary Market Opening Date, Secondary Market Closure Date"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Set secondary market time schedule","events":[],"recommendations":{}},{"name":"assign_role","args":[{"type":"address","name":"role_address","desc":"Account Role Address"},{"type":"uint8","name":"role","desc":"Role identifier"},{"type":"byte[]","name":"config","desc":"Role configuration (Optional)"}],"returns":{"type":"uint64","desc":"Timestamp of the role assignment"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Assign a role to an address","events":[],"recommendations":{}},{"name":"revoke_role","args":[{"type":"address","name":"role_address","desc":"Account Role Address"},{"type":"uint8","name":"role","desc":"Role identifier"}],"returns":{"type":"uint64","desc":"Timestamp of the role revocation"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Revoke a role from an address","events":[],"recommendations":{}},{"name":"open_account","args":[{"type":"address","name":"holding_address","desc":"Account Holding Address"},{"type":"address","name":"payment_address","desc":"Account Payment Address"}],"returns":{"type":"uint64","desc":"Timestamp of the account opening"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Open D-ASA account","events":[],"recommendations":{}},{"name":"close_account","args":[{"type":"address","name":"holding_address","desc":"Account Holding Address"}],"returns":{"type":"(uint64,uint64)","desc":"Closed units, Timestamp of the account closing"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Close D-ASA account","events":[],"recommendations":{}},{"name":"primary_distribution","args":[{"type":"address","name":"holding_address","desc":"Account Holding Address"},{"type":"uint64","name":"units","desc":"Amount of D-ASA units to distribute"}],"returns":{"type":"uint64","desc":"Remaining D-ASA units to be distributed"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Distribute D-ASA units to accounts according the primary market","events":[],"recommendations":{}},{"name":"set_asset_suspension","args":[{"type":"bool","name":"suspended","desc":"Suspension status"}],"returns":{"type":"uint64","desc":"Timestamp of the set asset suspension status"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Set asset suspension status","events":[],"recommendations":{}},{"name":"set_account_suspension","args":[{"type":"address","name":"holding_address","desc":"Account Holding Address"},{"type":"bool","name":"suspended","desc":"Suspension status"}],"returns":{"type":"uint64","desc":"Timestamp of the set account suspension status"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Set account suspension status","events":[],"recommendations":{}},{"name":"set_default_status","args":[{"type":"bool","name":"defaulted","desc":"Default status"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Set D-ASA default status","events":[],"recommendations":{}},{"name":"get_asset_info","args":[],"returns":{"type":"(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)","struct":"AssetInfo","desc":"Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get D-ASA info","events":[],"recommendations":{}},{"name":"get_account_info","args":[{"type":"address","name":"holding_address","desc":"Account Holding Address"}],"returns":{"type":"(address,uint64,uint64,uint64,bool)","struct":"AccountInfo","desc":"Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get account info","events":[],"recommendations":{}},{"name":"get_time_events","args":[],"returns":{"type":"uint64[]","desc":"Time events"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get D-ASA time events","events":[],"recommendations":{}},{"name":"get_secondary_market_schedule","args":[],"returns":{"type":"uint64[]","desc":"Secondary market schedule"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get secondary market schedule","events":[],"recommendations":{}},{"name":"get_asset_metadata","args":[],"returns":{"type":"(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)","struct":"AssetMetadata","desc":"Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get D-ASA metadata","events":[],"recommendations":{}}],"arcs":[22,28],"desc":"\n    Zero Coupon Bond, placed at discount, fixed interest rate, principal at maturity.\n    ","networks":{},"state":{"schema":{"global":{"ints":17,"bytes":2},"local":{"ints":0,"bytes":0}},"keys":{"global":{"arranger":{"keyType":"AVMBytes","valueType":"AVMBytes","key":"UjIwIw=="},"denomination_asset_id":{"keyType":"AVMString","valueType":"AVMUint64","key":"ZGVub21pbmF0aW9uX2Fzc2V0X2lk"},"settlement_asset_id":{"keyType":"AVMString","valueType":"AVMUint64","key":"c2V0dGxlbWVudF9hc3NldF9pZA=="},"unit_value":{"keyType":"AVMString","valueType":"AVMUint64","key":"dW5pdF92YWx1ZQ=="},"day_count_convention":{"keyType":"AVMString","valueType":"AVMUint64","key":"ZGF5X2NvdW50X2NvbnZlbnRpb24="},"metadata":{"keyType":"AVMString","valueType":"AVMBytes","key":"bWV0YWRhdGE="},"total_units":{"keyType":"AVMString","valueType":"AVMUint64","key":"dG90YWxfdW5pdHM="},"circulating_units":{"keyType":"AVMString","valueType":"AVMUint64","key":"Y2lyY3VsYXRpbmdfdW5pdHM="},"interest_rate":{"keyType":"AVMString","valueType":"AVMUint64","key":"aW50ZXJlc3RfcmF0ZQ=="},"total_coupons":{"keyType":"AVMString","valueType":"AVMUint64","key":"dG90YWxfY291cG9ucw=="},"primary_distribution_opening_date":{"keyType":"AVMString","valueType":"AVMUint64","key":"cHJpbWFyeV9kaXN0cmlidXRpb25fb3BlbmluZ19kYXRl"},"primary_distribution_closure_date":{"keyType":"AVMString","valueType":"AVMUint64","key":"cHJpbWFyeV9kaXN0cmlidXRpb25fY2xvc3VyZV9kYXRl"},"issuance_date":{"keyType":"AVMString","valueType":"AVMUint64","key":"aXNzdWFuY2VfZGF0ZQ=="},"secondary_market_opening_date":{"keyType":"AVMString","valueType":"AVMUint64","key":"c2Vjb25kYXJ5X21hcmtldF9vcGVuaW5nX2RhdGU="},"secondary_market_closure_date":{"keyType":"AVMString","valueType":"AVMUint64","key":"c2Vjb25kYXJ5X21hcmtldF9jbG9zdXJlX2RhdGU="},"maturity_date":{"keyType":"AVMString","valueType":"AVMUint64","key":"bWF0dXJpdHlfZGF0ZQ=="},"status":{"keyType":"AVMString","valueType":"AVMUint64","key":"c3RhdHVz"},"suspended":{"keyType":"AVMString","valueType":"AVMUint64","key":"c3VzcGVuZGVk"},"defaulted":{"keyType":"AVMString","valueType":"AVMUint64","key":"ZGVmYXVsdGVk"}},"local":{},"box":{"coupon_rates":{"keyType":"AVMBytes","valueType":"uint16[]","key":"Y291cG9uUmF0ZXM="},"time_events":{"keyType":"AVMBytes","valueType":"uint64[]","key":"dGltZUV2ZW50cw=="},"time_periods":{"keyType":"AVMBytes","valueType":"(uint64,uint64)[]","key":"dGltZVBlcmlvZHM="}}},"maps":{"global":{},"local":{},"box":{"account_manager":{"keyType":"address","valueType":"RoleConfig","prefix":"UjQwIw=="},"primary_dealer":{"keyType":"address","valueType":"RoleConfig","prefix":"UjUwIw=="},"trustee":{"keyType":"address","valueType":"RoleConfig","prefix":"UjYwIw=="},"authority":{"keyType":"address","valueType":"RoleConfig","prefix":"UjcwIw=="},"interest_oracle":{"keyType":"address","valueType":"RoleConfig","prefix":"UjgwIw=="},"account":{"keyType":"address","valueType":"AccountInfo","prefix":"UjMwIw=="}}}},"bareActions":{"create":[],"call":["UpdateApplication"]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[3235],"errorMessage":"Can not distribute zero units"},{"pc":[2212],"errorMessage":"Coupon rates are not properly defined"},{"pc":[2087],"errorMessage":"D-ASA already configured"},{"pc":[1448],"errorMessage":"Defaulted"},{"pc":[2107],"errorMessage":"Denomination asset is not properly set"},{"pc":[2124],"errorMessage":"Different settlement asset not supported, must be equal to denomination asset"},{"pc":[1229,1240,1247,1258,1265,1276,1283,1297,1317,1341,1359,1426,1468,1473,1571,1609,1625,1686,1724,1775,1853,1946,1952,2272,2281,2289,2325,2375,2443,2458,2555,2593,3046,3063,3100,3188,3205,3264,3355,3372,3439,3456],"errorMessage":"Index access is out of bounds"},{"pc":[3249],"errorMessage":"Insufficient remaining D-ASA units"},{"pc":[1236],"errorMessage":"Insufficient sender units to transfer"},{"pc":[2201],"errorMessage":"Interest rate is not properly defined"},{"pc":[1179,1191,1605,1840,2016,3006,3096,3224,3402,3683],"errorMessage":"Invalid account holding address"},{"pc":[2716,2738,2758,2778,2798,2904,2921,2936,2951,2966],"errorMessage":"Invalid account role address"},{"pc":[1865],"errorMessage":"Invalid amount of units for the account"},{"pc":[2191],"errorMessage":"Invalid day-count convention ID"},{"pc":[2680,2872],"errorMessage":"Invalid role identifier"},{"pc":[2599],"errorMessage":"Invalid secondary market closure date"},{"pc":[2563],"errorMessage":"Invalid secondary market opening date"},{"pc":[2161],"errorMessage":"Minimum denomination is not a divisor of principal"},{"pc":[1613],"errorMessage":"No D-ASA units"},{"pc":[1161,1589,2361,2510,2990,3073,3215,3382,3466],"errorMessage":"Not authorized"},{"pc":[1681],"errorMessage":"Not enough funds for the payment"},{"pc":[1622],"errorMessage":"Not mature"},{"pc":[678,694,710,726,745,761,776,798,817,839,858,880,902,927,946,985,1004,1023,1045,1067],"errorMessage":"OnCompletion is not NoOp"},{"pc":[3169],"errorMessage":"Primary distribution is closed"},{"pc":[1829],"errorMessage":"Primary distribution not yet executed"},{"pc":[1155],"errorMessage":"Secondary market is closed"},{"pc":[1291],"errorMessage":"Sender and receiver units are not fungible"},{"pc":[1208,1224,1459],"errorMessage":"Suspended operations"},{"pc":[2246,2519],"errorMessage":"Time events length is invalid"},{"pc":[2382],"errorMessage":"Time events must be set in the future"},{"pc":[2464],"errorMessage":"Time events must be sorted in strictly ascending order"},{"pc":[2336],"errorMessage":"Time periods are not properly defined"},{"pc":[2486],"errorMessage":"Time periods in Actual/Actual day count convention must be multiples of a day (in seconds)"},{"pc":[506],"errorMessage":"Wrong Global Bytes allocation"},{"pc":[512],"errorMessage":"Wrong Global UInts allocation"},{"pc":[516],"errorMessage":"Wrong Local Bytes allocation"},{"pc":[520],"errorMessage":"Wrong Local UInts allocation"},{"pc":[1677],"errorMessage":"account opted into asset"},{"pc":[2099],"errorMessage":"asset exists"},{"pc":[989],"errorMessage":"can only call when creating"},{"pc":[681,697,713,729,748,764,779,801,820,842,861,883,905,930,949,1007,1026,1048,1070,1101],"errorMessage":"can only call when not creating"},{"pc":[1195,1211,1228,1239,1246,1257,1264,1275,1282,1296,1316,1328,1340,1352,1358,1370,1381,1408,1420,1424,1570,1608,1624,1643,1685,1723,1734,1774,1852,3099,3263,3273,3290,3405,3685],"errorMessage":"check self.account entry exists"},{"pc":[3045,3062],"errorMessage":"check self.account_manager entry exists"},{"pc":[2359],"errorMessage":"check self.arranger exists"},{"pc":[3354,3371],"errorMessage":"check self.authority entry exists"},{"pc":[1716,1792,3110,3239,3253,3303,3545,3586],"errorMessage":"check self.circulating_units exists"},{"pc":[1530,2469,3563],"errorMessage":"check self.day_count_convention exists"},{"pc":[1446,3522],"errorMessage":"check self.defaulted exists"},{"pc":[2120,3534],"errorMessage":"check self.denomination_asset_id exists"},{"pc":[1488,1885,2041,3572],"errorMessage":"check self.interest_rate exists"},{"pc":[1509,1521,1908,2546,3604],"errorMessage":"check self.issuance_date exists"},{"pc":[1516,1620,1922,1964,2572,2580,3497,3610],"errorMessage":"check self.maturity_date exists"},{"pc":[3745],"errorMessage":"check self.metadata exists"},{"pc":[3187,3204],"errorMessage":"check self.primary_dealer entry exists"},{"pc":[3161,3598],"errorMessage":"check self.primary_distribution_closure_date exists"},{"pc":[1813,1823,3147,3592],"errorMessage":"check self.primary_distribution_opening_date exists"},{"pc":[1147,2614,3728],"errorMessage":"check self.secondary_market_closure_date exists"},{"pc":[1133,2608,3722],"errorMessage":"check self.secondary_market_opening_date exists"},{"pc":[1632,1674,1696,2136,3540],"errorMessage":"check self.settlement_asset_id exists"},{"pc":[1122,1585,2022,2085,2505,2985,3136,3697],"errorMessage":"check self.status exists"},{"pc":[1457,3616],"errorMessage":"check self.suspended exists"},{"pc":[3710],"errorMessage":"check self.time_events exists"},{"pc":[2221,2242,2308],"errorMessage":"check self.total_coupons exists"},{"pc":[3247,3299,3581],"errorMessage":"check self.total_units exists"},{"pc":[3438,3455],"errorMessage":"check self.trustee entry exists"},{"pc":[3285,3550,3557],"errorMessage":"check self.unit_value exists"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"events":[]} as unknown as Arc56Contract
 
 /**
@@ -52,17 +80,15 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     ? { [K in keyof O]: O[K] }
     : never
 
-
 // Type definitions for ARC-56 structs
 
 export type AccountInfo = {
-  paymentAddress: string,
-  units: bigint,
-  unitValue: bigint,
-  paidCoupons: bigint,
+  paymentAddress: string
+  units: bigint
+  unitValue: bigint
+  paidCoupons: bigint
   suspended: boolean
 }
-
 
 /**
  * Converts the ABI tuple representation of a AccountInfo to the struct representation
@@ -73,42 +99,42 @@ export function AccountInfoFromTuple(abiTuple: [string, bigint, bigint, bigint, 
 }
 
 export type AssetInfo = {
-  denominationAssetId: bigint,
-  settlementAssetId: bigint,
-  outstandingPrincipal: bigint,
-  unitValue: bigint,
-  dayCountConvention: number,
-  interestRate: number,
-  totalSupply: bigint,
-  circulatingSupply: bigint,
-  primaryDistributionOpeningDate: bigint,
-  primaryDistributionClosureDate: bigint,
-  issuanceDate: bigint,
-  maturityDate: bigint,
-  suspended: boolean,
+  denominationAssetId: bigint
+  settlementAssetId: bigint
+  outstandingPrincipal: bigint
+  unitValue: bigint
+  dayCountConvention: number
+  interestRate: number
+  totalSupply: bigint
+  circulatingSupply: bigint
+  primaryDistributionOpeningDate: bigint
+  primaryDistributionClosureDate: bigint
+  issuanceDate: bigint
+  maturityDate: bigint
+  suspended: boolean
   performance: number
 }
-
 
 /**
  * Converts the ABI tuple representation of a AssetInfo to the struct representation
  */
-export function AssetInfoFromTuple(abiTuple: [bigint, bigint, bigint, bigint, number, number, bigint, bigint, bigint, bigint, bigint, bigint, boolean, number]) {
+export function AssetInfoFromTuple(
+  abiTuple: [bigint, bigint, bigint, bigint, number, number, bigint, bigint, bigint, bigint, bigint, bigint, boolean, number],
+) {
   const abiStructType = ABIStructType.fromStruct('AssetInfo', APP_SPEC.structs)
   return getStructValueFromTupleValue(abiStructType, abiTuple) as AssetInfo
 }
 
 export type AssetMetadata = {
-  contractType: number,
-  calendar: number,
-  businessDayConvention: number,
-  endOfMonthConvention: number,
-  prepaymentEffect: number,
-  penaltyType: number,
-  prospectusHash: Uint8Array,
+  contractType: number
+  calendar: number
+  businessDayConvention: number
+  endOfMonthConvention: number
+  prepaymentEffect: number
+  penaltyType: number
+  prospectusHash: Uint8Array
   prospectusUrl: string
 }
-
 
 /**
  * Converts the ABI tuple representation of a AssetMetadata to the struct representation
@@ -119,11 +145,10 @@ export function AssetMetadataFromTuple(abiTuple: [number, number, number, number
 }
 
 export type CurrentUnitsValue = {
-  unitsValue: bigint,
-  accruedInterest: bigint,
+  unitsValue: bigint
+  accruedInterest: bigint
   dayCountFactor: DayCountFactor
 }
-
 
 /**
  * Converts the ABI tuple representation of a CurrentUnitsValue to the struct representation
@@ -134,10 +159,9 @@ export function CurrentUnitsValueFromTuple(abiTuple: [bigint, bigint, DayCountFa
 }
 
 export type DayCountFactor = {
-  numerator: bigint,
+  numerator: bigint
   denominator: bigint
 }
-
 
 /**
  * Converts the ABI tuple representation of a DayCountFactor to the struct representation
@@ -148,10 +172,9 @@ export function DayCountFactorFromTuple(abiTuple: [bigint, bigint]) {
 }
 
 export type PaymentAmounts = {
-  interest: bigint,
+  interest: bigint
   principal: bigint
 }
-
 
 /**
  * Converts the ABI tuple representation of a PaymentAmounts to the struct representation
@@ -162,11 +185,10 @@ export function PaymentAmountsFromTuple(abiTuple: [bigint, bigint]) {
 }
 
 export type PaymentResult = {
-  amount: bigint,
-  timestamp: bigint,
+  amount: bigint
+  timestamp: bigint
   context: Uint8Array
 }
-
 
 /**
  * Converts the ABI tuple representation of a PaymentResult to the struct representation
@@ -177,10 +199,9 @@ export function PaymentResultFromTuple(abiTuple: [bigint, bigint, Uint8Array]) {
 }
 
 export type RoleConfig = {
-  roleValidityStart: bigint,
+  roleValidityStart: bigint
   roleValidityEnd: bigint
 }
-
 
 /**
  * Converts the ABI tuple representation of a RoleConfig to the struct representation
@@ -191,10 +212,9 @@ export function RoleConfigFromTuple(abiTuple: [bigint, bigint]) {
 }
 
 export type SecondaryMarketSchedule = {
-  secondaryMarketOpeningDate: bigint,
+  secondaryMarketOpeningDate: bigint
   secondaryMarketClosureDate: bigint
 }
-
 
 /**
  * Converts the ABI tuple representation of a SecondaryMarketSchedule to the struct representation
@@ -398,7 +418,17 @@ export type ZeroCouponBondArgs = {
     'get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))': [holdingAddress: string, units: bigint | number]
     'get_payment_amount(address)(uint64,uint64)': [holdingAddress: string]
     'asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void': [arranger: string, metadata: AssetMetadata]
-    'asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void': [denominationAssetId: bigint | number, settlementAssetId: bigint | number, principal: bigint | number, minimumDenomination: bigint | number, dayCountConvention: bigint | number, interestRate: bigint | number, couponRates: bigint[] | number[], timeEvents: bigint[] | number[], timePeriods: [bigint | number, bigint | number][]]
+    'asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void': [
+      denominationAssetId: bigint | number,
+      settlementAssetId: bigint | number,
+      principal: bigint | number,
+      minimumDenomination: bigint | number,
+      dayCountConvention: bigint | number,
+      interestRate: bigint | number,
+      couponRates: bigint[] | number[],
+      timeEvents: bigint[] | number[],
+      timePeriods: [bigint | number, bigint | number][],
+    ]
     'set_secondary_time_events(uint64[])(uint64,uint64)': [secondaryMarketTimeEvents: bigint[] | number[]]
     'assign_role(address,uint8,byte[])uint64': [roleAddress: string, role: bigint | number, config: Uint8Array]
     'revoke_role(address,uint8)uint64': [roleAddress: string, role: bigint | number]
@@ -449,158 +479,217 @@ export type ZeroCouponBondTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
-  methods:
-    & Record<'asset_transfer(address,address,uint64)uint64' | 'asset_transfer', {
+  methods: Record<
+    'asset_transfer(address,address,uint64)uint64' | 'asset_transfer',
+    {
       argsObj: ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64']
       argsTuple: ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']
       /**
        * Transferred actualized value in denomination asset
        */
       returns: ZeroCouponBondReturns['asset_transfer(address,address,uint64)uint64']
-    }>
-    & Record<'pay_principal(address,byte[])(uint64,uint64,byte[])' | 'pay_principal', {
-      argsObj: ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
-      argsTuple: ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
-      /**
-       * Paid amount in denomination asset, Payment timestamp, Payment context
-       */
-      returns: ZeroCouponBondReturns['pay_principal(address,byte[])(uint64,uint64,byte[])']
-    }>
-    & Record<'get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))' | 'get_account_units_current_value', {
-      argsObj: ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
-      argsTuple: ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
-      /**
-       * Units current value in denomination asset, Accrued interest in denomination asset
-       */
-      returns: ZeroCouponBondReturns['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
-    }>
-    & Record<'get_payment_amount(address)(uint64,uint64)' | 'get_payment_amount', {
-      argsObj: ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
-      argsTuple: ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
-      /**
-       * Interest amount in denomination asset, Principal amount in denomination asset
-       */
-      returns: ZeroCouponBondReturns['get_payment_amount(address)(uint64,uint64)']
-    }>
-    & Record<'asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void' | 'asset_create', {
-      argsObj: ZeroCouponBondArgs['obj']['asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void']
-      argsTuple: ZeroCouponBondArgs['tuple']['asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void']
-      returns: ZeroCouponBondReturns['asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void']
-    }>
-    & Record<'asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void' | 'asset_config', {
-      argsObj: ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
-      argsTuple: ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
-      returns: ZeroCouponBondReturns['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
-    }>
-    & Record<'set_secondary_time_events(uint64[])(uint64,uint64)' | 'set_secondary_time_events', {
-      argsObj: ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
-      argsTuple: ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
-      /**
-       * Secondary Market Opening Date, Secondary Market Closure Date
-       */
-      returns: ZeroCouponBondReturns['set_secondary_time_events(uint64[])(uint64,uint64)']
-    }>
-    & Record<'assign_role(address,uint8,byte[])uint64' | 'assign_role', {
-      argsObj: ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
-      argsTuple: ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
-      /**
-       * Timestamp of the role assignment
-       */
-      returns: ZeroCouponBondReturns['assign_role(address,uint8,byte[])uint64']
-    }>
-    & Record<'revoke_role(address,uint8)uint64' | 'revoke_role', {
-      argsObj: ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64']
-      argsTuple: ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
-      /**
-       * Timestamp of the role revocation
-       */
-      returns: ZeroCouponBondReturns['revoke_role(address,uint8)uint64']
-    }>
-    & Record<'open_account(address,address)uint64' | 'open_account', {
-      argsObj: ZeroCouponBondArgs['obj']['open_account(address,address)uint64']
-      argsTuple: ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
-      /**
-       * Timestamp of the account opening
-       */
-      returns: ZeroCouponBondReturns['open_account(address,address)uint64']
-    }>
-    & Record<'close_account(address)(uint64,uint64)' | 'close_account', {
-      argsObj: ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
-      argsTuple: ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
-      /**
-       * Closed units, Timestamp of the account closing
-       */
-      returns: ZeroCouponBondReturns['close_account(address)(uint64,uint64)']
-    }>
-    & Record<'primary_distribution(address,uint64)uint64' | 'primary_distribution', {
-      argsObj: ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
-      argsTuple: ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
-      /**
-       * Remaining D-ASA units to be distributed
-       */
-      returns: ZeroCouponBondReturns['primary_distribution(address,uint64)uint64']
-    }>
-    & Record<'set_asset_suspension(bool)uint64' | 'set_asset_suspension', {
-      argsObj: ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64']
-      argsTuple: ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
-      /**
-       * Timestamp of the set asset suspension status
-       */
-      returns: ZeroCouponBondReturns['set_asset_suspension(bool)uint64']
-    }>
-    & Record<'set_account_suspension(address,bool)uint64' | 'set_account_suspension', {
-      argsObj: ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
-      argsTuple: ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
-      /**
-       * Timestamp of the set account suspension status
-       */
-      returns: ZeroCouponBondReturns['set_account_suspension(address,bool)uint64']
-    }>
-    & Record<'set_default_status(bool)void' | 'set_default_status', {
-      argsObj: ZeroCouponBondArgs['obj']['set_default_status(bool)void']
-      argsTuple: ZeroCouponBondArgs['tuple']['set_default_status(bool)void']
-      returns: ZeroCouponBondReturns['set_default_status(bool)void']
-    }>
-    & Record<'get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)' | 'get_asset_info', {
-      argsObj: ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
-      argsTuple: ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
-      /**
-       * Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
-       */
-      returns: ZeroCouponBondReturns['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
-    }>
-    & Record<'get_account_info(address)(address,uint64,uint64,uint64,bool)' | 'get_account_info', {
-      argsObj: ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
-      argsTuple: ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
-      /**
-       * Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
-       */
-      returns: ZeroCouponBondReturns['get_account_info(address)(address,uint64,uint64,uint64,bool)']
-    }>
-    & Record<'get_time_events()uint64[]' | 'get_time_events', {
-      argsObj: ZeroCouponBondArgs['obj']['get_time_events()uint64[]']
-      argsTuple: ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']
-      /**
-       * Time events
-       */
-      returns: ZeroCouponBondReturns['get_time_events()uint64[]']
-    }>
-    & Record<'get_secondary_market_schedule()uint64[]' | 'get_secondary_market_schedule', {
-      argsObj: ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
-      argsTuple: ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
-      /**
-       * Secondary market schedule
-       */
-      returns: ZeroCouponBondReturns['get_secondary_market_schedule()uint64[]']
-    }>
-    & Record<'get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)' | 'get_asset_metadata', {
-      argsObj: ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
-      argsTuple: ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
-      /**
-       * Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
-       */
-      returns: ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
-    }>
+    }
+  > &
+    Record<
+      'pay_principal(address,byte[])(uint64,uint64,byte[])' | 'pay_principal',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+        argsTuple: ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+        /**
+         * Paid amount in denomination asset, Payment timestamp, Payment context
+         */
+        returns: ZeroCouponBondReturns['pay_principal(address,byte[])(uint64,uint64,byte[])']
+      }
+    > &
+    Record<
+      'get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))' | 'get_account_units_current_value',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+        argsTuple: ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+        /**
+         * Units current value in denomination asset, Accrued interest in denomination asset
+         */
+        returns: ZeroCouponBondReturns['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+      }
+    > &
+    Record<
+      'get_payment_amount(address)(uint64,uint64)' | 'get_payment_amount',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
+        argsTuple: ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+        /**
+         * Interest amount in denomination asset, Principal amount in denomination asset
+         */
+        returns: ZeroCouponBondReturns['get_payment_amount(address)(uint64,uint64)']
+      }
+    > &
+    Record<
+      'asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void' | 'asset_create',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void']
+        argsTuple: ZeroCouponBondArgs['tuple']['asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void']
+        returns: ZeroCouponBondReturns['asset_create(address,(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string))void']
+      }
+    > &
+    Record<
+      'asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void' | 'asset_config',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+        argsTuple: ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+        returns: ZeroCouponBondReturns['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+      }
+    > &
+    Record<
+      'set_secondary_time_events(uint64[])(uint64,uint64)' | 'set_secondary_time_events',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
+        argsTuple: ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
+        /**
+         * Secondary Market Opening Date, Secondary Market Closure Date
+         */
+        returns: ZeroCouponBondReturns['set_secondary_time_events(uint64[])(uint64,uint64)']
+      }
+    > &
+    Record<
+      'assign_role(address,uint8,byte[])uint64' | 'assign_role',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
+        argsTuple: ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
+        /**
+         * Timestamp of the role assignment
+         */
+        returns: ZeroCouponBondReturns['assign_role(address,uint8,byte[])uint64']
+      }
+    > &
+    Record<
+      'revoke_role(address,uint8)uint64' | 'revoke_role',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64']
+        argsTuple: ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
+        /**
+         * Timestamp of the role revocation
+         */
+        returns: ZeroCouponBondReturns['revoke_role(address,uint8)uint64']
+      }
+    > &
+    Record<
+      'open_account(address,address)uint64' | 'open_account',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['open_account(address,address)uint64']
+        argsTuple: ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
+        /**
+         * Timestamp of the account opening
+         */
+        returns: ZeroCouponBondReturns['open_account(address,address)uint64']
+      }
+    > &
+    Record<
+      'close_account(address)(uint64,uint64)' | 'close_account',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
+        argsTuple: ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
+        /**
+         * Closed units, Timestamp of the account closing
+         */
+        returns: ZeroCouponBondReturns['close_account(address)(uint64,uint64)']
+      }
+    > &
+    Record<
+      'primary_distribution(address,uint64)uint64' | 'primary_distribution',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
+        argsTuple: ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
+        /**
+         * Remaining D-ASA units to be distributed
+         */
+        returns: ZeroCouponBondReturns['primary_distribution(address,uint64)uint64']
+      }
+    > &
+    Record<
+      'set_asset_suspension(bool)uint64' | 'set_asset_suspension',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64']
+        argsTuple: ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
+        /**
+         * Timestamp of the set asset suspension status
+         */
+        returns: ZeroCouponBondReturns['set_asset_suspension(bool)uint64']
+      }
+    > &
+    Record<
+      'set_account_suspension(address,bool)uint64' | 'set_account_suspension',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
+        argsTuple: ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
+        /**
+         * Timestamp of the set account suspension status
+         */
+        returns: ZeroCouponBondReturns['set_account_suspension(address,bool)uint64']
+      }
+    > &
+    Record<
+      'set_default_status(bool)void' | 'set_default_status',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['set_default_status(bool)void']
+        argsTuple: ZeroCouponBondArgs['tuple']['set_default_status(bool)void']
+        returns: ZeroCouponBondReturns['set_default_status(bool)void']
+      }
+    > &
+    Record<
+      'get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)' | 'get_asset_info',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+        argsTuple: ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+        /**
+         * Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
+         */
+        returns: ZeroCouponBondReturns['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+      }
+    > &
+    Record<
+      'get_account_info(address)(address,uint64,uint64,uint64,bool)' | 'get_account_info',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+        argsTuple: ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+        /**
+         * Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
+         */
+        returns: ZeroCouponBondReturns['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+      }
+    > &
+    Record<
+      'get_time_events()uint64[]' | 'get_time_events',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['get_time_events()uint64[]']
+        argsTuple: ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']
+        /**
+         * Time events
+         */
+        returns: ZeroCouponBondReturns['get_time_events()uint64[]']
+      }
+    > &
+    Record<
+      'get_secondary_market_schedule()uint64[]' | 'get_secondary_market_schedule',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
+        argsTuple: ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+        /**
+         * Secondary market schedule
+         */
+        returns: ZeroCouponBondReturns['get_secondary_market_schedule()uint64[]']
+      }
+    > &
+    Record<
+      'get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)' | 'get_asset_metadata',
+      {
+        argsObj: ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+        argsTuple: ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+        /**
+         * Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
+         */
+        returns: ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+      }
+    >
   /**
    * Defines the shape of the state of the application.
    */
@@ -654,16 +743,21 @@ export type ZeroCouponBondSignatures = keyof ZeroCouponBondTypes['methods']
 /**
  * Defines the possible abi call signatures for methods that return a non-void value.
  */
-export type ZeroCouponBondNonVoidMethodSignatures = keyof ZeroCouponBondTypes['methods'] extends infer T ? T extends keyof ZeroCouponBondTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
+export type ZeroCouponBondNonVoidMethodSignatures = keyof ZeroCouponBondTypes['methods'] extends infer T
+  ? T extends keyof ZeroCouponBondTypes['methods']
+    ? MethodReturn<T> extends void
+      ? never
+      : T
+    : never
+  : never
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
 export type CallParams<TArgs> = Expand<
-  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> &
-    {
-      /** The args for the ABI method call, either as an ordered array or an object */
-      args: Expand<TArgs>
-    }
+  Omit<AppClientMethodCallParams, 'method' | 'args' | 'onComplete'> & {
+    /** The args for the ABI method call, either as an ordered array or an object */
+    args: Expand<TArgs>
+  }
 >
 /**
  * Maps a method signature from the ZeroCouponBond smart contract to the method's arguments in either tuple or struct form
@@ -684,8 +778,6 @@ export type GlobalKeysState = ZeroCouponBondTypes['state']['global']['keys']
  */
 export type BoxKeysState = ZeroCouponBondTypes['state']['box']['keys']
 
-
-
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the ZeroCouponBond smart contract
  */
@@ -698,11 +790,19 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static assetTransfer(params: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static assetTransfer(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64']
+      | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'asset_transfer(address,address,uint64)uint64' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.senderHoldingAddress, params.args.receiverHoldingAddress, params.args.units],
+      args: Array.isArray(params.args)
+        ? params.args
+        : [params.args.senderHoldingAddress, params.args.receiverHoldingAddress, params.args.units],
     }
   }
   /**
@@ -713,7 +813,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static payPrincipal(params: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static payPrincipal(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+      | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'pay_principal(address,byte[])(uint64,uint64,byte[])' as const,
@@ -728,7 +834,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getAccountUnitsCurrentValue(params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getAccountUnitsCurrentValue(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+      | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))' as const,
@@ -743,7 +855,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getPaymentAmount(params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getPaymentAmount(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
+      | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'get_payment_amount(address)(uint64,uint64)' as const,
@@ -758,11 +876,29 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static assetConfig(params: CallParams<ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'] | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static assetConfig(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+      | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.denominationAssetId, params.args.settlementAssetId, params.args.principal, params.args.minimumDenomination, params.args.dayCountConvention, params.args.interestRate, params.args.couponRates, params.args.timeEvents, params.args.timePeriods],
+      args: Array.isArray(params.args)
+        ? params.args
+        : [
+            params.args.denominationAssetId,
+            params.args.settlementAssetId,
+            params.args.principal,
+            params.args.minimumDenomination,
+            params.args.dayCountConvention,
+            params.args.interestRate,
+            params.args.couponRates,
+            params.args.timeEvents,
+            params.args.timePeriods,
+          ],
     }
   }
   /**
@@ -773,7 +909,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setSecondaryTimeEvents(params: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setSecondaryTimeEvents(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
+      | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_secondary_time_events(uint64[])(uint64,uint64)' as const,
@@ -788,7 +930,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static assignRole(params: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static assignRole(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
+      | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'assign_role(address,uint8,byte[])uint64' as const,
@@ -803,7 +951,12 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static revokeRole(params: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static revokeRole(
+    params: CallParams<
+      ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'revoke_role(address,uint8)uint64' as const,
@@ -818,7 +971,12 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static openAccount(params: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static openAccount(
+    params: CallParams<
+      ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'open_account(address,address)uint64' as const,
@@ -833,7 +991,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static closeAccount(params: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static closeAccount(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
+      | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'close_account(address)(uint64,uint64)' as const,
@@ -848,7 +1012,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static primaryDistribution(params: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static primaryDistribution(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
+      | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'primary_distribution(address,uint64)uint64' as const,
@@ -863,7 +1033,12 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setAssetSuspension(params: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setAssetSuspension(
+    params: CallParams<
+      ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_asset_suspension(bool)uint64' as const,
@@ -878,7 +1053,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setAccountSuspension(params: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setAccountSuspension(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
+      | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_account_suspension(address,bool)uint64' as const,
@@ -893,7 +1074,12 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setDefaultStatus(params: CallParams<ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setDefaultStatus(
+    params: CallParams<
+      ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'set_default_status(bool)void' as const,
@@ -908,7 +1094,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getAssetInfo(params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getAssetInfo(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+      | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)' as const,
@@ -923,7 +1115,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getAccountInfo(params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getAccountInfo(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+      | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'get_account_info(address)(address,uint64,uint64,uint64,bool)' as const,
@@ -938,7 +1136,10 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getTimeEvents(params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getTimeEvents(
+    params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'get_time_events()uint64[]' as const,
@@ -953,7 +1154,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getSecondaryMarketSchedule(params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getSecondaryMarketSchedule(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
+      | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'get_secondary_market_schedule()uint64[]' as const,
@@ -968,7 +1175,13 @@ export abstract class ZeroCouponBondParamsFactory {
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getAssetMetadata(params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getAssetMetadata(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+      | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+    > &
+      CallOnComplete,
+  ): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)' as const,
@@ -999,10 +1212,13 @@ export class ZeroCouponBondClient {
    */
   constructor(params: Omit<AppClientParams, 'appSpec'>)
   constructor(appClientOrParams: _AppClient | Omit<AppClientParams, 'appSpec'>) {
-    this.appClient = appClientOrParams instanceof _AppClient ? appClientOrParams : new _AppClient({
-      ...appClientOrParams,
-      appSpec: APP_SPEC,
-    })
+    this.appClient =
+      appClientOrParams instanceof _AppClient
+        ? appClientOrParams
+        : new _AppClient({
+            ...appClientOrParams,
+            appSpec: APP_SPEC,
+          })
   }
 
   /**
@@ -1011,9 +1227,9 @@ export class ZeroCouponBondClient {
    * @param params The parameters to create the app client
    */
   public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<ZeroCouponBondClient> {
-    return new ZeroCouponBondClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+    return new ZeroCouponBondClient(await _AppClient.fromCreatorAndName({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /**
    * Returns an `ZeroCouponBondClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
@@ -1021,32 +1237,30 @@ export class ZeroCouponBondClient {
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
    * @param params The parameters to create the app client
    */
-  static async fromNetwork(
-    params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<ZeroCouponBondClient> {
-    return new ZeroCouponBondClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  static async fromNetwork(params: Omit<ResolveAppClientByNetwork, 'appSpec'>): Promise<ZeroCouponBondClient> {
+    return new ZeroCouponBondClient(await _AppClient.fromNetwork({ ...params, appSpec: APP_SPEC }))
   }
-  
+
   /** The ID of the app instance this client is linked to. */
   public get appId() {
     return this.appClient.appId
   }
-  
+
   /** The app address of the app instance this client is linked to. */
   public get appAddress() {
     return this.appClient.appAddress
   }
-  
+
   /** The name of the app. */
   public get appName() {
     return this.appClient.appName
   }
-  
+
   /** The ARC-56 app spec being used */
   public get appSpec() {
     return this.appClient.appSpec
   }
-  
+
   /** A reference to the underlying `AlgorandClient` this app client is using. */
   public get algorand(): AlgorandClient {
     return this.appClient.algorand
@@ -1074,7 +1288,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Transferred actualized value in denomination asset
      */
-    assetTransfer: (params: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assetTransfer: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64']
+        | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.assetTransfer(params))
     },
 
@@ -1086,13 +1305,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Paid amount in denomination asset, Payment timestamp, Payment context
      */
-    payPrincipal: (params: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    payPrincipal: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+        | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.payPrincipal(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get account's units current value and accrued interest
@@ -1100,13 +1324,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Units current value in denomination asset, Accrued interest in denomination asset
      */
-    getAccountUnitsCurrentValue: (params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getAccountUnitsCurrentValue: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+        | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getAccountUnitsCurrentValue(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_payment_amount(address)(uint64,uint64)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get the next payment amount
@@ -1114,7 +1343,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Interest amount in denomination asset, Principal amount in denomination asset
      */
-    getPaymentAmount: (params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getPaymentAmount: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getPaymentAmount(params))
     },
 
@@ -1126,7 +1360,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    assetConfig: (params: CallParams<ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'] | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assetConfig: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+        | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.assetConfig(params))
     },
 
@@ -1138,7 +1377,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Secondary Market Opening Date, Secondary Market Closure Date
      */
-    setSecondaryTimeEvents: (params: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setSecondaryTimeEvents: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.setSecondaryTimeEvents(params))
     },
 
@@ -1150,7 +1394,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Timestamp of the role assignment
      */
-    assignRole: (params: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assignRole: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
+        | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.assignRole(params))
     },
 
@@ -1162,7 +1411,11 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Timestamp of the role revocation
      */
-    revokeRole: (params: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    revokeRole: (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.revokeRole(params))
     },
 
@@ -1174,7 +1427,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Timestamp of the account opening
      */
-    openAccount: (params: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    openAccount: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['open_account(address,address)uint64']
+        | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.openAccount(params))
     },
 
@@ -1186,7 +1444,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Closed units, Timestamp of the account closing
      */
-    closeAccount: (params: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    closeAccount: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.closeAccount(params))
     },
 
@@ -1198,7 +1461,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Remaining D-ASA units to be distributed
      */
-    primaryDistribution: (params: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    primaryDistribution: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
+        | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.primaryDistribution(params))
     },
 
@@ -1210,7 +1478,11 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Timestamp of the set asset suspension status
      */
-    setAssetSuspension: (params: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setAssetSuspension: (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.setAssetSuspension(params))
     },
 
@@ -1222,7 +1494,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Timestamp of the set account suspension status
      */
-    setAccountSuspension: (params: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setAccountSuspension: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
+        | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.setAccountSuspension(params))
     },
 
@@ -1234,13 +1511,17 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setDefaultStatus: (params: CallParams<ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setDefaultStatus: (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.setDefaultStatus(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA info
@@ -1248,13 +1529,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
      */
-    getAssetInfo: (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getAssetInfo: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+        | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+      > & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getAssetInfo(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_account_info(address)(address,uint64,uint64,uint64,bool)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get account info
@@ -1262,13 +1548,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
      */
-    getAccountInfo: (params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getAccountInfo: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+        | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getAccountInfo(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_time_events()uint64[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA time events
@@ -1276,13 +1567,17 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Time events
      */
-    getTimeEvents: (params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getTimeEvents: (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']
+      > & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getTimeEvents(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_secondary_market_schedule()uint64[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get secondary market schedule
@@ -1290,13 +1585,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Secondary market schedule
      */
-    getSecondaryMarketSchedule: (params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getSecondaryMarketSchedule: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
+        | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+      > & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getSecondaryMarketSchedule(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA metadata
@@ -1304,10 +1604,14 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call params: Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
      */
-    getAssetMetadata: (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getAssetMetadata: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+        | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+      > & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       return this.appClient.params.call(ZeroCouponBondParamsFactory.getAssetMetadata(params))
     },
-
   }
 
   /**
@@ -1332,7 +1636,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Transferred actualized value in denomination asset
      */
-    assetTransfer: (params: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assetTransfer: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64']
+        | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.assetTransfer(params))
     },
 
@@ -1344,13 +1653,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Paid amount in denomination asset, Payment timestamp, Payment context
      */
-    payPrincipal: (params: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    payPrincipal: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+        | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.payPrincipal(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get account's units current value and accrued interest
@@ -1358,13 +1672,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Units current value in denomination asset, Accrued interest in denomination asset
      */
-    getAccountUnitsCurrentValue: (params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getAccountUnitsCurrentValue: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+        | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getAccountUnitsCurrentValue(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_payment_amount(address)(uint64,uint64)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get the next payment amount
@@ -1372,7 +1691,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Interest amount in denomination asset, Principal amount in denomination asset
      */
-    getPaymentAmount: (params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getPaymentAmount: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getPaymentAmount(params))
     },
 
@@ -1384,7 +1708,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    assetConfig: (params: CallParams<ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'] | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assetConfig: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+        | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.assetConfig(params))
     },
 
@@ -1396,7 +1725,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Secondary Market Opening Date, Secondary Market Closure Date
      */
-    setSecondaryTimeEvents: (params: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setSecondaryTimeEvents: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.setSecondaryTimeEvents(params))
     },
 
@@ -1408,7 +1742,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Timestamp of the role assignment
      */
-    assignRole: (params: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assignRole: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
+        | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.assignRole(params))
     },
 
@@ -1420,7 +1759,11 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Timestamp of the role revocation
      */
-    revokeRole: (params: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    revokeRole: (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.revokeRole(params))
     },
 
@@ -1432,7 +1775,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Timestamp of the account opening
      */
-    openAccount: (params: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    openAccount: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['open_account(address,address)uint64']
+        | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.openAccount(params))
     },
 
@@ -1444,7 +1792,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Closed units, Timestamp of the account closing
      */
-    closeAccount: (params: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    closeAccount: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.closeAccount(params))
     },
 
@@ -1456,7 +1809,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Remaining D-ASA units to be distributed
      */
-    primaryDistribution: (params: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    primaryDistribution: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
+        | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.primaryDistribution(params))
     },
 
@@ -1468,7 +1826,11 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Timestamp of the set asset suspension status
      */
-    setAssetSuspension: (params: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setAssetSuspension: (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.setAssetSuspension(params))
     },
 
@@ -1480,7 +1842,12 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Timestamp of the set account suspension status
      */
-    setAccountSuspension: (params: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setAccountSuspension: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
+        | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.setAccountSuspension(params))
     },
 
@@ -1492,13 +1859,17 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setDefaultStatus: (params: CallParams<ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setDefaultStatus: (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.setDefaultStatus(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA info
@@ -1506,13 +1877,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
      */
-    getAssetInfo: (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getAssetInfo: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+        | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+      > & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getAssetInfo(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_account_info(address)(address,uint64,uint64,uint64,bool)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get account info
@@ -1520,13 +1896,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
      */
-    getAccountInfo: (params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']> & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getAccountInfo: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+        | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+      > & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getAccountInfo(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_time_events()uint64[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA time events
@@ -1534,13 +1915,17 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Time events
      */
-    getTimeEvents: (params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getTimeEvents: (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']
+      > & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getTimeEvents(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_secondary_market_schedule()uint64[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get secondary market schedule
@@ -1548,13 +1933,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Secondary market schedule
      */
-    getSecondaryMarketSchedule: (params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getSecondaryMarketSchedule: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
+        | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+      > & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getSecondaryMarketSchedule(params))
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA metadata
@@ -1562,10 +1952,14 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call transaction: Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
      */
-    getAssetMetadata: (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getAssetMetadata: (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+        | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+      > & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       return this.appClient.createTransaction.call(ZeroCouponBondParamsFactory.getAssetMetadata(params))
     },
-
   }
 
   /**
@@ -1590,9 +1984,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Transferred actualized value in denomination asset
      */
-    assetTransfer: async (params: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assetTransfer: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64']
+        | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.assetTransfer(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['asset_transfer(address,address,uint64)uint64'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | ZeroCouponBondReturns['asset_transfer(address,address,uint64)uint64'],
+      }
     },
 
     /**
@@ -1603,14 +2006,23 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Paid amount in denomination asset, Payment timestamp, Payment context
      */
-    payPrincipal: async (params: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    payPrincipal: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+        | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.payPrincipal(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['pay_principal(address,byte[])(uint64,uint64,byte[])'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | ZeroCouponBondReturns['pay_principal(address,byte[])(uint64,uint64,byte[])'],
+      }
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get account's units current value and accrued interest
@@ -1618,14 +2030,25 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Units current value in denomination asset, Accrued interest in denomination asset
      */
-    getAccountUnitsCurrentValue: async (params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getAccountUnitsCurrentValue: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+        | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAccountUnitsCurrentValue(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'])}
+      return {
+        ...result,
+        return: result.return as unknown as
+          | undefined
+          | ZeroCouponBondReturns['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'],
+      }
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_payment_amount(address)(uint64,uint64)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get the next payment amount
@@ -1633,9 +2056,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Interest amount in denomination asset, Principal amount in denomination asset
      */
-    getPaymentAmount: async (params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getPaymentAmount: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getPaymentAmount(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['get_payment_amount(address)(uint64,uint64)'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | ZeroCouponBondReturns['get_payment_amount(address)(uint64,uint64)'],
+      }
     },
 
     /**
@@ -1646,9 +2078,20 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    assetConfig: async (params: CallParams<ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'] | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assetConfig: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+        | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.assetConfig(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'])}
+      return {
+        ...result,
+        return: result.return as unknown as
+          | undefined
+          | ZeroCouponBondReturns['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'],
+      }
     },
 
     /**
@@ -1659,9 +2102,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Secondary Market Opening Date, Secondary Market Closure Date
      */
-    setSecondaryTimeEvents: async (params: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setSecondaryTimeEvents: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.setSecondaryTimeEvents(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['set_secondary_time_events(uint64[])(uint64,uint64)'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | ZeroCouponBondReturns['set_secondary_time_events(uint64[])(uint64,uint64)'],
+      }
     },
 
     /**
@@ -1672,9 +2124,15 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Timestamp of the role assignment
      */
-    assignRole: async (params: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    assignRole: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
+        | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.assignRole(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['assign_role(address,uint8,byte[])uint64'])}
+      return { ...result, return: result.return as unknown as undefined | ZeroCouponBondReturns['assign_role(address,uint8,byte[])uint64'] }
     },
 
     /**
@@ -1685,9 +2143,14 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Timestamp of the role revocation
      */
-    revokeRole: async (params: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    revokeRole: async (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.revokeRole(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['revoke_role(address,uint8)uint64'])}
+      return { ...result, return: result.return as unknown as undefined | ZeroCouponBondReturns['revoke_role(address,uint8)uint64'] }
     },
 
     /**
@@ -1698,9 +2161,15 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Timestamp of the account opening
      */
-    openAccount: async (params: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    openAccount: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['open_account(address,address)uint64']
+        | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.openAccount(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['open_account(address,address)uint64'])}
+      return { ...result, return: result.return as unknown as undefined | ZeroCouponBondReturns['open_account(address,address)uint64'] }
     },
 
     /**
@@ -1711,9 +2180,15 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Closed units, Timestamp of the account closing
      */
-    closeAccount: async (params: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    closeAccount: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
+        | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.closeAccount(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['close_account(address)(uint64,uint64)'])}
+      return { ...result, return: result.return as unknown as undefined | ZeroCouponBondReturns['close_account(address)(uint64,uint64)'] }
     },
 
     /**
@@ -1724,9 +2199,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Remaining D-ASA units to be distributed
      */
-    primaryDistribution: async (params: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    primaryDistribution: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
+        | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.primaryDistribution(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['primary_distribution(address,uint64)uint64'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | ZeroCouponBondReturns['primary_distribution(address,uint64)uint64'],
+      }
     },
 
     /**
@@ -1737,9 +2221,14 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Timestamp of the set asset suspension status
      */
-    setAssetSuspension: async (params: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setAssetSuspension: async (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.setAssetSuspension(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['set_asset_suspension(bool)uint64'])}
+      return { ...result, return: result.return as unknown as undefined | ZeroCouponBondReturns['set_asset_suspension(bool)uint64'] }
     },
 
     /**
@@ -1750,9 +2239,18 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Timestamp of the set account suspension status
      */
-    setAccountSuspension: async (params: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setAccountSuspension: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
+        | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.setAccountSuspension(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['set_account_suspension(address,bool)uint64'])}
+      return {
+        ...result,
+        return: result.return as unknown as undefined | ZeroCouponBondReturns['set_account_suspension(address,bool)uint64'],
+      }
     },
 
     /**
@@ -1763,14 +2261,19 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setDefaultStatus: async (params: CallParams<ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    setDefaultStatus: async (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.setDefaultStatus(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['set_default_status(bool)void'])}
+      return { ...result, return: result.return as unknown as undefined | ZeroCouponBondReturns['set_default_status(bool)void'] }
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA info
@@ -1778,14 +2281,25 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
      */
-    getAssetInfo: async (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getAssetInfo: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+        | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAssetInfo(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'])}
+      return {
+        ...result,
+        return: result.return as unknown as
+          | undefined
+          | ZeroCouponBondReturns['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'],
+      }
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_account_info(address)(address,uint64,uint64,uint64,bool)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get account info
@@ -1793,14 +2307,25 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
      */
-    getAccountInfo: async (params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp }) => {
+    getAccountInfo: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+        | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAccountInfo(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['get_account_info(address)(address,uint64,uint64,uint64,bool)'])}
+      return {
+        ...result,
+        return: result.return as unknown as
+          | undefined
+          | ZeroCouponBondReturns['get_account_info(address)(address,uint64,uint64,uint64,bool)'],
+      }
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_time_events()uint64[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA time events
@@ -1808,14 +2333,19 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Time events
      */
-    getTimeEvents: async (params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getTimeEvents: async (
+      params: CallParams<
+        ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getTimeEvents(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['get_time_events()uint64[]'])}
+      return { ...result, return: result.return as unknown as undefined | ZeroCouponBondReturns['get_time_events()uint64[]'] }
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_secondary_market_schedule()uint64[]` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get secondary market schedule
@@ -1823,14 +2353,20 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Secondary market schedule
      */
-    getSecondaryMarketSchedule: async (params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getSecondaryMarketSchedule: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
+        | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getSecondaryMarketSchedule(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['get_secondary_market_schedule()uint64[]'])}
+      return { ...result, return: result.return as unknown as undefined | ZeroCouponBondReturns['get_secondary_market_schedule()uint64[]'] }
     },
 
     /**
      * Makes a call to the ZeroCouponBond smart contract using the `get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)` ABI method.
-     * 
+     *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Get D-ASA metadata
@@ -1838,11 +2374,21 @@ export class ZeroCouponBondClient {
      * @param params The params for the smart contract call
      * @returns The call result: Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
      */
-    getAssetMetadata: async (params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> & SendParams & { onComplete?: OnApplicationComplete.NoOp } = {args: []}) => {
+    getAssetMetadata: async (
+      params: CallParams<
+        | ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+        | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+      > &
+        SendParams & { onComplete?: OnApplicationComplete.NoOp } = { args: [] },
+    ) => {
       const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAssetMetadata(params))
-      return {...result, return: result.return as unknown as (undefined | ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'])}
+      return {
+        ...result,
+        return: result.return as unknown as
+          | undefined
+          | ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'],
+      }
     },
-
   }
 
   /**
@@ -1857,7 +2403,7 @@ export class ZeroCouponBondClient {
 
   /**
    * Makes a readonly (simulated) call to the ZeroCouponBond smart contract using the `get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * Get account's units current value and accrued interest
@@ -1865,14 +2411,19 @@ export class ZeroCouponBondClient {
    * @param params The params for the smart contract call
    * @returns The call result: Units current value in denomination asset, Accrued interest in denomination asset
    */
-  async getAccountUnitsCurrentValue(params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']>) {
+  async getAccountUnitsCurrentValue(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+      | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+    >,
+  ) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAccountUnitsCurrentValue(params))
     return result.return as unknown as ZeroCouponBondReturns['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
   }
 
   /**
    * Makes a readonly (simulated) call to the ZeroCouponBond smart contract using the `get_payment_amount(address)(uint64,uint64)` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * Get the next payment amount
@@ -1880,14 +2431,19 @@ export class ZeroCouponBondClient {
    * @param params The params for the smart contract call
    * @returns The call result: Interest amount in denomination asset, Principal amount in denomination asset
    */
-  async getPaymentAmount(params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']>) {
+  async getPaymentAmount(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
+      | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+    >,
+  ) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getPaymentAmount(params))
     return result.return as unknown as ZeroCouponBondReturns['get_payment_amount(address)(uint64,uint64)']
   }
 
   /**
    * Makes a readonly (simulated) call to the ZeroCouponBond smart contract using the `get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * Get D-ASA info
@@ -1895,14 +2451,19 @@ export class ZeroCouponBondClient {
    * @param params The params for the smart contract call
    * @returns The call result: Denomination asset ID, Settlement asset ID, Outstanding principal, Unit nominal value, Day-count convention, Interest rate, Total supply, Circulating supply, Primary distribution opening date, Primary distribution closure date, Issuance date, Maturity date, Suspended, Performance
    */
-  async getAssetInfo(params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> = {args: []}) {
+  async getAssetInfo(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+      | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+    > = { args: [] },
+  ) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAssetInfo(params))
     return result.return as unknown as ZeroCouponBondReturns['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
   }
 
   /**
    * Makes a readonly (simulated) call to the ZeroCouponBond smart contract using the `get_account_info(address)(address,uint64,uint64,uint64,bool)` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * Get account info
@@ -1910,14 +2471,19 @@ export class ZeroCouponBondClient {
    * @param params The params for the smart contract call
    * @returns The call result: Payment Address, D-ASA units, Unit nominal value in denomination asset, Paid coupons, Suspended
    */
-  async getAccountInfo(params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']>) {
+  async getAccountInfo(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+      | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+    >,
+  ) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAccountInfo(params))
     return result.return as unknown as ZeroCouponBondReturns['get_account_info(address)(address,uint64,uint64,uint64,bool)']
   }
 
   /**
    * Makes a readonly (simulated) call to the ZeroCouponBond smart contract using the `get_time_events()uint64[]` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * Get D-ASA time events
@@ -1925,14 +2491,18 @@ export class ZeroCouponBondClient {
    * @param params The params for the smart contract call
    * @returns The call result: Time events
    */
-  async getTimeEvents(params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> = {args: []}) {
+  async getTimeEvents(
+    params: CallParams<
+      ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']
+    > = { args: [] },
+  ) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getTimeEvents(params))
     return result.return as unknown as ZeroCouponBondReturns['get_time_events()uint64[]']
   }
 
   /**
    * Makes a readonly (simulated) call to the ZeroCouponBond smart contract using the `get_secondary_market_schedule()uint64[]` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * Get secondary market schedule
@@ -1940,14 +2510,19 @@ export class ZeroCouponBondClient {
    * @param params The params for the smart contract call
    * @returns The call result: Secondary market schedule
    */
-  async getSecondaryMarketSchedule(params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> = {args: []}) {
+  async getSecondaryMarketSchedule(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
+      | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+    > = { args: [] },
+  ) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getSecondaryMarketSchedule(params))
     return result.return as unknown as ZeroCouponBondReturns['get_secondary_market_schedule()uint64[]']
   }
 
   /**
    * Makes a readonly (simulated) call to the ZeroCouponBond smart contract using the `get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)` ABI method.
-   * 
+   *
    * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
    *
    * Get D-ASA metadata
@@ -1955,7 +2530,12 @@ export class ZeroCouponBondClient {
    * @param params The params for the smart contract call
    * @returns The call result: Contract type, Calendar, Business day convention, End of month convention, Early repayment effect, Early repayment penalty type, Prospectus hash, Prospectus URL
    */
-  async getAssetMetadata(params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> = {args: []}) {
+  async getAssetMetadata(
+    params: CallParams<
+      | ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+      | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+    > = { args: [] },
+  ) {
     const result = await this.appClient.send.call(ZeroCouponBondParamsFactory.getAssetMetadata(params))
     return result.return as unknown as ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
   }
@@ -1998,79 +2578,117 @@ export class ZeroCouponBondClient {
       /**
        * Get the current value of the arranger key in global state
        */
-      arranger: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("arranger")) as Uint8Array | undefined) },
+      arranger: async (): Promise<BinaryState> => {
+        return new BinaryStateValue((await this.appClient.state.global.getValue('arranger')) as Uint8Array | undefined)
+      },
       /**
        * Get the current value of the denomination_asset_id key in global state
        */
-      denominationAssetId: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("denomination_asset_id")) as bigint | undefined },
+      denominationAssetId: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('denomination_asset_id')) as bigint | undefined
+      },
       /**
        * Get the current value of the settlement_asset_id key in global state
        */
-      settlementAssetId: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("settlement_asset_id")) as bigint | undefined },
+      settlementAssetId: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('settlement_asset_id')) as bigint | undefined
+      },
       /**
        * Get the current value of the unit_value key in global state
        */
-      unitValue: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("unit_value")) as bigint | undefined },
+      unitValue: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('unit_value')) as bigint | undefined
+      },
       /**
        * Get the current value of the day_count_convention key in global state
        */
-      dayCountConvention: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("day_count_convention")) as bigint | undefined },
+      dayCountConvention: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('day_count_convention')) as bigint | undefined
+      },
       /**
        * Get the current value of the metadata key in global state
        */
-      metadata: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("metadata")) as Uint8Array | undefined) },
+      metadata: async (): Promise<BinaryState> => {
+        return new BinaryStateValue((await this.appClient.state.global.getValue('metadata')) as Uint8Array | undefined)
+      },
       /**
        * Get the current value of the total_units key in global state
        */
-      totalUnits: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("total_units")) as bigint | undefined },
+      totalUnits: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('total_units')) as bigint | undefined
+      },
       /**
        * Get the current value of the circulating_units key in global state
        */
-      circulatingUnits: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("circulating_units")) as bigint | undefined },
+      circulatingUnits: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('circulating_units')) as bigint | undefined
+      },
       /**
        * Get the current value of the interest_rate key in global state
        */
-      interestRate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("interest_rate")) as bigint | undefined },
+      interestRate: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('interest_rate')) as bigint | undefined
+      },
       /**
        * Get the current value of the total_coupons key in global state
        */
-      totalCoupons: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("total_coupons")) as bigint | undefined },
+      totalCoupons: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('total_coupons')) as bigint | undefined
+      },
       /**
        * Get the current value of the primary_distribution_opening_date key in global state
        */
-      primaryDistributionOpeningDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("primary_distribution_opening_date")) as bigint | undefined },
+      primaryDistributionOpeningDate: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('primary_distribution_opening_date')) as bigint | undefined
+      },
       /**
        * Get the current value of the primary_distribution_closure_date key in global state
        */
-      primaryDistributionClosureDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("primary_distribution_closure_date")) as bigint | undefined },
+      primaryDistributionClosureDate: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('primary_distribution_closure_date')) as bigint | undefined
+      },
       /**
        * Get the current value of the issuance_date key in global state
        */
-      issuanceDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("issuance_date")) as bigint | undefined },
+      issuanceDate: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('issuance_date')) as bigint | undefined
+      },
       /**
        * Get the current value of the secondary_market_opening_date key in global state
        */
-      secondaryMarketOpeningDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("secondary_market_opening_date")) as bigint | undefined },
+      secondaryMarketOpeningDate: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('secondary_market_opening_date')) as bigint | undefined
+      },
       /**
        * Get the current value of the secondary_market_closure_date key in global state
        */
-      secondaryMarketClosureDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("secondary_market_closure_date")) as bigint | undefined },
+      secondaryMarketClosureDate: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('secondary_market_closure_date')) as bigint | undefined
+      },
       /**
        * Get the current value of the maturity_date key in global state
        */
-      maturityDate: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("maturity_date")) as bigint | undefined },
+      maturityDate: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('maturity_date')) as bigint | undefined
+      },
       /**
        * Get the current value of the status key in global state
        */
-      status: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("status")) as bigint | undefined },
+      status: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('status')) as bigint | undefined
+      },
       /**
        * Get the current value of the suspended key in global state
        */
-      suspended: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("suspended")) as bigint | undefined },
+      suspended: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('suspended')) as bigint | undefined
+      },
       /**
        * Get the current value of the defaulted key in global state
        */
-      defaulted: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("defaulted")) as bigint | undefined },
+      defaulted: async (): Promise<bigint | undefined> => {
+        return (await this.appClient.state.global.getValue('defaulted')) as bigint | undefined
+      },
     },
     /**
      * Methods to access box state for the current ZeroCouponBond app
@@ -2090,15 +2708,21 @@ export class ZeroCouponBondClient {
       /**
        * Get the current value of the coupon_rates key in box state
        */
-      couponRates: async (): Promise<number[] | undefined> => { return (await this.appClient.state.box.getValue("coupon_rates")) as number[] | undefined },
+      couponRates: async (): Promise<number[] | undefined> => {
+        return (await this.appClient.state.box.getValue('coupon_rates')) as number[] | undefined
+      },
       /**
        * Get the current value of the time_events key in box state
        */
-      timeEvents: async (): Promise<bigint[] | undefined> => { return (await this.appClient.state.box.getValue("time_events")) as bigint[] | undefined },
+      timeEvents: async (): Promise<bigint[] | undefined> => {
+        return (await this.appClient.state.box.getValue('time_events')) as bigint[] | undefined
+      },
       /**
        * Get the current value of the time_periods key in box state
        */
-      timePeriods: async (): Promise<[bigint, bigint][] | undefined> => { return (await this.appClient.state.box.getValue("time_periods")) as [bigint, bigint][] | undefined },
+      timePeriods: async (): Promise<[bigint, bigint][] | undefined> => {
+        return (await this.appClient.state.box.getValue('time_periods')) as [bigint, bigint][] | undefined
+      },
       /**
        * Get values from the account_manager map in box state
        */
@@ -2106,11 +2730,15 @@ export class ZeroCouponBondClient {
         /**
          * Get all current values of the account_manager map in box state
          */
-        getMap: async (): Promise<Map<string, RoleConfig>> => { return (await this.appClient.state.box.getMap("account_manager")) as Map<string, RoleConfig> },
+        getMap: async (): Promise<Map<string, RoleConfig>> => {
+          return (await this.appClient.state.box.getMap('account_manager')) as Map<string, RoleConfig>
+        },
         /**
          * Get a current value of the account_manager map by key from box state
          */
-        value: async (key: string): Promise<RoleConfig | undefined> => { return await this.appClient.state.box.getMapValue("account_manager", key) as RoleConfig | undefined },
+        value: async (key: string): Promise<RoleConfig | undefined> => {
+          return (await this.appClient.state.box.getMapValue('account_manager', key)) as RoleConfig | undefined
+        },
       },
       /**
        * Get values from the primary_dealer map in box state
@@ -2119,11 +2747,15 @@ export class ZeroCouponBondClient {
         /**
          * Get all current values of the primary_dealer map in box state
          */
-        getMap: async (): Promise<Map<string, RoleConfig>> => { return (await this.appClient.state.box.getMap("primary_dealer")) as Map<string, RoleConfig> },
+        getMap: async (): Promise<Map<string, RoleConfig>> => {
+          return (await this.appClient.state.box.getMap('primary_dealer')) as Map<string, RoleConfig>
+        },
         /**
          * Get a current value of the primary_dealer map by key from box state
          */
-        value: async (key: string): Promise<RoleConfig | undefined> => { return await this.appClient.state.box.getMapValue("primary_dealer", key) as RoleConfig | undefined },
+        value: async (key: string): Promise<RoleConfig | undefined> => {
+          return (await this.appClient.state.box.getMapValue('primary_dealer', key)) as RoleConfig | undefined
+        },
       },
       /**
        * Get values from the trustee map in box state
@@ -2132,11 +2764,15 @@ export class ZeroCouponBondClient {
         /**
          * Get all current values of the trustee map in box state
          */
-        getMap: async (): Promise<Map<string, RoleConfig>> => { return (await this.appClient.state.box.getMap("trustee")) as Map<string, RoleConfig> },
+        getMap: async (): Promise<Map<string, RoleConfig>> => {
+          return (await this.appClient.state.box.getMap('trustee')) as Map<string, RoleConfig>
+        },
         /**
          * Get a current value of the trustee map by key from box state
          */
-        value: async (key: string): Promise<RoleConfig | undefined> => { return await this.appClient.state.box.getMapValue("trustee", key) as RoleConfig | undefined },
+        value: async (key: string): Promise<RoleConfig | undefined> => {
+          return (await this.appClient.state.box.getMapValue('trustee', key)) as RoleConfig | undefined
+        },
       },
       /**
        * Get values from the authority map in box state
@@ -2145,11 +2781,15 @@ export class ZeroCouponBondClient {
         /**
          * Get all current values of the authority map in box state
          */
-        getMap: async (): Promise<Map<string, RoleConfig>> => { return (await this.appClient.state.box.getMap("authority")) as Map<string, RoleConfig> },
+        getMap: async (): Promise<Map<string, RoleConfig>> => {
+          return (await this.appClient.state.box.getMap('authority')) as Map<string, RoleConfig>
+        },
         /**
          * Get a current value of the authority map by key from box state
          */
-        value: async (key: string): Promise<RoleConfig | undefined> => { return await this.appClient.state.box.getMapValue("authority", key) as RoleConfig | undefined },
+        value: async (key: string): Promise<RoleConfig | undefined> => {
+          return (await this.appClient.state.box.getMapValue('authority', key)) as RoleConfig | undefined
+        },
       },
       /**
        * Get values from the interest_oracle map in box state
@@ -2158,11 +2798,15 @@ export class ZeroCouponBondClient {
         /**
          * Get all current values of the interest_oracle map in box state
          */
-        getMap: async (): Promise<Map<string, RoleConfig>> => { return (await this.appClient.state.box.getMap("interest_oracle")) as Map<string, RoleConfig> },
+        getMap: async (): Promise<Map<string, RoleConfig>> => {
+          return (await this.appClient.state.box.getMap('interest_oracle')) as Map<string, RoleConfig>
+        },
         /**
          * Get a current value of the interest_oracle map by key from box state
          */
-        value: async (key: string): Promise<RoleConfig | undefined> => { return await this.appClient.state.box.getMapValue("interest_oracle", key) as RoleConfig | undefined },
+        value: async (key: string): Promise<RoleConfig | undefined> => {
+          return (await this.appClient.state.box.getMapValue('interest_oracle', key)) as RoleConfig | undefined
+        },
       },
       /**
        * Get values from the account map in box state
@@ -2171,11 +2815,15 @@ export class ZeroCouponBondClient {
         /**
          * Get all current values of the account map in box state
          */
-        getMap: async (): Promise<Map<string, AccountInfo>> => { return (await this.appClient.state.box.getMap("account")) as Map<string, AccountInfo> },
+        getMap: async (): Promise<Map<string, AccountInfo>> => {
+          return (await this.appClient.state.box.getMap('account')) as Map<string, AccountInfo>
+        },
         /**
          * Get a current value of the account map by key from box state
          */
-        value: async (key: string): Promise<AccountInfo | undefined> => { return await this.appClient.state.box.getMapValue("account", key) as AccountInfo | undefined },
+        value: async (key: string): Promise<AccountInfo | undefined> => {
+          return (await this.appClient.state.box.getMapValue('account', key)) as AccountInfo | undefined
+        },
       },
     },
   }
@@ -2183,138 +2831,229 @@ export class ZeroCouponBondClient {
   public newGroup(composerConfig?: TransactionComposerConfig): ZeroCouponBondComposer {
     const client = this
     const composer = this.algorand.newGroup(composerConfig)
-    let promiseChain:Promise<unknown> = Promise.resolve()
+    let promiseChain: Promise<unknown> = Promise.resolve()
     return {
       /**
        * Add a asset_transfer(address,address,uint64)uint64 method call against the ZeroCouponBond contract
        */
-      assetTransfer(params: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      assetTransfer(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64']
+          | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.assetTransfer(params)))
         return this
       },
       /**
        * Add a pay_principal(address,byte[])(uint64,uint64,byte[]) method call against the ZeroCouponBond contract
        */
-      payPrincipal(params: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      payPrincipal(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+          | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.payPrincipal(params)))
         return this
       },
       /**
        * Add a get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64)) method call against the ZeroCouponBond contract
        */
-      getAccountUnitsCurrentValue(params: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getAccountUnitsCurrentValue(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+          | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getAccountUnitsCurrentValue(params)))
         return this
       },
       /**
        * Add a get_payment_amount(address)(uint64,uint64) method call against the ZeroCouponBond contract
        */
-      getPaymentAmount(params: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getPaymentAmount(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
+          | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getPaymentAmount(params)))
         return this
       },
       /**
        * Add a asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void method call against the ZeroCouponBond contract
        */
-      assetConfig(params: CallParams<ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'] | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      assetConfig(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+          | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.assetConfig(params)))
         return this
       },
       /**
        * Add a set_secondary_time_events(uint64[])(uint64,uint64) method call against the ZeroCouponBond contract
        */
-      setSecondaryTimeEvents(params: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      setSecondaryTimeEvents(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
+          | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setSecondaryTimeEvents(params)))
         return this
       },
       /**
        * Add a assign_role(address,uint8,byte[])uint64 method call against the ZeroCouponBond contract
        */
-      assignRole(params: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      assignRole(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
+          | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.assignRole(params)))
         return this
       },
       /**
        * Add a revoke_role(address,uint8)uint64 method call against the ZeroCouponBond contract
        */
-      revokeRole(params: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      revokeRole(
+        params: CallParams<
+          ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.revokeRole(params)))
         return this
       },
       /**
        * Add a open_account(address,address)uint64 method call against the ZeroCouponBond contract
        */
-      openAccount(params: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      openAccount(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['open_account(address,address)uint64']
+          | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.openAccount(params)))
         return this
       },
       /**
        * Add a close_account(address)(uint64,uint64) method call against the ZeroCouponBond contract
        */
-      closeAccount(params: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      closeAccount(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
+          | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.closeAccount(params)))
         return this
       },
       /**
        * Add a primary_distribution(address,uint64)uint64 method call against the ZeroCouponBond contract
        */
-      primaryDistribution(params: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      primaryDistribution(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
+          | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.primaryDistribution(params)))
         return this
       },
       /**
        * Add a set_asset_suspension(bool)uint64 method call against the ZeroCouponBond contract
        */
-      setAssetSuspension(params: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      setAssetSuspension(
+        params: CallParams<
+          ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setAssetSuspension(params)))
         return this
       },
       /**
        * Add a set_account_suspension(address,bool)uint64 method call against the ZeroCouponBond contract
        */
-      setAccountSuspension(params: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      setAccountSuspension(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
+          | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setAccountSuspension(params)))
         return this
       },
       /**
        * Add a set_default_status(bool)void method call against the ZeroCouponBond contract
        */
-      setDefaultStatus(params: CallParams<ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      setDefaultStatus(
+        params: CallParams<
+          ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setDefaultStatus(params)))
         return this
       },
       /**
        * Add a get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8) method call against the ZeroCouponBond contract
        */
-      getAssetInfo(params: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getAssetInfo(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+          | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getAssetInfo(params)))
         return this
       },
       /**
        * Add a get_account_info(address)(address,uint64,uint64,uint64,bool) method call against the ZeroCouponBond contract
        */
-      getAccountInfo(params: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getAccountInfo(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+          | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getAccountInfo(params)))
         return this
       },
       /**
        * Add a get_time_events()uint64[] method call against the ZeroCouponBond contract
        */
-      getTimeEvents(params: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getTimeEvents(
+        params: CallParams<
+          ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getTimeEvents(params)))
         return this
       },
       /**
        * Add a get_secondary_market_schedule()uint64[] method call against the ZeroCouponBond contract
        */
-      getSecondaryMarketSchedule(params: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getSecondaryMarketSchedule(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
+          | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getSecondaryMarketSchedule(params)))
         return this
       },
       /**
        * Add a get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string) method call against the ZeroCouponBond contract
        */
-      getAssetMetadata(params: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']> & { onComplete?: OnApplicationComplete.NoOp }) {
+      getAssetMetadata(
+        params: CallParams<
+          | ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+          | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+        > & { onComplete?: OnApplicationComplete.NoOp },
+      ) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getAssetMetadata(params)))
         return this
       },
@@ -2338,7 +3077,7 @@ export class ZeroCouponBondClient {
         const result = await (!options ? composer.simulate() : composer.simulate(options))
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
       },
       async send(params?: SendParams) {
@@ -2346,9 +3085,9 @@ export class ZeroCouponBondClient {
         const result = await composer.send(params)
         return {
           ...result,
-          returns: result.returns?.map(val => val.returnValue)
+          returns: result.returns?.map((val) => val.returnValue),
         }
-      }
+      },
     } as unknown as ZeroCouponBondComposer
   }
 }
@@ -2361,7 +3100,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  assetTransfer(params?: CallParams<ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['asset_transfer(address,address,uint64)uint64'] | undefined]>
+  assetTransfer(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['asset_transfer(address,address,uint64)uint64']
+      | ZeroCouponBondArgs['tuple']['asset_transfer(address,address,uint64)uint64']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['asset_transfer(address,address,uint64)uint64'] | undefined]>
 
   /**
    * Calls the pay_principal(address,byte[])(uint64,uint64,byte[]) ABI method.
@@ -2371,7 +3115,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  payPrincipal(params?: CallParams<ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])'] | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['pay_principal(address,byte[])(uint64,uint64,byte[])'] | undefined]>
+  payPrincipal(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+      | ZeroCouponBondArgs['tuple']['pay_principal(address,byte[])(uint64,uint64,byte[])']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['pay_principal(address,byte[])(uint64,uint64,byte[])'] | undefined]>
 
   /**
    * Calls the get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64)) ABI method.
@@ -2381,7 +3130,14 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getAccountUnitsCurrentValue(params?: CallParams<ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | undefined]>
+  getAccountUnitsCurrentValue(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+      | ZeroCouponBondArgs['tuple']['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))']
+    >,
+  ): ZeroCouponBondComposer<
+    [...TReturns, ZeroCouponBondReturns['get_account_units_current_value(address,uint64)(uint64,uint64,(uint64,uint64))'] | undefined]
+  >
 
   /**
    * Calls the get_payment_amount(address)(uint64,uint64) ABI method.
@@ -2391,7 +3147,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getPaymentAmount(params?: CallParams<ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_payment_amount(address)(uint64,uint64)'] | undefined]>
+  getPaymentAmount(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['get_payment_amount(address)(uint64,uint64)']
+      | ZeroCouponBondArgs['tuple']['get_payment_amount(address)(uint64,uint64)']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_payment_amount(address)(uint64,uint64)'] | undefined]>
 
   /**
    * Calls the asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void ABI method.
@@ -2401,7 +3162,17 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  assetConfig(params?: CallParams<ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'] | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'] | undefined]>
+  assetConfig(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+      | ZeroCouponBondArgs['tuple']['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void']
+    >,
+  ): ZeroCouponBondComposer<
+    [
+      ...TReturns,
+      ZeroCouponBondReturns['asset_config(uint64,uint64,uint64,uint64,uint8,uint16,uint16[],uint64[],(uint64,uint64)[])void'] | undefined,
+    ]
+  >
 
   /**
    * Calls the set_secondary_time_events(uint64[])(uint64,uint64) ABI method.
@@ -2411,7 +3182,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setSecondaryTimeEvents(params?: CallParams<ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['set_secondary_time_events(uint64[])(uint64,uint64)'] | undefined]>
+  setSecondaryTimeEvents(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['set_secondary_time_events(uint64[])(uint64,uint64)']
+      | ZeroCouponBondArgs['tuple']['set_secondary_time_events(uint64[])(uint64,uint64)']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['set_secondary_time_events(uint64[])(uint64,uint64)'] | undefined]>
 
   /**
    * Calls the assign_role(address,uint8,byte[])uint64 ABI method.
@@ -2421,7 +3197,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  assignRole(params?: CallParams<ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64'] | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['assign_role(address,uint8,byte[])uint64'] | undefined]>
+  assignRole(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['assign_role(address,uint8,byte[])uint64']
+      | ZeroCouponBondArgs['tuple']['assign_role(address,uint8,byte[])uint64']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['assign_role(address,uint8,byte[])uint64'] | undefined]>
 
   /**
    * Calls the revoke_role(address,uint8)uint64 ABI method.
@@ -2431,7 +3212,11 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  revokeRole(params?: CallParams<ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['revoke_role(address,uint8)uint64'] | undefined]>
+  revokeRole(
+    params?: CallParams<
+      ZeroCouponBondArgs['obj']['revoke_role(address,uint8)uint64'] | ZeroCouponBondArgs['tuple']['revoke_role(address,uint8)uint64']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['revoke_role(address,uint8)uint64'] | undefined]>
 
   /**
    * Calls the open_account(address,address)uint64 ABI method.
@@ -2441,7 +3226,11 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  openAccount(params?: CallParams<ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['open_account(address,address)uint64'] | undefined]>
+  openAccount(
+    params?: CallParams<
+      ZeroCouponBondArgs['obj']['open_account(address,address)uint64'] | ZeroCouponBondArgs['tuple']['open_account(address,address)uint64']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['open_account(address,address)uint64'] | undefined]>
 
   /**
    * Calls the close_account(address)(uint64,uint64) ABI method.
@@ -2451,7 +3240,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  closeAccount(params?: CallParams<ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)'] | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['close_account(address)(uint64,uint64)'] | undefined]>
+  closeAccount(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['close_account(address)(uint64,uint64)']
+      | ZeroCouponBondArgs['tuple']['close_account(address)(uint64,uint64)']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['close_account(address)(uint64,uint64)'] | undefined]>
 
   /**
    * Calls the primary_distribution(address,uint64)uint64 ABI method.
@@ -2461,7 +3255,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  primaryDistribution(params?: CallParams<ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64'] | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['primary_distribution(address,uint64)uint64'] | undefined]>
+  primaryDistribution(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['primary_distribution(address,uint64)uint64']
+      | ZeroCouponBondArgs['tuple']['primary_distribution(address,uint64)uint64']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['primary_distribution(address,uint64)uint64'] | undefined]>
 
   /**
    * Calls the set_asset_suspension(bool)uint64 ABI method.
@@ -2471,7 +3270,11 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setAssetSuspension(params?: CallParams<ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['set_asset_suspension(bool)uint64'] | undefined]>
+  setAssetSuspension(
+    params?: CallParams<
+      ZeroCouponBondArgs['obj']['set_asset_suspension(bool)uint64'] | ZeroCouponBondArgs['tuple']['set_asset_suspension(bool)uint64']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['set_asset_suspension(bool)uint64'] | undefined]>
 
   /**
    * Calls the set_account_suspension(address,bool)uint64 ABI method.
@@ -2481,7 +3284,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setAccountSuspension(params?: CallParams<ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64'] | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['set_account_suspension(address,bool)uint64'] | undefined]>
+  setAccountSuspension(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['set_account_suspension(address,bool)uint64']
+      | ZeroCouponBondArgs['tuple']['set_account_suspension(address,bool)uint64']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['set_account_suspension(address,bool)uint64'] | undefined]>
 
   /**
    * Calls the set_default_status(bool)void ABI method.
@@ -2491,7 +3299,11 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setDefaultStatus(params?: CallParams<ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['set_default_status(bool)void'] | undefined]>
+  setDefaultStatus(
+    params?: CallParams<
+      ZeroCouponBondArgs['obj']['set_default_status(bool)void'] | ZeroCouponBondArgs['tuple']['set_default_status(bool)void']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['set_default_status(bool)void'] | undefined]>
 
   /**
    * Calls the get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8) ABI method.
@@ -2501,7 +3313,20 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getAssetInfo(params?: CallParams<ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)'] | undefined]>
+  getAssetInfo(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+      | ZeroCouponBondArgs['tuple']['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+    >,
+  ): ZeroCouponBondComposer<
+    [
+      ...TReturns,
+      (
+        | ZeroCouponBondReturns['get_asset_info()(uint64,uint64,uint64,uint64,uint8,uint16,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint8)']
+        | undefined
+      ),
+    ]
+  >
 
   /**
    * Calls the get_account_info(address)(address,uint64,uint64,uint64,bool) ABI method.
@@ -2511,7 +3336,14 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getAccountInfo(params?: CallParams<ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | undefined]>
+  getAccountInfo(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+      | ZeroCouponBondArgs['tuple']['get_account_info(address)(address,uint64,uint64,uint64,bool)']
+    >,
+  ): ZeroCouponBondComposer<
+    [...TReturns, ZeroCouponBondReturns['get_account_info(address)(address,uint64,uint64,uint64,bool)'] | undefined]
+  >
 
   /**
    * Calls the get_time_events()uint64[] ABI method.
@@ -2521,7 +3353,9 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getTimeEvents(params?: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_time_events()uint64[]'] | undefined]>
+  getTimeEvents(
+    params?: CallParams<ZeroCouponBondArgs['obj']['get_time_events()uint64[]'] | ZeroCouponBondArgs['tuple']['get_time_events()uint64[]']>,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_time_events()uint64[]'] | undefined]>
 
   /**
    * Calls the get_secondary_market_schedule()uint64[] ABI method.
@@ -2531,7 +3365,12 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getSecondaryMarketSchedule(params?: CallParams<ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]'] | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_secondary_market_schedule()uint64[]'] | undefined]>
+  getSecondaryMarketSchedule(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['get_secondary_market_schedule()uint64[]']
+      | ZeroCouponBondArgs['tuple']['get_secondary_market_schedule()uint64[]']
+    >,
+  ): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_secondary_market_schedule()uint64[]'] | undefined]>
 
   /**
    * Calls the get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string) ABI method.
@@ -2541,7 +3380,14 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getAssetMetadata(params?: CallParams<ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']>): ZeroCouponBondComposer<[...TReturns, ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | undefined]>
+  getAssetMetadata(
+    params?: CallParams<
+      | ZeroCouponBondArgs['obj']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+      | ZeroCouponBondArgs['tuple']['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)']
+    >,
+  ): ZeroCouponBondComposer<
+    [...TReturns, ZeroCouponBondReturns['get_asset_metadata()(uint8,uint8,uint8,uint8,uint8,uint8,byte[32],string)'] | undefined]
+  >
 
   /**
    * Makes a clear_state call to an existing instance of the ZeroCouponBond smart contract.
@@ -2566,14 +3412,17 @@ export type ZeroCouponBondComposer<TReturns extends [...any[]] = []> = {
    * Simulates the transaction group and returns the result
    */
   simulate(): Promise<ZeroCouponBondComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<ZeroCouponBondComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(
+    options: SkipSignaturesSimulateOptions,
+  ): Promise<ZeroCouponBondComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   simulate(options: RawSimulateOptions): Promise<ZeroCouponBondComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
   send(params?: SendParams): Promise<ZeroCouponBondComposerResults<TReturns>>
 }
-export type ZeroCouponBondComposerResults<TReturns extends [...any[]]> = Expand<SendTransactionComposerResults & {
-  returns: TReturns
-}>
-
+export type ZeroCouponBondComposerResults<TReturns extends [...any[]]> = Expand<
+  SendTransactionComposerResults & {
+    returns: TReturns
+  }
+>

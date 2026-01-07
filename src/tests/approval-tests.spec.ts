@@ -35,6 +35,7 @@ import * as voidFull from '../../examples/smart_contracts/artifacts/void/client'
 import * as voidMinimal from '../../examples/smart_contracts/artifacts/void/client.minimal'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
+import { formatFile } from '../output/formatter'
 
 const writeActual = process.env.TEST_ENV !== 'ci'
 
@@ -90,13 +91,14 @@ const testConfigs: TestConfig[] = [
 ]
 
 describe('When generating a ts client for a the contract', () => {
-  test.each(testConfigs)('$contractName $extension$outputSuffix approval', async ({ contractName, extension, options }) => {
+  test.each(testConfigs)('$contractName $extension approval', async ({ contractName, extension, options }) => {
     const dir = path.join(__dirname, `../../examples/smart_contracts/artifacts/${contractName}/`)
     const spec = await loadApplicationJson(path.join(dir, `${pascalCase(contractName)}.${extension}.json`))
-
-    const result = writeDocumentPartsToString(generate(spec, options))
     const outputSuffix = options?.preserveNames ? '.pn' : options?.mode === 'minimal' ? '.minimal' : ''
-    if (writeActual) fs.writeFileSync(path.join(dir, `client.generated${outputSuffix}.ts`), result)
+    const outFilePath = path.join(dir, `client.generated${outputSuffix}.ts`)
+    const result = await formatFile({ fileSource: writeDocumentPartsToString(generate(spec, options)), filePath: outFilePath })
+
+    if (writeActual) fs.writeFileSync(outFilePath, result)
 
     const approvedClient = fs.readFileSync(path.join(dir, `client${outputSuffix}.ts`), 'utf-8')
     expect(result).toBe(approvedClient)
