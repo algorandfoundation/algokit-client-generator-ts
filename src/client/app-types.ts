@@ -2,7 +2,7 @@ import { GeneratorContext } from './generator-context'
 import { DecIndent, DecIndentAndCloseBlock, DocumentParts, IncIndent, indent, inline, jsDoc, NewLine } from '../output/writer'
 import { argTypeIsTransaction, ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
 import { Sanitizer } from '../util/sanitization'
-import { Expand } from '@algorandfoundation/algokit-utils/types/expand'
+import { Expand } from '@algorandfoundation/algokit-utils/expand'
 import { containsNonVoidMethod } from './helpers/contains-non-void-method'
 import { AbiMethodClientContext, StorageKeyContext, StorageMapContext } from './app-client-context'
 
