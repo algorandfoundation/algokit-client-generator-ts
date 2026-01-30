@@ -4,7 +4,7 @@ import arc32Schema from './application.schema.json' with { type: 'json' }
 import arc56Schema from './arc56.schema.json' with { type: 'json' }
 import contractSchema from './contract.schema.json' with { type: 'json' }
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
-import { AppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { AppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/app-spec'
 
 export async function loadApplicationJson(appJsonPath: string): Promise<Arc56Contract> {
   const fs = await import('fs')
