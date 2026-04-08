@@ -1,2 +1,17 @@
 {
+  "1115543": {
+    "active": true,
+    "notes": "brace-expansion vuln bundled inside npm (transitive dep of @semantic-release/npm). Dev-only, no consumer risk.",
+    "expiry": "2026-07-08"
+  },
+  "1115551": {
+    "active": true,
+    "notes": "picomatch method injection vuln bundled inside npm (transitive dep of @semantic-release/npm). Dev-only, no consumer risk.",
+    "expiry": "2026-07-08"
+  },
+  "1115554": {
+    "active": true,
+    "notes": "picomatch ReDoS vuln bundled inside npm (transitive dep of @semantic-release/npm). Dev-only, no consumer risk.",
+    "expiry": "2026-07-08"
+  }
 }
