@@ -1,7 +1,17 @@
 {
-  "1109842": {
+  "GHSA-c2c7-rcm5-vvqj": {
     "active": true,
-    "notes": "Bundled dependency in NPM, which cannot be overriden and has no update available yet.",
-    "expiry": "2026-01-28"
+    "notes": "ReDoS vulnerability in picomatch extglob quantifiers. Transitive dependency via npm internals (npm > picomatch).",
+    "expiry": "2026-06-30"
+  },
+  "GHSA-3v7f-55p6-f55p": {
+    "active": true,
+    "notes": "Method injection in picomatch POSIX character classes causing incorrect glob matching. Transitive dependency via npm internals (npm > picomatch).",
+    "expiry": "2026-06-30"
+  },
+  "GHSA-f886-m6hf-6m8v": {
+    "active": true,
+    "notes": "Zero-step sequence causes process hang and memory exhaustion in brace-expansion. Transitive dependency via npm internals (npm > brace-expansion).",
+    "expiry": "2026-06-30"
   }
 }

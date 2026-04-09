@@ -9,6 +9,6 @@
     "esModuleInterop": true,
     "preserveSymlinks": true
   },
-  "include": ["src/**/*.ts", "rollup.config.ts", "examples/**/*.ts"],
+  "include": ["src/**/*.ts", "rollup.config.ts", "examples/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["examples/**/*.algo.ts"]
 }
