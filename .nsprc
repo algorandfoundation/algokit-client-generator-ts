@@ -1,17 +1,17 @@
 {
-  "1115543": {
+  "GHSA-c2c7-rcm5-vvqj": {
     "active": true,
-    "notes": "brace-expansion vuln bundled inside npm (transitive dep of @semantic-release/npm). Dev-only, no consumer risk.",
-    "expiry": "2026-07-08"
+    "notes": "ReDoS vulnerability in picomatch extglob quantifiers. Transitive dependency via npm internals (npm > picomatch).",
+    "expiry": "2026-06-30"
   },
-  "1115551": {
+  "GHSA-3v7f-55p6-f55p": {
     "active": true,
-    "notes": "picomatch method injection vuln bundled inside npm (transitive dep of @semantic-release/npm). Dev-only, no consumer risk.",
-    "expiry": "2026-07-08"
+    "notes": "Method injection in picomatch POSIX character classes causing incorrect glob matching. Transitive dependency via npm internals (npm > picomatch).",
+    "expiry": "2026-06-30"
   },
-  "1115554": {
+  "GHSA-f886-m6hf-6m8v": {
     "active": true,
-    "notes": "picomatch ReDoS vuln bundled inside npm (transitive dep of @semantic-release/npm). Dev-only, no consumer risk.",
-    "expiry": "2026-07-08"
+    "notes": "Zero-step sequence causes process hang and memory exhaustion in brace-expansion. Transitive dependency via npm internals (npm > brace-expansion).",
+    "expiry": "2026-06-30"
   }
 }
