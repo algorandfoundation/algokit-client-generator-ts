@@ -5,6 +5,10 @@
   "main": "src/index.js",
   "module": "index.mjs",
   "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/algorandfoundation/algokit-client-generator-ts"
+  },
   "engines": {
     "node": ">=24.0"
   },
