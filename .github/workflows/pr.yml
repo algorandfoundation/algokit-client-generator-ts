@@ -12,17 +12,10 @@ permissions:
   contents: read
 
 jobs:
-  pull_request:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Run CI
-        uses: ./.github/actions/ci
-        with:
-          node-version: 24.x
-          commit-lint-from: ${{ github.event.pull_request.base.sha }}
-          commit-lint-to: ${{ github.event.pull_request.head.sha }}
+  ci:
+    uses: algorandfoundation/algokit-shared-config/.github/workflows/node-ci.yml@chore/node-npm
+    with:
+      run-commit-lint: true
+      run-build: true
+      audit-script: npm run audit
+      install-algokit: true
