@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   pull_request:
-    uses: algorandfoundation/algokit-shared-config/.github/workflows/node-ci.yml@chore/node-npm
+    uses: algorandfoundation/algokit-shared-config/.github/workflows/node-ci.yml@main
     with:
       run-commit-lint: true
       run-build: true
