@@ -13,12 +13,9 @@ permissions:
 
 jobs:
   pull_request:
-    uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
+    uses: algorandfoundation/algokit-shared-config/.github/workflows/node-ci.yml@main
     with:
       run-commit-lint: true
-      node-version: 24.x
       run-build: true
       audit-script: npm run audit
-      pre-test-script: |
-        pipx install algokit
-        algokit localnet start
+      install-algokit: true

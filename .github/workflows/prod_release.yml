@@ -18,7 +18,7 @@ jobs:
           app-id: ${{ secrets.BOT_ID }}
           private-key: ${{ secrets.BOT_SK }}
 
-      - name: Clone repository
+      - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
