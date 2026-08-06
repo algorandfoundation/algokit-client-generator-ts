@@ -392,7 +392,7 @@ const result = await client
   // Non-ABI transactions can still be added to the group
   .addTransaction(client.appClient.createTransaction.fundAppAccount({ amount: (5000).microAlgo() }))
   .methodTwo({ args: { arg1: 'foo' } })
-  .execute()
+  .send()
 
 // Strongly typed as the return type of methodOne
 const resultOfMethodOne = result.returns[0]
@@ -410,7 +410,7 @@ const result = algorand
   .addAppCallMethodCall(client.params.methodOne({ args: { arg1: 123 }, boxReferences: ['V'] }))
   .addPayment(client.appClient.params.fundAppAccount({ amount: (5000).microAlgo() }))
   .addAppCallMethodCall(client.params.methodTwo({ args: { arg1: 'foo' } }))
-  .execute()
+  .send()
 
 // returns will contain a result object for each ABI method call in the transaction group
 for (const { returnValue } of result.returns) {
