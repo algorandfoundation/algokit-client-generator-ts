@@ -1,27 +1,52 @@
 {
-  "GHSA-c2c7-rcm5-vvqj": {
+  "GHSA-mh99-v99m-4gvg": {
     "active": true,
-    "notes": "ReDoS vulnerability in picomatch extglob quantifiers. Transitive dependency via npm internals (npm > picomatch).",
-    "expiry": "2026-06-30"
+    "notes": "DoS via unbounded expansion length causing OOM crash in brace-expansion. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > brace-expansion). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
   },
-  "GHSA-3v7f-55p6-f55p": {
+  "GHSA-rgw5-rvv9-x895": {
     "active": true,
-    "notes": "Method injection in picomatch POSIX character classes causing incorrect glob matching. Transitive dependency via npm internals (npm > picomatch).",
-    "expiry": "2026-06-30"
+    "notes": "DoS via unbounded intermediate arrays in brace-expansion, bypassing the CVE-2026-14257 mitigation. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > brace-expansion). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
   },
-  "GHSA-f886-m6hf-6m8v": {
+  "GHSA-mwp4-54f8-5fhr": {
     "active": true,
-    "notes": "Zero-step sequence causes process hang and memory exhaustion in brace-expansion. Transitive dependency via npm internals (npm > brace-expansion).",
-    "expiry": "2026-06-30"
+    "notes": "ip-address Address4 decodes leading-zero octets as decimal while resolvers decode them as octal, allowing SSRF. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > ip-address). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
   },
-  "GHSA-v2v4-37r5-5v8g": {
+  "GHSA-4xrf-jv44-h6hh": {
     "active": true,
-    "notes": "XSS in ip-address Address6 HTML-emitting methods. Transitive dependency via npm internals (npm > ip-address).",
-    "expiry": "2026-06-30"
+    "notes": "ip-address CIDR suffix on the parsed address suppresses special-use classification, bypassing SSRF checks. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > ip-address). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
   },
-  "GHSA-jxxr-4gwj-5jf2": {
+  "GHSA-22jq-vg5j-6vgg": {
     "active": true,
-    "notes": "Large numeric range defeats documented `max` DoS protection in brace-expansion. Transitive dependency via npm internals (npm > brace-expansion).",
-    "expiry": "2026-06-30"
+    "notes": "ip-address misclassification of IPv4-mapped/NAT64 IPv6 addresses can bypass SSRF checks. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > ip-address). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-r292-9mhp-454m": {
+    "active": true,
+    "notes": "node-tar uncontrolled recursion in mapHas/filesFilter allows stack-overflow DoS via crafted long-path tar. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > tar). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-8xcm-r25x-g524": {
+    "active": true,
+    "notes": "undici downstream response desynchronization via retry interceptor. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > undici). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-m8rv-5g2x-5cg5": {
+    "active": true,
+    "notes": "undici CRLF injection via blob-like body 'type' property. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > undici). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-v3r7-h72x-cjcm": {
+    "active": true,
+    "notes": "undici cookie attribute injection via unsanitized domain and unparsed setCookie fields. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > undici). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-7p8r-x3mc-p8w7": {
+    "active": true,
+    "notes": "fast-uri host confusion via backslash authority introducer. Dev-only, transitive via better-npm-audit > table > ajv > fast-uri. Fixed in fast-uri 3.1.5 (published 2026-07-31) but not yet installable under the min-release-age=7 policy in .npmrc; remove this exception and let the update land after 2026-08-07.",
+    "expiry": "2026-09-30"
   }
 }
