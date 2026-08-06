@@ -27,12 +27,10 @@ const config: RollupOptions = {
     moduleSideEffects: false,
     propertyReadSideEffects: false,
   },
-  external: [
-    ...Object.keys(pkg.dependencies),
-    ...Object.keys(pkg.peerDependencies),
-    /^@algorandfoundation\/algokit-utils\/types\/*/,
-    /^algosdk\/*/,
-  ],
+  external: (id) => {
+    const externalPackages = [...Object.keys(pkg.dependencies), ...Object.keys(pkg.peerDependencies)]
+    return externalPackages.some((pkg) => id === pkg || id.startsWith(`${pkg}/`))
+  },
   plugins: [
     typescript({
       tsconfig: 'tsconfig.build.json',
