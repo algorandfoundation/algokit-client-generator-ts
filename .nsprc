@@ -43,10 +43,5 @@
     "active": true,
     "notes": "undici cookie attribute injection via unsanitized domain and unparsed setCookie fields. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > undici). npm bundles its dependencies, so this cannot be overridden.",
     "expiry": "2026-12-31"
-  },
-  "GHSA-7p8r-x3mc-p8w7": {
-    "active": true,
-    "notes": "fast-uri host confusion via backslash authority introducer. Dev-only, transitive via better-npm-audit > table > ajv > fast-uri. Fixed in fast-uri 3.1.5 (published 2026-07-31) but not yet installable under the min-release-age=7 policy in .npmrc; remove this exception and let the update land after 2026-08-07.",
-    "expiry": "2026-09-30"
   }
 }
