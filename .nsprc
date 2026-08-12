@@ -1,7 +1,47 @@
 {
-  "1109842": {
+  "GHSA-mh99-v99m-4gvg": {
     "active": true,
-    "notes": "Bundled dependency in NPM, which cannot be overriden and has no update available yet.",
-    "expiry": "2026-01-28"
+    "notes": "DoS via unbounded expansion length causing OOM crash in brace-expansion. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > brace-expansion). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-rgw5-rvv9-x895": {
+    "active": true,
+    "notes": "DoS via unbounded intermediate arrays in brace-expansion, bypassing the CVE-2026-14257 mitigation. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > brace-expansion). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-mwp4-54f8-5fhr": {
+    "active": true,
+    "notes": "ip-address Address4 decodes leading-zero octets as decimal while resolvers decode them as octal, allowing SSRF. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > ip-address). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-4xrf-jv44-h6hh": {
+    "active": true,
+    "notes": "ip-address CIDR suffix on the parsed address suppresses special-use classification, bypassing SSRF checks. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > ip-address). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-22jq-vg5j-6vgg": {
+    "active": true,
+    "notes": "ip-address misclassification of IPv4-mapped/NAT64 IPv6 addresses can bypass SSRF checks. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > ip-address). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-r292-9mhp-454m": {
+    "active": true,
+    "notes": "node-tar uncontrolled recursion in mapHas/filesFilter allows stack-overflow DoS via crafted long-path tar. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > tar). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-8xcm-r25x-g524": {
+    "active": true,
+    "notes": "undici downstream response desynchronization via retry interceptor. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > undici). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-m8rv-5g2x-5cg5": {
+    "active": true,
+    "notes": "undici CRLF injection via blob-like body 'type' property. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > undici). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
+  },
+  "GHSA-v3r7-h72x-cjcm": {
+    "active": true,
+    "notes": "undici cookie attribute injection via unsanitized domain and unparsed setCookie fields. Dev-only, transitive via npm internals (semantic-release > @semantic-release/npm > npm > undici). npm bundles its dependencies, so this cannot be overridden.",
+    "expiry": "2026-12-31"
   }
 }
