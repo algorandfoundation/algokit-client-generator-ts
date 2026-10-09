@@ -13,7 +13,7 @@ assignees: ''
 ### Your environment
 
 <!--
-* Please provide information about your environment.
+* Please provide the output of `algokit doctor` command response,
 * This will give us a good idea about your environment
 -->
 

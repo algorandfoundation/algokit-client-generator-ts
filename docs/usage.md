@@ -8,9 +8,9 @@ After using the cli tool to generate an application client you will end up with 
 
 ## Creating an application client instance
 
-The first step to using the factory/client is to create an instance, which can be done via the constructor or more easily via an [`AlgorandClient`](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/algorand-client.md) instance via `algorand.client.getTypedAppFactory()` and `algorand.client.getTypedAppClient*()` (see code examples below).
+The first step to using the factory/client is to create an instance, which can be done via the constructor or more easily via an [`AlgorandClient`](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/algorand-client.md) instance via `algorand.client.getTypedAppFactory()` and `algorand.client.getTypedAppClient*()` (see code examples below).
 
-Once you have an instance, if you want an escape hatch to the [underlying untyped `AppClient` / `AppFactory`](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) you can access them as a property:
+Once you have an instance, if you want an escape hatch to the [underlying untyped `AppClient` / `AppFactory`](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/app-client.md) you can access them as a property:
 
 ```typescript
 // Untyped `AppFactory`
@@ -21,7 +21,7 @@ const untypedClient = client.appClient
 
 ### Get a factory
 
-The [app factory](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) allows you to create and deploy one or more app instances and to create one or more app clients to interact with those (or other) app instances when you need to create clients for multiple apps.
+The [app factory](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/app-client.md) allows you to create and deploy one or more app instances and to create one or more app clients to interact with those (or other) app instances when you need to create clients for multiple apps.
 
 If you only need a single client for a single, known app then you can skip using the factory and just [use a client](#get-a-client-by-app-id).
 
@@ -59,7 +59,7 @@ const factory = new HelloWorldAppFactory({
 
 ### Get a client by app ID
 
-The typed [app client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) can be retrieved by ID.
+The typed [app client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/app-client.md) can be retrieved by ID.
 
 You can get one by using a previously created app factory, from an `AlgorandClient` instance and using the constructor:
 
@@ -101,7 +101,7 @@ const clientWithOptionalParams = new HelloWorldAppClient({
 
 ### Get a client by creator address and name
 
-The typed [app client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) can be retrieved by looking up apps by name for the given creator address if they were deployed using [AlgoKit deployment conventions](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md).
+The typed [app client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/app-client.md) can be retrieved by looking up apps by name for the given creator address if they were deployed using [AlgoKit deployment conventions](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/app-deploy.md).
 
 You can get one by using a previously created app factory:
 
@@ -133,7 +133,7 @@ const clientWithOptionalParams = algorand.client.getTypedAppClientByCreatorAndNa
 
 ### Get a client by network
 
-The typed [app client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md) can be retrieved by network using any included network IDs within the ARC-56 app spec for the current network.
+The typed [app client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/app-client.md) can be retrieved by network using any included network IDs within the ARC-56 app spec for the current network.
 
 You can get one by using a static method on the app client:
 
@@ -169,7 +169,7 @@ In addition, the app factory will also include a `deploy` method which will...
 - recreate the application (and optionally delete the old version) if the deployed version is incompatible with being updated to the client version
 - do nothing in the application is already deployed and up to date.
 
-You can find more specifics of this behaviour in the [algokit-utils](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md) docs.
+You can find more specifics of this behaviour in the [algokit-utils](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/app-deploy.md) docs.
 
 ### Create
 
@@ -362,7 +362,7 @@ If the method takes a struct as a parameter, or returns a struct as an output th
 
 ## Additional parameters
 
-Each ABI method and bare call on the client allows the consumer to provide additional parameters as well as the core method / args / etc. parameters. This models the parameters that are available in the underlying [app factory / client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-client.md).
+Each ABI method and bare call on the client allows the consumer to provide additional parameters as well as the core method / args / etc. parameters. This models the parameters that are available in the underlying [app factory / client](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/src/content/docs/capabilities/app-client.md).
 
 ```ts
 client.send.someMethod({
@@ -390,9 +390,9 @@ const result = await client
   .newGroup()
   .methodOne({ args: { arg1: 123 }, boxReferences: ['V'] })
   // Non-ABI transactions can still be added to the group
-  .addTransaction(client.appClient.createTransaction.fundAppAccount({ amount: (5000).microAlgo() }))
+  .addTransaction(await client.appClient.createTransaction.fundAppAccount({ amount: (5000).microAlgo() }))
   .methodTwo({ args: { arg1: 'foo' } })
-  .execute()
+  .send()
 
 // Strongly typed as the return type of methodOne
 const resultOfMethodOne = result.returns[0]
@@ -405,15 +405,15 @@ const resultOfMethodTwo = result.returns[1]
 Multiple transactions can also be composed using the `TransactionComposer` class.
 
 ```ts
-const result = algorand
+const result = await algorand
   .newGroup()
-  .addAppCallMethodCall(client.params.methodOne({ args: { arg1: 123 }, boxReferences: ['V'] }))
+  .addAppCallMethodCall(await client.params.methodOne({ args: { arg1: 123 }, boxReferences: ['V'] }))
   .addPayment(client.appClient.params.fundAppAccount({ amount: (5000).microAlgo() }))
-  .addAppCallMethodCall(client.params.methodTwo({ args: { arg1: 'foo' } }))
-  .execute()
+  .addAppCallMethodCall(await client.params.methodTwo({ args: { arg1: 'foo' } }))
+  .send()
 
 // returns will contain a result object for each ABI method call in the transaction group
-for (const { returnValue } of result.returns) {
+for (const { returnValue } of result.returns ?? []) {
   console.log(returnValue)
 }
 ```
