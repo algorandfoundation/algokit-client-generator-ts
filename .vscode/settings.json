@@ -16,8 +16,6 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "never"
   },
-  "jest.jestCommandLine": "npm run test --",
-  "jest.autoRun": {},
   "dotenv.enableAutocloaking": false,
   // Python
   "python.analysis.extraPaths": ["${workspaceFolder}/examples"],

@@ -2,8 +2,12 @@
   "name": "@algorandfoundation/algokit-client-generator",
   "version": "0.0.0",
   "description": "Generates a TypeScript client for interacting with, and deploying ARC-0032 smart contracts on the Algorand Blockchain.",
-  "main": "src/index.js",
+  "main": "index.js",
   "module": "index.mjs",
+  "types": "index.d.ts",
+  "files": [
+    "**/*"
+  ],
   "private": false,
   "repository": {
     "type": "git",
@@ -40,11 +44,12 @@
     "build:7-copy-bin": "shx mkdir dist/bin && shx cp bin/* dist/bin",
     "build:8-copy-readme": "shx cp ./README.md ./dist",
     "format": "prettier --write .",
+    "commit-lint": "commitlint --edit -o",
+    "semantic-release": "semantic-release",
     "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
-    "test:watch": "vitest watch",
-    "test": "vitest run",
-    "test:ci": "TEST_ENV=ci vitest run --coverage",
+    "test:watch": "vitest watch --coverage --passWithNoTests",
+    "test": "vitest run --coverage --passWithNoTests",
     "update-approvals": "tsx scripts/update-approvals.ts",
     "contract-build": "poetry run python -m examples",
     "pre-commit": "npm run lint:fix && npm run test && npm run audit && npm run build"
@@ -70,14 +75,16 @@
     "@algorandfoundation/tealscript": "^0.107.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@eslint/js": "^9.32.0",
+    "@eslint/js": "^9.39.5",
     "@noble/ed25519": "^2.3.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@tsconfig/node22": "^22.0.5",
+    "@vitest/coverage-v8": "^4.1.11",
     "better-npm-audit": "^3.11.0",
-    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "conventional-changelog-conventionalcommits": "8.0.0",
+    "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "hi-base32": "^0.5.1",
     "json-schema-to-typescript": "^15.0.4",
@@ -93,7 +100,7 @@
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.11"
   },
   "publishConfig": {
     "access": "public"
